@@ -1,0 +1,115 @@
+/* ═══════════════════════════════════════════════════════════════════
+   github.css — GitHub Repository Browser
+   ═══════════════════════════════════════════════════════════════════ */
+
+.github-view {
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.gh-header {
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  padding: 1rem;
+}
+
+.gh-repo-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.gh-repo-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--pico-primary, #58a6ff);
+}
+
+.gh-repo-desc {
+  font-size: 0.85rem;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.gh-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.gh-tab {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.gh-tab.active {
+  color: var(--pico-color, #c9d1d9);
+  border-bottom-color: var(--pico-primary, #58a6ff);
+}
+
+.gh-tab:hover { color: var(--pico-color, #c9d1d9); }
+
+.gh-content { display: flex; flex-direction: column; }
+
+.gh-file-list { border-bottom: 1px solid var(--pico-border-color, #30363d); }
+
+.gh-file-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--pico-background-color, #0d1117);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  font-size: 0.85rem;
+}
+
+.gh-branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.gh-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  transition: background 0.1s;
+}
+
+.gh-file-row:hover { background: var(--pico-background-color-variant, var(--pico-background-color, #0d1117)); }
+.gh-file-row:last-child { border-bottom: none; }
+
+.gh-file-icon { width: 16px; display: flex; align-items: center; color: var(--pico-muted-color, #8b949e); flex-shrink: 0; }
+.gh-file-name { color: var(--pico-primary, #58a6ff); font-weight: 500; min-width: 120px; }
+.gh-file-msg { flex: 1; color: var(--pico-muted-color, #8b949e); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gh-file-date { color: var(--pico-muted-color, #8b949e); font-size: 0.75rem; white-space: nowrap; }
+
+.gh-readme { padding: 1.5rem; }
+
+.gh-readme-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  margin-bottom: 1rem;
+}
+
+.gh-readme-body {
+  color: var(--pico-color, #c9d1d9);
+  line-height: 1.6;
+  font-size: 0.85rem;
+}
+
+/* Markdown content in README uses Prose UI — no custom styles needed */

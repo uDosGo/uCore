@@ -1,0 +1,95 @@
+/* ═══════════════════════════════════════════════════════════════════
+   header.css — ProseUI-specific Header Nav Tabs & Dropdown
+   Shared surface layout (usx-surface-header, usx-header-*) is
+   provided by @usx/styles/components/surface.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Header Nav ───────────────────────────────────────────────── */
+.proseui-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.proseui-header-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--usx-radius-sm);
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: all 150ms ease;
+  white-space: nowrap;
+}
+
+.proseui-header-nav-btn:hover {
+  background: var(--pico-background-color-variant, var(--pico-background-color, #0d1117));
+  color: var(--pico-color, #c9d1d9);
+}
+
+.proseui-header-nav-btn.active {
+  background: var(--pico-primary, #58a6ff);
+  color: #ffffff;
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+/* ─── Header Dropdown ──────────────────────────────────────────── */
+.proseui-header-dropdown-wrapper {
+  position: relative;
+}
+
+.proseui-header-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 180px;
+  background: var(--pico-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: var(--pico-border-radius, #30363d);
+  box-shadow: var(--pico-box-shadow, #30363d);
+  z-index: 200;
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  animation: dropdownFadeIn 0.12s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.proseui-header-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.65rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--usx-radius-sm);
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: all 150ms ease;
+  white-space: nowrap;
+  width: 100%;
+  text-align: left;
+}
+
+.proseui-header-dropdown-item:hover {
+  background: var(--pico-background-color-variant, var(--pico-background-color, #0d1117));
+  color: var(--pico-color, #c9d1d9);
+}
+
+.proseui-header-dropdown-item.active {
+  background: var(--pico-primary, #58a6ff);
+  color: #ffffff;
+}

@@ -16,10 +16,17 @@ def register_routes(app: web.Application) -> None:
     from .github import register_github_routes
     from .exec import handle_exec
     from .docker import handle_docker_ps
+    from .chat import handle_chat, handle_chat_prompts, handle_models
+    from .skills import handle_run_skill, handle_run_named_skill
 
     app.router.add_get("/api/system", system_info_handler)
     app.router.add_post("/api/exec", handle_exec)
     app.router.add_get("/api/docker/ps", handle_docker_ps)
+    app.router.add_post("/api/chat", handle_chat)
+    app.router.add_get("/api/chat/prompts", handle_chat_prompts)
+    app.router.add_get("/api/models", handle_models)
+    app.router.add_post("/api/skills/{skill_id}/run", handle_run_skill)
+    app.router.add_post("/api/skills/run", handle_run_named_skill)
     register_surface_routes(app)
     register_snack_routes(app)
     register_container_routes(app)

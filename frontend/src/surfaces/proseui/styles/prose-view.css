@@ -1,0 +1,57 @@
+/* ═══════════════════════════════════════════════════════════════════
+   prose-view.css — Prose Document View
+   ═══════════════════════════════════════════════════════════════════
+   USX Standard v2: All markdown styling is handled by Prose UI.
+   This file only provides the container layout (max-width, padding).
+   ═══════════════════════════════════════════════════════════════════ */
+
+.prose-view {
+  max-width: 70ch;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* ─── Multi-column prose for wide screens ─────────────────────── */
+@media (min-width: 1280px) {
+  .prose-view.multi-column {
+    max-width: none;
+    column-width: 32ch;
+    column-gap: 48px;
+    column-rule: 1px solid var(--pico-border-color, #334155);
+  }
+  .prose-view.multi-column h1,
+  .prose-view.multi-column h2,
+  .prose-view.multi-column h3 {
+    break-after: avoid-column;
+    break-inside: avoid-column;
+  }
+}
+
+@media (max-width: 720px) {
+  .prose-view.multi-column {
+    column-count: 1;
+    column-rule: none;
+  }
+}
+
+/* ─── Meta / Frontmatter ───────────────────────────────────────── */
+.prose-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--pico-muted-color, #64748b);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--pico-border-color, #e2e8f0);
+}
+
+.prose-meta > span {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: var(--pico-background-color, #f8fafc);
+  border: 1px solid var(--pico-border-color, #e2e8f0);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}

@@ -1,0 +1,21 @@
+/* ═══════════════════════════════════════════════════════════════════
+   proseui-theme.css — Surface-specific Theme Overrides
+   Uses M3 CSS custom properties set on .app-shell by the store.
+   
+   This file is the index — it imports all modular CSS files.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@import './base.css';
+@import './header.css';
+@import './layout.css';
+@import './placeholder.css';
+@import './kanban.css';
+@import './table.css';
+@import './prose-view.css';
+@import './editor.css';
+@import './github.css';
+@import './story.css';
+@import './vault.css';
+@import './surfaces.css';
+@import './chat.css';
+@import './diff-editor.css';

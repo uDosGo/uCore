@@ -1,0 +1,28 @@
+/* ═══════════════════════════════════════════════════════════════════
+   layout.css — ProseUI-specific Layout Overrides
+   Shared surface layout (usx-surface-layout, usx-surface-body,
+   usx-surface-main) is provided by @usx/styles/components/surface.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Surface Root ─────────────────────────────────────────────── */
+.proseui-surface {
+  background: var(--usx-color-background);
+  color: var(--pico-color, #c9d1d9);
+  font-family: var(--usx-font-family-body, system-ui, -apple-system, sans-serif);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.proseui-surface-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.proseui-surface-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}

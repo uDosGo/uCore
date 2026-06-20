@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════════════════════════════
+   hub/apps.css — Apps Tab Styles
+   Extracted from ui-hub-theme.css
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Apps Tab ──────────────────────────────────────────────────── */
+.hub-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.hub-app-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.hub-app-card:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-color: var(--hub-card-color, var(--pico-primary, #58a6ff));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hub-app-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.hub-app-card-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hub-app-card-info { flex: 1; min-width: 0; }
+
+.hub-app-card-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.hub-app-card-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.hub-app-card-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--pico-muted-color, #8b949e);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hub-app-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--pico-border-color, #30363d);
+}
+
+.hub-app-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hub-app-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─── Install Tab ────────────────────────────────────────────────── */
+.hub-install-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.hub-install-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  transition: all 150ms ease;
+}
+
+.hub-install-card:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.hub-install-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.hub-install-card-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hub-install-card-info { flex: 1; min-width: 0; }
+
+.hub-install-card-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.hub-install-card-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.hub-install-card-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.hub-install-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--pico-border-color, #30363d);
+}
+
+.hub-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  background: var(--pico-primary, #58a6ff);
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.hub-install-btn:hover {
+  background: var(--pico-primary-hover, #3b82f6);
+  transform: translateY(-1px);
+}
+
+.hub-install-btn--installed {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--pico-ins-color, #3fb950);
+  cursor: default;
+}
+
+.hub-install-btn--installed:hover {
+  background: rgba(63, 185, 80, 0.15);
+  transform: none;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hub-apps-grid { grid-template-columns: 1fr; padding: 16px; }
+  .hub-install-grid { grid-template-columns: 1fr; padding: 16px; }
+  .hub-app-card-footer { flex-direction: column; align-items: stretch; }
+  .hub-install-card-footer { flex-direction: column; align-items: stretch; }
+}

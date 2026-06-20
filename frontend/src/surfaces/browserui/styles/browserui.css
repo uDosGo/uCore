@@ -1,0 +1,171 @@
+/* ═══════════════════════════════════════════════════════════════════
+   browserui.css — BrowserUISurface Styles
+   Uses Pico CSS custom properties for consistent theming.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Surface Root ─────────────────────────────────────────────── */
+.browserui-surface {
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+  font-family: var(--pico-font-family, system-ui, -apple-system, sans-serif);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* ─── Search Section ───────────────────────────────────────────── */
+.browserui-search-section {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem 1rem;
+  flex-shrink: 0;
+}
+
+/* Pico CSS role="search" form — centered, max-width constrained */
+.browserui-search-form[role="search"] {
+  width: 100%;
+  max-width: 560px;
+  margin: 0;
+}
+
+/* Zen/minimal: suppress Pico's group-level box-shadow on role="search"
+   so only the global 1px outline shows on focus. */
+.browserui-search-form[role="search"]:has(input:focus) {
+  box-shadow: none !important;
+}
+
+/* ─── Card Stacks Grid ─────────────────────────────────────────── */
+.browserui-stacks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 0.75rem 1rem 1.5rem;
+  flex: 1;
+  align-content: start;
+}
+
+/* ─── Individual Stack (Column) ────────────────────────────────── */
+.browserui-stack {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 480px;
+}
+
+.browserui-stack-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  flex-shrink: 0;
+}
+
+.browserui-stack-title {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.browserui-stack-count {
+  margin-left: auto;
+  background: var(--pico-border-color, #30363d);
+  color: var(--pico-muted-color, #8b949e);
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+}
+
+/* ─── Card ─────────────────────────────────────────────────────── */
+.browserui-card {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.browserui-card:last-child {
+  border-bottom: none;
+}
+
+.browserui-card:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+}
+
+.browserui-card-title {
+  font-weight: 500;
+  color: var(--pico-color, #c9d1d9);
+  margin-bottom: 0.25rem;
+}
+
+.browserui-card-desc {
+  color: var(--pico-muted-color, #8b949e);
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.browserui-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.browserui-tag {
+  font-weight: 500;
+  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.browserui-tag--dim {
+  opacity: 0.7;
+}
+
+.browserui-date {
+  color: var(--pico-muted-color, #8b949e);
+  opacity: 0.6;
+}
+
+.browserui-tags {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+/* ─── Empty State ──────────────────────────────────────────────── */
+.browserui-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.browserui-empty-icon {
+  opacity: 0.4;
+}
+
+.browserui-empty h3 {
+  margin: 0;
+  /* font-size, font-weight, color from Pico defaults */
+}
+
+.browserui-empty p {
+  margin: 0;
+  line-height: 1.5;
+}

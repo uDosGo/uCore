@@ -1,0 +1,446 @@
+/* ═══════════════════════════════════════════════════════════════════
+   userver.css — uServer Surface Theme
+   ═══════════════════════════════════════════════════════════════════
+   Dark ops dashboard theme for monitoring uServer services, logs,
+   workflows, and system health. Uses Pico.css tokens.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Surface Container ──────────────────────────────────────────── */
+.userver-surface {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+  overflow: hidden;
+}
+
+/* ─── Status Badge ───────────────────────────────────────────────── */
+.userver-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--pico-muted-color, #8b949e);
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--pico-card-background-color, #161b22);
+}
+
+.userver-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pico-ins-color, #3fb950);
+}
+
+/* ─── Grid Layout ────────────────────────────────────────────────── */
+.userver-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+/* ─── Cards ──────────────────────────────────────────────────────── */
+.userver-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.userver-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.userver-card-header h3 {
+  margin: 0;
+  /* font-size, font-weight, color from Pico defaults */
+}
+
+.userver-card-subtitle {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.userver-card-content {
+  padding: 12px 16px;
+}
+
+/* ─── Welcome Card ───────────────────────────────────────────────── */
+.userver-welcome-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, var(--pico-card-background-color, #161b22) 0%, var(--pico-card-sectioning-background-color, #1c2128) 100%);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.userver-heading {
+  margin: 0 0 4px 0;
+  font-weight: 700;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.userver-text {
+  margin: 0;
+  color: var(--pico-muted-color, #8b949e);
+  line-height: 1.5;
+}
+
+/* ─── Stats Row ──────────────────────────────────────────────────── */
+.userver-stats-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.userver-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.userver-stat-value {
+  font-weight: 700;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.userver-stat-label {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Service Rows ───────────────────────────────────────────────── */
+.userver-service-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.userver-service-row:last-child {
+  border-bottom: none;
+}
+
+.userver-service-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.userver-service-name {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.userver-service-desc {
+  color: var(--pico-muted-color, #8b949e);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userver-service-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.userver-service-port {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.userver-service-status {
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.userver-service-status.up,
+.userver-service-status.running {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.userver-service-status.degraded {
+  background: rgba(210, 153, 34, 0.15);
+  color: #d29922;
+}
+
+.userver-service-status.down,
+.userver-service-status.stopped {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--pico-del-color, #f85149);
+}
+
+.userver-service-status.error {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--pico-del-color, #f85149);
+}
+
+.userver-surface-link {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.userver-surface-link:hover {
+  text-decoration: underline;
+}
+
+/* ─── Service Details ────────────────────────────────────────────── */
+.userver-service-details {
+  display: flex;
+  gap: 16px;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.userver-service-details strong {
+  color: var(--pico-color, #c9d1d9);
+}
+
+/* ─── Log Entries ────────────────────────────────────────────────── */
+.userver-log-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.userver-log-entry:last-child {
+  border-bottom: none;
+}
+
+.userver-log-time {
+  color: var(--pico-muted-color, #8b949e);
+  flex-shrink: 0;
+  width: 60px;
+}
+
+.userver-log-service {
+  color: var(--pico-primary, #58a6ff);
+  flex-shrink: 0;
+  width: 80px;
+}
+
+.userver-log-level {
+  flex-shrink: 0;
+  width: 40px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.userver-log-level.info {
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.userver-log-level.warn {
+  color: #d29922;
+}
+
+.userver-log-level.error {
+  color: var(--pico-del-color, #f85149);
+}
+
+.userver-log-message {
+  color: var(--pico-color, #c9d1d9);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Log Filter ─────────────────────────────────────────────────── */
+.userver-log-filter {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  align-items: center;
+}
+
+.userver-log-filter input {
+  flex: 1;
+  padding: 6px 10px;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  color: var(--pico-color, #c9d1d9);
+  outline: none;
+}
+
+.userver-log-filter input:focus {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.userver-log-filter input::placeholder {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Workflow Rows ──────────────────────────────────────────────── */
+.userver-workflow-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.userver-workflow-row:last-child {
+  border-bottom: none;
+}
+
+.userver-workflow-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.userver-workflow-name {
+  font-weight: 500;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.userver-workflow-schedule {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.userver-workflow-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userver-workflow-status {
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.userver-workflow-status.running {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.userver-workflow-status.completed {
+  background: rgba(63, 185, 80, 0.1);
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.userver-workflow-status.idle {
+  background: rgba(139, 148, 158, 0.15);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.userver-workflow-status.failed {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--pico-del-color, #f85149);
+}
+
+.userver-workflow-lastrun {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Toolbar ────────────────────────────────────────────────────── */
+.userver-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.userver-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userver-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ─── Action Button ──────────────────────────────────────────────── */
+.userver-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.userver-action-btn:hover {
+  background: var(--pico-card-background-color, #161b22);
+}
+
+/* ─── Settings ───────────────────────────────────────────────────── */
+.userver-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.userver-settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.userver-settings-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--pico-color, #c9d1d9);
+  transition: background 0.15s;
+}
+
+.userver-settings-link:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+}
+
+.userver-mono {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--pico-primary, #58a6ff);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────── */
+.userver-surface ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.userver-surface ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.userver-surface ::-webkit-scrollbar-thumb {
+  background: var(--pico-border-color, #30363d);
+  border-radius: 4px;
+}
+
+.userver-surface ::-webkit-scrollbar-thumb:hover {
+  background: var(--pico-border-color, #30363d);
+}

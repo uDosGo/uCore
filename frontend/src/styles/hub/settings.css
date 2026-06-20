@@ -1,0 +1,298 @@
+/* ═══════════════════════════════════════════════════════════════════
+   hub/settings.css — Settings Tab Styles
+   Extracted from ui-hub-theme.css
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Settings Tab ──────────────────────────────────────────────── */
+.hub-settings {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hub-settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── Settings Card ─────────────────────────────────────────────── */
+.hub-settings-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.hub-settings-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+}
+
+.hub-settings-card-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.hub-settings-card-subtitle {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.hub-settings-card-body {
+  padding: 16px;
+}
+
+/* ─── Display Mode Selector ─────────────────────────────────────── */
+.hub-settings-display-modes {
+  display: flex;
+  gap: 8px;
+}
+
+.hub-settings-display-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.hub-settings-display-btn:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.hub-settings-display-btn--active {
+  background: rgba(13, 110, 253, 0.15);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.hub-settings-display-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.hub-settings-display-desc {
+  font-size: 0.75rem;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Font Size Controls ────────────────────────────────────────── */
+.hub-settings-fontsize-controls {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.hub-settings-fontsize-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.hub-settings-fontsize-btn:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.hub-settings-fontsize-btn--active {
+  background: rgba(13, 110, 253, 0.15);
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary, #58a6ff);
+}
+
+/* ─── Palette Selector ──────────────────────────────────────────── */
+.hub-settings-palettes {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.hub-settings-palette-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.hub-settings-palette-btn:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.hub-settings-palette-btn--active {
+  background: rgba(13, 110, 253, 0.15);
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary, #58a6ff);
+}
+
+.hub-settings-palette-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.hub-settings-palette-name {
+  font-size: 0.85rem;
+}
+
+/* ─── Connections / Info Rows ───────────────────────────────────── */
+.hub-settings-connections {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hub-settings-connection-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  font-size: 0.9rem;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.hub-settings-connection-row:last-child {
+  border-bottom: none;
+}
+
+.hub-settings-mono {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.85rem;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── System Links ──────────────────────────────────────────────── */
+.hub-settings-system-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hub-settings-system-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: var(--pico-color, #c9d1d9);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.15s ease;
+}
+
+.hub-settings-system-link:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-primary, #58a6ff);
+}
+
+.hub-settings-system-code {
+  margin-left: auto;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.75rem;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Settings Overlay ──────────────────────────────────────────── */
+.hub-settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.hub-settings-dialog {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  min-width: 400px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.hub-settings-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.hub-settings-dialog-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  margin: 0;
+}
+
+.hub-settings-dialog-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+}
+
+.hub-settings-dialog-close:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-color, #c9d1d9);
+}
+
+.hub-settings-dialog-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hub-settings { padding: 16px; }
+  .hub-settings-row { flex-direction: column; align-items: stretch; gap: 8px; }
+  .hub-settings-dialog { min-width: unset; width: 95vw; }
+}

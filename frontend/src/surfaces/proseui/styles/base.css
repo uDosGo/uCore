@@ -1,0 +1,24 @@
+/* ═══════════════════════════════════════════════════════════════════
+   base.css — Root Variables, Reset, Dark Mode, Font Helpers
+   ═══════════════════════════════════════════════════════════════════
+   USX Standard v2: Base theme variables are now in nestframe.css.
+   This file only provides surface-specific overrides.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Kill body white flash — inherit from app-shell */
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--pico-background-color, #0d1117);
+}
+
+/* ─── Dark Mode Override ───────────────────────────────────────── */
+.usx-dark {
+  color-scheme: dark;
+}
+
+/* ─── Font Styles ──────────────────────────────────────────────── */
+.font-sans  { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+.font-serif { font-family: 'Georgia', 'Times New Roman', serif; }
+.font-mono  { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
