@@ -1,6 +1,6 @@
 from __future__ import annotations
 import sys, asyncio
-from .base import BaseTool, ToolInfo
+from app.tools.base import BaseTool, ToolInfo
 
 class PythonTool(BaseTool):
     id = "python"; name = "Python"; description = "Python interpreter"

@@ -2,7 +2,7 @@ from __future__ import annotations
 import importlib.util, inspect, logging, sys
 from pathlib import Path
 from typing import Optional
-from .base import BaseSkill
+from app.skills.base import BaseSkill
 
 log = logging.getLogger("ucore.skills.registry")
 _registry: dict[str, BaseSkill] = {}

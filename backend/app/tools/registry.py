@@ -1,7 +1,7 @@
 from __future__ import annotations
 import importlib.util, inspect, logging, sys, asyncio
 from pathlib import Path
-from .base import BaseTool, ToolInfo
+from app.tools.base import BaseTool, ToolInfo
 
 log = logging.getLogger("ucore.tools.registry")
 _registry: dict[str, BaseTool] = {}

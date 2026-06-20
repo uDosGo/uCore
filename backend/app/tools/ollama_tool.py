@@ -1,6 +1,6 @@
 from __future__ import annotations
 import asyncio
-from .base import BaseTool, ToolInfo
+from app.tools.base import BaseTool, ToolInfo
 
 class OllamaTool(BaseTool):
     id = "ollama"; name = "Ollama"; description = "Local LLM runtime"

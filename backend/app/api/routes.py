@@ -18,7 +18,7 @@ def register_routes(app: web.Application) -> None:
     from .docker import handle_docker_ps
     from .chat import handle_chat, handle_chat_prompts, handle_models
     from .skills import handle_run_skill, handle_run_named_skill, handle_list_skills
-    from app.tools.registry import list_tools as list_tools_fn, check_tool as check_tool_fn
+    from .tools import handle_list_tools, handle_tool_status
 
     app.router.add_get("/api/skills", handle_list_skills)
     app.router.add_get("/api/tools", handle_list_tools)

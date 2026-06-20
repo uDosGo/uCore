@@ -1,6 +1,6 @@
 from __future__ import annotations
 import asyncio
-from .base import BaseTool, ToolInfo
+from app.tools.base import BaseTool, ToolInfo
 
 class NodeTool(BaseTool):
     id = "node"; name = "Node.js"; description = "JavaScript runtime"
