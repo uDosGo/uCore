@@ -17,8 +17,12 @@ def register_routes(app: web.Application) -> None:
     from .exec import handle_exec
     from .docker import handle_docker_ps
     from .chat import handle_chat, handle_chat_prompts, handle_models
-    from .skills import handle_run_skill, handle_run_named_skill
+    from .skills import handle_run_skill, handle_run_named_skill, handle_list_skills
+    from app.tools.registry import list_tools as list_tools_fn, check_tool as check_tool_fn
 
+    app.router.add_get("/api/skills", handle_list_skills)
+    app.router.add_get("/api/tools", handle_list_tools)
+    app.router.add_get("/api/tools/{tool_id}/status", handle_tool_status)
     app.router.add_get("/api/system", system_info_handler)
     app.router.add_post("/api/exec", handle_exec)
     app.router.add_get("/api/docker/ps", handle_docker_ps)
