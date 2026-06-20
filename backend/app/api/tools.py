@@ -7,7 +7,7 @@ from app.tools.registry import list_tools as lt, check_tool as ct
 
 async def handle_list_tools(request: web.Request) -> web.Response:
     """GET /api/tools — list installed tools with versions."""
-    tools = lt()
+    tools = await lt()
     return web.json_response({
         "tools": [t.model_dump() for t in tools],
         "count": len(tools),

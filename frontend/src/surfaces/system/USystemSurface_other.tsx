@@ -7,6 +7,7 @@ import VaultSidebar from '../../components/VaultSidebar'
 import StoryView from '../../components/StoryView'
 import { FeedPanel } from '../gridui/panels/FeedPanel'
 import { SettingsPanel } from './SettingsPanel'
+import SecretStorePanel from './SecretStorePanel'
 import { GridUIContext } from '../gridui/GridUIStore'
 import '../../styles/hub/index.css'
 import '../../styles/global-toolbar.css'
@@ -22,6 +23,7 @@ function ModulesPanel() {
     { id: 'vault', name: 'Vault', subtitle: 'Document Store', icon: 'folder', color: '#22c55e', desc: 'Browse, search, and manage documents across all binders.' },
     { id: 'maps', name: 'Maps', subtitle: 'Spatial Grid', icon: 'map', color: '#f0883e', desc: 'Visual spatial grid system for surface layout management.' },
     { id: 'settings', name: 'Settings', subtitle: 'System Config', icon: 'tune', color: '#f59e0b', desc: 'Configure system preferences, themes, and surface settings.' },
+    { id: 'secrets', name: 'Secrets', subtitle: 'API Keys', icon: 'key', color: '#a855f7', desc: 'Manage API keys, tokens, and credentials securely.' },
     { id: 'usystem', name: 'uSystem', subtitle: 'System Pages Hub', icon: 'settings_suggest', color: '#58a6ff', desc: 'System information, health dashboard, diagnostics, maintenance, logs, network, security, storage, and console pages.', route: '/s100' },
     { id: 'vibe-agent', name: 'Vibe Agent', subtitle: 'Chat UI · OK Assistant', icon: 'school', color: '#a855f7', desc: 'AI-powered chat interface with Vibe Agent and DevStudio modes. Ask questions, run commands, and manage your workspace.', route: '/assistui' },
     { id: 'assistui', name: 'Assist', subtitle: 'Full-Page AI Chat', icon: 'smart_toy', color: '#a855f7', desc: 'Full-page AI chat with streaming responses, model selection, conversation management, and multi-agent support.', route: '/assistui' },
@@ -486,7 +488,7 @@ export function USystemSurface() {
   const activeTab: SystemTab = (() => {
     const params = new URLSearchParams(location.search)
     const tabParam = params.get('tab')
-    const validTabs: SystemTab[] = ['install', 'modules', 'feeds', 'story', 'pages', 'settings']
+    const validTabs: SystemTab[] = ['install', 'modules', 'feeds', 'story', 'pages', 'settings', 'secrets']
     if (tabParam && (validTabs as string[]).includes(tabParam)) {
       return tabParam as SystemTab
     }
@@ -507,6 +509,8 @@ export function USystemSurface() {
         return <PagesPanel />
       case 'settings':
         return <SettingsPanel />
+      case 'secrets':
+        return <SecretStorePanel />
       default:
         return <InstallPanel />
     }

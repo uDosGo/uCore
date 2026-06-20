@@ -19,6 +19,29 @@ def register_routes(app: web.Application) -> None:
     from .chat import handle_chat, handle_chat_prompts, handle_models
     from .skills import handle_run_skill, handle_run_named_skill, handle_list_skills
     from .tools import handle_list_tools, handle_tool_status
+    from .secret_store_api import (
+        handle_list_secrets, handle_get_secret, handle_set_secret,
+        handle_delete_secret, handle_list_env_vars, handle_import_from_env,
+    )
+    from .knowledge import (
+        handle_list_workspaces, handle_list_documents,
+        handle_get_document, handle_get_document_content, handle_search,
+    )
+
+    # Knowledge (AppFlowy bridge)
+    app.router.add_get("/api/knowledge/workspaces", handle_list_workspaces)
+    app.router.add_get("/api/knowledge/documents", handle_list_documents)
+    app.router.add_get("/api/knowledge/documents/{object_id}", handle_get_document)
+    app.router.add_get("/api/knowledge/documents/{object_id}/content", handle_get_document_content)
+    app.router.add_get("/api/knowledge/search", handle_search)
+
+    # Secret Store
+    app.router.add_get("/api/secrets", handle_list_secrets)
+    app.router.add_get("/api/secrets/env", handle_list_env_vars)
+    app.router.add_post("/api/secrets/import-env", handle_import_from_env)
+    app.router.add_get("/api/secrets/{name}", handle_get_secret)
+    app.router.add_post("/api/secrets/{name}", handle_set_secret)
+    app.router.add_delete("/api/secrets/{name}", handle_delete_secret)
 
     app.router.add_get("/api/skills", handle_list_skills)
     app.router.add_get("/api/tools", handle_list_tools)

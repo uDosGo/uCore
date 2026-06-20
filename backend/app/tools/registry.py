@@ -30,9 +30,9 @@ def _ensure():
     global _registry; 
     if not _registry: _registry = _discover()
 
-def list_tools() -> list[ToolInfo]:
+async def list_tools() -> list[ToolInfo]:
     _ensure()
-    return [asyncio.run(t.check()) for t in _registry.values()]
+    return [await t.check() for t in _registry.values()]
 
 def get_tool(tool_id: str) -> BaseTool | None:
     _ensure(); return _registry.get(tool_id)

@@ -15,7 +15,7 @@ export default function USystemSurface() {
   const activeTab: SystemTab = (() => {
     const params = new URLSearchParams(location.search)
     const tabParam = params.get('tab')
-    const validTabs: SystemTab[] = ['install', 'modules', 'feeds', 'story', 'pages', 'settings']
+    const validTabs: SystemTab[] = ['install', 'modules', 'feeds', 'story', 'pages', 'settings', 'secrets']
     if (tabParam && (validTabs as string[]).includes(tabParam)) {
       return tabParam as SystemTab
     }
@@ -36,6 +36,8 @@ export default function USystemSurface() {
         return <PagesPanel />
       case 'settings':
         return <SettingsPanel />
+      case 'secrets':
+        return <SecretStorePanel />
       default:
         return <InstallPanel />
     }
