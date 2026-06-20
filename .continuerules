@@ -48,3 +48,11 @@ You are in MAXIMUM YOLO mode. All commands are auto-approved. All edits are auto
 This file is loaded by Continue.dev. Apply these rules STRICTLY.
 When in doubt between asking and doing, ALWAYS choose doing.
 The user can review your work after execution, not before.
+
+## CONTEXT AUTO-LOAD:
+- Before working on a complex task, read CONTEXT.md to understand project state
+- If CONTEXT.md is referenced by the user or seems relevant, read it first
+- Key facts: server on port 8484, Python 3.14/aiohttp backend, React TSX frontend
+- AppFlowy knowledge bridge at /api/knowledge/*
+- Secret store at /api/secrets (AES-256-GCM encrypted)
+- Skills auto-discovered from backend/app/skills/builtin/ and ~/.ucore/skills/
