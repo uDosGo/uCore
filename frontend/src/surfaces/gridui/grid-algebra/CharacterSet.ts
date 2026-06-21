@@ -6,7 +6,7 @@
    teletext rendering and the symbol registry.
    ═══════════════════════════════════════════════════════════════════ */
 
-import { resolveShortcode, shortcodeToGrid, type GridSymbolAttrs } from '@usx-pkg/symbols/registry';
+import { resolveShortcode, shortcodeToGrid, type GridSymbolAttrs } from '@/shared/symbols/registry';
 
 // ─── Teletext Character Set ────────────────────────────────────
 

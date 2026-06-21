@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { resolveShortcode, shortcodeToSVG, shortcodeToUnicode } from '@usx-pkg/symbols/registry';
+import { shortcodeToSVG, shortcodeToUnicode } from '@/shared/symbols/registry';
 
 /**
  * InlineBob — uVector-powered inline sprite/icon component for ProseUI.
