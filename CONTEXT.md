@@ -17,13 +17,13 @@ uCore/
 │   ├── app/
 │   │   ├── api/                    # HTTP route handlers
 │   │   │   ├── routes.py           # All route registrations
-│   │   │   ├── mcp.py              # MCP protocol (17 tools for VS Code)
+│   │   │   ├── mcp.py              # MCP protocol (18 tools for VS Code)
 │   │   │   ├── skills.py           # /api/skills/* — skill execution
 │   │   │   ├── tools.py            # /api/tools/* — tool detection
 │   │   │   ├── knowledge.py        # /api/knowledge/* — AppFlowy bridge
 │   │   │   └── secret_store_api.py # /api/secrets/* — encrypted store
 │   │   ├── core/snackbar.py        # Main server, CORS, middleware
-│   │   ├── skills/builtin/         # 14 built-in skills
+│   │   ├── skills/builtin/         # 15 built-in skills
 │   │   ├── tools/                  # 7 environment detectors
 │   │   ├── knowledge/appflowy.py   # AppFlowy SQLite + vector DB
 │   │   ├── secret/store.py         # AES-256-GCM key-value store
@@ -37,7 +37,7 @@ uCore/
 └── CONTEXT.md                      # This file
 ```
 
-## 3. Available Skills (14 total)
+## 3. Available Skills (15 total)
 
 | Skill | ID | What It Does | Cost |
 |-------|-----|-------------|------|
@@ -52,6 +52,7 @@ uCore/
 | **Ask Vault** | `ask_vault` | Query AppFlowy knowledge base | — |
 | **Attach Context** | `attach_context` | Inject CONTEXT.md as AI system prompt | — |
 | **Brain Sync** | `brain_sync` | Refresh `wisdom.md` from recent project changes | — |
+| **Tasker Sync** | `tasker_sync` | Export AppFlowy/local rows into Markdown-first task files | — |
 | **Vault Sync** | `vault_sync` | Run AppFlowy/Vault bidirectional markdown sync | — |
 | **Route Task** | `route_task` | Route tasks to optimal AI provider | — |
 | **Daily Backup** | `daily_backup` | Scheduled backup (config/database/secrets) | — |
@@ -80,6 +81,14 @@ All new documentation should be structured for efficient AI ingestion before any
 3. Favor normalized Markdown that can be transformed into DocLang-style JSON/XML later.
 4. Avoid burying operational rules in narrative prose when a checklist or table is clearer.
 
+## 3C. Workflow Foundation
+
+uCore's current workflow direction is Markdown-first and local-first:
+
+1. AppFlowy/local SQLite remains the planning source.
+2. `tasker_sync` exports workflow rows into repo-adjacent `.tasker/` Markdown files.
+3. Richer Python automation can be layered later without replacing the Markdown task substrate.
+
 ## 4. Cost Strategy (Task Router)
 
 | Complexity | Provider | Model | Cost | When to Use |
@@ -93,14 +102,14 @@ All new documentation should be structured for efficient AI ingestion before any
 
 ## 5. MCP Integration (VS Code / Continue)
 
-uCore exposes 17 tools via the Model Context Protocol for IDE integration:
+uCore exposes 18 tools via the Model Context Protocol for IDE integration:
 
 ```
 VS Code → Continue → MCP Bridge → uCore (port 8484) → Skills + Knowledge
 ```
 
 **Available MCP tools:**
-- 14 skill tools: `skill_backup`, `skill_ask_vault`, `skill_brain_sync`, `skill_vault_sync`, `skill_route_task`, etc.
+- 15 skill tools: `skill_backup`, `skill_ask_vault`, `skill_brain_sync`, `skill_tasker_sync`, `skill_vault_sync`, `skill_route_task`, etc.
 - 3 knowledge tools: `knowledge_search`, `knowledge_list_workspaces`, `knowledge_list_documents`
 
 **MCP Bridge** (`~/.continue/mcp-udos.py`):
@@ -118,7 +127,7 @@ mcpServers:
     command: python3
     args:
       - /Users/fredbook/.continue/mcp-udos.py
-    description: uCore MCP — 17 tools + skills + AppFlowy knowledge
+    description: uCore MCP — 18 tools + skills + AppFlowy knowledge
     env: {}
 ```
 **Cline** (`~/.cline/mcp_settings.json`):
@@ -149,14 +158,14 @@ mcpServers:
 ### Skills
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /api/skills | List all 14 skills |
+| GET | /api/skills | List all 15 skills |
 | POST | /api/skills/{id}/run | Execute a skill |
 | POST | /api/skills/run | Execute by path/name |
 
 ### MCP Protocol
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /api/mcp/tools | List all 17 MCP tools |
+| GET | /api/mcp/tools | List all 18 MCP tools |
 | POST | /api/mcp/call | Call a tool via JSON-RPC |
 
 ### Knowledge (AppFlowy)
@@ -230,11 +239,11 @@ cd frontend && npm run dev
 
 # Test everything
 curl http://localhost:8484/api/health
-curl http://localhost:8484/api/skills                  # 12 skills
+curl http://localhost:8484/api/skills                  # 15 skills
 curl http://localhost:8484/api/tools                   # 7 tools
 curl http://localhost:8484/api/models                  # 4 providers
 curl http://localhost:8484/api/secrets                 # Secret store
-curl http://localhost:8484/api/mcp/tools               # 15 MCP tools
+curl http://localhost:8484/api/mcp/tools               # 18 MCP tools
 curl http://localhost:8484/api/knowledge/workspaces    # AppFlowy
 ```
 

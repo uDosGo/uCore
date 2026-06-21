@@ -8,6 +8,7 @@ Status: Active roadmap scaffold
 - [x] Establish `CONTEXT.md` as the baseline architecture prompt.
 - [x] Establish `wisdom.md` as the episodic memory layer.
 - [x] Add `brain_sync` and extend `attach_context` to include `wisdom.md`.
+- [x] Add a Markdown-first workflow bridge (`tasker_sync`) for repo-adjacent task files.
 - [ ] Define a DocLang bridge export format for AppFlowy, vault, and canonical docs.
 - [ ] Add a transform step that produces AI-efficient structured context from selected docs.
 
@@ -49,6 +50,7 @@ Backend/UI wiring targets:
 
 Next wiring goals:
 
+- [ ] Surface `.tasker/` boards and sync status in the S300 Workflow Builder view.
 - [ ] Add a clipboard/system orchestration system page.
 - [ ] Add a knowledge-local/AppFlowy tools system page.
 - [ ] Add a migration/consolidation dashboard view.
@@ -57,7 +59,7 @@ Next wiring goals:
 
 ## 6. Immediate Execution Order
 
-1. Wire first system UI pages for clipboard/orchestration visibility using `/api/system/maintenance`.
-2. Extend `brain_sync` with spool-aware and AppFlowy-aware synthesis.
-3. Move canonical docs into uDocs and replace local duplicates with pointers.
-4. Add global shortcut support and stronger popover anchoring.
+1. Surface `.tasker/` workflow boards and sync status in S300 Workflow Builder.
+2. Wire first system UI pages for clipboard/orchestration visibility using `/api/system/maintenance`.
+3. Extend `brain_sync` with spool-aware and AppFlowy-aware synthesis.
+4. Move canonical docs into uDocs and replace local duplicates with pointers.
