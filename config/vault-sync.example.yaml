@@ -1,0 +1,37 @@
+# Bidirectional vault sync configuration for uCore.
+# Copy to config/vault-sync.yaml and adjust paths as needed.
+
+state_file: ~/.ucore/vault-sync-state.json
+
+containers:
+  - id: code-docs
+    left: /Users/fredbook/Code/uDocs
+    right: /Users/fredbook/Vault/CodeDocs
+    mode: bidirectional
+    include:
+      - "**/*.md"
+      - "**/*.markdown"
+
+  - id: user-vault
+    left: /Users/fredbook/Vault
+    right: /Users/fredbook/Code/uDocs/ingest/user-vault
+    mode: bidirectional
+    include:
+      - "**/*.md"
+      - "**/*.markdown"
+
+  - id: shared-vault
+    left: /Users/fredbook/Vault/Shared
+    right: /Users/fredbook/Code/uDocs/ingest/shared
+    mode: bidirectional
+    include:
+      - "**/*.md"
+      - "**/*.markdown"
+
+  - id: public-vault
+    left: /Users/fredbook/Vault/Public
+    right: /Users/fredbook/Code/uDocs/ingest/public
+    mode: bidirectional
+    include:
+      - "**/*.md"
+      - "**/*.markdown"

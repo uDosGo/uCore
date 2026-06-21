@@ -29,6 +29,8 @@ def register_routes(app: web.Application) -> None:
     from .knowledge import (
         handle_list_workspaces, handle_list_documents,
         handle_get_document, handle_get_document_content, handle_search,
+        handle_local_databases, handle_local_tables, handle_local_query,
+        handle_local_export,
     )
 
     # Knowledge (AppFlowy bridge)
@@ -37,6 +39,10 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/knowledge/documents/{object_id}", handle_get_document)
     app.router.add_get("/api/knowledge/documents/{object_id}/content", handle_get_document_content)
     app.router.add_get("/api/knowledge/search", handle_search)
+    app.router.add_get("/api/knowledge/local/databases", handle_local_databases)
+    app.router.add_get("/api/knowledge/local/tables", handle_local_tables)
+    app.router.add_post("/api/knowledge/local/query", handle_local_query)
+    app.router.add_post("/api/knowledge/local/export", handle_local_export)
 
     # MCP Integration
     app.router.add_get("/api/mcp/tools", handle_mcp_discover)

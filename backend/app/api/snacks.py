@@ -4,6 +4,11 @@ from __future__ import annotations
 from aiohttp import web
 from app.models.snack import SnackType, SnackPriority
 from app.services.snackbar_orchestrator import SnackbarOrchestrator
+from app.menu.system_snacks import (
+    list_system_snacks,
+    read_system_badges,
+    run_system_snack,
+)
 
 # Shared service instance
 _orch = SnackbarOrchestrator()
@@ -17,6 +22,9 @@ def register_snack_routes(app: web.Application) -> None:
     app.router.add_post("/api/snacks/{snack_id}/fail", fail_snack)
     app.router.add_post("/api/snacks/{snack_id}/retry", retry_snack)
     app.router.add_delete("/api/snacks/queue", clear_queue)
+    app.router.add_get("/api/snacks/system", list_system)
+    app.router.add_get("/api/snacks/system/badges", list_system_badges)
+    app.router.add_post("/api/snacks/system/{snack_id}/run", run_system)
 
 
 async def list_queue(request: web.Request) -> web.Response:
@@ -104,3 +112,39 @@ async def clear_queue(request: web.Request) -> web.Response:
     """DELETE /api/snacks/queue — clear all pending"""
     cleared = _orch.clear_queue()
     return web.json_response({"status": "cleared", "count": cleared})
+
+
+async def list_system(request: web.Request) -> web.Response:
+    """GET /api/snacks/system — list built-in macOS system snacks."""
+    snacks = list_system_snacks()
+    return web.json_response({"snacks": snacks, "count": len(snacks)})
+
+
+async def list_system_badges(request: web.Request) -> web.Response:
+    """GET /api/snacks/system/badges — fetch live badge values."""
+    badges = read_system_badges()
+    return web.json_response({"badges": badges, "count": len(badges)})
+
+
+async def run_system(request: web.Request) -> web.Response:
+    """POST /api/snacks/system/{snack_id}/run — execute a built-in system snack.
+
+    Body (optional):
+      {
+        "action": "summarise|rewrite-professional|compose|format|to-html|validate",
+        "text": "optional input"
+      }
+    """
+    snack_id = request.match_info.get("snack_id", "")
+    try:
+        body = await request.json() if request.body_exists else {}
+    except Exception:
+        return web.json_response({"error": "Invalid JSON body"}, status=400)
+
+    result = run_system_snack(
+        snack_id,
+        action=body.get("action"),
+        text=body.get("text"),
+    )
+    status = 200 if result.get("status") == "success" else 400
+    return web.json_response(result, status=status)

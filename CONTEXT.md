@@ -69,24 +69,41 @@ uCore/
 uCore exposes 15 tools via the Model Context Protocol for IDE integration:
 
 ```
-VS Code → Continue → MCP Server → uCore (port 8484) → Skills + Knowledge
+VS Code → Continue → MCP Bridge → uCore (port 8484) → Skills + Knowledge
 ```
 
 **Available MCP tools:**
 - 12 skill tools: `skill_backup`, `skill_ask_vault`, `skill_route_task`, etc.
 - 3 knowledge tools: `knowledge_search`, `knowledge_list_workspaces`, `knowledge_list_documents`
 
-**VS Code setup** (`settings.json`):
+**MCP Bridge** (`~/.continue/mcp-udos.py`):
+- Python stdio bridge translating MCP JSON-RPC ↔ uCore HTTP API
+- Used by **both** Continue and Cline
+
+**Continue 2.0.0** (uses YAML in `.continue/mcpServers/*.yaml`):
+```yaml
+# .continue/mcpServers/udos.yaml
+name: uCore MCP
+version: 4.0.0
+schema: v1
+mcpServers:
+  - name: uCore
+    command: python3
+    args:
+      - /Users/fredbook/.continue/mcp-udos.py
+    description: uCore MCP — 15 tools + skills + AppFlowy knowledge
+    env: {}
+```
+
+**Cline** (`~/.cline/mcp_settings.json`):
 ```json
 {
-  "mcp.servers": {
-    "udos": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-http"],
-      "env": {
-        "UDOS_URL": "http://localhost:8484",
-        "UDOS_API_KEY": "your-key"
-      }
+  "mcpServers": {
+    "uCore": {
+      "command": "python3",
+      "args": ["/Users/fredbook/.continue/mcp-udos.py"],
+      "disabled": false,
+      "alwaysAllow": ["skill_ask_vault", "skill_route_task", "skill_attach_context", "knowledge_search", "knowledge_list_workspaces", "knowledge_list_documents"]
     }
   }
 }

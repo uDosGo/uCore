@@ -40,9 +40,10 @@ UCORE_URL = "http://127.0.0.1:8484"
 UI_HUB_URL = "http://localhost:5173"
 REFRESH_INTERVAL = 5.0  # seconds
 
-UCORE_PLIST = os.path.expanduser("~/Library/LaunchAgents/com.udos.snackbar-server.plist")
-SNACKBAR_SERVER = os.path.join("/Users/fredbook/Code/uCore/backend", "server.py")
-SNACKBAR_WORKDIR = "/Users/fredbook/Code/uCore/backend"
+UCORE_LABEL = "com.udos.ucore-server"
+LEGACY_LABEL = "com.udos.snackbar-server"
+UCORE_PLIST = os.path.expanduser("~/Library/LaunchAgents/com.udos.ucore-server.plist")
+UCORE_BACKEND_DIR = "/Users/fredbook/Code/uCore/backend"
 
 log_dir = os.path.expanduser("~/.ucore/logs")
 os.makedirs(log_dir, exist_ok=True)
@@ -90,27 +91,47 @@ def open_url(url: str):
 def is_start_at_login_enabled() -> bool:
     """Check if the snackbar launchd plist is loaded."""
     try:
-        result = subprocess.run(
-            ["launchctl", "list", "com.udos.snackbar-server"],
-            capture_output=True, text=True, timeout=3
-        )
-        return result.returncode == 0
+        for label in (UCORE_LABEL, LEGACY_LABEL):
+            result = subprocess.run(
+                ["launchctl", "list", label],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            if result.returncode == 0:
+                return True
+        return False
     except Exception:
         return False
 
 
 def enable_start_at_login():
-    """Install and load the snackbar launchd plist."""
+    """Install and load the uCore launchd plist."""
     try:
-        result = subprocess.run(
-            ["/usr/bin/python3", SNACKBAR_SERVER, "--install"],
-            capture_output=True, text=True, timeout=10
-        )
-        if result.returncode != 0:
-            log.warning(f"Install failed: {result.stderr}")
-            return False
-
         uid = os.getuid()
+        # Prefer existing server plist. If missing, generate one for python -m app.
+        if not os.path.exists(UCORE_PLIST):
+            plist = f"""<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"> 
+<plist version=\"1.0\"><dict>
+  <key>Label</key><string>{UCORE_LABEL}</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>-m</string>
+    <string>app</string>
+    <string>--port</string><string>8484</string>
+  </array>
+  <key>WorkingDirectory</key><string>{UCORE_BACKEND_DIR}</string>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>{os.path.expanduser('~/.ucore/logs/ucore-server.log')}</string>
+  <key>StandardErrorPath</key><string>{os.path.expanduser('~/.ucore/logs/ucore-server.err.log')}</string>
+</dict></plist>
+"""
+            with open(UCORE_PLIST, "w", encoding="utf-8") as f:
+                f.write(plist)
+
         subprocess.run(
             ["launchctl", "bootstrap", f"gui/{uid}", UCORE_PLIST],
             capture_output=True, timeout=10
@@ -126,10 +147,11 @@ def disable_start_at_login():
     """Unload and remove the snackbar launchd plist."""
     try:
         uid = os.getuid()
-        subprocess.run(
-            ["launchctl", "bootout", f"gui/{uid}", UCORE_PLIST],
-            capture_output=True, timeout=10
-        )
+        for label in (UCORE_LABEL, LEGACY_LABEL):
+            subprocess.run(
+                ["launchctl", "bootout", f"gui/{uid}/{label}"],
+                capture_output=True, timeout=10
+            )
         if os.path.exists(UCORE_PLIST):
             os.remove(UCORE_PLIST)
         log.info("Start at login disabled")
@@ -174,6 +196,7 @@ class SnackbarMenuDelegate(NSObject):
         self._status_item = None
         self._menu = None
         self._snacks = []
+        self._system_badges = {}
         self._start_at_login = False
         self._refresh_timer = None
         return self
@@ -236,14 +259,35 @@ class SnackbarMenuDelegate(NSObject):
             # Translate→🍋, Write→🍑, Mail Bridge→🥝, iCloud→🍇
             fruit_icons = ["🫐", "🍊", "🍎", "🍌", "🍓", "🍋", "🍑", "🥝", "🍇", "🍍", "🥭", "🍈"]
             for i, s in enumerate(self._snacks):
-                fruit = fruit_icons[i % len(fruit_icons)]
+                fruit = s.get("icon") or fruit_icons[i % len(fruit_icons)]
                 label = f"{fruit} {s['name']}"
+                if s.get("kind") == "badge":
+                    count = self._system_badges.get(s.get("id"), "?")
+                    label = f"{label} ({count})"
                 item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
                     label, "runSnack:", ""
                 )
                 item.setTarget_(self)
-                item.setRepresentedObject_(s["id"])
+                item.setRepresentedObject_(json.dumps({
+                    "id": s["id"],
+                    "kind": s.get("kind", "action"),
+                    "actions": s.get("actions", []),
+                }))
                 self._menu.addItem_(item)
+
+                if s.get("kind") == "multi-action":
+                    for action_name in s.get("actions", []):
+                        sub = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                            f"   ↳ {action_name}", "runSnack:", ""
+                        )
+                        sub.setTarget_(self)
+                        sub.setRepresentedObject_(json.dumps({
+                            "id": s["id"],
+                            "kind": "multi-action",
+                            "action": action_name,
+                            "actions": s.get("actions", []),
+                        }))
+                        self._menu.addItem_(sub)
         else:
             item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
                 "(snackbar offline)" if not self._connected else "(no snacks)",
@@ -287,10 +331,17 @@ class SnackbarMenuDelegate(NSObject):
         try:
             self._connected = is_ucore_alive()
             if self._connected:
-                snacks_data = api_get("/api/snacks")
+                snacks_data = api_get("/api/snacks/system")
                 self._snacks = snacks_data.get("snacks", []) if snacks_data else []
+                badges_data = api_get("/api/snacks/system/badges")
+                badge_items = badges_data.get("badges", []) if badges_data else []
+                self._system_badges = {
+                    b.get("id"): (b.get("count") if b.get("ok") else "!")
+                    for b in badge_items
+                }
             else:
                 self._snacks = []
+                self._system_badges = {}
             self._start_at_login = is_start_at_login_enabled()
         except Exception as e:
             log.warning(f"Refresh error: {e}")
@@ -327,16 +378,44 @@ class SnackbarMenuDelegate(NSObject):
 
     def runSnack_(self, sender):
         """Run a snack."""
-        sid = sender.representedObject()
-        if not sid:
+        raw = sender.representedObject()
+        if not raw:
             return
-        log.info(f"Running snack: {sid}")
-        result = api_post(f"/api/snacks/{sid}/deliver")
+        try:
+            payload = json.loads(raw)
+        except Exception:
+            payload = {"id": str(raw), "kind": "action", "actions": []}
+
+        sid = payload.get("id")
+        kind = payload.get("kind")
+        actions = payload.get("actions") or []
+        action = payload.get("action")
+        if action is None and kind == "multi-action" and actions:
+            action = actions[0]
+
+        log.info(f"Running snack: {sid} action={action}")
+        result = api_post(
+            f"/api/snacks/system/{sid}/run",
+        ) if action is None else None
+
+        if action is not None:
+            try:
+                req = urllib.request.Request(
+                    f"{UCORE_URL}/api/snacks/system/{sid}/run",
+                    data=json.dumps({"action": action}).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                    method="POST",
+                )
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    result = json.loads(resp.read().decode("utf-8"))
+            except Exception as exc:
+                result = {"status": "error", "error": str(exc)}
+
         if result:
-            if "error" in result:
-                log.warning(f"Snack {sid} failed: {result['error']}")
+            if result.get("status") == "error" or "error" in result:
+                log.warning(f"Snack {sid} failed: {result.get('error')}")
             else:
-                log.info(f"Snack {sid} completed (exit {result.get('returncode', '?')})")
+                log.info(f"Snack {sid} completed")
 
     def toggleStartAtLogin_(self, sender):
         """Toggle the start-at-login setting."""
@@ -353,17 +432,13 @@ class SnackbarMenuDelegate(NSObject):
     def restartUcore_(self, sender):
         """Restart the snackbar server."""
         log.info("Restarting snackbar...")
+        uid = os.getuid()
         subprocess.run(
-            ["pkill", "-f", "snackbar/server.py"],
-            capture_output=True, timeout=5
+            ["launchctl", "kickstart", "-k", f"gui/{uid}/{UCORE_LABEL}"],
+            capture_output=True,
+            timeout=8,
         )
         time.sleep(2)
-        subprocess.Popen(
-            ["/usr/bin/python3", SNACKBAR_SERVER, "--port", "8484", "--auto-start"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        time.sleep(3)
         self._refresh()
 
     def quitApp_(self, sender):

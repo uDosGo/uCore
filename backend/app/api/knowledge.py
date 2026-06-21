@@ -6,6 +6,12 @@ from app.knowledge.appflowy import (
     list_workspaces, list_documents, get_document,
     get_document_content, semantic_search,
 )
+from app.knowledge.local_first import (
+    discover_databases,
+    list_tables,
+    run_query,
+    export_to_vault,
+)
 
 import logging
 log = logging.getLogger("ucore.api.knowledge")
@@ -57,3 +63,70 @@ async def handle_search(request: web.Request) -> web.Response:
     limit = int(request.query.get("limit", "10"))
     results = semantic_search(query, workspace_id, limit)
     return web.json_response({"query": query, "results": results, "count": len(results)})
+
+
+async def handle_local_databases(request: web.Request) -> web.Response:
+    """GET /api/knowledge/local/databases — discover local AppFlowy sqlite DBs."""
+    dbs = discover_databases()
+    return web.json_response({"databases": dbs, "count": len(dbs)})
+
+
+async def handle_local_tables(request: web.Request) -> web.Response:
+    """GET /api/knowledge/local/tables?db=<key|path> — list sqlite tables."""
+    db = request.query.get("db", "database")
+    dbs = discover_databases()
+    db_path = dbs.get(db, db)
+    try:
+        tables = list_tables(db_path)
+    except Exception as exc:
+        return web.json_response({"error": str(exc), "db": db, "db_path": db_path}, status=400)
+    return web.json_response({"db": db, "db_path": db_path, "tables": tables, "count": len(tables)})
+
+
+async def handle_local_query(request: web.Request) -> web.Response:
+    """POST /api/knowledge/local/query — run safe sqlite queries against local AppFlowy DB.
+
+    Body:
+      {
+        "db": "database|chat|vector|/absolute/path/to.db",
+        "sql": "SELECT ...",
+        "params": [],
+        "write": false
+      }
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"error": "Invalid JSON body"}, status=400)
+
+    db = (body.get("db") or "database").strip()
+    sql = (body.get("sql") or "").strip()
+    params = body.get("params") or []
+    write = bool(body.get("write", False))
+
+    if not sql:
+        return web.json_response({"error": "sql is required"}, status=400)
+
+    dbs = discover_databases()
+    db_path = dbs.get(db, db)
+    try:
+        result = run_query(db_path=db_path, sql=sql, params=params, write=write)
+    except Exception as exc:
+        return web.json_response({"error": str(exc), "db": db, "db_path": db_path}, status=400)
+    return web.json_response({"db": db, "db_path": db_path, **result})
+
+
+async def handle_local_export(request: web.Request) -> web.Response:
+    """POST /api/knowledge/local/export — export AppFlowy sqlite rows to local vault snapshot."""
+    try:
+        body = await request.json() if request.body_exists else {}
+    except Exception:
+        body = {}
+
+    vault_dir = body.get("vault_dir", "~/vault/@appflowy")
+    limit = int(body.get("limit_per_table", 2000))
+    try:
+        result = export_to_vault(vault_dir=vault_dir, limit_per_table=limit)
+    except Exception as exc:
+        return web.json_response({"error": str(exc)}, status=400)
+    return web.json_response(result)
