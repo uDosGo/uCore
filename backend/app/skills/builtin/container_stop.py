@@ -11,5 +11,5 @@ class ContainerStop(BaseSkill):
         cid = kwargs["container_id"]
         c = mgr.get_container(cid)
         if not c: return {"success": False, "error": f"Container {cid} not found"}
-        stopped = mgr.transition_state(cid, "stopped")
+        stopped = mgr.stop_container(cid)
         return {"success": bool(stopped), "container_id": cid}

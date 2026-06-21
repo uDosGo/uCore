@@ -3,8 +3,8 @@
    ═══════════════════════════════════════════════════════════════════
    A retro-futuristic terminal/teletext viewport with a nav rail,
    overlays, and panels. Core layout only — shared base styles are
-   in tokens.css, components in components.css, and DevStudio in
-   surfaces/devstudio.css.
+   in tokens.css, components in components.css, and Developer in
+   surfaces/developer.css.
    ═══════════════════════════════════════════════════════════════════
    ⚠️  IMPORTANT: These grid-based CSS styles are intentionally
    SEPARATE from USX styles. Do NOT merge gridui styles with USX

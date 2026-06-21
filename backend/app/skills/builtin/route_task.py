@@ -2,7 +2,7 @@
 
 Operationalizes the cost strategy:
   simple  → Ollama (free, local)
-  medium  → Roundtable/Codex (mid-range)
+  medium  → OpenRouter/o3-mini (mid-range, ~$0.01/task)
   complex → Claude/OpenRouter (expensive, intentional)
 
 Usage:
@@ -152,9 +152,9 @@ class RouteTask(BaseSkill):
             "strategy": {
                 "tier_allocations": {
                     "simple": {"pct": 15, "provider": "Ollama", "cost": "$0"},
-                    "medium": {"pct": 70, "provider": "Codex/Roundtable", "cost": "~$0.01"},
+                    "medium": {"pct": 70, "provider": "OpenRouter/o3-mini", "cost": "~$0.01"},
                     "complex": {"pct": 5, "provider": "Claude", "cost": "~$0.15"},
                 },
-                "note": "Use Ollama for 15% of tasks (simple/repetitive), Codex for 70% (daily work), Claude for 5% (hard problems)",
+                "note": "Use Ollama for 15% of tasks (simple/repetitive), OpenRouter for 70% (daily work), Claude for 5% (hard problems)",
             },
         }

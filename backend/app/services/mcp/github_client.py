@@ -34,7 +34,9 @@ class GitHubClient:
         
         if HAS_PYGITHUB and self.token:
             try:
-                self._gh = Github(self.token)
+                from github import Auth
+                auth = Auth.Token(self.token)
+                self._gh = Github(auth=auth)
                 self._org_obj = self._gh.get_organization(self.org)
                 log.info(f"GitHub client initialized for org: {self.org}")
             except GithubException as e:

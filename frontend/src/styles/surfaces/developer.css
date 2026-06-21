@@ -1,0 +1,889 @@
+/* ═══════════════════════════════════════════════════════════════════
+   developer.css — Developer Surface Styles (USXv2/Pico CSS)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Surface Container ──────────────────────────────────────────── */
+.developer-surface {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+  overflow: hidden;
+}
+
+/* ─── Surface Body (flex row: tab bar + main) ───────────────────── */
+.developer-surface-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── Surface Main (scrollable content area) ────────────────────── */
+.developer-surface-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+/* ─── Tab Bar ───────────────────────────────────────────────────── */
+.developer-tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px;
+  background: transparent;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.developer-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.developer-tab-btn:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-tab-btn--active {
+  color: var(--pico-primary, #58a6ff);
+  background: rgba(13, 110, 253, 0.15);
+}
+
+.developer-tab-label {
+  font-size: 0.9em;
+}
+
+/* ─── Status Badge (header right) ───────────────────────────────── */
+.developer-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 500;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-muted-color, #8b949e);
+  border: 1px solid var(--pico-border-color, #30363d);
+}
+
+.developer-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pico-ins-color, #3fb950);
+}
+
+/* ─── Shared Panel Styles ───────────────────────────────────────── */
+.developer-panel {
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.developer-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.developer-panel-title {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  margin: 0;
+}
+
+.developer-panel-count {
+  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-card-background-color, #161b22);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.developer-panel-search {
+  margin-bottom: 8px;
+}
+
+.developer-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.developer-search-input:focus {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.developer-search-input::placeholder {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Chat Panel ────────────────────────────────────────────────── */
+.developer-chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.developer-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.developer-chat-msg {
+  display: flex;
+  gap: 10px;
+  max-width: 85%;
+}
+
+.developer-chat-msg--user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.developer-chat-msg-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-chat-msg--user .developer-chat-msg-avatar {
+  background: var(--pico-primary, #58a6ff);
+  color: #fff;
+}
+
+.developer-chat-msg-content {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 12px;
+  padding: 10px 14px;
+  min-width: 0;
+}
+
+.developer-chat-msg--user .developer-chat-msg-content {
+  background: rgba(13, 110, 253, 0.15);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.developer-chat-msg-time {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75em;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-chat-loading {
+  display: flex;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.developer-chat-loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pico-muted-color, #8b949e);
+  animation: developer-chat-bounce 1.4s ease-in-out infinite;
+}
+
+.developer-chat-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.developer-chat-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes developer-chat-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.developer-chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--pico-border-color, #30363d);
+  flex-shrink: 0;
+}
+
+.developer-chat-send-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--pico-primary, #58a6ff);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.developer-chat-send-btn:hover:not(:disabled) {
+  background: var(--pico-primary-hover, #3b82f6);
+}
+
+.developer-chat-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Chat Prompt Row (horizontal scroll) ────────────────────────── */
+.developer-chat-prompt-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--pico-border-color, #30363d) transparent;
+  flex-shrink: 0;
+}
+
+.developer-chat-prompt-row::-webkit-scrollbar {
+  height: 4px;
+}
+
+.developer-chat-prompt-row::-webkit-scrollbar-thumb {
+  background: var(--pico-border-color, #30363d);
+  border-radius: 2px;
+}
+
+.developer-chat-prompt-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 12px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  background: var(--pico-card-background-color, #161b22);
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease;
+  font-family: inherit;
+}
+
+.developer-chat-prompt-card:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.developer-chat-prompt-icon {
+  font-size: 16px;
+  color: var(--pico-primary, #58a6ff);
+}
+
+.developer-chat-prompt-label {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.developer-chat-prompt-ctx {
+  font-size: 10px;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Chat Prose (markdown rendered) ─────────────────────────────── */
+.developer-chat-prose {
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.developer-chat-prose p {
+  margin: 0 0 8px;
+}
+
+.developer-chat-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.developer-chat-prose code {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.9em;
+}
+
+.developer-chat-prose pre {
+  background: var(--pico-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.developer-chat-prose pre code {
+  background: none;
+  padding: 0;
+}
+
+.developer-chat-prose blockquote {
+  border-left: 3px solid var(--pico-primary, #58a6ff);
+  margin: 8px 0;
+  padding: 4px 12px;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-chat-prose ul,
+.developer-chat-prose ol {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.developer-chat-prose li {
+  margin: 2px 0;
+}
+
+.developer-chat-prose hr {
+  border: none;
+  border-top: 1px solid var(--pico-border-color, #30363d);
+  margin: 12px 0;
+}
+
+.developer-chat-prose a {
+  color: var(--pico-primary, #58a6ff);
+  text-decoration: none;
+}
+
+.developer-chat-prose a:hover {
+  text-decoration: underline;
+}
+
+.developer-chat-prose h1,
+.developer-chat-prose h2,
+.developer-chat-prose h3,
+.developer-chat-prose h4 {
+  margin: 12px 0 6px;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-chat-prose strong {
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-chat-prose del {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Repo Cards ────────────────────────────────────────────────── */
+.developer-repo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.developer-repo-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s ease;
+}
+
+.developer-repo-card:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.developer-repo-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.developer-repo-name {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-repo-badge {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.developer-repo-badge--clean {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.developer-repo-badge--modified {
+  background: rgba(210, 153, 34, 0.15);
+  color: #d29922;
+}
+
+.developer-repo-details {
+  display: flex;
+  gap: 12px;
+  color: var(--pico-muted-color, #8b949e);
+  margin-bottom: 4px;
+}
+
+.developer-repo-branch {
+  font-family: monospace;
+}
+
+.developer-repo-path {
+  font-family: monospace;
+  opacity: 0.7;
+}
+
+.developer-repo-remote {
+  color: var(--pico-muted-color, #8b949e);
+  font-family: monospace;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+.developer-repo-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.developer-repo-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 4px;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.developer-repo-btn:hover {
+  background: var(--pico-card-background-color, #161b22);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.developer-repo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Skills Grid ──────────────────────────────────────────────── */
+.developer-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.developer-skill-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.developer-skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.developer-skill-name {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-skill-id {
+  color: var(--pico-muted-color, #8b949e);
+  font-family: monospace;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.developer-skill-desc {
+  color: var(--pico-muted-color, #8b949e);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.developer-skill-path {
+  color: var(--pico-muted-color, #8b949e);
+  font-family: monospace;
+  opacity: 0.6;
+}
+
+.developer-skill-run-btn {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--pico-primary, #58a6ff);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.developer-skill-run-btn:hover:not(:disabled) {
+  background: var(--pico-primary-hover, #3b82f6);
+}
+
+.developer-skill-run-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.developer-skill-output {
+  margin-top: 16px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.developer-skill-output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.developer-skill-output-close {
+  background: none;
+  border: none;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.developer-skill-output-close:hover {
+  background: var(--pico-card-background-color, #161b22);
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-skill-output-text {
+  padding: 12px;
+  margin: 0;
+  font-family: monospace;
+  color: var(--pico-color, #c9d1d9);
+  background: var(--pico-background-color, #0d1117);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* ─── Review Cards ─────────────────────────────────────────────── */
+.developer-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.developer-review-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.developer-review-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.developer-review-status {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.developer-review-status--modified {
+  background: rgba(210, 153, 34, 0.15);
+  color: #d29922;
+}
+
+.developer-review-status--added {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.developer-review-status--deleted {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--pico-del-color, #f85149);
+}
+
+.developer-review-lines {
+  color: var(--pico-muted-color, #8b949e);
+  font-family: monospace;
+  margin-left: auto;
+}
+
+.developer-review-file {
+  font-family: monospace;
+  color: var(--pico-color, #c9d1d9);
+  margin-bottom: 4px;
+}
+
+.developer-review-summary {
+  color: var(--pico-muted-color, #8b949e);
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.developer-review-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* ─── Workflows Panel ──────────────────────────────────────────── */
+.developer-workflows-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.developer-workflow-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.developer-workflow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.developer-workflow-name {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-workflow-status {
+  font-weight: 500;
+}
+
+.developer-workflow-meta {
+  display: flex;
+  gap: 12px;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-workflow-progress-bar {
+  height: 4px;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.developer-workflow-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.developer-workflow-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* ─── BenchBench Panel ─────────────────────────────────────────── */
+.developer-bench-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.developer-bench-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.developer-bench-name {
+  color: var(--pico-muted-color, #8b949e);
+  font-weight: 500;
+}
+
+.developer-bench-value {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.developer-bench-score {
+  font-weight: 700;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-bench-unit {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-bench-trend {
+  font-weight: 500;
+}
+
+/* ─── Creative Panel ───────────────────────────────────────────── */
+.developer-creative-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.developer-creative-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.developer-creative-preset-label {
+  color: var(--pico-muted-color, #8b949e);
+  font-weight: 500;
+}
+
+/* ─── Settings Panel ───────────────────────────────────────────── */
+.developer-settings-section {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.developer-settings-section-title {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.developer-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.developer-settings-label {
+  color: var(--pico-muted-color, #8b949e);
+  font-weight: 500;
+}
+
+.developer-settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+  padding: 0;
+}
+
+.developer-toggle--on {
+  background: var(--pico-primary, #58a6ff);
+}
+
+.developer-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--pico-color, #c9d1d9);
+  transition: transform 0.2s ease;
+}
+
+.developer-toggle--on .developer-toggle-knob {
+  transform: translateX(16px);
+}
+
+.developer-settings-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-settings-code {
+  background: var(--pico-background-color, #0d1117);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--pico-primary, #58a6ff);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ─── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .developer-tab-btn span { display: none; }
+  .developer-skills-grid { grid-template-columns: 1fr; }
+  .developer-bench-grid { grid-template-columns: 1fr 1fr; }
+}

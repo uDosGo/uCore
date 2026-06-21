@@ -10,7 +10,7 @@
      /proseui/*     → Redirects to / (absorbed into MissionControl)
      /browserui/*   → BrowserUISurface (kept)
      /userver/*     → UServerSurface (kept)
-     /devstudio/*   → DevStudioSurface (kept)
+     /developer/**   → DeveloperSurface (kept)
      /system/*      → USystemSurface (Install, Modules, Feeds, Story Builder, Pages)
    Removed: HomeNestSurface, WorldMapSurface, Code3UISurface, VibeSurface (dead)
    Absorbed: ChatUISurface → AssistUI, FloatingChatPanel → AssistUI, USystemRouter → UIHubManager
@@ -30,7 +30,7 @@ import { SurfaceShellProvider } from './components/SurfaceShellContext'
 import GridUISurface from './surfaces/gridui/GridUISurface'
 import BrowserUISurface from './surfaces/browserui/BrowserUISurface'
 import AssistUISurface from './surfaces/assistui/AssistUISurface'
-import DevStudioSurface from './surfaces/devstudio/DevStudioSurface'
+import DeveloperSurface from './surfaces/developer/DeveloperSurface'
 import UServerSurface from './surfaces/userver/UServerSurface'
 import USystemSurface from './surfaces/system/USystemSurface'
 import GridCoreSurface from './surfaces/gridcore/GridCoreSurface'
@@ -39,6 +39,8 @@ import GridCoreSurface from './surfaces/gridcore/GridCoreSurface'
 import S100ToolBuilder from './pages/S100ToolBuilder'
 import S101StoryBuilder from './pages/S101StoryBuilder'
 import S300WorkflowBuilder from './pages/S300WorkflowBuilder'
+import S310ClipboardOrchestration from './pages/S310ClipboardOrchestration'
+import S320KnowledgeTools from './pages/S320KnowledgeTools'
 import S600Learning from './pages/S600Learning'
 import S800Labs from './pages/S800Labs'
 
@@ -49,7 +51,7 @@ import './styles/surface-host.css'
 import './styles/gridui.css'
 import './styles/gridui-terminal.css'
 import './styles/global-toolbar.css'
-import './styles/surfaces/devstudio.css'
+import './styles/surfaces/developer.css'
 import './styles/vault-sidebar.css'
 import './surfaces/browserui/styles/browserui.css'
 
@@ -58,6 +60,8 @@ const S_PAGE_COMPONENTS: Record<string, React.ComponentType> = {
   s100: S100ToolBuilder,
   s101: S101StoryBuilder,
   s300: S300WorkflowBuilder,
+  s310: S310ClipboardOrchestration,
+  s320: S320KnowledgeTools,
   s600: S600Learning,
   s800: S800Labs,
 }
@@ -89,7 +93,7 @@ function Root() {
           <Route path="/gridui/*" element={<GridUISurface />} />
           <Route path="/browserui/*" element={<BrowserUISurface />} />
           <Route path="/assistui/*" element={<AssistUISurface />} />
-          <Route path="/devstudio/*" element={<DevStudioSurface />} />
+          <Route path="/developer/**" element={<DeveloperSurface />} />
           <Route path="/userver/*" element={<UServerSurface />} />
           <Route path="/system" element={<USystemSurface />} />
           <Route path="/system/*" element={<USystemSurface />} />
@@ -107,7 +111,7 @@ function Root() {
 function FloatingChatWrapper() {
   const location = useLocation()
   if (location.pathname.startsWith('/assistui')) return null
-  if (location.pathname.startsWith('/devstudio')) return null
+  if (location.pathname.startsWith('/developer/*')) return null
   return <AssistUISurface floating />
 }
 

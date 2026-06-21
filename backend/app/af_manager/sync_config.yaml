@@ -1,0 +1,58 @@
+# ═══════════════════════════════════════════════════════════════════════
+# AppFlowy Unified Knowledge Manager — Sync Configuration
+# ═══════════════════════════════════════════════════════════════════════
+# This config defines the central AppFlowy data directory and the
+# mapping of file system vaults to be imported/synced into it.
+#
+# The central AppFlowy directory is the single source of truth.
+# Local vaults (~/Vault/, ~/Public/, ~/Shared/) are treated as
+# portable archives and input sources.
+# ═══════════════════════════════════════════════════════════════════════
+
+appflowy:
+  # Central data directory used by AppFlowy.
+  # This is where all imported content will be stored.
+  data_dir: "~/Library/Application Support/com.appflowy.appflowy.flutter"
+  
+  # Optional: Specify a default workspace ID. If empty, the first
+  # workspace found will be used.
+  default_workspace: ""
+
+  # Sync mode: "import" (one-way, FS→AppFlowy), "watch" (continual),
+  # or "bidirectional" (future)
+  sync_mode: "import"
+
+sources:
+  - name: "Global Vault"
+    local_path: "~/Vault"
+    tags: ["personal", "knowledge", "vault"]
+    enabled: true
+    # How to organize in AppFlowy: "folder" (preserve dir structure),
+    # "flat" (all in one workspace), or "tagged" (use frontmatter tags)
+    organization: "folder"
+
+  - name: "Public Vault"
+    local_path: "~/Public"
+    tags: ["public", "blog", "shared"]
+    enabled: true
+    organization: "folder"
+
+  - name: "Shared Vault"
+    local_path: "~/Shared"
+    tags: ["shared", "collab", "team"]
+    enabled: true
+    organization: "folder"
+
+# ─── Conflict Resolution ──────────────────────────────────────────
+# "source_wins" — Always use the file system version
+# "last_modified_wins" — Use whichever was modified most recently
+# "ask" — Prompt user (not supported in headless mode)
+conflict_resolution: "source_wins"
+
+# ─── File Watching ────────────────────────────────────────────────
+watch:
+  enabled: false
+  # Interval in seconds between checks
+  poll_interval: 60
+  # File extensions to watch
+  extensions: [".md", ".json", ".yaml", ".yml", ".txt", ".csv"]

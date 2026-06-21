@@ -3,7 +3,7 @@
    ═══════════════════════════════════════════════════════════════════
    S300: Media — Workflow Builder
    ═══════════════════════════════════════════════════════════════════ */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import USystemPage from '../components/uSystemPage'
 
 const SNACKBAR_API = 'http://localhost:8484'
@@ -49,10 +49,19 @@ type WorkflowStatus = {
   next_actions: string[]
 }
 
+type ActionStatus = 'idle' | 'running' | 'success' | 'error'
+
 export default function S300WorkflowBuilder() {
   const [status, setStatus] = useState<WorkflowStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const [syncStatus, setSyncStatus] = useState<ActionStatus>('idle')
+  const [syncMsg, setSyncMsg] = useState('')
+  const [vaultStatus, setVaultStatus] = useState<ActionStatus>('idle')
+  const [vaultMsg, setVaultMsg] = useState('')
+  const [boardStatus, setBoardStatus] = useState<ActionStatus>('idle')
+  const [boardMsg, setBoardMsg] = useState('')
 
   useEffect(() => {
     let active = true
@@ -86,6 +95,59 @@ export default function S300WorkflowBuilder() {
     }
   }, [])
 
+    const runTaskerSync = useCallback(async () => {
+    setSyncStatus('running'); setSyncMsg('Running tasker_sync...')
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/skills/tasker_sync/run`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ params: {} }),
+        signal: AbortSignal.timeout(15000),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setSyncStatus('success'); setSyncMsg(data.message || 'Tasker sync complete')
+        setTimeout(() => {
+          fetch(`${SNACKBAR_API}/api/system/workflow`, { signal: AbortSignal.timeout(2500) })
+            .then(r => r.json()).then(d => setStatus(d)).catch(() => {})
+        }, 1000)
+      } else {
+        const err = await res.json().catch(() => ({ error: 'Unknown error' }))
+        setSyncStatus('error'); setSyncMsg(err.error || `HTTP ${res.status}`)
+      }
+    } catch (e: any) { setSyncStatus('error'); setSyncMsg(e.message || 'Request failed') }
+  }, [])
+
+  const runVaultSync = useCallback(async () => {
+    setVaultStatus('running'); setVaultMsg('Running vault_sync...')
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/skills/vault_sync/run`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ params: {} }),
+        signal: AbortSignal.timeout(30000),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setVaultStatus('success'); setVaultMsg(data.message || 'Vault sync complete')
+      } else {
+        const err = await res.json().catch(() => ({ error: 'Unknown error' }))
+        setVaultStatus('error'); setVaultMsg(err.error || `HTTP ${res.status}`)
+      }
+    } catch (e: any) { setVaultStatus('error'); setVaultMsg(e.message || 'Request failed') }
+  }, [])
+
+  const refreshBoards = useCallback(async () => {
+    setBoardStatus('running'); setBoardMsg('Refreshing boards...')
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/system/workflow`, {
+        signal: AbortSignal.timeout(2500),
+      })
+      if (res.ok) {
+        const data = await res.json(); setStatus(data)
+        setBoardStatus('success'); setBoardMsg('Boards refreshed')
+      } else { setBoardStatus('error'); setBoardMsg(`HTTP ${res.status}`) }
+    } catch (e: any) { setBoardStatus('error'); setBoardMsg(e.message || 'Refresh failed') }
+  }, [])
+
   const boardCount = status?.task_markdown.count ?? 0
   const totalTasks = status?.task_markdown.total_items ?? 0
   const jobs = status?.maintenance.jobs ?? []
@@ -96,9 +158,9 @@ export default function S300WorkflowBuilder() {
       title="Workflow Builder"
       subtitle="Cline Kanban orchestration with Markdown-first task flow"
       headerExtra={
-        <button className="secondary" onClick={() => window.location.reload()}>
-          Refresh
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="secondary" onClick={refreshBoards} disabled={boardStatus === 'running'}>Refresh</button>
+        </div>
       }
     >
       <div className="nestframe-grid">

@@ -1,3 +1,4 @@
+> **DEPRECATED** — This document has been superseded by canonical docs in [uDocs](https://github.com/uDosGo/uDocs). This file will be removed after migration verification. See [CONSOLIDATION_PLAN.md](./CONSOLIDATION_PLAN.md) for details.
 # GitHub MCP Skills - Implementation Summary
 
 **Date:** June 20, 2026  
@@ -6,7 +7,7 @@
 
 ## 🎉 What Was Built
 
-A complete autonomous GitHub workflow automation system integrated with Continue.dev for VSCode, enabling hands-free repository management, CI/CD monitoring, issue triage, and release management across the uDosGo organization.
+A complete autonomous GitHub workflow automation system integrated with Cline for VS Code, enabling hands-free repository management, CI/CD monitoring, issue triage, and release management across the uDosGo organization.
 
 ## 📦 Components Delivered
 
@@ -28,23 +29,19 @@ A complete autonomous GitHub workflow automation system integrated with Continue
    - ✅ `actions_status` - CI/CD monitoring with auto-retry
    - ✅ `approve_pr` - Automated PR review and merge
 
-### Phase 2: Continue.dev Integration ✅
+### Phase 2: Cline Integration ✅
 
-**Location:** `.continue/`
+**Location:** `.cline` and MCP bridge config
 
 1. **Rules** (triggerable workflows):
    - `rules/github-auto-pr.md` - Auto-create PRs
    - `rules/github-ci-monitor.md` - Monitor CI/CD status
    - `rules/github-issue-triage.md` - Daily issue triage
 
-2. **Config Updates** (`~/.continue/config.json`):
-   - Added `/github` slash command
-   - Added 5 custom commands:
-     - `/github:pr` - Create PR
-     - `/github:release` - Publish release
-     - `/github:ci` - Check CI status
-     - `/github:issues` - Triage issues
-     - `/github:sync` - Sync repos
+2. **Config Updates** (`~/.cline/mcp_settings.json`):
+   - Added uCore MCP server
+   - Enabled MCP tools for GitHub workflows
+   - Uses natural-language prompts instead of slash-command dependency
 
 ### Phase 3: Web API Integration ✅
 
@@ -89,9 +86,9 @@ echo $GITHUB_TOKEN  # Verify it's set
 # 2. Install dependency (already done)
 pip install PyGithub
 
-# 3. Start using in Continue
+# 3. Start using in Cline
 # Open VSCode, then:
-User: "/github:ci"           # Check CI status
+User: "check ci status"      # Check CI status
 User: "create pr"            # Auto-create PR
 User: "triage issues"        # Auto-label issues
 User: "check ci status"      # Monitor workflows
@@ -105,11 +102,11 @@ User: "check ci status"      # Monitor workflows
 - **CI failure recovery** - Auto-retries failed workflows
 - **Smart releases** - Version detection, changelog generation
 
-### Continue.dev Integration
+### Cline Integration
 - **Natural language** - "ready to PR" → creates PR
 - **Context-aware** - Understands git state, branch names
-- **Rule-based triggers** - Automatic based on patterns
-- **Slash commands** - Quick access to all tools
+- **Runbook-based triggers** - Prompt patterns + scheduled wrappers
+- **MCP-first operations** - Direct tool use from Cline sessions
 
 ### Cross-Repo Management
 - **Org-wide status** - See all repos at once
@@ -143,7 +140,7 @@ User: "triage issues"
 ```bash
 User: "release version 1.0.0 to uCore"
 
-Continue executes:
+Cline executes:
 1. Detects version from files
 2. Generates changelog from commits
 3. Creates GitHub release
@@ -157,7 +154,7 @@ Continue executes:
 # On feature/new-api branch
 User: "I'm done, ready to submit"
 
-Continue:
+Cline:
 1. Checks git status
 2. Generates PR title: "Add new API endpoints"
 3. Creates description from commits
@@ -170,10 +167,10 @@ Continue:
 
 ```
 ┌─────────────────────────────────────────┐
-│         VSCode + Continue.dev            │
+│         VSCode + Cline                   │
 │  - Natural language interface             │
-│  - Rules for auto-triggers                │
-│  - Slash commands                         │
+│  - Prompt playbooks                       │
+│  - MCP tool invocation                    │
 └───────────────┬─────────────────────────┘
                 │ MCP Protocol
                 ▼
@@ -233,7 +230,7 @@ curl http://localhost:8765/api/github/status
 ### Immediate (Today)
 1. ✅ Installed and configured
 2. 🔄 Reload VSCode to activate
-3. 🔄 Test with `/github:ci` command
+3. 🔄 Test with "check ci status"
 4. 🔄 Try creating a test PR
 
 ### Short-term (This Week)
@@ -251,16 +248,17 @@ curl http://localhost:8765/api/github/status
 ## 📚 References
 
 - **Setup Guide:** `docs/GITHUB_AUTOMATION.md`
-- **Continue Config:** `~/.continue/config.json`
-- **Rules:** `.continue/rules/github-*.md`
+- **Cline Runbook:** `docs/CLINE_GITHUB_WORKFLOWS.md`
+- **Cline Config:** `~/.cline/mcp_settings.json`
+- **Legacy Rules (archived):** `.continue/rules_legacy_continue_20260621/`
 - **API Docs:** `backend/app/api/github.py`
 - **Tools:** `backend/app/services/mcp/github_tools.py`
 
 ## 🆘 Support
 
-**If Continue doesn't see the tools:**
+**If Cline doesn't see the tools:**
 1. Reload VSCode (Cmd+Shift+P → "Reload Window")
-2. Check Continue console for errors
+2. Check Cline logs for MCP errors
 3. Verify Snackbar is running: `curl http://localhost:8765/health`
 
 **If GitHub API fails:**
@@ -277,7 +275,7 @@ source ~/.zshrc
 ## ✨ Success Criteria
 
 - ✅ 6 GitHub MCP tools implemented
-- ✅ Continue.dev rules created
+- ✅ Cline MCP integration configured
 - ✅ Web API endpoints active
 - ✅ Documentation complete
 - ✅ Token configured
@@ -290,9 +288,9 @@ source ~/.zshrc
 The GitHub automation system is **fully implemented and ready to use**. All phases complete:
 
 - **Phase 1:** Core tools ✅
-- **Phase 2:** Continue integration ✅
+- **Phase 2:** Cline integration ✅
 - **Phase 3:** Web API ✅
 
-**Next action:** Reload VSCode and test with `/github:ci` or "check ci status"
+**Next action:** Reload VSCode and test with "check ci status"
 
 Enjoy autonomous GitHub workflows! 🚀

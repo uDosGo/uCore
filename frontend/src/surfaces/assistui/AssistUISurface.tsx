@@ -43,7 +43,7 @@ interface Conversation {
   updatedAt: Date
 }
 
-type AgentMode = 'vault' | 'devstudio' | 'agent'
+type AgentMode = 'vault' | 'developer' | 'agent'
 
 // ─── Constants ──────────────────────────────────────────────────────
 
@@ -51,7 +51,7 @@ const SNACKBAR_API = 'http://localhost:8484'
 
 const AGENTS: { id: AgentMode; icon: string; label: string; desc: string }[] = [
   { id: 'vault', icon: 'chat', label: 'Vault', desc: 'User mode — personal docs, projects, knowledge' },
-  { id: 'devstudio', icon: 'code', label: 'DevStudio', desc: 'Dev mode — code, repos, skills, automation' },
+  { id: 'developer', icon: 'code', label: 'Developer', desc: 'Dev mode — code, repos, skills, automation' },
   { id: 'agent', icon: 'smart_toy', label: 'Agent', desc: 'Custom agent builder & configuration' },
 ]
 
@@ -132,7 +132,7 @@ I'm your uDos AI assistant with streaming responses, model selection, and conver
 - **Streaming** — responses appear token-by-token as they're generated
 - **Model selection** — choose from Ollama, OpenRouter, or OK Local models
 - **Conversations** — save, switch, and manage multiple threads
-- **Agents** — switch between Vault, DevStudio, and Agent modes
+- **Agents** — switch between Vault, Developer, and Agent modes
 
 > _Select a model above, then type a message or click a prompt card to get started._`,
   timestamp: new Date(),

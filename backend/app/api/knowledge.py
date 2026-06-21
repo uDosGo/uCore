@@ -130,3 +130,104 @@ async def handle_local_export(request: web.Request) -> web.Response:
     except Exception as exc:
         return web.json_response({"error": str(exc)}, status=400)
     return web.json_response(result)
+
+
+# ─── AF Manager (import/sync) endpoints ─────────────────────────────
+
+
+async def handle_af_import(request: web.Request) -> web.Response:
+    """POST /api/knowledge/import — run vault-to-AppFlowy import.
+
+    Body (optional):
+      {
+        "source": "Vault"       # Optional: import a single source by name
+      }
+
+    If no source specified, imports all enabled sources.
+    """
+    try:
+        body = await request.json() if request.body_exists else {}
+    except Exception:
+        body = {}
+
+    from app.af_manager.config import load_config
+    from app.af_manager.sync import run_import
+
+    config = load_config()
+
+    # Filter to single source if specified
+    source_name = body.get("source")
+    if source_name:
+        sources = [s for s in config.get("sources", []) if s["name"] == source_name]
+        if not sources:
+            return web.json_response(
+                {"error": f"Source '{source_name}' not found in config"},
+                status=404,
+            )
+        config["sources"] = sources
+
+    # Run import in the background; return immediately with a tracking ID
+    import asyncio
+    import uuid
+
+    task_id = str(uuid.uuid4())[:8]
+
+    async def run_async():
+        try:
+            result = run_import(config)
+            log.info("Import task %s completed: %s", task_id, result)
+        except Exception as e:
+            log.error("Import task %s failed: %s", task_id, e)
+
+    asyncio.ensure_future(run_async())
+
+    return web.json_response({
+        "status": "started",
+        "task_id": task_id,
+        "message": f"Import of '{source_name or 'all'}' sources started in background",
+    })
+
+
+async def handle_af_sync(request: web.Request) -> web.Response:
+    """POST /api/knowledge/sync — sync vaults into AppFlowy.
+
+    Same as import but triggers from the sync_config.
+
+    Body (optional):
+      {
+        "source": "Global Vault"   # Optional single source
+      }
+    """
+    # Same implementation as import for now
+    return await handle_af_import(request)
+
+
+async def handle_af_status(request: web.Request) -> web.Response:
+    """GET /api/knowledge/status — show vault source status.
+
+    Returns file counts for each configured source vault.
+    """
+    from app.af_manager.config import load_config, get_source_dirs
+    from app.af_manager.sync import scan_vault
+
+    config = load_config()
+    sources = get_source_dirs(config)
+
+    results = []
+    total_files = 0
+    for source in sources:
+        records = scan_vault(source["local_path"], tags=source.get("tags"))
+        results.append({
+            "name": source["name"],
+            "local_path": source["local_path"],
+            "enabled": source.get("enabled", True),
+            "file_count": len(records),
+            "tags": source.get("tags", []),
+        })
+        total_files += len(records)
+
+    return web.json_response({
+        "sources": results,
+        "total_files": total_files,
+        "source_count": len(sources),
+    })

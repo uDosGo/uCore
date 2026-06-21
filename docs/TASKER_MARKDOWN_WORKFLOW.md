@@ -1,3 +1,4 @@
+> **DEPRECATED** — This document has been superseded by canonical docs in [uDocs](https://github.com/uDosGo/uDocs). This file will be removed after migration verification. See [CONSOLIDATION_PLAN.md](./CONSOLIDATION_PLAN.md) for details.
 # Markdown-First Workflow Foundation
 
 Date: 2026-06-21  

@@ -82,6 +82,17 @@ class ClipboardAPITest(AioHTTPTestCase):
         assert data["count"] == 1
         assert data["items"][0]["content"] == "hello world"
 
+    async def test_save_empty_content(self):
+        resp = await self.client.post("/api/snacks/clipboard/save", json={"content": ""})
+        assert resp.status == 400
+        data = await resp.json()
+        assert "error" in data
+
+    async def test_save_invalid_json(self):
+        resp = await self.client.post("/api/snacks/clipboard/save", data=b"not json",
+                                       headers={"Content-Type": "application/json"})
+        assert resp.status == 400
+
     async def test_search_pin_delete(self):
         r1 = await self.client.post("/api/snacks/clipboard/save", json={"content": "alpha task", "pinned": False})
         item = await r1.json()
@@ -98,6 +109,26 @@ class ClipboardAPITest(AioHTTPTestCase):
         dr = await self.client.delete(f"/api/snacks/clipboard/{item_id}")
         assert dr.status == 200
 
+    async def test_search_empty_query(self):
+        resp = await self.client.get("/api/snacks/clipboard/search?q=")
+        assert resp.status == 400
+
+    async def test_pin_nonexistent(self):
+        resp = await self.client.post("/api/snacks/clipboard/nonexistent/pin", json={"pinned": True})
+        assert resp.status == 404
+
+    async def test_delete_nonexistent(self):
+        resp = await self.client.delete("/api/snacks/clipboard/nonexistent")
+        assert resp.status == 404
+
+    async def test_unpin(self):
+        r1 = await self.client.post("/api/snacks/clipboard/save", json={"content": "unpin me", "pinned": True})
+        item = await r1.json()
+        item_id = item["id"]
+
+        pr = await self.client.post(f"/api/snacks/clipboard/{item_id}/pin", json={"pinned": False})
+        assert pr.status == 200
+
     async def test_capture_and_paste(self):
         self._clipboard_text = "copied from mac"
         cap = await self.client.post("/api/snacks/clipboard/capture", json={"source": "user_copy"})
@@ -108,6 +139,10 @@ class ClipboardAPITest(AioHTTPTestCase):
         paste = await self.client.post(f"/api/snacks/clipboard/{item['id']}/paste")
         assert paste.status == 200
         assert self._clipboard_text == "copied from mac"
+
+    async def test_paste_nonexistent(self):
+        resp = await self.client.post("/api/snacks/clipboard/nonexistent/paste")
+        assert resp.status == 404
 
     async def test_cleanup(self):
         for i in range(5):
@@ -143,3 +178,8 @@ class ClipboardAPITest(AioHTTPTestCase):
         data = await lr.json()
         assert data["count"] == 1
         assert data["items"][0]["content"] == "keep-me"
+
+    async def test_capture_without_source(self):
+        self._clipboard_text = "auto captured"
+        cap = await self.client.post("/api/snacks/clipboard/capture", json={})
+        assert cap.status == 201

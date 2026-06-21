@@ -56,6 +56,8 @@ const PAGE_REGISTRY: Record<string, PageDef> = {
   s190: { code: 'S190', title: 'System Fallback', icon: 'warning', color: '#f0883e', description: 'Fallback system page.' },
   s200: { code: 'S200', title: 'Health Dashboard', icon: 'monitor_heart', color: '#3fb950', description: 'System health monitoring dashboard.' },
   s300: { code: 'S300', title: 'Workflow Builder', icon: 'account_tree', color: '#58a6ff', description: 'Design and manage automated workflows.' },
+  s310: { code: 'S310', title: 'Clipboard & Orchestration', icon: 'content_paste', color: '#22c55e', description: 'System clipboard buffer and overnight maintenance chain.' },
+  s320: { code: 'S320', title: 'Knowledge Tools', icon: 'auto_stories', color: '#a855f7', description: 'AppFlowy workspace browser, document viewer, and semantic search.' },
   s400: { code: 'S400', title: 'Maintenance', icon: 'build', color: '#f0883e', description: 'System maintenance and repair tools.' },
   s500: { code: 'S500', title: 'Log Viewer', icon: 'history', color: '#8b949e', description: 'System log viewer and analysis.' },
   s600: { code: 'S600', title: 'Learning Hub', icon: 'school', color: '#a855f7', description: 'Tutorials, guides, and educational resources.' },
@@ -85,6 +87,8 @@ function SystemPageToolbar({ currentCode }: { currentCode: string }) {
     { code: 's100', icon: 'build', label: 'Tool Builder' },
     { code: 's101', icon: 'auto_stories', label: 'Story Builder' },
     { code: 's300', icon: 'account_tree', label: 'Workflows' },
+    { code: 's310', icon: 'content_paste', label: 'Clipboard' },
+    { code: 's320', icon: 'auto_stories', label: 'Knowledge' },
     { code: 's600', icon: 'school', label: 'Learning' },
     { code: 's800', icon: 'science', label: 'Labs' },
   ]

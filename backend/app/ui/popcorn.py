@@ -20,6 +20,7 @@ import os
 import sys
 import json
 import time
+import signal
 import subprocess
 import threading
 import logging
@@ -75,18 +76,30 @@ def open_url(url: str):
 
 
 def check_ollama():
-    """Check Ollama status and return (status, models_list)."""
+    """Check Ollama status and return (status, models_list).
+
+    Returns 'stopped' if ~/.ucore/ollama_disabled exists, even if
+    Ollama is technically running (prevents watchdog re-launch).
+    """
+    # If we explicitly disabled it, always report stopped
+    disable_file = os.path.expanduser("~/.ucore/ollama_disabled")
+    explicitly_disabled = os.path.exists(disable_file)
+
     try:
         req = urllib.request.Request("http://127.0.0.1:11434/api/tags")
         with urllib.request.urlopen(req, timeout=2.0) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             models = [m["name"] for m in data.get("models", [])]
+            if explicitly_disabled:
+                return ("stopped", models)
             return ("running", models)
     except Exception:
         pass
     try:
         req = urllib.request.Request("http://127.0.0.1:11434/")
         with urllib.request.urlopen(req, timeout=1.0) as resp:
+            if explicitly_disabled:
+                return ("stopped", [])
             return ("installed", [])
     except Exception:
         return ("stopped", [])
@@ -279,7 +292,7 @@ class PopcornDelegate(NSObject):
             else:
                 weather = "☀️"       # full sun — all running
             item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                f"{weather}  {running}/{total} surfaces running", None, ""
+                f"{weather} {running}/{total} surfaces running", None, ""
             )
             item.setEnabled_(False)
             self._menu.addItem_(item)
@@ -296,22 +309,45 @@ class PopcornDelegate(NSObject):
         ollama_models = self._ollama_models
 
         if ollama_status == "running":
-            status_dot = "●"
-            status_label = "Running"
+            status_dot = "🏖️"
+            status_label = "Ollama Running"
         elif ollama_status == "installed":
-            status_dot = "●"
-            status_label = "Installed (idle)"
+            status_dot = "🏖️"
+            status_label = "Ollama Installed (idle)"
         elif ollama_status == "checking":
-            status_dot = "○"
-            status_label = "Checking..."
+            status_dot = ""
+            status_label = "Checking Ollama..."
         else:
-            status_dot = "○"
-            status_label = "Stopped"
+            status_dot = ""
+            disable_file = os.path.expanduser("~/.ucore/ollama_disabled")
+            if os.path.exists(disable_file):
+                status_label = "○ Stopped (disabled)"
+            else:
+                status_label = "Stopped"
 
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
             f"{status_dot} {status_label}", None, ""
         )
         self._menu.addItem_(item)
+
+        # Ollama start/stop controls
+        if ollama_status == "running":
+            item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                "○ Stop Ollama", "stopOllama:", ""
+            )
+            item.setTarget_(self)
+            self._menu.addItem_(item)
+            item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                "🥞 Restart Ollama", "restartOllama:", ""
+            )
+            item.setTarget_(self)
+            self._menu.addItem_(item)
+        else:
+            item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                "🥞 Start Ollama", "startOllama:", ""
+            )
+            item.setTarget_(self)
+            self._menu.addItem_(item)
 
         if ollama_models:
             for model in ollama_models:
@@ -407,6 +443,110 @@ class PopcornDelegate(NSObject):
         if self._refresh_timer:
             self._refresh_timer.cancel()
         NSApplication.sharedApplication().terminate_(self)
+
+    # ── Ollama Actions ─────────────────────────────────────────────
+
+    def startOllama_(self, sender):
+        """Start Ollama server explicitly (only called from popcorn menu)."""
+        log.info("Starting Ollama from popcorn menu...")
+        try:
+            # Remove disable flag so watchdog doesn't kill it
+            disable_file = os.path.expanduser("~/.ucore/ollama_disabled")
+            if os.path.exists(disable_file):
+                os.remove(disable_file)
+
+            # Start ollama serve as a standalone process (not via launchd)
+            proc = subprocess.Popen(
+                ["ollama", "serve"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                preexec_fn=os.setsid,
+            )
+            log.info(f"Ollama started (PID {proc.pid})")
+            time.sleep(2)
+            self._ollama_status = 'checking'
+            self._refresh()
+        except Exception as e:
+            log.error(f"Failed to start Ollama: {e}")
+            alert = NSAlert.alloc().init()
+            alert.setMessageText_("Failed to Start Ollama")
+            alert.setInformativeText_(str(e))
+            alert.runModal()
+
+    def stopOllama_(self, sender):
+        """Stop Ollama server — kills it AND prevents auto-restart.
+
+        Sets a disable flag so no watchdog re-launches it.
+        Only startOllama_ (popcorn menu) can revive it.
+        """
+        log.info("Stopping Ollama permanently (until explicitly started)...")
+        try:
+            # 1. Kill all ollama processes with extreme prejudice
+            result = subprocess.run(
+                ["pgrep", "-f", "ollama"],
+                capture_output=True, text=True, timeout=5
+            )
+            pids = [int(p) for p in result.stdout.strip().splitlines() if p.strip()]
+            # Filter out our own pgrep command
+            pids = [p for p in pids if p != os.getpid()]
+
+            if pids:
+                # SIGKILL immediately — no graceful shutdown needed for resource reclaim
+                for pid in pids:
+                    try:
+                        os.kill(pid, signal.SIGKILL)
+                    except (ProcessLookupError, OSError):
+                        pass
+                log.info(f"Killed Ollama PIDs: {pids}")
+                time.sleep(0.5)
+
+            # 2. Unload any launchd agent that might respawn Ollama
+            for plist in ["homebrew.mxcl.ollama", "ollama", "com.ollama.ollama"]:
+                try:
+                    subprocess.run(
+                        ["launchctl", "unload", f"/Library/LaunchAgents/{plist}.plist"],
+                        capture_output=True, timeout=5,
+                    )
+                except Exception:
+                    pass
+                try:
+                    subprocess.run(
+                        ["launchctl", "unload", f"~/Library/LaunchAgents/{plist}.plist"],
+                        capture_output=True, timeout=5,
+                    )
+                except Exception:
+                    pass
+
+            # 3. Set disable flag so no auto-restart
+            disable_file = os.path.expanduser("~/.ucore/ollama_disabled")
+            os.makedirs(os.path.dirname(disable_file), exist_ok=True)
+            with open(disable_file, "w") as f:
+                f.write(f"disabled by popcorn at {time.time()}")
+
+            # 4. Also kill any leftover ollama runner processes
+            for leftover in ["ollama_llama_server", "ollama-runner"]:
+                try:
+                    subprocess.run(["pkill", "-9", leftover], capture_output=True, timeout=3)
+                except Exception:
+                    pass
+
+            self._ollama_status = 'stopped'
+            self._ollama_models = []
+            self._refresh()
+            log.info("Ollama fully stopped and disabled. Only popcorn menu can restart.")
+        except Exception as e:
+            log.error(f"Failed to stop Ollama: {e}")
+            alert = NSAlert.alloc().init()
+            alert.setMessageText_("Failed to Stop Ollama")
+            alert.setInformativeText_(str(e))
+            alert.runModal()
+
+    def restartOllama_(self, sender):
+        """Restart Ollama (stop then start)."""
+        log.info("Restarting Ollama...")
+        self.stopOllama_(sender)
+        time.sleep(2)
+        self.startOllama_(sender)
 
 
 # ─── Lockfile (prevent duplicate instances) ──────────────────────────

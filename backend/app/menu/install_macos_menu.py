@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from app.core.settings import settings
 import argparse
 import os
 import subprocess
@@ -10,7 +11,7 @@ from pathlib import Path
 
 LABEL = "com.udos.ucore-menu"
 PLIST_PATH = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"
-PROJECT_DIR = Path("/Users/fredbook/Code/uCore/backend")
+PROJECT_DIR = settings.udos_root / "uCore/backend"
 MENU_SCRIPT = PROJECT_DIR / "app/menu/snackbar_menu.py"
 LOG_DIR = Path.home() / ".ucore/logs"
 

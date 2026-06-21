@@ -103,7 +103,7 @@ const DISPLAY_NAME_MAP: Record<string, string> = {
 }
 
 // FALLBACK_REGISTRY: only Server, System, Documents, and Groovebox are hardcoded here.
-// All other surface cards (Terminal, Teletext, GridCore, BrowserUI, DevStudio, etc.)
+// All other surface cards (Terminal, Teletext, GridCore, BrowserUI, Developer, etc.)
 // are placed dynamically by the snackbar/ui-server. This keeps the fallback minimal
 // for maintenance-only scenarios when the snackbar is offline.
 const FALLBACK_REGISTRY: SurfaceDef[] = [

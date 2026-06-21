@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import os
+from app.core.settings import settings
 from pathlib import Path
 from typing import Any
 
 
 def default_tasker_dir() -> Path:
-    return Path(os.getenv("UCORE_TASKER_DIR", str(Path.home() / "Code/uCore/.tasker"))).expanduser()
+    return Path(os.getenv("UCORE_TASKER_DIR", str(settings.udos_root / "uCore/.tasker"))).expanduser()
 
 
 def scan_tasker_boards(tasker_dir: Path | None = None) -> dict[str, Any]:
@@ -43,7 +44,7 @@ def build_workflow_status(maintenance: dict[str, Any] | None = None) -> dict[str
     return {
         "engine": {
             "name": "Cline Kanban",
-            "role": "Primary DevStudio workflow engine",
+            "role": "Primary Developer workflow engine",
             "command": "npx kanban",
             "bind": "127.0.0.1:3484",
             "access": "localhost-only",

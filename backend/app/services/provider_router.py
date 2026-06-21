@@ -112,9 +112,8 @@ class ProviderRouter:
 
     def _load_config(self):
         """Load provider configuration from config files."""
-        # Try DevStudio config first, then ~/.config/udos
+        # Try ~/.config/udos first
         config_paths = [
-            Path("/Users/fredbook/Code/DevStudio/config/models.yaml"),
             self.config_dir / "models.yaml",
             self.config_dir / "config.yaml",
         ]

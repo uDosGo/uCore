@@ -31,6 +31,7 @@ def register_routes(app: web.Application) -> None:
         handle_get_document, handle_get_document_content, handle_search,
         handle_local_databases, handle_local_tables, handle_local_query,
         handle_local_export,
+        handle_af_import, handle_af_sync, handle_af_status,
     )
 
     # Knowledge (AppFlowy bridge)
@@ -43,6 +44,10 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/knowledge/local/tables", handle_local_tables)
     app.router.add_post("/api/knowledge/local/query", handle_local_query)
     app.router.add_post("/api/knowledge/local/export", handle_local_export)
+    # AF Manager (vault import/sync)
+    app.router.add_post("/api/knowledge/import", handle_af_import)
+    app.router.add_post("/api/knowledge/sync", handle_af_sync)
+    app.router.add_get("/api/knowledge/status", handle_af_status)
 
     # MCP Integration
     app.router.add_get("/api/mcp/tools", handle_mcp_discover)
@@ -73,6 +78,22 @@ def register_routes(app: web.Application) -> None:
     register_snack_routes(app)
     register_container_routes(app)
     register_github_routes(app)
+
+    # ── Spool / Activity Feed ───────────────────────────────────────
+    try:
+        from .spool import register_spool_routes
+        register_spool_routes(app)
+        log.debug("Spool activity feed routes registered")
+    except ImportError as e:
+        log.debug("Spool routes not available: %s", e)
+
+    # ── Identity (UDN-IDENTITY-API-001) ─────────────────────────────
+    try:
+        from .identity_api import register_identity_routes
+        register_identity_routes(app)
+        log.debug("Identity routes registered")
+    except ImportError as e:
+        log.debug("Identity routes not available: %s", e)
 
     # ── Surface extensions: Ceefax Teletext ─────────────────────────
     try:

@@ -1,7 +1,7 @@
 # uCore — Unified Development OS
 
 ## 1. Project Purpose
-uCore is a unified daemon providing a local-first API server orchestrating AI chat providers, surfaces (UI apps), skills (automation), tools (environment detection), knowledge bridge to AppFlowy, and encrypted secret store. Replaces uConnect (frontend), uServer (services), and DevStudio (tools) into one system.
+uCore is a unified daemon providing a local-first API server orchestrating AI chat providers, surfaces (UI apps), skills (automation), tools (environment detection), knowledge bridge to AppFlowy, and encrypted secret store. Unifies syntax, automation, and runtime management.
 
 **Repo:** https://github.com/uDosGo/uCore  
 **Port:** 8484  
@@ -87,50 +87,92 @@ uCore's current workflow direction is Markdown-first and local-first:
 
 1. AppFlowy/local SQLite remains the planning source.
 2. `tasker_sync` exports workflow rows into repo-adjacent `.tasker/` Markdown files.
-3. Cline Kanban is the preferred visual orchestration layer for DevStudio/uCode work.
-4. Richer Python automation can be layered later without replacing the Markdown task substrate.
+3. Cline (VS Code) is the primary orchestrator for all dev work.
+4. Roundtable MCP server enables parallel task execution across multiple models.
+5. Richer Python automation can be layered later without replacing the Markdown task substrate.
+
+## 3D. Dev Plan Format
+
+Development plans live in `.tasker/` under the uCore repo:
+
+```
+.tasker/
+├── README.md           # Board descriptions and task format
+├── phases/             # Active phases (in-progress, todo, done)
+│   ├── in-progress-phase-4-docs-*.md
+│   ├── todo-phase-5-memory-*.md
+│   └── ...
+└── backlog/            # Future work and ideas
+    ├── todo-ai-provider-manager-*.md
+    └── ...
+```
+
+Each task file follows the Tasker Markdown format with status, source, source_id, synced_at, summary, and metadata (area, priority, depends_on, orchestrator).
 
 ## 4. Cost Strategy (Task Router)
 
 | Complexity | Provider | Model | Cost | When to Use |
 |-----------|----------|-------|------|-------------|
 | **Simple** | Ollama | qwen2.5-coder:7b | **$0.00** (local) | Typos, boilerplate, formatting |
-| **Medium** | OpenRouter/Codex | o3-mini | **~$0.01/task** | Daily work, features, endpoints |
+| **Medium** | OpenRouter | o3-mini | **~$0.01/task** | Daily work, features, endpoints |
 | **Complex** | OpenRouter/Claude | claude-sonnet-4 | **~$0.15/task** | Security, architecture, concurrency |
 | **Large Context** | OpenRouter/Gemini | gemini-2.5-flash | **~$0.02/100K tokens** | Repo-wide refactoring, analysis |
 
-**Strategy:** 15% Ollama, 70% Codex, 5% Claude, 10% Gemini. Always auto-detect from task description.
+**Strategy:** 15% Ollama, 70% OpenRouter/o3-mini, 5% Claude, 10% Gemini. Always auto-detect from task description.
 
-## 5. MCP Integration (VS Code / Continue)
+## 4A. Dev Orchestration Flow
 
-uCore exposes 18 tools via the Model Context Protocol for IDE integration:
+uCore development follows an auto-advancing pipeline using Cline as the primary orchestrator:
 
 ```
-VS Code → Continue → MCP Bridge → uCore (port 8484) → Skills + Knowledge
+Phase task (.tasker/) → Route Task (skill_route_task) → Cline orchestrates →
+  Roundtable MCP (parallel) → Code written → Tests pass → Phase auto-advances
 ```
+
+**Pipeline:**
+1. Dev plan lives in `.tasker/phases/` as Tasker Markdown
+2. Each phase's provider is determined by `skill_route_task`
+3. Cline reads the phase task and executes sub-tasks
+4. Roundtable MCP enables parallel execution (e.g., generate 3 API docs simultaneously)
+5. After completion, phase status flips `done`, next in-progress begins
+6. `tasker_sync` keeps `.tasker/` synced with AppFlowy planning
+
+## 5. MCP Integration (Cline Primary / Roundtable Parallel)
+
+uCore exposes 18 tools via the Model Context Protocol for IDE integration.
+
+### Primary Path: Cline `native MCP support`
+
+Cline connects directly to uCore's MCP bridge, reading all skills and knowledge tools
+as first-class MCP server capabilities. No subscription — Cline is **free, open-source (Apache 2.0)**.
+
+```
+VS Code → Cline (primary orchestrator)
+  ├── uCore MCP bridge → skills + knowledge
+  ├── Roundtable MCP server → parallel model execution
+  └── GitHub MCP → PR/release/CI
+```
+
+### Parallel Path: Roundtable MCP Server
+
+Roundtable enables **parallel task execution** across multiple AI models:
+- `execute_gemini_task` — large context analysis (1M tokens)
+- `execute_claude_task` — complex reasoning
+- `execute_openrouter_task` — daily work via o3-mini
+- All managed through Cline's chat interface — no context switching
+
+**Workflow:** User asks Cline → Cline calls Roundtable tools in parallel → aggregated results returned.
+
+### uCore MCP Bridge (`~/.continue/mcp-udos.py`)
+
+Python stdio bridge translating MCP JSON-RPC ↔ uCore HTTP API:
 
 **Available MCP tools:**
 - 15 skill tools: `skill_backup`, `skill_ask_vault`, `skill_brain_sync`, `skill_tasker_sync`, `skill_vault_sync`, `skill_route_task`, etc.
 - 3 knowledge tools: `knowledge_search`, `knowledge_list_workspaces`, `knowledge_list_documents`
 
-**MCP Bridge** (`~/.continue/mcp-udos.py`):
-- Python stdio bridge translating MCP JSON-RPC ↔ uCore HTTP API
-- Used by **both** Continue and Cline
+**Legacy Continue configs:** archived in `.continue/` and not part of active flow.
 
-**Continue 2.0.0** (uses YAML in `.continue/mcpServers/*.yaml`):
-```yaml
-# .continue/mcpServers/udos.yaml
-name: uCore MCP
-version: 4.0.0
-schema: v1
-mcpServers:
-  - name: uCore
-    command: python3
-    args:
-      - /Users/fredbook/.continue/mcp-udos.py
-    description: uCore MCP — 18 tools + skills + AppFlowy knowledge
-    env: {}
-```
 **Cline** (`~/.cline/mcp_settings.json`):
 ```json
 {

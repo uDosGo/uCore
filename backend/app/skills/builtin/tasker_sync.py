@@ -15,12 +15,13 @@ Usage:
 from __future__ import annotations
 
 from pathlib import Path
+from app.core.settings import settings
 
 from app.knowledge.local_first import discover_databases, run_query
 from app.services.tasker_bridge import export_rows_to_tasker
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
-PROJECT_ROOT = Path.home() / "Code/uCore"
+PROJECT_ROOT = settings.udos_root / "uCore"
 DEFAULT_TASKER_DIR = PROJECT_ROOT / ".tasker"
 DEFAULT_SQL = "SELECT * FROM row_table LIMIT 20"
 

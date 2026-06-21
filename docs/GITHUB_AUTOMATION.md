@@ -1,12 +1,13 @@
+> **DEPRECATED** — This document has been superseded by canonical docs in [uDocs](https://github.com/uDosGo/uDocs). This file will be removed after migration verification. See [CONSOLIDATION_PLAN.md](./CONSOLIDATION_PLAN.md) for details.
 # GitHub Automation Setup Guide
 
-Complete setup guide for uCore's GitHub automation system with Continue.dev integration.
+Complete setup guide for uCore's GitHub automation system with Cline integration.
 
 ## Overview
 
 The GitHub automation system provides:
 - **6 MCP Tools** for autonomous GitHub operations
-- **Continue.dev Rules** for intelligent workflow triggers
+- **Cline MCP integration** for intelligent workflow triggers
 - **Web API** for external integrations and webhooks
 - **Cross-repo management** for uDosGo organization
 
@@ -51,7 +52,7 @@ curl http://localhost:8765/health
 
 ### 4. Reload VSCode
 
-Restart VSCode to load the new Continue configuration and GitHub rules.
+Restart VSCode to load updated MCP configuration.
 
 ## MCP Tools
 
@@ -59,10 +60,10 @@ Restart VSCode to load the new Continue configuration and GitHub rules.
 
 Create and publish GitHub releases with auto-generated changelogs.
 
-**Usage in Continue:**
+**Usage in Cline:**
 ```
 User: "Release version 0.2.0 to GitHub"
-Continue: Uses github_publish_release tool
+Cline: Uses github_publish_release tool
 ```
 
 **API Usage:**
@@ -92,9 +93,9 @@ result = tools.sync_repos(local_dir="~/Code/uDosGo")
 
 Auto-create PRs with smart title and description generation.
 
-**Continue Command:**
+**Cline Prompt Example:**
 ```
-/github:pr
+User: "Create a PR for this branch"
 ```
 
 **What it does:**
@@ -107,9 +108,9 @@ Auto-create PRs with smart title and description generation.
 
 Auto-triage and label issues across repos.
 
-**Continue Command:**
+**Cline Prompt Example:**
 ```
-/github:issues
+User: "Triage open issues for this repo"
 ```
 
 **Features:**
@@ -122,9 +123,9 @@ Auto-triage and label issues across repos.
 
 Check CI/CD workflow status across all repos.
 
-**Continue Command:**
+**Cline Prompt Example:**
 ```
-/github:ci
+User: "Check CI status across uDosGo repos"
 ```
 
 **Auto-retry:**
@@ -146,56 +147,29 @@ result = tools.approve_pr(
 )
 ```
 
-## Continue.dev Integration
+## Cline Integration
 
-### Slash Commands
+### Prompt-Driven MCP Usage
 
-Available in Continue chat:
+Available in Cline chat:
 
-- `/github:pr` - Create PR from current branch
-- `/github:release` - Publish new release
-- `/github:ci` - Check CI/CD status
-- `/github:issues` - Triage issues
-- `/github:sync` - Sync all repos
+- "Create a PR from current branch"
+- "Publish a new release"
+- "Check CI/CD status"
+- "Triage open issues"
+- "Sync organization repos"
 
-### Autonomous Rules
+### Workflow Playbooks
 
-#### 1. Auto-PR Creation
-**File:** `.continue/rules/github-auto-pr.md`
+Canonical Cline-native workflows are documented in:
 
-**Triggers:**
-- User says "ready to PR"
-- Significant code changes on feature branch
+- `docs/CLINE_GITHUB_WORKFLOWS.md`
 
-**Actions:**
-- Checks git status
-- Generates PR content
-- Creates PR automatically
+The playbook covers:
 
-#### 2. CI/CD Monitoring
-**File:** `.continue/rules/github-ci-monitor.md`
-
-**Triggers:**
-- User asks about CI status
-- After git push
-- Mentions "deploy" or "release"
-
-**Actions:**
-- Checks all workflow runs
-- Reports failures
-- Suggests auto-retry
-
-#### 3. Issue Triage
-**File:** `.continue/rules/github-issue-triage.md`
-
-**Triggers:**
-- User mentions "issues" or "inbox"
-- Daily scheduled run
-
-**Actions:**
-- Auto-labels issues
-- Marks stale issues
-- Reports summary
+- Auto-PR flow (prompt + MCP tool sequence)
+- CI monitoring flow (interactive and scheduled)
+- Issue triage flow (interactive and scheduled)
 
 ## Web API Endpoints
 
@@ -254,7 +228,7 @@ List all organization repositories.
 ### Example 1: Daily Issue Triage
 
 ```bash
-# Run via Continue
+# Run via Cline
 User: "triage all issues"
 
 # Or via API
@@ -271,7 +245,7 @@ User: "check ci status"
 # 2. Create release
 User: "release version 1.0.0"
 
-# 3. Continue auto-publishes with changelog
+# 3. Cline auto-publishes with changelog
 ```
 
 ### Example 3: PR Automation
@@ -283,9 +257,9 @@ git checkout -b feature/new-api
 git add .
 git commit -m "Add new API endpoints"
 
-# Let Continue create the PR
+# Let Cline create the PR
 User: "ready to submit PR"
-Continue: "Creating PR... https://github.com/uDosGo/uCore/pull/42"
+Cline: "Creating PR... https://github.com/uDosGo/uCore/pull/42"
 ```
 
 ## Troubleshooting
@@ -314,12 +288,12 @@ pkill -f snackbar
 python -m app.snackbar.server --port 8765
 ```
 
-### Continue Not Seeing Tools
+### Cline Not Seeing Tools
 
 1. Reload VSCode window (Cmd+R)
-2. Check Continue console for errors
-3. Verify `.continue/config.json` has snackbar MCP server
-4. Check Continue → Settings → MCP Servers
+2. Check Cline output logs for MCP errors
+3. Verify `~/.cline/mcp_settings.json` has the uCore MCP server
+4. Confirm backend is reachable at the configured URL
 
 ## Advanced Configuration
 
@@ -374,7 +348,7 @@ jobs:
 ## Next Steps
 
 1. ✅ Set up GitHub token
-2. ✅ Test MCP tools via Continue
+2. ✅ Test MCP tools via Cline
 3. ✅ Configure webhooks (optional)
 4. 🔄 Customize rules for your workflow
 5. 🔄 Add more automation as needed
@@ -383,4 +357,4 @@ jobs:
 
 - GitHub Issues: https://github.com/uDosGo/uCore/issues
 - Documentation: https://udos.dev/ucore
-- Continue Docs: https://docs.continue.dev
+- Cline Docs: https://docs.cline.bot

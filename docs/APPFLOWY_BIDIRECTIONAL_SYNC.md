@@ -73,23 +73,28 @@ cd /Users/fredbook/Code/uCore && \
 python scripts/appflowy_vault_sync.py --config config/vault-sync.yaml --summary-only
 ```
 
-## MCP Integration (Continue)
+## MCP Integration (Cline)
 
-For direct AppFlowy operations in AI chat, add an AppFlowy MCP server and keep Hive-Vault for uDocs.
+For direct AppFlowy operations in AI chat, configure MCP servers in Cline and keep Hive-Vault for uDocs.
 
-Example fragment for Continue MCP YAML style:
+Example fragment for `~/.cline/mcp_settings.json`:
 
-```yaml
-mcpServers:
-  - name: hive-vault
-    command: uvx
-    args: ["--upgrade", "hive-vault"]
-    env:
-      VAULT_PATH: /Users/fredbook/Code/uDocs
-
-  - name: appflowy
-    command: uv
-    args: ["--directory", "/absolute/path/to/appflowy-mcp", "run", "appflowy-mcp"]
+```json
+{
+  "mcpServers": {
+    "hive-vault": {
+      "command": "uvx",
+      "args": ["--upgrade", "hive-vault"],
+      "env": {
+        "VAULT_PATH": "/Users/fredbook/Code/uDocs"
+      }
+    },
+    "appflowy": {
+      "command": "uv",
+      "args": ["--directory", "/absolute/path/to/appflowy-mcp", "run", "appflowy-mcp"]
+    }
+  }
+}
 ```
 
 ## Guardrails

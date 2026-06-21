@@ -1,10 +1,11 @@
-"""Skills API — run skills/scripts via the DevStudio surface.
+"""Skills API — execute skills via the Developer surface.
 
 POST /api/skills/{skill_id}/run — execute a skill by ID
 POST /api/skills/run — run a skill by directory path
 """
 from __future__ import annotations
 
+from app.core.settings import settings
 import asyncio
 import json
 import logging
@@ -19,8 +20,8 @@ from app.skills.registry import get_skill, run_skill_by_id
 
 SKILL_PATHS = [
     Path(__file__).parent.parent / "skills" / "builtin",  # backend/app/skills/builtin/
-    Path.home() / "Code/DevStudio/skills",
-    Path.home() / "Code/uCore/skills",
+    
+    settings.udos_root / "uCore/skills",
     Path("/usr/local/share/udos/skills"),
 ]
 

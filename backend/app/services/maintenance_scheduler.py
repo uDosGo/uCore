@@ -21,7 +21,7 @@ class MaintenanceJob:
 DEFAULT_JOBS = (
     MaintenanceJob("daily_backup", "03:00", {"type": "full"}),
     MaintenanceJob("vault_sync", "04:00", {"summary_only": True}),
-    MaintenanceJob("brain_sync", "04:15", {"hours": 24, "limit": 20}),
+    MaintenanceJob("brain_sync", "04:15", {"hours": 24, "limit": 20, "include_spool": True, "include_appflowy": True}),
 )
 
 

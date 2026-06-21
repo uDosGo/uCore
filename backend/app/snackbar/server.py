@@ -84,7 +84,7 @@ from server_vibe import *  # vibe
 from server_map import *  # map
 from server_approval import *  # approval
 from server_mission_control import *  # mission_control
-from server_devstudio import *  # devstudio
+from server_developer import *  # devstudio
 from server_vault import *  # vault
 from server_process import *  # process
 from server_bridge import *  # bridge

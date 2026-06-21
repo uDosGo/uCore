@@ -48,6 +48,11 @@ class Settings:
     # ── Services ─────────────────────────────────────────────
     enable_cors: bool = os.environ.get("UCORE_ENABLE_CORS", "1").lower() in ("1", "true", "yes")
 
+    # ── ROOT (Code base path — all repos under ~/Code/) ─────
+    udos_root: Path = Path(
+        os.environ.get("ROOT", os.environ.get("UDOS_CODE", os.path.expanduser("~/Code")))
+    ).expanduser()
+
     # ── Ollama / AI ──────────────────────────────────────────
     ollama_base_url: str = os.environ.get(
         "UCORE_OLLAMA_URL", "http://localhost:11434"

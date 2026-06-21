@@ -13,12 +13,12 @@ from pathlib import Path
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 PROJECT_CONTEXT_FILES = {
-    "ucore": Path.home() / "Code/uCore/CONTEXT.md",
-    "default": Path.home() / "Code/uCore/CONTEXT.md",
+    "ucore": settings.udos_root / "uCore/CONTEXT.md",
+    "default": settings.udos_root / "uCore/CONTEXT.md",
 }
 PROJECT_WISDOM_FILES = {
-    "ucore": Path.home() / "Code/uCore/wisdom.md",
-    "default": Path.home() / "Code/uCore/wisdom.md",
+    "ucore": settings.udos_root / "uCore/wisdom.md",
+    "default": settings.udos_root / "uCore/wisdom.md",
 }
 
 

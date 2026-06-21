@@ -9,10 +9,11 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+from app.core.settings import settings
 
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
-PROJECT_ROOT = Path.home() / "Code/uCore"
+PROJECT_ROOT = settings.udos_root / "uCore"
 DEFAULT_CONFIG = PROJECT_ROOT / "config" / "vault-sync.yaml"
 SCRIPT_PATH = PROJECT_ROOT / "scripts" / "appflowy_vault_sync.py"
 

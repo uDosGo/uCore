@@ -29,6 +29,15 @@ class SurfaceAPITest(AioHTTPTestCase):
         resp = await self.client.post("/api/surfaces", json={"type": "grid"})
         assert resp.status == 400
 
+    async def test_create_surface_invalid_json(self):
+        resp = await self.client.post("/api/surfaces", data=b"not json",
+                                       headers={"Content-Type": "application/json"})
+        assert resp.status == 400
+
+    async def test_create_surface_invalid_type(self):
+        resp = await self.client.post("/api/surfaces", json={"name": "Bad", "type": "invalid_type_xyz"})
+        assert resp.status == 400
+
     async def test_list_surfaces(self):
         await self.client.post("/api/surfaces", json={"name": "A", "type": "prose"})
         await self.client.post("/api/surfaces", json={"name": "B", "type": "grid"})
@@ -36,6 +45,13 @@ class SurfaceAPITest(AioHTTPTestCase):
         assert resp.status == 200
         data = await resp.json()
         assert data["count"] == 2
+
+    async def test_list_surfaces_empty(self):
+        resp = await self.client.get("/api/surfaces")
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["count"] == 0
+        assert data["surfaces"] == []
 
     async def test_get_surface(self):
         cr = await self.client.post("/api/surfaces", json={"name": "Find Me", "type": "dashboard"})
@@ -57,6 +73,10 @@ class SurfaceAPITest(AioHTTPTestCase):
         get_resp = await self.client.get(f"/api/surfaces/{cid}")
         assert get_resp.status == 404
 
+    async def test_delete_nonexistent(self):
+        resp = await self.client.delete("/api/surfaces/nonexistent")
+        assert resp.status == 404
+
     async def test_start_surface(self):
         cr = await self.client.post("/api/surfaces", json={"name": "Start", "type": "prose"})
         cid = (await cr.json())["id"]
@@ -69,6 +89,23 @@ class SurfaceAPITest(AioHTTPTestCase):
         cr = await self.client.post("/api/surfaces", json={"name": "Stop", "type": "prose"})
         cid = (await cr.json())["id"]
         await self.client.post(f"/api/surfaces/{cid}/start")
+        resp = await self.client.post(f"/api/surfaces/{cid}/stop")
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["state"] == "stopped"
+
+    async def test_start_nonexistent(self):
+        resp = await self.client.post("/api/surfaces/nonexistent/start")
+        assert resp.status == 404
+
+    async def test_stop_nonexistent(self):
+        resp = await self.client.post("/api/surfaces/nonexistent/stop")
+        assert resp.status == 404
+
+    async def test_stop_already_stopped(self):
+        """Stopping an already stopped surface should be idempotent."""
+        cr = await self.client.post("/api/surfaces", json={"name": "Idempotent", "type": "prose"})
+        cid = (await cr.json())["id"]
         resp = await self.client.post(f"/api/surfaces/{cid}/stop")
         assert resp.status == 200
         data = await resp.json()

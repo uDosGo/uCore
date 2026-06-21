@@ -48,7 +48,7 @@ REFRESH_INTERVAL = 5.0  # seconds
 UCORE_LABEL = "com.udos.ucore-server"
 LEGACY_LABEL = "com.udos.snackbar-server"
 UCORE_PLIST = os.path.expanduser("~/Library/LaunchAgents/com.udos.ucore-server.plist")
-UCORE_BACKEND_DIR = "/Users/fredbook/Code/uCore/backend"
+UCORE_BACKEND_DIR = f"{settings.udos_root}/uCore/backend"
 
 log_dir = os.path.expanduser("~/.ucore/logs")
 os.makedirs(log_dir, exist_ok=True)
