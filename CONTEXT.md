@@ -7,7 +7,7 @@ uCore is a unified daemon providing a local-first API server orchestrating AI ch
 **Port:** 8484  
 **Stack:** Python 3.14, aiohttp, SQLite, React (Vite + TypeScript)  
 **Auto-start:** launchd `com.udos.ucore-server` (boot + crash recovery)  
-**Schedules:** Daily backup 3:00 AM, vault sync 4:00 AM
+**Schedules:** Daily backup 3:00 AM, vault sync 4:00 AM, brain sync overnight after vault refresh
 
 ## 2. Architecture
 
@@ -36,7 +36,7 @@ uCore/
 └── CONTEXT.md                      # This file
 ```
 
-## 3. Available Skills (12 total)
+## 3. Available Skills (13 total)
 
 | Skill | ID | What It Does | Cost |
 |-------|-----|-------------|------|
@@ -50,8 +50,33 @@ uCore/
 | **Hello World** | `hello-world` | Example skill template | — |
 | **Ask Vault** | `ask_vault` | Query AppFlowy knowledge base | — |
 | **Attach Context** | `attach_context` | Inject CONTEXT.md as AI system prompt | — |
+| **Brain Sync** | `brain_sync` | Refresh `wisdom.md` from recent project changes | — |
 | **Route Task** | `route_task` | Route tasks to optimal AI provider | — |
 | **Daily Backup** | `daily_backup` | Scheduled backup (config/database/secrets) | — |
+
+## 3A. Memory Architecture
+
+uCore now follows a three-layer local-first memory model:
+
+| Memory Layer | Storage | Purpose |
+|-------------|---------|---------|
+| **Short-term** | Active AI/chat session | Immediate task context and working state |
+| **Long-term** | AppFlowy, Vault, canonical docs | Durable project knowledge and specifications |
+| **Episodic** | `wisdom.md`, spool logs, recent change summaries | What worked, what changed, and lessons learned |
+
+Key files:
+- `CONTEXT.md` — architecture and operational baseline
+- `wisdom.md` — synthesized project memory refreshed by `brain_sync`
+- `docs/CONSOLIDATION_PLAN.md` — migration and canonical-doc execution plan
+
+## 3B. DocLang Principles
+
+All new documentation should be structured for efficient AI ingestion before any future cloud path:
+
+1. Prefer stable headings, explicit tables, and low-ambiguity sections.
+2. Keep architecture, runbooks, and checklists split into predictable documents.
+3. Favor normalized Markdown that can be transformed into DocLang-style JSON/XML later.
+4. Avoid burying operational rules in narrative prose when a checklist or table is clearer.
 
 ## 4. Cost Strategy (Task Router)
 
@@ -66,14 +91,14 @@ uCore/
 
 ## 5. MCP Integration (VS Code / Continue)
 
-uCore exposes 15 tools via the Model Context Protocol for IDE integration:
+uCore exposes 16 tools via the Model Context Protocol for IDE integration:
 
 ```
 VS Code → Continue → MCP Bridge → uCore (port 8484) → Skills + Knowledge
 ```
 
 **Available MCP tools:**
-- 12 skill tools: `skill_backup`, `skill_ask_vault`, `skill_route_task`, etc.
+- 13 skill tools: `skill_backup`, `skill_ask_vault`, `skill_brain_sync`, `skill_route_task`, etc.
 - 3 knowledge tools: `knowledge_search`, `knowledge_list_workspaces`, `knowledge_list_documents`
 
 **MCP Bridge** (`~/.continue/mcp-udos.py`):
@@ -91,10 +116,9 @@ mcpServers:
     command: python3
     args:
       - /Users/fredbook/.continue/mcp-udos.py
-    description: uCore MCP — 15 tools + skills + AppFlowy knowledge
+    description: uCore MCP — 16 tools + skills + AppFlowy knowledge
     env: {}
 ```
-
 **Cline** (`~/.cline/mcp_settings.json`):
 ```json
 {

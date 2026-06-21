@@ -2,7 +2,7 @@
 
 Date: 2026-06-21
 Owner: uDosGo maintainers
-Status: Milestone A started
+Status: Milestone A started; next-round execution plan added
 
 ## Objective
 
@@ -65,6 +65,32 @@ Archive or deprecate in-place:
 3. Populate surfaces/ceefax.md and surfaces/devstudio.md from current uCore surfaces and frontend modules.
 4. Populate runtimes/basic.md from uCode runtime docs.
 5. Update repository README files to point to uDocs.
+
+## Next Rounds Checklist
+
+### 1. Migration Checklist
+
+- Add canonical uDocs destinations for Snackbar system docs, clipboard buffer docs, and AppFlowy local-first docs.
+- Normalize active docs using DocLang-friendly structure: explicit headings, tables, API lists, and stable identifiers.
+- Create README pointers in active repos back to uDocs canonical sections.
+
+### 2. Snackbar / System Orchestration
+
+- Keep system snacks, tray menu, clipboard buffer, and spool logging under one orchestration model.
+- Add `brain_sync` to overnight maintenance alongside backup and vault sync.
+- Track popover/global-shortcut work as part of system surface orchestration, not as isolated menu hacks.
+
+### 3. Memory / Brain Layer
+
+- `brain_sync` refreshes `wisdom.md` from recent project changes.
+- `attach_context` injects both `CONTEXT.md` and `wisdom.md`.
+- Next iteration should synthesize spool events, recent docs, and AppFlowy local activity into more durable lessons.
+
+### 4. UI View Wiring
+
+- Map backend orchestration features to concrete UI destinations in `frontend/src/SystemPage.tsx`, `frontend/src/UIHubManager*.tsx`, and `frontend/src/surfaces/system/`.
+- Add explicit system-page targets for clipboard buffer, knowledge/local AppFlowy tools, and orchestration status.
+- Keep page/view wiring aligned to backend route groups so API, tray, and UI surfaces converge.
 
 ## Definition of Done for Consolidation
 

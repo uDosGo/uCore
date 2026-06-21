@@ -16,6 +16,10 @@ PROJECT_CONTEXT_FILES = {
     "ucore": Path.home() / "Code/uCore/CONTEXT.md",
     "default": Path.home() / "Code/uCore/CONTEXT.md",
 }
+PROJECT_WISDOM_FILES = {
+    "ucore": Path.home() / "Code/uCore/wisdom.md",
+    "default": Path.home() / "Code/uCore/wisdom.md",
+}
 
 
 class AttachContext(BaseSkill):
@@ -40,13 +44,22 @@ class AttachContext(BaseSkill):
                 default="system_prompt",
                 description="Output format: system_prompt, raw, or markdown_block",
             ),
+            SkillParam(
+                name="include_wisdom",
+                type="boolean",
+                required=False,
+                default=True,
+                description="Include wisdom.md alongside CONTEXT.md when available",
+            ),
         ],
     )
 
     async def run(self, **kwargs) -> dict:
         project = kwargs.get("project", "ucore").lower().strip()
         fmt = kwargs.get("format", "system_prompt").strip()
+        include_wisdom = bool(kwargs.get("include_wisdom", True))
         context_path = PROJECT_CONTEXT_FILES.get(project) or PROJECT_CONTEXT_FILES["default"]
+        wisdom_path = PROJECT_WISDOM_FILES.get(project) or PROJECT_WISDOM_FILES["default"]
 
         if not context_path.exists():
             return {
@@ -54,29 +67,38 @@ class AttachContext(BaseSkill):
                 "error": f"CONTEXT.md not found for '{project}' at {context_path}",
             }
 
-        context_text = context_path.read_text()
+        context_text = context_path.read_text(encoding="utf-8")
+        wisdom_text = None
+        if include_wisdom and wisdom_path.exists():
+            wisdom_text = wisdom_path.read_text(encoding="utf-8")
+
+        combined_text = context_text
+        if wisdom_text:
+            combined_text = f"{context_text}\n\n---\n\n# Episodic Project Memory\n\n{wisdom_text}"
 
         if fmt == "raw":
             return {
                 "success": True,
                 "project": project,
-                "content": context_text,
-                "length": len(context_text),
+                "content": combined_text,
+                "length": len(combined_text),
+                "has_wisdom": wisdom_text is not None,
             }
 
         if fmt == "markdown_block":
             return {
                 "success": True,
                 "project": project,
-                "content": f"```markdown\n{context_text}\n```",
-                "length": len(context_text),
+                "content": f"```markdown\n{combined_text}\n```",
+                "length": len(combined_text),
+                "has_wisdom": wisdom_text is not None,
             }
 
         # Default: system_prompt format
         system_prompt = f"""You are working on the {project.upper()} project.
 
 CONTEXT:
-{context_text}
+{combined_text}
 
 Use this context to understand the project architecture, API endpoints,
 and coding conventions before responding."""
@@ -86,5 +108,6 @@ and coding conventions before responding."""
             "content": system_prompt,
             "format": "system_prompt",
             "length": len(system_prompt),
+            "has_wisdom": wisdom_text is not None,
             "instructions": "Prepend this system prompt to the current AI session for full project context.",
         }
