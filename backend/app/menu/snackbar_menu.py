@@ -27,11 +27,14 @@ import urllib.error
 import urllib.parse
 
 import objc
-from Foundation import NSObject, NSRunLoop, NSDate, NSURL
+from Foundation import NSObject, NSRunLoop, NSDate, NSURL, NSIndexSet
 from AppKit import (
     NSApplication, NSStatusBar, NSVariableStatusItemLength,
     NSMenu, NSMenuItem, NSImage, NSFont, NSColor, NSWorkspace,
-    NSAlert, NSApp, NSTextField,
+    NSAlert, NSApp, NSTextField, NSSearchField, NSScrollView,
+    NSTableView, NSTableColumn, NSPanel, NSButton, NSBackingStoreBuffered,
+    NSWindowStyleMaskTitled, NSWindowStyleMaskClosable,
+    NSWindowStyleMaskUtilityWindow, NSFloatingWindowLevel,
 )
 from PyObjCTools import AppHelper
 
@@ -237,6 +240,10 @@ class SnackbarMenuDelegate(NSObject):
         self._system_badges = {}
         self._clipboard_recent = []
         self._clipboard_saved = []
+        self._clipboard_panel = None
+        self._clipboard_search_field = None
+        self._clipboard_table = None
+        self._clipboard_panel_items = []
         self._start_at_login = False
         self._refresh_timer = None
         return self
@@ -285,6 +292,12 @@ class SnackbarMenuDelegate(NSObject):
         )
         clip_title.setEnabled_(False)
         self._menu.addItem_(clip_title)
+
+        search_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "📋 Open Clipboard Popover", "showClipboardPopover:", "v"
+        )
+        search_item.setTarget_(self)
+        self._menu.addItem_(search_item)
 
         search_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
             "🔍 Search...", "searchClipboard:", "f"
@@ -484,8 +497,178 @@ class SnackbarMenuDelegate(NSObject):
         icon = _make_status_icon(self._connected)
         self._status_item.setImage_(icon)
         self._rebuild_menu()
+        self._refresh_clipboard_panel_content()
+
+    def _clip_preview(self, item_data: dict, limit: int = 88) -> str:
+        preview = (item_data.get("content") or "").replace("\n", " ").strip()
+        if len(preview) > limit:
+            preview = preview[: limit - 3] + "..."
+        prefix = "📌" if item_data.get("pinned") else "📄"
+        source = item_data.get("source") or "clipboard"
+        return f"{prefix} [{source}] {preview or '(empty)'}"
+
+    def _load_clipboard_panel_items(self, query: str = "") -> None:
+        if query:
+            result = api_get(f"/api/snacks/clipboard/search?q={urllib.parse.quote(query)}&limit=100")
+            self._clipboard_panel_items = result.get("items", []) if result else []
+        else:
+            result = api_get("/api/snacks/clipboard?limit=100")
+            self._clipboard_panel_items = result.get("items", []) if result else []
+
+    def _refresh_clipboard_panel_content(self) -> None:
+        if self._clipboard_panel is None or self._clipboard_table is None:
+            return
+        query = ""
+        if self._clipboard_search_field is not None:
+            query = self._clipboard_search_field.stringValue().strip()
+        self._load_clipboard_panel_items(query)
+        self._clipboard_table.reloadData()
+        if self._clipboard_panel_items:
+            self._clipboard_table.selectRowIndexes_byExtendingSelection_(
+                NSIndexSet.indexSetWithIndex_(0), False
+            )
+
+    def _position_clipboard_panel(self) -> None:
+        if self._clipboard_panel is None:
+            return
+        try:
+            button = self._status_item.button()
+            window = button.window() if button is not None else None
+            frame = window.frame() if window is not None else None
+            panel_frame = self._clipboard_panel.frame()
+            if frame is not None:
+                x = frame.origin.x + frame.size.width - panel_frame.size.width
+                y = frame.origin.y - 8
+                self._clipboard_panel.setFrameTopLeftPoint_((x, y))
+                return
+        except Exception:
+            pass
+        self._clipboard_panel.center()
+
+    def _ensure_clipboard_panel(self) -> None:
+        if self._clipboard_panel is not None:
+            return
+
+        style_mask = (
+            NSWindowStyleMaskTitled
+            | NSWindowStyleMaskClosable
+            | NSWindowStyleMaskUtilityWindow
+        )
+        panel = NSPanel.alloc().initWithContentRect_styleMask_backing_defer_(
+            ((0.0, 0.0), (440.0, 360.0)),
+            style_mask,
+            NSBackingStoreBuffered,
+            False,
+        )
+        panel.setTitle_("Clipboard Buffer")
+        panel.setFloatingPanel_(True)
+        panel.setLevel_(NSFloatingWindowLevel)
+        panel.setReleasedWhenClosed_(False)
+
+        content_view = panel.contentView()
+
+        search_field = NSSearchField.alloc().initWithFrame_(((16.0, 324.0), (250.0, 24.0)))
+        search_field.setPlaceholderString_("Search clipboard...")
+        search_field.setDelegate_(self)
+        content_view.addSubview_(search_field)
+
+        refresh_button = NSButton.alloc().initWithFrame_(((278.0, 322.0), (68.0, 28.0)))
+        refresh_button.setTitle_("Refresh")
+        refresh_button.setTarget_(self)
+        refresh_button.setAction_("refreshClipboardPopover:")
+        content_view.addSubview_(refresh_button)
+
+        capture_button = NSButton.alloc().initWithFrame_(((352.0, 322.0), (72.0, 28.0)))
+        capture_button.setTitle_("Capture")
+        capture_button.setTarget_(self)
+        capture_button.setAction_("captureClipboard:")
+        content_view.addSubview_(capture_button)
+
+        scroll_view = NSScrollView.alloc().initWithFrame_(((16.0, 68.0), (408.0, 244.0)))
+        scroll_view.setHasVerticalScroller_(True)
+
+        table_view = NSTableView.alloc().initWithFrame_(((0.0, 0.0), (408.0, 244.0)))
+        column = NSTableColumn.alloc().initWithIdentifier_("content")
+        column.setTitle_("Clipboard")
+        column.setWidth_(396.0)
+        table_view.addTableColumn_(column)
+        table_view.setHeaderView_(None)
+        table_view.setDataSource_(self)
+        table_view.setDelegate_(self)
+        table_view.setTarget_(self)
+        table_view.setDoubleAction_("pasteSelectedClipboardItem:")
+        scroll_view.setDocumentView_(table_view)
+        content_view.addSubview_(scroll_view)
+
+        paste_button = NSButton.alloc().initWithFrame_(((16.0, 18.0), (74.0, 30.0)))
+        paste_button.setTitle_("Paste")
+        paste_button.setTarget_(self)
+        paste_button.setAction_("pasteSelectedClipboardItem:")
+        content_view.addSubview_(paste_button)
+
+        pin_button = NSButton.alloc().initWithFrame_(((96.0, 18.0), (74.0, 30.0)))
+        pin_button.setTitle_("Pin")
+        pin_button.setTarget_(self)
+        pin_button.setAction_("pinSelectedClipboardItem:")
+        content_view.addSubview_(pin_button)
+
+        delete_button = NSButton.alloc().initWithFrame_(((176.0, 18.0), (74.0, 30.0)))
+        delete_button.setTitle_("Delete")
+        delete_button.setTarget_(self)
+        delete_button.setAction_("deleteSelectedClipboardItem:")
+        content_view.addSubview_(delete_button)
+
+        close_button = NSButton.alloc().initWithFrame_(((350.0, 18.0), (74.0, 30.0)))
+        close_button.setTitle_("Close")
+        close_button.setTarget_(self)
+        close_button.setAction_("hideClipboardPopover:")
+        content_view.addSubview_(close_button)
+
+        self._clipboard_panel = panel
+        self._clipboard_search_field = search_field
+        self._clipboard_table = table_view
+        self._refresh_clipboard_panel_content()
+
+    def numberOfRowsInTableView_(self, table_view):
+        return len(self._clipboard_panel_items)
+
+    def tableView_objectValueForTableColumn_row_(self, table_view, table_column, row):
+        if row < 0 or row >= len(self._clipboard_panel_items):
+            return ""
+        return self._clip_preview(self._clipboard_panel_items[row])
+
+    def controlTextDidChange_(self, notification):
+        if self._clipboard_search_field is None:
+            return
+        if notification.object() == self._clipboard_search_field:
+            self._refresh_clipboard_panel_content()
+
+    def _selected_clipboard_item(self):
+        if self._clipboard_table is None:
+            return None
+        row = self._clipboard_table.selectedRow()
+        if row < 0 or row >= len(self._clipboard_panel_items):
+            return None
+        return self._clipboard_panel_items[row]
 
     # ─── Actions ───────────────────────────────────────────────
+
+    def showClipboardPopover_(self, sender):
+        """Open the floating clipboard panel."""
+        self._ensure_clipboard_panel()
+        self._position_clipboard_panel()
+        self._refresh_clipboard_panel_content()
+        self._clipboard_panel.makeKeyAndOrderFront_(None)
+        NSApplication.sharedApplication().activateIgnoringOtherApps_(True)
+
+    def hideClipboardPopover_(self, sender):
+        """Close the floating clipboard panel."""
+        if self._clipboard_panel is not None:
+            self._clipboard_panel.orderOut_(None)
+
+    def refreshClipboardPopover_(self, sender):
+        """Reload clipboard items inside the floating panel."""
+        self._refresh_clipboard_panel_content()
 
     def openUIHub_(self, sender):
         """Open UI Hub in browser."""
@@ -552,6 +735,41 @@ class SnackbarMenuDelegate(NSObject):
             log.info(f"Clipboard item {item_id} copied to clipboard")
         else:
             log.warning(f"Failed to paste clipboard item {item_id}: {result}")
+
+    def pasteSelectedClipboardItem_(self, sender):
+        """Paste the currently selected clipboard panel item without closing the panel."""
+        item = self._selected_clipboard_item()
+        if not item:
+            return
+        result = api_post(f"/api/snacks/clipboard/{item.get('id')}/paste")
+        if result and result.get("status") == "ok":
+            log.info(f"Clipboard item {item.get('id')} copied to clipboard")
+        else:
+            log.warning(f"Failed to paste selected clipboard item: {result}")
+
+    def pinSelectedClipboardItem_(self, sender):
+        """Toggle pin state for the selected clipboard panel item."""
+        item = self._selected_clipboard_item()
+        if not item:
+            return
+        desired = not bool(item.get("pinned"))
+        result = api_post_json(
+            f"/api/snacks/clipboard/{item.get('id')}/pin",
+            {"pinned": desired},
+        )
+        if result and result.get("status") == "ok":
+            log.info(f"Clipboard item {item.get('id')} pin set to {desired}")
+            self._refresh()
+
+    def deleteSelectedClipboardItem_(self, sender):
+        """Delete the selected clipboard panel item."""
+        item = self._selected_clipboard_item()
+        if not item:
+            return
+        result = api_delete(f"/api/snacks/clipboard/{item.get('id')}")
+        if result and result.get("status") == "deleted":
+            log.info(f"Deleted clipboard item {item.get('id')}")
+            self._refresh()
 
     def searchClipboard_(self, sender):
         """Prompt for a query and paste a selected search result."""

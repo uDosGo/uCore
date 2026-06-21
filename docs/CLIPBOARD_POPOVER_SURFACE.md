@@ -15,6 +15,7 @@ Implemented in menu:
 4. One-click item restore to clipboard.
 5. Capture current clipboard action.
 6. Clear history (non-pinned) and clear all actions.
+7. Native floating clipboard panel with search, selection, paste, pin, delete, refresh, and close actions.
 
 Files:
 
@@ -38,13 +39,33 @@ Target is a floating popover anchored to the tray icon with:
 4. Keep-open multi-paste behavior.
 5. Optional global open shortcut (cmd+shift+V).
 
+## Implemented Panel (Phase 2)
+
+The tray app now includes a first native floating clipboard panel opened from the
+menu entry "Open Clipboard Popover".
+
+Current panel behavior:
+
+1. Search field backed by clipboard API search.
+2. Native table list for recent/saved items.
+3. Paste without closing the panel.
+4. Pin/unpin selected item.
+5. Delete selected item.
+6. Refresh, capture, and close controls.
+
+Current limitations:
+
+1. It is a floating utility panel rather than a fully anchored NSPopover.
+2. Global shortcut registration is still pending.
+3. Keyboard-specific delete/enter wiring remains to be refined beyond default AppKit behavior.
+
 ## Next Implementation Steps
 
-1. Add an NSPanel/NSPopover controller in backend/app/menu/snackbar_menu.py.
-2. Render a searchable list view backed by /api/snacks/clipboard endpoints.
-3. Add keyboard handlers for enter, esc, cmd+delete.
-4. Add global shortcut registration (MASShortcut path or Carbon fallback).
-5. Persist popover UI preferences (size/position/behavior).
+1. Refine panel anchoring so it tracks the tray icon more precisely.
+2. Add keyboard handlers for enter, esc, cmd+delete.
+3. Add global shortcut registration (MASShortcut path or Carbon fallback).
+4. Persist popover UI preferences (size/position/behavior).
+5. Upgrade utility panel to a stricter NSPopover-style presentation if needed.
 
 ## API Endpoints Used by Tray/Popover
 
