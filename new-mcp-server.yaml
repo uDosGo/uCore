@@ -1,0 +1,54 @@
+# uCore MCP Server Configuration
+# Protocol: MCP 2025-03-26 via Python stdio bridge
+# Bridge: ~/.continue/mcp-udos.py
+# Tools: 15 (12 skills + 3 knowledge)
+
+# ─── Workspace-level config (auto-detected by Continue) ─────────────
+# This file lives at:
+#   ~/Code/uCore/.continue/mcpServers/udos.yaml
+#
+# Continue automatically discovers MCP servers from:
+#   ~/Code/uCore/.continue/mcpServers/*.yaml
+
+# ─── VS Code Continue config (~/.continue/config.json) ─────────────
+# {
+#   "mcpServers": {
+#     "uCore": {
+#       "command": "python3",
+#       "args": ["/Users/fredbook/.continue/mcp-udos.py"],
+#       "description": "uCore MCP — 15 tools + skills + AppFlowy knowledge"
+#     }
+#   }
+# }
+
+# ─── Cline config (~/.cline/mcp_settings.json) ─────────────────────
+# {
+#   "mcpServers": {
+#     "uCore": {
+#       "command": "python3",
+#       "args": ["/Users/fredbook/.continue/mcp-udos.py"],
+#       "description": "uCore MCP — 15 tools (skills + AppFlowy knowledge)",
+#       "disabled": false,
+#       "alwaysAllow": [...]
+#     }
+#   }
+# }
+
+# ─── MCP Bridge Script (~/.continue/mcp-udos.py) ───────────────────
+# A Python stdio bridge that translates MCP protocol JSON-RPC messages
+# to uCore HTTP API calls. Stores logs to stderr, messages to stdout.
+
+# ─── 15 Tools Exposed ──────────────────────────────────────────────
+# Skill tools (prefix: skill_):
+#   backup, container_start/stop, surface_repair/restart,
+#   export, import, hello-world, ask_vault, attach_context,
+#   route_task, daily_backup
+#
+# Knowledge tools:
+#   knowledge_search, knowledge_list_workspaces, knowledge_list_documents
+
+# ─── Quick Test ─────────────────────────────────────────────────────
+# curl http://localhost:8484/api/mcp/tools
+# curl -X POST http://localhost:8484/api/mcp/call \
+#   -H "Content-Type: application/json" \
+#   -d '{"name":"skill_ask_vault","arguments":{"query":"list-workspaces"}}'

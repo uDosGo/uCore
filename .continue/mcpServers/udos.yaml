@@ -1,0 +1,10 @@
+name: uCore MCP
+version: 4.0.0
+schema: v1
+mcpServers:
+  - name: uCore
+    command: python3
+    args:
+      - /Users/fredbook/.continue/mcp-udos.py
+    description: uCore MCP — 15 tools + skills + AppFlowy knowledge
+    env: {}
