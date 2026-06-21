@@ -87,7 +87,8 @@ uCore's current workflow direction is Markdown-first and local-first:
 
 1. AppFlowy/local SQLite remains the planning source.
 2. `tasker_sync` exports workflow rows into repo-adjacent `.tasker/` Markdown files.
-3. Richer Python automation can be layered later without replacing the Markdown task substrate.
+3. Cline Kanban is the preferred visual orchestration layer for DevStudio/uCode work.
+4. Richer Python automation can be layered later without replacing the Markdown task substrate.
 
 ## 4. Cost Strategy (Task Router)
 
@@ -153,6 +154,7 @@ mcpServers:
 | GET | /api/version | Version info |
 | GET | /api/system | System info |
 | GET | /api/system/maintenance | Overnight scheduler status |
+| GET | /api/system/workflow | Workflow surface status and guardrails |
 | POST | /api/exec | Run shell command |
 
 ### Skills

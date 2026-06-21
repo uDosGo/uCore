@@ -50,16 +50,24 @@ Backend/UI wiring targets:
 
 Next wiring goals:
 
-- [ ] Surface `.tasker/` boards and sync status in the S300 Workflow Builder view.
+- [x] Surface `.tasker/` boards and sync status in the S300 Workflow Builder view.
 - [ ] Add a clipboard/system orchestration system page.
 - [ ] Add a knowledge-local/AppFlowy tools system page.
 - [ ] Add a migration/consolidation dashboard view.
-- [ ] Add a maintenance/overnight tasks status view.
+- [x] Add a maintenance/overnight tasks status view.
 - [ ] Keep route naming aligned to backend API groups.
+
+## 5A. DevStudio Workflow Consolidation
+
+- [x] Anchor the workflow surface on Cline Kanban as the preferred visual orchestration engine.
+- [x] Keep Markdown-first `.tasker/` files as the durable workflow substrate.
+- [x] Expose workflow guardrails and status through `/api/system/workflow`.
+- [ ] Add direct launch/health actions for local Kanban from the UI.
+- [ ] Add task detail and board actions in S300/DevStudio.
 
 ## 6. Immediate Execution Order
 
-1. Surface `.tasker/` workflow boards and sync status in S300 Workflow Builder.
-2. Wire first system UI pages for clipboard/orchestration visibility using `/api/system/maintenance`.
+1. Add direct task actions and task detail views to S300/DevStudio.
+2. Wire first clipboard/system orchestration page alongside the workflow surface.
 3. Extend `brain_sync` with spool-aware and AppFlowy-aware synthesis.
 4. Move canonical docs into uDocs and replace local duplicates with pointers.
