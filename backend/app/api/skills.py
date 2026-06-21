@@ -14,8 +14,11 @@ from aiohttp import web
 
 log = logging.getLogger("ucore.skills")
 
-# Default skill paths
+# Default skill paths — try Python registry first, then filesystem
+from app.skills.registry import get_skill, run_skill_by_id
+
 SKILL_PATHS = [
+    Path(__file__).parent.parent / "skills" / "builtin",  # backend/app/skills/builtin/
     Path.home() / "Code/DevStudio/skills",
     Path.home() / "Code/uCore/skills",
     Path("/usr/local/share/udos/skills"),
@@ -52,14 +55,28 @@ async def handle_run_named_skill(request: web.Request) -> web.Response:
 async def _run_skill_by_id(
     skill_id: str, request: web.Request, body: dict | None = None
 ) -> web.Response:
-    """Internal: find and execute a skill script."""
+    """Internal: find and execute a skill (tries Python registry first)."""
     if body is None:
         try:
             body = await request.json() if request.body_exists else {}
         except Exception:
             body = {}
 
-    # Find the skill directory
+    # Try Python skill registry first (for builtin skills)
+    skill = get_skill(skill_id)
+    if skill:
+        # Merge params dict with top-level body keys (for flexibility)
+        kwargs = body.get("params", {})
+        if isinstance(kwargs, dict):
+            for k, v in body.items():
+                if k != "params":
+                    kwargs.setdefault(k, v)
+        else:
+            kwargs = body
+        result = await skill.run(**kwargs)
+        return web.json_response(result)
+
+    # Fallback: find the skill directory on filesystem
     skill_dir = _find_skill(skill_id)
     if not skill_dir:
         return web.json_response({
