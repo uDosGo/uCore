@@ -35,6 +35,7 @@ from AppKit import (
     NSTableView, NSTableColumn, NSPanel, NSButton, NSBackingStoreBuffered,
     NSWindowStyleMaskTitled, NSWindowStyleMaskClosable,
     NSWindowStyleMaskUtilityWindow, NSFloatingWindowLevel,
+    NSEventModifierFlagCommand,
 )
 from PyObjCTools import AppHelper
 
@@ -222,6 +223,45 @@ def _make_status_icon(connected: bool) -> NSImage:
     attr_str.drawAtPoint_((0, 0))
     image.unlockFocus()
     return image
+
+
+class ClipboardSearchField(NSSearchField):
+    """Search field with popover-style keyboard behavior."""
+
+    def keyDown_(self, event):
+        controller = getattr(self, "controller", None)
+        chars = event.charactersIgnoringModifiers() or ""
+        if controller is not None:
+            if chars == "\x1b":
+                controller.hideClipboardPopover_(self)
+                return
+            if chars in ("\r", "\n"):
+                controller.pasteSelectedClipboardItem_(self)
+                return
+            if chars == "\uf701":
+                controller.focusClipboardTable_()
+                return
+        objc.super(ClipboardSearchField, self).keyDown_(event)
+
+
+class ClipboardTableView(NSTableView):
+    """Clipboard results table with direct keyboard actions."""
+
+    def keyDown_(self, event):
+        controller = getattr(self, "controller", None)
+        chars = event.charactersIgnoringModifiers() or ""
+        modifiers = int(event.modifierFlags())
+        if controller is not None:
+            if chars == "\x1b":
+                controller.hideClipboardPopover_(self)
+                return
+            if chars in ("\r", "\n"):
+                controller.pasteSelectedClipboardItem_(self)
+                return
+            if chars == "\x7f" and (modifiers & int(NSEventModifierFlagCommand)):
+                controller.deleteSelectedClipboardItem_(self)
+                return
+        objc.super(ClipboardTableView, self).keyDown_(event)
 
 
 # ─── App Delegate ─────────────────────────────────────────────────────
@@ -567,9 +607,10 @@ class SnackbarMenuDelegate(NSObject):
 
         content_view = panel.contentView()
 
-        search_field = NSSearchField.alloc().initWithFrame_(((16.0, 324.0), (250.0, 24.0)))
+        search_field = ClipboardSearchField.alloc().initWithFrame_(((16.0, 324.0), (250.0, 24.0)))
         search_field.setPlaceholderString_("Search clipboard...")
         search_field.setDelegate_(self)
+        search_field.controller = self
         content_view.addSubview_(search_field)
 
         refresh_button = NSButton.alloc().initWithFrame_(((278.0, 322.0), (68.0, 28.0)))
@@ -587,7 +628,7 @@ class SnackbarMenuDelegate(NSObject):
         scroll_view = NSScrollView.alloc().initWithFrame_(((16.0, 68.0), (408.0, 244.0)))
         scroll_view.setHasVerticalScroller_(True)
 
-        table_view = NSTableView.alloc().initWithFrame_(((0.0, 0.0), (408.0, 244.0)))
+        table_view = ClipboardTableView.alloc().initWithFrame_(((0.0, 0.0), (408.0, 244.0)))
         column = NSTableColumn.alloc().initWithIdentifier_("content")
         column.setTitle_("Clipboard")
         column.setWidth_(396.0)
@@ -597,6 +638,7 @@ class SnackbarMenuDelegate(NSObject):
         table_view.setDelegate_(self)
         table_view.setTarget_(self)
         table_view.setDoubleAction_("pasteSelectedClipboardItem:")
+        table_view.controller = self
         scroll_view.setDocumentView_(table_view)
         content_view.addSubview_(scroll_view)
 
@@ -651,6 +693,16 @@ class SnackbarMenuDelegate(NSObject):
             return None
         return self._clipboard_panel_items[row]
 
+    def focusClipboardTable_(self):
+        """Move keyboard focus from search field to the clipboard results table."""
+        if self._clipboard_panel is None or self._clipboard_table is None:
+            return
+        self._clipboard_panel.makeFirstResponder_(self._clipboard_table)
+        if self._clipboard_panel_items and self._clipboard_table.selectedRow() < 0:
+            self._clipboard_table.selectRowIndexes_byExtendingSelection_(
+                NSIndexSet.indexSetWithIndex_(0), False
+            )
+
     # ─── Actions ───────────────────────────────────────────────
 
     def showClipboardPopover_(self, sender):
@@ -660,6 +712,8 @@ class SnackbarMenuDelegate(NSObject):
         self._refresh_clipboard_panel_content()
         self._clipboard_panel.makeKeyAndOrderFront_(None)
         NSApplication.sharedApplication().activateIgnoringOtherApps_(True)
+        if self._clipboard_search_field is not None:
+            self._clipboard_panel.makeFirstResponder_(self._clipboard_search_field)
 
     def hideClipboardPopover_(self, sender):
         """Close the floating clipboard panel."""

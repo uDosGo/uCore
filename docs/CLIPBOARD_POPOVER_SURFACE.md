@@ -52,20 +52,21 @@ Current panel behavior:
 4. Pin/unpin selected item.
 5. Delete selected item.
 6. Refresh, capture, and close controls.
+7. Keyboard behavior: Enter pastes, Esc closes, Cmd+Delete deletes, Down Arrow moves from search to results.
 
 Current limitations:
 
 1. It is a floating utility panel rather than a fully anchored NSPopover.
 2. Global shortcut registration is still pending.
-3. Keyboard-specific delete/enter wiring remains to be refined beyond default AppKit behavior.
+3. Keyboard behavior is implemented for core actions, but broader navigation polish is still possible.
 
 ## Next Implementation Steps
 
 1. Refine panel anchoring so it tracks the tray icon more precisely.
-2. Add keyboard handlers for enter, esc, cmd+delete.
-3. Add global shortcut registration (MASShortcut path or Carbon fallback).
-4. Persist popover UI preferences (size/position/behavior).
-5. Upgrade utility panel to a stricter NSPopover-style presentation if needed.
+2. Add global shortcut registration (MASShortcut path or Carbon fallback).
+3. Persist popover UI preferences (size/position/behavior).
+4. Upgrade utility panel to a stricter NSPopover-style presentation if needed.
+5. Add richer keyboard polish for pin toggling and focus cycling.
 
 ## API Endpoints Used by Tray/Popover
 
