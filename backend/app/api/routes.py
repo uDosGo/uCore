@@ -19,6 +19,9 @@ def register_routes(app: web.Application) -> None:
     from .chat import handle_chat, handle_chat_prompts, handle_models
     from .skills import handle_run_skill, handle_run_named_skill, handle_list_skills
     from .tools import handle_list_tools, handle_tool_status
+    from .mcp import (
+        handle_mcp_discover, handle_mcp_call,
+    )
     from .secret_store_api import (
         handle_list_secrets, handle_get_secret, handle_set_secret,
         handle_delete_secret, handle_list_env_vars, handle_import_from_env,
@@ -34,6 +37,10 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/knowledge/documents/{object_id}", handle_get_document)
     app.router.add_get("/api/knowledge/documents/{object_id}/content", handle_get_document_content)
     app.router.add_get("/api/knowledge/search", handle_search)
+
+    # MCP Integration
+    app.router.add_get("/api/mcp/tools", handle_mcp_discover)
+    app.router.add_post("/api/mcp/call", handle_mcp_call)
 
     # Secret Store
     app.router.add_get("/api/secrets", handle_list_secrets)
