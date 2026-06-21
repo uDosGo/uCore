@@ -1,51 +1,98 @@
 # uCore — Unified Development OS
 
 ## 1. Project Purpose
-uCore is a unified daemon that provides a local-first API server orchestrating AI chat providers, surfaces (UI apps), skills (automation), tools (environment detection), and a knowledge bridge to AppFlowy. It replaces uConnect (frontend), uServer (services), and DevStudio (tools) into one system.
+uCore is a unified daemon providing a local-first API server orchestrating AI chat providers, surfaces (UI apps), skills (automation), tools (environment detection), knowledge bridge to AppFlowy, and encrypted secret store. Replaces uConnect (frontend), uServer (services), and DevStudio (tools) into one system.
 
 **Repo:** https://github.com/uDosGo/uCore  
 **Port:** 8484  
-**Stack:** Python 3.14, aiohttp, SQLite, React (Vite + TypeScript)
+**Stack:** Python 3.14, aiohttp, SQLite, React (Vite + TypeScript)  
+**Auto-start:** launchd `com.udos.ucore-server` (boot + crash recovery)  
+**Schedules:** Daily backup 3:00 AM, vault sync 4:00 AM
 
 ## 2. Architecture
 
 ```
 uCore/
-├── backend/                    # Python aiohttp server
+├── backend/
 │   ├── app/
-│   │   ├── api/                # HTTP route handlers
-│   │   │   ├── routes.py       # All route registrations
-│   │   │   ├── skills.py       # GET /api/skills, POST /api/skills/{id}/run
-│   │   │   ├── tools.py        # GET /api/tools, GET /api/tools/{id}/status
-│   │   │   ├── knowledge.py    # GET /api/knowledge/* (AppFlowy bridge)
-│   │   │   └── secret_store_api.py  # GET/POST/DELETE /api/secrets/*
-│   │   ├── core/
-│   │   │   ├── snackbar.py     # Main server entry, CORS, middleware
-│   │   │   └── database.py     # SQLite (surfaces, snacks, containers)
-│   │   ├── skills/             # Automation skills
-│   │   │   ├── registry.py     # Auto-discovers builtin/ + ~/.ucore/skills/
-│   │   │   ├── base.py         # BaseSkill class with metadata
-│   │   │   ├── builtin/        # 7 built-in skills
-│   │   │   └── templates/      # Skill templates
-│   │   ├── tools/              # Environment tool detectors
-│   │   │   ├── registry.py     # Auto-discovers tool classes
-│   │   │   ├── base.py         # BaseTool class
-│   │   │   └── *_tool.py       # 7 detectors (docker, git, python, node, etc.)
-│   │   ├── knowledge/          # AppFlowy integration
-│   │   │   └── appflowy.py     # Reads AppFlowy SQLite + vector DB
-│   │   ├── secret/             # Encrypted secret store
-│   │   │   └── store.py        # AES-256-GCM key-value store
+│   │   ├── api/                    # HTTP route handlers
+│   │   │   ├── routes.py           # All route registrations
+│   │   │   ├── mcp.py              # MCP protocol (15 tools for VS Code)
+│   │   │   ├── skills.py           # /api/skills/* — skill execution
+│   │   │   ├── tools.py            # /api/tools/* — tool detection
+│   │   │   ├── knowledge.py        # /api/knowledge/* — AppFlowy bridge
+│   │   │   └── secret_store_api.py # /api/secrets/* — encrypted store
+│   │   ├── core/snackbar.py        # Main server, CORS, middleware
+│   │   ├── skills/builtin/         # 12 built-in skills
+│   │   ├── tools/                  # 7 environment detectors
+│   │   ├── knowledge/appflowy.py   # AppFlowy SQLite + vector DB
+│   │   ├── secret/store.py         # AES-256-GCM key-value store
 │   │   └── services/
-│   │       ├── provider_router.py  # AI provider routing (Ollama, OpenRouter)
-│   │       ├── surface_manager.py # Surface lifecycle
-│   │       └── mcp/            # MCP tool server
-│   └── app/__main__.py         # CLI entry point
-├── frontend/                   # React TypeScript SPA
-│   └── src/surfaces/system/    # System surface (settings, secrets, pages)
-└── CONTEXT.md                  # This file
+│   │       ├── provider_router.py  # AI provider routing
+│   │       └── surface_manager.py  # Surface lifecycle
+│   └── __main__.py
+├── frontend/                       # React/TypeScript SPA
+│   └── src/surfaces/system/        # System surface (settings, secrets, pages)
+└── CONTEXT.md                      # This file
 ```
 
-## 3. Key API Endpoints
+## 3. Available Skills (12 total)
+
+| Skill | ID | What It Does | Cost |
+|-------|-----|-------------|------|
+| **Backup** | `backup` | Backup database, config, secrets (14-day retention) | — |
+| **Container Start** | `container_start` | Start a Docker container | — |
+| **Container Stop** | `container_stop` | Stop a Docker container | — |
+| **Export** | `export` | Export surface configuration | — |
+| **Import** | `import` | Import surface configuration | — |
+| **Surface Repair** | `surface_repair` | Repair a surface | — |
+| **Surface Restart** | `surface_restart` | Restart a surface | — |
+| **Hello World** | `hello-world` | Example skill template | — |
+| **Ask Vault** | `ask_vault` | Query AppFlowy knowledge base | — |
+| **Attach Context** | `attach_context` | Inject CONTEXT.md as AI system prompt | — |
+| **Route Task** | `route_task` | Route tasks to optimal AI provider | — |
+| **Daily Backup** | `daily_backup` | Scheduled backup (config/database/secrets) | — |
+
+## 4. Cost Strategy (Task Router)
+
+| Complexity | Provider | Model | Cost | When to Use |
+|-----------|----------|-------|------|-------------|
+| **Simple** | Ollama | qwen2.5-coder:7b | **$0.00** (local) | Typos, boilerplate, formatting |
+| **Medium** | OpenRouter/Codex | o3-mini | **~$0.01/task** | Daily work, features, endpoints |
+| **Complex** | OpenRouter/Claude | claude-sonnet-4 | **~$0.15/task** | Security, architecture, concurrency |
+| **Large Context** | OpenRouter/Gemini | gemini-2.5-flash | **~$0.02/100K tokens** | Repo-wide refactoring, analysis |
+
+**Strategy:** 15% Ollama, 70% Codex, 5% Claude, 10% Gemini. Always auto-detect from task description.
+
+## 5. MCP Integration (VS Code / Continue)
+
+uCore exposes 15 tools via the Model Context Protocol for IDE integration:
+
+```
+VS Code → Continue → MCP Server → uCore (port 8484) → Skills + Knowledge
+```
+
+**Available MCP tools:**
+- 12 skill tools: `skill_backup`, `skill_ask_vault`, `skill_route_task`, etc.
+- 3 knowledge tools: `knowledge_search`, `knowledge_list_workspaces`, `knowledge_list_documents`
+
+**VS Code setup** (`settings.json`):
+```json
+{
+  "mcp.servers": {
+    "udos": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-http"],
+      "env": {
+        "UDOS_URL": "http://localhost:8484",
+        "UDOS_API_KEY": "your-key"
+      }
+    }
+  }
+}
+```
+
+## 6. Key API Endpoints
 
 ### System
 | Method | Path | Description |
@@ -55,14 +102,18 @@ uCore/
 | GET | /api/system | System info |
 | POST | /api/exec | Run shell command |
 
-### Skills & Tools
+### Skills
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /api/skills | List all skills (builtin + user) |
-| POST | /api/skills/{id}/run | Execute a skill by ID |
-| POST | /api/skills/run | Execute by name+params |
-| GET | /api/tools | List installed tools with versions |
-| GET | /api/tools/{id}/status | Check specific tool |
+| GET | /api/skills | List all 12 skills |
+| POST | /api/skills/{id}/run | Execute a skill |
+| POST | /api/skills/run | Execute by path/name |
+
+### MCP Protocol
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/mcp/tools | List all 15 MCP tools |
+| POST | /api/mcp/call | Call a tool via JSON-RPC |
 
 ### Knowledge (AppFlowy)
 | Method | Path | Description |
@@ -73,7 +124,7 @@ uCore/
 | GET | /api/knowledge/documents/{id}/content | Get document text |
 | GET | /api/knowledge/search?q=... | Semantic search |
 
-### Secret Store
+### Secret Store (Encrypted)
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | /api/secrets | List stored secrets (masked) |
@@ -86,19 +137,20 @@ uCore/
 ### AI Chat
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /api/models | List AI providers |
+| GET | /api/models | List AI providers (4) |
 | GET | /api/chat/prompts | List prompt templates |
 | POST | /api/chat | Send chat message |
 | POST | /api/chat/stream | Stream chat response |
 
-### Others
+### Tools & Others
 | Method | Path | Description |
 |--------|------|-------------|
+| GET | /api/tools | List 7 installed tools |
+| GET | /api/tools/{id}/status | Check specific tool |
 | GET/POST | /api/surfaces | List/create surfaces |
-| POST | /api/surfaces/{id}/{start,stop,restart,repair,debug} | Surface ops |
 | GET | /api/docker/ps | List Docker containers |
 
-## 4. Configuration
+## 7. Configuration
 
 ### User Files
 | File | Purpose |
@@ -106,76 +158,54 @@ uCore/
 | `~/.ucore/skills/` | User-defined skills (auto-discovered) |
 | `~/.ucore/secrets.enc` | Encrypted secret store (AES-256-GCM) |
 | `~/.ucore/.store_key` | 256-bit secret store key |
+| `~/.ucore/backups/` | Daily backup archives (14-day retention) |
 | `~/.ucore/data/` | Database, surfaces, containers |
 | `~/.config/udos/config.yaml` | uDOS ecosystem config |
-| `~/.config/udos/models.yaml` | AI provider configuration |
+| `~/.config/udos/models.yaml` | AI provider configuration (4 providers) |
 | `~/.ucore/logs/` | Server logs |
 
 ### Environment Variables
-| Variable | Purpose |
-|----------|---------|
-| `OPENROUTER_API_KEY` | OpenRouter AI provider |
-| `GITHUB_TOKEN` | GitHub API access |
-| `UCORE_PORT` | Server port (default: 8484) |
-| `UCORE_DEBUG` | Enable debug mode |
-| `UCORE_DATA_DIR` | Data directory override |
+| Variable | Purpose | Currently Set |
+|----------|---------|--------------|
+| `OPENROUTER_API_KEY` | OpenRouter AI provider | ✅ Imported + encrypted |
+| `GITHUB_TOKEN` | GitHub API access | ✅ Imported + encrypted |
+| `UCORE_PORT` | Server port (default: 8484) | — |
+| `UCORE_DEBUG` | Enable debug mode | ✅ (via launchd) |
 
-## 5. Skills System
-
-Built-in skills live in `backend/app/skills/builtin/`. Each skill extends `BaseSkill`:
-
-```python
-from app.skills.base import BaseSkill, SkillMeta, SkillParam
-
-class MySkill(BaseSkill):
-    meta = SkillMeta(id="my-skill", name="My Skill", timeout=30)
-    async def run(self, **kwargs) -> dict:
-        return {"success": True, "result": ...}
-```
-
-User skills go in `~/.ucore/skills/` with the same pattern.
-Available skills: backup, container_start, container_stop, export, import, surface_repair, surface_restart, hello-world.
-
-## 6. Secret Store
-
-All secrets encrypted with AES-256-GCM. Key derived from 256-bit random key in `~/.ucore/.store_key`. On first load, auto-imports `OPENROUTER_API_KEY` and `GITHUB_TOKEN` from environment. Secrets can be managed through the UI at `/system?tab=secrets`.
-
-## 7. Running & Testing
+## 8. Running & Testing
 
 ```bash
-# Start server
+# Start server (via launchd auto-start)
+launchctl start com.udos.ucore-server
+
+# Or manual
 cd backend && source .venv/bin/activate && python -m app --port 8484 --debug
 
 # Start frontend
 cd frontend && npm run dev
 
-# Test health
+# Test everything
 curl http://localhost:8484/api/health
-
-# List skills
-curl http://localhost:8484/api/skills
-
-# List tools
-curl http://localhost:8484/api/tools
-
-# List AppFlowy workspaces
-curl http://localhost:8484/api/knowledge/workspaces
-
-# List secrets
-curl http://localhost:8484/api/secrets
+curl http://localhost:8484/api/skills                  # 12 skills
+curl http://localhost:8484/api/tools                   # 7 tools
+curl http://localhost:8484/api/models                  # 4 providers
+curl http://localhost:8484/api/secrets                 # Secret store
+curl http://localhost:8484/api/mcp/tools               # 15 MCP tools
+curl http://localhost:8484/api/knowledge/workspaces    # AppFlowy
 ```
 
-## 8. Important Rules for Coding
+## 9. Important Rules for Coding
 
-1. **All imports use absolute paths** — no `from .base import`, use `from app.skills.base import`
-2. **All tool/asset detection is async** — tool `.check()` is async, registry uses `await`
+1. **All imports use absolute paths** — `from app.skills.base import BaseSkill`
+2. **All async** — tool `.check()`, skill `.run()` are awaitable
 3. **Skill registry auto-discovers** both `builtin/` and `~/.ucore/skills/`
 4. **Frontend uses `SNACKBAR_API = 'http://localhost:8484'`** for all API calls
 5. **Secrets are NEVER logged** — masked values only in API responses
-6. **File-splitter destroys imports** — verify type defs and constants exist after splitting
-7. **New endpoints go in `backend/app/api/routes.py`** via `register_routes()`
+6. **New endpoints go in `backend/app/api/routes.py`** via `register_routes()`
+7. **File-splitter destroys imports** — verify type defs after splitting
+8. **Parameters in skill body** can be flat (`{"task": "..."}`) or `{"params": {"task": "..."}}`
 
-## 9. GitHub Repositories
+## 10. GitHub Repositories
 
 | Repo | Status |
 |------|--------|
