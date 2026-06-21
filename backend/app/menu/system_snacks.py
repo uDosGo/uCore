@@ -18,6 +18,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from app.menu.clipboard_buffer import add_clipboard_item, copy_text_to_clipboard
+
 
 SPOOL_PATH = Path(
     os.getenv("UCORE_SNACKS_REPLIES", "~/.local/share/snackmachine/replies.jsonl")
@@ -161,6 +163,24 @@ def _run_apple_intelligence(action: str, text: str | None = None) -> dict[str, A
     if code != 0:
         raise RuntimeError(err or f"Shortcut '{shortcut}' failed")
 
+    if text:
+        add_clipboard_item(
+            source="ai_snack",
+            type="text",
+            content=text,
+            metadata={"role": "prompt", "action": action, "shortcut": shortcut},
+            pinned=False,
+        )
+    if out:
+        add_clipboard_item(
+            source="ai_snack",
+            type="text",
+            content=out,
+            metadata={"role": "reply", "action": action, "shortcut": shortcut},
+            pinned=False,
+        )
+        copy_text_to_clipboard(out)
+
     return {"shortcut": shortcut, "output": out}
 
 
@@ -181,6 +201,23 @@ def _run_markdown_tool(action: str, text: str | None = None) -> dict[str, Any]:
     code, out, err = _run_shell(cmd, cwd=MARKDOWN_SNACK_DIR, timeout=30)
     if code != 0:
         raise RuntimeError(err or "markdown snack execution failed")
+
+    if text:
+        add_clipboard_item(
+            source="markdown_snack",
+            type="text",
+            content=text,
+            metadata={"role": "input", "action": action},
+            pinned=False,
+        )
+    if out:
+        add_clipboard_item(
+            source="markdown_snack",
+            type="text",
+            content=out,
+            metadata={"role": "output", "action": action},
+            pinned=False,
+        )
 
     payload: dict[str, Any] = {"action": action, "output": out}
     if action == "validate":
