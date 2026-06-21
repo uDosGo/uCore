@@ -7,9 +7,7 @@ Provides:
 """
 from __future__ import annotations
 
-import json
 import logging
-import os
 from typing import Optional
 from aiohttp import web
 
@@ -45,19 +43,14 @@ async def handle_chat(request: web.Request) -> web.Response:
 
     agent = body.get("agent", "assist")
     model = body.get("model")
-    temperature = body.get("temperature", 0.7)
-    max_tokens = body.get("max_tokens", 2000)
 
     log.info("Chat request: agent=%s, message=%s...", agent, message[:80])
 
     try:
         router = get_router()
-        response = await router.query(
-            agent=agent,
-            message=message,
+        response = await router.chat(
+            messages=[{"role": "user", "content": message}],
             model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
         )
         return web.json_response({
             "response": response.get("content", ""),
