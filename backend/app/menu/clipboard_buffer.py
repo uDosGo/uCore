@@ -274,6 +274,33 @@ def cleanup_history(max_items: int = DEFAULT_MAX_ITEMS, max_days: int = DEFAULT_
     return {"removed_age": removed_age, "removed_overflow": removed_overflow}
 
 
+def clear_history(include_pinned: bool = False) -> int:
+    """Soft-delete clipboard items.
+
+    By default this clears only non-pinned history and keeps saved items.
+    """
+    _ensure_storage()
+    with _db() as conn:
+        if include_pinned:
+            cur = conn.execute("UPDATE clipboard_items SET deleted = 1 WHERE deleted = 0")
+        else:
+            cur = conn.execute(
+                "UPDATE clipboard_items SET deleted = 1 WHERE deleted = 0 AND pinned = 0"
+            )
+        conn.commit()
+        count = max(0, cur.rowcount)
+
+    _append_jsonl(
+        {
+            "event": "clear",
+            "timestamp": _utc_now(),
+            "include_pinned": include_pinned,
+            "count": count,
+        }
+    )
+    return count
+
+
 def read_clipboard_text() -> str:
     proc = subprocess.run(["pbpaste"], capture_output=True, text=True, timeout=2)
     if proc.returncode != 0:

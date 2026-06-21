@@ -12,6 +12,7 @@ from app.menu.system_snacks import (
 from app.menu.clipboard_buffer import (
     add_clipboard_item,
     capture_current_clipboard,
+    clear_history,
     cleanup_history,
     copy_text_to_clipboard,
     delete_item,
@@ -44,6 +45,7 @@ def register_snack_routes(app: web.Application) -> None:
     app.router.add_post("/api/snacks/clipboard/{item_id}/paste", paste_clipboard_item)
     app.router.add_delete("/api/snacks/clipboard/{item_id}", delete_clipboard_item)
     app.router.add_post("/api/snacks/clipboard/cleanup", cleanup_clipboard)
+    app.router.add_post("/api/snacks/clipboard/clear", clear_clipboard)
 
 
 async def list_queue(request: web.Request) -> web.Response:
@@ -282,3 +284,16 @@ async def cleanup_clipboard(request: web.Request) -> web.Response:
         return web.json_response({"error": "max_items and max_days must be integers"}, status=400)
     result = cleanup_history(max_items=max_items, max_days=max_days)
     return web.json_response({"status": "ok", **result, "max_items": max_items, "max_days": max_days})
+
+
+async def clear_clipboard(request: web.Request) -> web.Response:
+    """POST /api/snacks/clipboard/clear — clear history, optionally including pinned items."""
+    try:
+        body = await request.json() if request.body_exists else {}
+    except Exception:
+        body = {}
+    include_pinned = bool(body.get("include_pinned", False))
+    count = clear_history(include_pinned=include_pinned)
+    return web.json_response(
+        {"status": "ok", "cleared": count, "include_pinned": include_pinned}
+    )

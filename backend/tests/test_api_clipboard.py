@@ -121,3 +121,25 @@ class ClipboardAPITest(AioHTTPTestCase):
         lr = await self.client.get("/api/snacks/clipboard")
         data = await lr.json()
         assert data["count"] <= 2
+
+    async def test_clear_history_keeps_pinned(self):
+        keep = await self.client.post(
+            "/api/snacks/clipboard/save",
+            json={"content": "keep-me", "pinned": True},
+        )
+        assert keep.status == 201
+        await self.client.post(
+            "/api/snacks/clipboard/save",
+            json={"content": "drop-me", "pinned": False},
+        )
+
+        clear = await self.client.post(
+            "/api/snacks/clipboard/clear",
+            json={"include_pinned": False},
+        )
+        assert clear.status == 200
+
+        lr = await self.client.get("/api/snacks/clipboard")
+        data = await lr.json()
+        assert data["count"] == 1
+        assert data["items"][0]["content"] == "keep-me"

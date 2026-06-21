@@ -24,13 +24,14 @@ import threading
 import logging
 import urllib.request
 import urllib.error
+import urllib.parse
 
 import objc
 from Foundation import NSObject, NSRunLoop, NSDate, NSURL
 from AppKit import (
     NSApplication, NSStatusBar, NSVariableStatusItemLength,
     NSMenu, NSMenuItem, NSImage, NSFont, NSColor, NSWorkspace,
-    NSAlert, NSApp,
+    NSAlert, NSApp, NSTextField,
 )
 from PyObjCTools import AppHelper
 
@@ -77,6 +78,31 @@ def api_post(path: str, timeout: float = 10.0):
         return None
 
 
+def api_post_json(path: str, payload: dict, timeout: float = 10.0):
+    """POST JSON payload to snackbar API and return parsed JSON, or None."""
+    try:
+        req = urllib.request.Request(
+            f"{UCORE_URL}{path}",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+
+
+def api_delete(path: str, timeout: float = 10.0):
+    """DELETE on snackbar API and return parsed JSON, or None."""
+    try:
+        req = urllib.request.Request(f"{UCORE_URL}{path}", method="DELETE")
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+
+
 def is_ucore_alive() -> bool:
     """Check if snackbar API is responding."""
     result = api_get("/api/health")
@@ -86,6 +112,18 @@ def is_ucore_alive() -> bool:
 def open_url(url: str):
     """Open a URL in the default browser."""
     NSWorkspace.sharedWorkspace().openURL_(NSURL.URLWithString_(url))
+
+
+def _run_osascript(script: str, timeout: int = 8) -> str:
+    proc = subprocess.run(
+        ["osascript", "-e", script],
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.strip() or "osascript failed")
+    return proc.stdout.strip()
 
 
 def is_start_at_login_enabled() -> bool:
@@ -197,6 +235,8 @@ class SnackbarMenuDelegate(NSObject):
         self._menu = None
         self._snacks = []
         self._system_badges = {}
+        self._clipboard_recent = []
+        self._clipboard_saved = []
         self._start_at_login = False
         self._refresh_timer = None
         return self
@@ -235,6 +275,76 @@ class SnackbarMenuDelegate(NSObject):
         )
         item.setEnabled_(False)
         self._menu.addItem_(item)
+
+        self._menu.addItem_(NSMenuItem.separatorItem())
+
+        # ── Clipboard Buffer ───────────────────────────────────
+        total_clip = len(self._clipboard_recent) + len(self._clipboard_saved)
+        clip_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            f"📋 Clipboard Buffer ({total_clip})", None, ""
+        )
+        clip_title.setEnabled_(False)
+        self._menu.addItem_(clip_title)
+
+        search_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "🔍 Search...", "searchClipboard:", "f"
+        )
+        search_item.setTarget_(self)
+        self._menu.addItem_(search_item)
+
+        capture_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "➕ Capture Current Clipboard", "captureClipboard:", ""
+        )
+        capture_item.setTarget_(self)
+        self._menu.addItem_(capture_item)
+
+        if self._clipboard_saved:
+            saved_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                f"📌 Saved Items ({len(self._clipboard_saved)})", None, ""
+            )
+            saved_title.setEnabled_(False)
+            self._menu.addItem_(saved_title)
+            for item_data in self._clipboard_saved[:5]:
+                preview = (item_data.get("content") or "").replace("\n", " ").strip()
+                if len(preview) > 50:
+                    preview = preview[:47] + "..."
+                item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                    f"📌 {preview or '(empty)'}", "pasteClipboardItem:", ""
+                )
+                item.setTarget_(self)
+                item.setRepresentedObject_(item_data.get("id"))
+                self._menu.addItem_(item)
+
+        if self._clipboard_recent:
+            recent_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                "📄 Recent", None, ""
+            )
+            recent_title.setEnabled_(False)
+            self._menu.addItem_(recent_title)
+            for item_data in self._clipboard_recent[:8]:
+                preview = (item_data.get("content") or "").replace("\n", " ").strip()
+                if len(preview) > 54:
+                    preview = preview[:51] + "..."
+                item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                    f"📄 {preview or '(empty)'}", "pasteClipboardItem:", ""
+                )
+                item.setTarget_(self)
+                item.setRepresentedObject_(item_data.get("id"))
+                self._menu.addItem_(item)
+
+        self._menu.addItem_(NSMenuItem.separatorItem())
+
+        clear_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "🗑️ Clear History", "clearClipboardHistory:", ""
+        )
+        clear_item.setTarget_(self)
+        self._menu.addItem_(clear_item)
+
+        clear_all_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "🧨 Clear All (Including Saved)", "clearClipboardAll:", ""
+        )
+        clear_all_item.setTarget_(self)
+        self._menu.addItem_(clear_all_item)
 
         self._menu.addItem_(NSMenuItem.separatorItem())
 
@@ -339,9 +449,15 @@ class SnackbarMenuDelegate(NSObject):
                     b.get("id"): (b.get("count") if b.get("ok") else "!")
                     for b in badge_items
                 }
+                clip_data = api_get("/api/snacks/clipboard?limit=24")
+                clip_items = clip_data.get("items", []) if clip_data else []
+                self._clipboard_saved = [c for c in clip_items if c.get("pinned")]
+                self._clipboard_recent = [c for c in clip_items if not c.get("pinned")]
             else:
                 self._snacks = []
                 self._system_badges = {}
+                self._clipboard_saved = []
+                self._clipboard_recent = []
             self._start_at_login = is_start_at_login_enabled()
         except Exception as e:
             log.warning(f"Refresh error: {e}")
@@ -416,6 +532,91 @@ class SnackbarMenuDelegate(NSObject):
                 log.warning(f"Snack {sid} failed: {result.get('error')}")
             else:
                 log.info(f"Snack {sid} completed")
+
+    def captureClipboard_(self, sender):
+        """Capture current macOS clipboard into Snackbar clipboard buffer."""
+        result = api_post_json("/api/snacks/clipboard/capture", {"source": "user_copy"})
+        if result and not result.get("error"):
+            log.info("Captured clipboard item")
+        else:
+            log.warning(f"Clipboard capture failed: {result}")
+        self._refresh()
+
+    def pasteClipboardItem_(self, sender):
+        """Copy selected clipboard item back to system clipboard for paste."""
+        item_id = sender.representedObject()
+        if not item_id:
+            return
+        result = api_post(f"/api/snacks/clipboard/{item_id}/paste")
+        if result and result.get("status") == "ok":
+            log.info(f"Clipboard item {item_id} copied to clipboard")
+        else:
+            log.warning(f"Failed to paste clipboard item {item_id}: {result}")
+
+    def searchClipboard_(self, sender):
+        """Prompt for a query and paste a selected search result."""
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_("Search Clipboard Buffer")
+        alert.setInformativeText_("Type a query to find past copies")
+        field = NSTextField.alloc().initWithFrame_(((0, 0), (280, 24)))
+        alert.setAccessoryView_(field)
+        alert.addButtonWithTitle_("Search")
+        alert.addButtonWithTitle_("Cancel")
+        choice = alert.runModal()
+        if choice != 1000:
+            return
+        query = field.stringValue().strip()
+        if not query:
+            return
+
+        result = api_get(f"/api/snacks/clipboard/search?q={urllib.parse.quote(query)}&limit=10")
+        items = result.get("items", []) if result else []
+        if not items:
+            log.info("Clipboard search returned no matches")
+            return
+
+        # macOS-native quick chooser for search results.
+        options = []
+        mapping = {}
+        for item_data in items:
+            preview = (item_data.get("content") or "").replace("\n", " ").strip()
+            if len(preview) > 80:
+                preview = preview[:77] + "..."
+            key = f"{item_data.get('timestamp', '')}  {preview}"
+            options.append(key)
+            mapping[key] = item_data.get("id")
+
+        script = (
+            'set theItems to {'
+            + ", ".join([json.dumps(x) for x in options])
+            + '}\n'
+            + 'set chosen to choose from list theItems with prompt "Select clipboard item"\n'
+            + 'if chosen is false then return ""\n'
+            + 'return item 1 of chosen\n'
+        )
+        try:
+            selected = _run_osascript(script)
+        except Exception as exc:
+            log.warning(f"Clipboard chooser failed: {exc}")
+            return
+
+        item_id = mapping.get(selected)
+        if item_id:
+            api_post(f"/api/snacks/clipboard/{item_id}/paste")
+
+    def clearClipboardHistory_(self, sender):
+        """Clear non-pinned clipboard history."""
+        result = api_post_json("/api/snacks/clipboard/clear", {"include_pinned": False})
+        if result and result.get("status") == "ok":
+            log.info(f"Cleared clipboard history: {result.get('cleared', 0)}")
+        self._refresh()
+
+    def clearClipboardAll_(self, sender):
+        """Clear all clipboard entries including saved items."""
+        result = api_post_json("/api/snacks/clipboard/clear", {"include_pinned": True})
+        if result and result.get("status") == "ok":
+            log.info(f"Cleared clipboard all: {result.get('cleared', 0)}")
+        self._refresh()
 
     def toggleStartAtLogin_(self, sender):
         """Toggle the start-at-login setting."""
