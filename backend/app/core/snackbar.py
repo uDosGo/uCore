@@ -6,6 +6,7 @@ import json
 import time
 import uuid
 import asyncio
+from contextlib import suppress
 import platform as plat_module
 from pathlib import Path
 from typing import Optional
@@ -185,9 +186,28 @@ async def migrate_admin_handler(request: web.Request) -> web.Response:
 _start_time: float = time.time()
 
 
+async def maintenance_scheduler_ctx(app: web.Application):
+    """Run the lightweight overnight maintenance scheduler in the background."""
+    from app.services.maintenance_scheduler import (
+        MaintenanceScheduler,
+        set_maintenance_scheduler,
+    )
+
+    scheduler = MaintenanceScheduler()
+    set_maintenance_scheduler(scheduler)
+    app["maintenance_scheduler"] = scheduler
+    await scheduler.start()
+    try:
+        yield
+    finally:
+        await scheduler.stop()
+        set_maintenance_scheduler(None)
+
+
 def create_app() -> web.Application:
     """Build and return a configured aiohttp application."""
     app = web.Application(middlewares=[cors_middleware])
+    app.cleanup_ctx.append(maintenance_scheduler_ctx)
 
     # Core routes (these are the canonical ones)
     app.router.add_get("/api/health", health_handler)

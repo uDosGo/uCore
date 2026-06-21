@@ -9,7 +9,7 @@ log = logging.getLogger("ucore")
 
 def register_routes(app: web.Application) -> None:
     """Register all non-core API routes and surface extensions."""
-    from .metadata import system_info_handler
+    from .metadata import system_info_handler, maintenance_status_handler
     from .surfaces import register_surface_routes
     from .snacks import register_snack_routes
     from .containers import register_container_routes
@@ -60,6 +60,7 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/tools", handle_list_tools)
     app.router.add_get("/api/tools/{tool_id}/status", handle_tool_status)
     app.router.add_get("/api/system", system_info_handler)
+    app.router.add_get("/api/system/maintenance", maintenance_status_handler)
     app.router.add_post("/api/exec", handle_exec)
     app.router.add_get("/api/docker/ps", handle_docker_ps)
     app.router.add_post("/api/chat", handle_chat)

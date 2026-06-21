@@ -16,7 +16,7 @@ Status: Active roadmap scaffold
 - [x] Add a local `brain_sync` skill to synthesize recent project changes.
 - [x] Store synthesized memory in `wisdom.md`.
 - [ ] Extend synthesis inputs to include spool events, AppFlowy local activity, and recurring test failures.
-- [ ] Add overnight scheduling integration for `brain_sync` after vault sync.
+- [x] Add overnight scheduling integration for `brain_sync` after vault sync.
 - [ ] Add a dedicated episodic-log folder/runbook for durable correction history.
 
 ## 3. Snackbar / System Orchestration
@@ -25,8 +25,9 @@ Status: Active roadmap scaffold
 - [x] Add system snacks API and tray execution path.
 - [x] Add clipboard buffer, search, panel, and keyboard controls.
 - [ ] Add global shortcut opening for the clipboard panel.
-- [ ] Unify overnight maintenance orchestration across backup, vault sync, brain sync, and spool cleanup.
-- [ ] Add orchestration status visibility in a system-facing UI view.
+- [x] Unify overnight maintenance orchestration across backup, vault sync, and brain sync.
+- [ ] Extend overnight orchestration to spool cleanup and richer maintenance tasks.
+- [ ] Add orchestration status visibility in a system-facing UI view using `/api/system/maintenance`.
 
 ## 4. Migration / Consolidation
 
@@ -56,7 +57,7 @@ Next wiring goals:
 
 ## 6. Immediate Execution Order
 
-1. Add overnight `brain_sync` scheduling and spool-aware synthesis.
-2. Wire first system UI pages for clipboard/orchestration visibility.
+1. Wire first system UI pages for clipboard/orchestration visibility using `/api/system/maintenance`.
+2. Extend `brain_sync` with spool-aware and AppFlowy-aware synthesis.
 3. Move canonical docs into uDocs and replace local duplicates with pointers.
 4. Add global shortcut support and stronger popover anchoring.

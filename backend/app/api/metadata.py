@@ -16,3 +16,13 @@ async def system_info_handler(request: web.Request) -> web.Response:
         "app": settings.app_name,
         "version": settings.version,
     })
+
+
+async def maintenance_status_handler(request: web.Request) -> web.Response:
+    """Return maintenance scheduler status and last-run information."""
+    from app.services.maintenance_scheduler import get_maintenance_scheduler
+
+    scheduler = get_maintenance_scheduler()
+    if scheduler is None:
+        return web.json_response({"status": "unavailable", "reason": "scheduler not started"}, status=503)
+    return web.json_response({"status": "ok", **scheduler.status()})
