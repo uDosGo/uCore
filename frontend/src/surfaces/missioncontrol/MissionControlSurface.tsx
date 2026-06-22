@@ -45,9 +45,6 @@ const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
   String(import.meta.env.VITE_DEV_MODE || '').toLowerCase(),
 )
 
-const HIDDEN_FROM_SURFACES_TAB = ['ui-hub', 'mission-control', 'assistui']
-const DEV_SURFACE_IDS: string[] = DEV_MODE_ENABLED ? ['developer'] : []
-
 // Map API surface IDs to display IDs (e.g. userver → server, gridui → terminal)
 // Legacy aliases are normalized to canonical cards.
 const API_ID_MAP: Record<string, string> = {
@@ -107,8 +104,7 @@ const withoutUiHub = (list: SurfaceDef[]): SurfaceDef[] =>
       s.id !== 'mission-control' &&
       s.id !== 'proseui' &&
       s.id !== 'system' &&
-      !DEV_SURFACE_IDS.includes(s.id) &&
-        !isTestSurface(s),
+      !isTestSurface(s),
   )
 
 // ─── Dashboard Panel ────────────────────────────────────────────────

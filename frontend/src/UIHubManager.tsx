@@ -41,13 +41,6 @@ interface ActionProgress {
 // Consolidated lineup: GridUI, Server, AssistUI, Documentation, System Tools, BrowserUI, Developer
 const CORE_SURFACE_IDS = ['ucode', 'gridui', 'server', 'assistui', 'documentation', 'system-tools', 'browserui', 'developer']
 
-// ─── Surfaces hidden from Surfaces tab (accessible via toolbar icons/tabs) ──
-// These are hidden unless the user has starred them.
-// 'browserui' is hidden because it's accessible via the Globe icon in the toolbar.
-// 'developer' is hidden because it's a dev-only surface.
-// 'system-tools' is hidden because it's an advanced admin section.
-const HIDDEN_FROM_SURFACES_TAB = ['browserui', 'developer']
-
 // ─── Fallback Surface Registry ─────────────────────────────────────
 const FALLBACK_REGISTRY: SurfaceDef[] = [
   { id: 'ucode',     name: 'uCode',          subtitle: 'GridCore Surface',          description: 'Unified GridCore surface with Terminal, Teletext, sidebar, vault picker, and grid toolset dashboard.', port: 0, color: '#39d2c0', icon: 'grid_view',    status: 'stopped', cell: 'L100-AA10-0100-1', embedded: true, route: '/ucode' },
@@ -1421,8 +1414,8 @@ function UIHubInner() {
     })
   }
 
-  // ─── Filter surfaces for Surfaces tab: show all (except test surfaces and legacy IDs) ──
-  // All surfaces are now visible; no more hiding based on stars
+  // ─── Filter surfaces for Surfaces tab: show ALL (no hiding) ──────
+  // All surfaces visible; no hidden or restricted access
   const surfacesForTab = surfaces.filter(s => {
     if (isTestSurface(s)) return false
     if (['devstudio', 'proseui', 'usystem', 'userver'].includes(s.id)) return false
