@@ -522,6 +522,35 @@ class SnackbarMenuDelegate(NSObject):
 
         self._menu.addItem_(NSMenuItem.separatorItem())
 
+        # ── Surfaces (Open in Browser) ──────────────────────
+        surfaces_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "🖥️ Open Surface", None, ""
+        )
+        surfaces_title.setEnabled_(False)
+        self._menu.addItem_(surfaces_title)
+
+        # Define the 8 surfaces
+        surfaces = [
+            ('uCode', 'http://localhost:5173/ucode', '🎨'),
+            ('GridUI', 'http://localhost:5173/gridui', '📊'),
+            ('Server', 'http://localhost:5173/server', '⚙️'),
+            ('AssistUI', 'http://localhost:5173/assistui', '🤖'),
+            ('Documentation', 'http://localhost:5173/documentation', '📚'),
+            ('System Tools', 'http://localhost:5173/system-tools', '🔧'),
+            ('BrowserUI', 'http://localhost:5173/browserui', '🌐'),
+            ('Developer', 'http://localhost:5173/developer', '👨‍💻'),
+        ]
+
+        for name, url, icon in surfaces:
+            item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                f"{icon} {name}", "openSurface:", ""
+            )
+            item.setTarget_(self)
+            item.setRepresentedObject_(url)
+            self._menu.addItem_(item)
+
+        self._menu.addItem_(NSMenuItem.separatorItem())
+
         # ── Start at Login ─────────────────────────────────────
         state = "✓" if self._start_at_login else "  "
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
@@ -545,6 +574,12 @@ class SnackbarMenuDelegate(NSObject):
         )
         item.setTarget_(self)
         self._menu.addItem_(item)
+
+    def openSurface_(self, sender):
+        """Open a surface URL in the default browser."""
+        url = sender.representedObject()
+        if url:
+            open_url(url)
 
     def _start_refresh(self):
         """Start the periodic refresh timer."""
