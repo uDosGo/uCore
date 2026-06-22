@@ -276,34 +276,18 @@ export function SettingsPanel() {
 
         <div className="hub-settings-card">
           <div className="hub-settings-card-header">
-            <Icon name="link" size={16} />
-            <h3>System Pages</h3>
-            <span className="hub-settings-card-subtitle">S100-S899 (fallbacks S100-S190)</span>
+            <Icon name="build" size={16} />
+            <h3>System Administration</h3>
+            <span className="hub-settings-card-subtitle">Pages, tools, and system controls</span>
           </div>
           <div className="hub-settings-card-body">
-            <div className="hub-settings-system-links">
-              <a href="/s100" className="hub-settings-system-link">
-                <Icon name="info" size={14} /> System Info <span className="hub-settings-system-code">S100</span>
-              </a>
-              <a href="/s200" className="hub-settings-system-link">
-                <Icon name="monitor_heart" size={14} /> Health <span className="hub-settings-system-code">S200</span>
-              </a>
-              <a href="/s300" className="hub-settings-system-link">
-                <Icon name="bug_report" size={14} /> Diagnostics <span className="hub-settings-system-code">S300</span>
-              </a>
-              <a href="/s400" className="hub-settings-system-link">
-                <Icon name="build" size={14} /> Maintenance <span className="hub-settings-system-code">S400</span>
-              </a>
-              <a href="/s500" className="hub-settings-system-link">
-                <Icon name="history" size={14} /> Logs <span className="hub-settings-system-code">S500</span>
-              </a>
-              <a href="/s600" className="hub-settings-system-link">
-                <Icon name="network_check" size={14} /> Network <span className="hub-settings-system-code">S600</span>
-              </a>
-              <a href="/server" className="hub-settings-system-link">
-                <Icon name="layers" size={14} /> uServer <span className="hub-settings-system-code">Embedded</span>
-              </a>
-            </div>
+            <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--pico-muted-color, #8b949e)', lineHeight: '1.5' }}>
+              Browse system pages (S100-S899), tools, and administrative controls.
+            </p>
+            <a href="/system-tools?tab=pages" className="hub-settings-system-link" style={{ display: 'inline-block', padding: '8px 16px', background: '#79c0ff', color: 'white', borderRadius: '4px', textDecoration: 'none', fontWeight: 500, fontSize: '14px' }}>
+              <Icon name="build" size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+              Open System Tools
+            </a>
           </div>
         </div>
       </div>
