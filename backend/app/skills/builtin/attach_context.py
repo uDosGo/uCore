@@ -9,7 +9,7 @@ Usage:
 """
 from __future__ import annotations
 
-from pathlib import Path
+from app.core.settings import settings
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 PROJECT_CONTEXT_FILES = {
@@ -42,14 +42,20 @@ class AttachContext(BaseSkill):
                 type="string",
                 required=False,
                 default="system_prompt",
-                description="Output format: system_prompt, raw, or markdown_block",
+                description=(
+                    "Output format: system_prompt, raw, "
+                    "or markdown_block"
+                ),
             ),
             SkillParam(
                 name="include_wisdom",
                 type="boolean",
                 required=False,
                 default=True,
-                description="Include wisdom.md alongside CONTEXT.md when available",
+                description=(
+                    "Include wisdom.md alongside CONTEXT.md "
+                    "when available"
+                ),
             ),
         ],
     )
@@ -58,13 +64,22 @@ class AttachContext(BaseSkill):
         project = kwargs.get("project", "ucore").lower().strip()
         fmt = kwargs.get("format", "system_prompt").strip()
         include_wisdom = bool(kwargs.get("include_wisdom", True))
-        context_path = PROJECT_CONTEXT_FILES.get(project) or PROJECT_CONTEXT_FILES["default"]
-        wisdom_path = PROJECT_WISDOM_FILES.get(project) or PROJECT_WISDOM_FILES["default"]
+        context_path = (
+            PROJECT_CONTEXT_FILES.get(project)
+            or PROJECT_CONTEXT_FILES["default"]
+        )
+        wisdom_path = (
+            PROJECT_WISDOM_FILES.get(project)
+            or PROJECT_WISDOM_FILES["default"]
+        )
 
         if not context_path.exists():
             return {
                 "success": False,
-                "error": f"CONTEXT.md not found for '{project}' at {context_path}",
+                "error": (
+                    f"CONTEXT.md not found for '{project}' "
+                    f"at {context_path}"
+                ),
             }
 
         context_text = context_path.read_text(encoding="utf-8")
@@ -74,7 +89,10 @@ class AttachContext(BaseSkill):
 
         combined_text = context_text
         if wisdom_text:
-            combined_text = f"{context_text}\n\n---\n\n# Episodic Project Memory\n\n{wisdom_text}"
+            combined_text = (
+                f"{context_text}\n\n---\n\n"
+                f"# Episodic Project Memory\n\n{wisdom_text}"
+            )
 
         if fmt == "raw":
             return {
@@ -109,5 +127,8 @@ and coding conventions before responding."""
             "format": "system_prompt",
             "length": len(system_prompt),
             "has_wisdom": wisdom_text is not None,
-            "instructions": "Prepend this system prompt to the current AI session for full project context.",
+            "instructions": (
+                "Prepend this system prompt to the current AI "
+                "session for full project context."
+            ),
         }

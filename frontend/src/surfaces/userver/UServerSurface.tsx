@@ -8,16 +8,43 @@
    Binder: ⚙️ Technical/Infrastructure | Tags: #server #backend #services
    Wiki: [[Server Management Hub]] | Backlinks: [[uServer Backend]]
    ═══════════════════════════════════════════════════════════════════ */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
 import { Icon } from '../../components/Icon'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import VaultSidebar from '../../components/VaultSidebar'
 import AssistUISurface from '../assistui/AssistUISurface'
+import StoryView from '../../components/StoryView'
+import { SettingsPanel } from '../system/SettingsPanel'
+import {
+  FeedPanelWithContext,
+  InstallPanel,
+  ModulesPanel,
+  PagesPanel,
+} from '../system/USystemSurface'
 import '../../styles/userver.css'
 
+const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
+  String(import.meta.env.VITE_DEV_MODE || '').toLowerCase(),
+)
+
 // ─── Types ──────────────────────────────────────────────────────────
-type UServerTab = 'dashboard' | 'services' | 'logs' | 'workflows' | 'agents' | 'publishing'
+type UServerTab =
+  | 'dashboard'
+  | 'ingest'
+  | 'missions'
+  | 'install'
+  | 'modules'
+  | 'feeds'
+  | 'story'
+  | 'pages'
+  | 'settings'
+  | 'services'
+  | 'logs'
+  | 'workflows'
+  | 'agents'
+  | 'publishing'
 
 interface ServiceStatus {
   name: string
@@ -61,6 +88,53 @@ interface SurfaceInfo {
   url: string
 }
 
+type KnowledgeWorkspace = {
+  id: string
+  name: string
+  source: string
+}
+
+type KnowledgeDocument = {
+  id: string
+  title: string
+  type: string
+  updated_at: string
+}
+
+type AdapterRow = {
+  id: string
+  mission: string
+  task: string
+  binder: string
+  updated_at: string | null
+}
+
+type SourceStatus = {
+  name: string
+  local_path: string
+  enabled: boolean
+  file_count: number
+  tags: string[]
+}
+
+type IndexCoverageSource = {
+  source: string
+  expected_count: number
+  indexed_count: number
+  coverage_pct: number
+  workspace: string
+  last_indexed_at: string | null
+}
+
+type IndexCoverageResponse = {
+  status: string
+  source_count: number
+  indexed_total: number
+  expected_total: number
+  coverage_pct: number
+  sources: IndexCoverageSource[]
+}
+
 // ─── Default Data ───────────────────────────────────────────────────
 const DEFAULT_SERVICES: ServiceStatus[] = [
   { name: 'snackbar', status: 'up', port: 8484, uptime: 99.9, type: 'system', description: 'Container orchestrator & workflow runner' },
@@ -102,13 +176,30 @@ const DEFAULT_AGENTS: AgentInfo[] = [
 
 const DEFAULT_SURFACES: SurfaceInfo[] = [
   { name: 'gridui', label: 'uCode1', description: 'Grid Layer Composer', port: 5178, status: 'running', icon: 'widgets', color: '#f0883e', url: 'http://localhost:5178' },
-  { name: 'proseui', label: 'uCode2', description: 'Prose Surface', port: 5174, status: 'running', icon: 'article', color: '#00b4d8', url: 'http://localhost:5174' },
   { name: 'chatui', label: 'Chat UI', description: 'AI Chat Interface', port: 5182, status: 'running', icon: 'chat', color: '#58a6ff', url: 'http://localhost:5182' },
   { name: 'browserui', label: 'Web Reader', description: 'Research Bookmarks', port: 5179, status: 'running', icon: 'visibility', color: '#f59e0b', url: 'http://localhost:5179' },
 ]
 
+const SERVER_TABS: UServerTab[] = [
+  'dashboard',
+  'ingest',
+  'missions',
+  'install',
+  'modules',
+  'feeds',
+  'story',
+  'pages',
+  'settings',
+  'services',
+  'logs',
+  'workflows',
+  'agents',
+  'publishing',
+]
+
 // ─── API Base ───────────────────────────────────────────────────────
 const API_BASE = 'http://192.168.20.11:8484'
+const SNACKBAR_API = 'http://localhost:8484'
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T | null> {
   try {
@@ -725,9 +816,380 @@ function PublishingTab() {
   )
 }
 
+function MissionTaskBinderTab() {
+  const [workspaces, setWorkspaces] = useState<KnowledgeWorkspace[]>([])
+  const [rows, setRows] = useState<AdapterRow[]>([])
+  const [selectedWorkspace, setSelectedWorkspace] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(true)
+  const [missionCount, setMissionCount] = useState<number>(0)
+  const [binderCount, setBinderCount] = useState<number>(0)
+
+  const loadWorkspaces = useCallback(async () => {
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/knowledge/workspaces`, {
+        signal: AbortSignal.timeout(3000),
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      const list = data.workspaces || []
+      setWorkspaces(list)
+      if (list.length > 0) {
+        setSelectedWorkspace(prev => prev || list[0].id)
+      }
+    } catch {
+      // keep graceful empty state
+    }
+  }, [])
+
+  const loadProjection = useCallback(async (workspaceId: string) => {
+    if (!workspaceId) return
+    try {
+      const res = await fetch(
+        `${SNACKBAR_API}/api/knowledge/adapter/mission-task-binder?workspace_id=${workspaceId}&limit=200`,
+        { signal: AbortSignal.timeout(3000) },
+      )
+      if (!res.ok) return
+      const data = await res.json()
+      setRows(data.rows || [])
+      setMissionCount(Number(data.mission_count || 0))
+      setBinderCount(Number(data.binder_count || 0))
+    } catch {
+      // keep graceful empty state
+    }
+  }, [])
+
+  useEffect(() => {
+    setLoading(true)
+    loadWorkspaces().finally(() => setLoading(false))
+  }, [loadWorkspaces])
+
+  useEffect(() => {
+    if (!selectedWorkspace) return
+    loadProjection(selectedWorkspace)
+  }, [selectedWorkspace, loadProjection])
+
+  return (
+    <div>
+      <div className="userver-toolbar">
+        <div className="userver-toolbar-left">
+          <h2 className="userver-heading">Mission / Task / Binder</h2>
+          <span className="userver-card-subtitle">
+            AppFlowy adapter view · {missionCount} missions · {rows.length} tasks · {binderCount} binders
+          </span>
+        </div>
+      </div>
+
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Workspace Source</h3>
+        </div>
+        <div className="userver-card-content" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          {loading ? (
+            <span className="userver-text">Loading AppFlowy workspaces...</span>
+          ) : workspaces.length === 0 ? (
+            <span className="userver-text">No AppFlowy workspaces discovered.</span>
+          ) : (
+            workspaces.map(ws => (
+              <button
+                key={ws.id}
+                className="userver-action-btn"
+                onClick={() => setSelectedWorkspace(ws.id)}
+                style={{
+                  borderColor: selectedWorkspace === ws.id ? 'var(--pico-primary, #58a6ff)' : undefined,
+                  color: selectedWorkspace === ws.id ? 'var(--pico-primary, #58a6ff)' : undefined,
+                }}
+              >
+                {ws.name}
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Adapter Projection</h3>
+          <span className="userver-card-subtitle">mission = title prefix, task = title body, binder = document type</span>
+        </div>
+        <div className="userver-card-content">
+          {rows.length === 0 ? (
+            <p className="userver-text">No documents available for projection.</p>
+          ) : (
+            rows.slice(0, 40).map(row => (
+              <div key={row.id} className="userver-log-entry">
+                <span className="userver-log-service">{row.mission}</span>
+                <span style={{ fontSize: 11, color: 'var(--pico-primary, #58a6ff)' }}>{row.binder}</span>
+                <span className="userver-log-message">{row.task}</span>
+                <span className="userver-log-time">
+                  {row.updated_at ? new Date(row.updated_at).toLocaleDateString() : '--'}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function IngestTab() {
+  const [sources, setSources] = useState<SourceStatus[]>([])
+  const [selectedSource, setSelectedSource] = useState<string>('all')
+  const [coverage, setCoverage] = useState<IndexCoverageResponse | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [running, setRunning] = useState<boolean>(false)
+  const [dragActive, setDragActive] = useState<boolean>(false)
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
+  const [mission, setMission] = useState<string>('')
+  const [binder, setBinder] = useState<string>('')
+  const [statusMessage, setStatusMessage] = useState<string>('')
+
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/knowledge/status`, {
+        signal: AbortSignal.timeout(4000),
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      setSources(data.sources || [])
+    } catch {
+      // graceful fallback
+    }
+  }, [])
+
+  const fetchCoverage = useCallback(async () => {
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/knowledge/index/status`, {
+        signal: AbortSignal.timeout(5000),
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      setCoverage(data)
+    } catch {
+      // graceful fallback
+    }
+  }, [])
+
+  const refreshAll = useCallback(async () => {
+    await Promise.all([fetchStatus(), fetchCoverage()])
+  }, [fetchStatus, fetchCoverage])
+
+  useEffect(() => {
+    setLoading(true)
+    refreshAll().finally(() => setLoading(false))
+  }, [refreshAll])
+
+  const handleImport = useCallback(async () => {
+    setRunning(true)
+    setStatusMessage('')
+    try {
+      const payload: Record<string, string> = {}
+      if (selectedSource !== 'all') {
+        payload.source = selectedSource
+      }
+
+      const res = await fetch(`${SNACKBAR_API}/api/knowledge/import`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(8000),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setStatusMessage(data.error || 'Import failed to start')
+      } else {
+        const ingestContext = [
+          mission ? `mission=${mission}` : '',
+          binder ? `binder=${binder}` : '',
+          selectedFiles.length > 0 ? `files=${selectedFiles.length}` : '',
+        ]
+          .filter(Boolean)
+          .join(' · ')
+        const suffix = ingestContext ? ` (${ingestContext})` : ''
+        setStatusMessage(`${data.message || 'Import started'}${suffix}`)
+      }
+    } catch {
+      setStatusMessage('Import request failed')
+    } finally {
+      setRunning(false)
+      // Refresh quickly after trigger so index coverage updates when import settles.
+      window.setTimeout(() => { void refreshAll() }, 1200)
+    }
+  }, [selectedSource, mission, binder, selectedFiles.length, refreshAll])
+
+  const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    setDragActive(false)
+    const files = Array.from(event.dataTransfer.files || [])
+    setSelectedFiles(files.map(file => file.name))
+  }
+
+  return (
+    <div>
+      <div className="userver-toolbar">
+        <div className="userver-toolbar-left">
+          <h2 className="userver-heading">Drop Ingest</h2>
+          <span className="userver-card-subtitle">
+            Import vault sources into AppFlowy and track index coverage.
+          </span>
+        </div>
+        <div className="userver-toolbar-right">
+          <button className="userver-action-btn" onClick={() => void refreshAll()} disabled={loading || running}>
+            Refresh
+          </button>
+          <button className="userver-action-btn" onClick={() => void handleImport()} disabled={running || loading}>
+            {running ? 'Starting Import...' : 'Run Import'}
+          </button>
+        </div>
+      </div>
+
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Ingest Controls</h3>
+          <span className="userver-card-subtitle">Mission and binder labels are tracked for operator context.</span>
+        </div>
+        <div className="userver-card-content" style={{ display: 'grid', gap: 12 }}>
+          <div style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr 1fr 1fr' }}>
+            <label style={{ display: 'grid', gap: 4 }}>
+              <span className="userver-text" style={{ fontSize: 12 }}>Source</span>
+              <select
+                value={selectedSource}
+                onChange={e => setSelectedSource(e.target.value)}
+                style={{ background: 'var(--pico-card-sectioning-background-color, #1c2128)', color: 'var(--pico-color, #c9d1d9)', border: '1px solid var(--pico-border-color, #30363d)', borderRadius: 6, padding: '8px 10px' }}
+              >
+                <option value="all">All enabled sources</option>
+                {sources.map(src => (
+                  <option key={src.name} value={src.name}>{src.name}</option>
+                ))}
+              </select>
+            </label>
+            <label style={{ display: 'grid', gap: 4 }}>
+              <span className="userver-text" style={{ fontSize: 12 }}>Mission</span>
+              <input
+                type="text"
+                value={mission}
+                onChange={e => setMission(e.target.value)}
+                placeholder="e.g. Vault Consolidation"
+                style={{ background: 'var(--pico-card-sectioning-background-color, #1c2128)', color: 'var(--pico-color, #c9d1d9)', border: '1px solid var(--pico-border-color, #30363d)', borderRadius: 6, padding: '8px 10px' }}
+              />
+            </label>
+            <label style={{ display: 'grid', gap: 4 }}>
+              <span className="userver-text" style={{ fontSize: 12 }}>Binder</span>
+              <input
+                type="text"
+                value={binder}
+                onChange={e => setBinder(e.target.value)}
+                placeholder="e.g. runbook"
+                style={{ background: 'var(--pico-card-sectioning-background-color, #1c2128)', color: 'var(--pico-color, #c9d1d9)', border: '1px solid var(--pico-border-color, #30363d)', borderRadius: 6, padding: '8px 10px' }}
+              />
+            </label>
+          </div>
+
+          <div
+            onDragOver={event => { event.preventDefault(); setDragActive(true) }}
+            onDragLeave={() => setDragActive(false)}
+            onDrop={onDrop}
+            style={{
+              border: `2px dashed ${dragActive ? 'var(--pico-primary, #58a6ff)' : 'var(--pico-border-color, #30363d)'}`,
+              borderRadius: 8,
+              padding: 16,
+              background: dragActive ? 'rgba(88,166,255,0.08)' : 'transparent',
+              transition: 'all 120ms ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <Icon name="upload_file" size={16} />
+              <strong>Drop Panel</strong>
+            </div>
+            <p className="userver-text" style={{ margin: 0, fontSize: 12 }}>
+              Drag local files here for mission planning context. This panel records selected names and runs configured source import.
+            </p>
+            {selectedFiles.length > 0 && (
+              <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {selectedFiles.slice(0, 8).map(file => (
+                  <span key={file} className="hub-status-badge">{file}</span>
+                ))}
+                {selectedFiles.length > 8 && <span className="hub-status-badge">+{selectedFiles.length - 8} more</span>}
+              </div>
+            )}
+          </div>
+
+          {statusMessage && (
+            <div className="hub-status-badge" style={{ width: 'fit-content' }}>
+              {statusMessage}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Source Status</h3>
+        </div>
+        <div className="userver-card-content">
+          {sources.length === 0 ? (
+            <p className="userver-text">No configured sources discovered.</p>
+          ) : (
+            sources.map(src => (
+              <div key={src.name} className="userver-service-row">
+                <div className="userver-service-info">
+                  <span className="userver-service-name">{src.name}</span>
+                  <span className="userver-service-desc">{src.local_path}</span>
+                </div>
+                <div className="userver-service-meta">
+                  <span className={`userver-service-status ${src.enabled ? 'up' : 'down'}`}>
+                    {src.enabled ? 'enabled' : 'disabled'}
+                  </span>
+                  <span className="userver-service-port">{src.file_count} files</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Index Coverage</h3>
+          <span className="userver-card-subtitle">
+            {coverage ? `${coverage.indexed_total}/${coverage.expected_total} indexed (${coverage.coverage_pct}%)` : 'No coverage data yet'}
+          </span>
+        </div>
+        <div className="userver-card-content">
+          {!coverage || !coverage.sources || coverage.sources.length === 0 ? (
+            <p className="userver-text">Coverage metrics not available.</p>
+          ) : (
+            coverage.sources.map(src => (
+              <div key={src.source} className="userver-service-row">
+                <div className="userver-service-info">
+                  <span className="userver-service-name">{src.source}</span>
+                  <span className="userver-service-desc">workspace: {src.workspace}</span>
+                </div>
+                <div className="userver-service-meta" style={{ display: 'grid', justifyItems: 'end' }}>
+                  <span className="hub-status-badge">{src.indexed_count}/{src.expected_count} ({src.coverage_pct}%)</span>
+                  <span className="userver-service-port" style={{ fontSize: 11 }}>
+                    {src.last_indexed_at ? new Date(src.last_indexed_at).toLocaleString() : 'not indexed yet'}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Surface ───────────────────────────────────────────────────
 export default function UServerSurface() {
-  const [tab, setTab] = useState<UServerTab>('dashboard')
+  const location = useLocation()
+  const navigate = useNavigate()
+  const selectedTab = useMemo<UServerTab>(() => {
+    const params = new URLSearchParams(location.search)
+    const raw = (params.get('tab') || 'dashboard') as UServerTab
+    return SERVER_TABS.includes(raw) ? raw : 'dashboard'
+  }, [location.search])
+  const [tab, setTab] = useState<UServerTab>(selectedTab)
   const [services] = useState<ServiceStatus[]>(DEFAULT_SERVICES)
   const [logs] = useState<LogEntry[]>(DEFAULT_LOGS)
   const [workflows] = useState<Workflow[]>(DEFAULT_WORKFLOWS)
@@ -737,13 +1199,30 @@ export default function UServerSurface() {
   const { sidebarOpen, toggleSidebar } = useSurfaceShell()
   const runningCount = surfaces.filter(s => s.status === 'running').length
 
+  useEffect(() => {
+    setTab(selectedTab)
+  }, [selectedTab])
+
+  const setTabAndRoute = (nextTab: UServerTab) => {
+    setTab(nextTab)
+    navigate(`/server?tab=${nextTab}`)
+  }
+
   const tabs: ToolbarTab[] = [
-    { id: 'dashboard', icon: 'home', label: 'Dashboard', active: tab === 'dashboard', onClick: () => setTab('dashboard') },
-    { id: 'services', icon: 'settings', label: 'Services', active: tab === 'services', onClick: () => setTab('services') },
-    { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTab('logs') },
-    { id: 'workflows', icon: 'layers', label: 'Workflows', active: tab === 'workflows', onClick: () => setTab('workflows') },
-    { id: 'agents', icon: 'smart_toy', label: 'Agents', active: tab === 'agents', onClick: () => setTab('agents') },
-    { id: 'publishing', icon: 'menu_book', label: 'Publishing', active: tab === 'publishing', onClick: () => setTab('publishing') },
+    { id: 'dashboard', icon: 'home', label: 'Dashboard', active: tab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
+    { id: 'ingest', icon: 'upload_file', label: 'Ingest', active: tab === 'ingest', onClick: () => setTabAndRoute('ingest') },
+    { id: 'missions', icon: 'account_tree', label: 'Missions', active: tab === 'missions', onClick: () => setTabAndRoute('missions') },
+    { id: 'install', icon: 'download', label: 'Install', active: tab === 'install', onClick: () => setTabAndRoute('install') },
+    { id: 'modules', icon: 'apps', label: 'Modules', active: tab === 'modules', onClick: () => setTabAndRoute('modules') },
+    { id: 'feeds', icon: 'rss_feed', label: 'Feeds', active: tab === 'feeds', onClick: () => setTabAndRoute('feeds') },
+    { id: 'story', icon: 'auto_stories', label: 'Story', active: tab === 'story', onClick: () => setTabAndRoute('story') },
+    { id: 'pages', icon: 'menu_book', label: 'Pages', active: tab === 'pages', onClick: () => setTabAndRoute('pages') },
+    { id: 'settings', icon: 'settings', label: 'Settings', active: tab === 'settings', onClick: () => setTabAndRoute('settings') },
+    { id: 'services', icon: 'dns', label: 'Services', active: tab === 'services', onClick: () => setTabAndRoute('services') },
+    { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTabAndRoute('logs') },
+    { id: 'workflows', icon: 'layers', label: 'Workflows', active: tab === 'workflows', onClick: () => setTabAndRoute('workflows') },
+    { id: 'agents', icon: 'smart_toy', label: 'Agents', active: tab === 'agents', onClick: () => setTabAndRoute('agents') },
+    { id: 'publishing', icon: 'menu_book', label: 'Publishing', active: tab === 'publishing', onClick: () => setTabAndRoute('publishing') },
   ]
 
   return (
@@ -755,10 +1234,15 @@ export default function UServerSurface() {
         onToggleSidebar={toggleSidebar}
         sidebarOpen={sidebarOpen}
         rightExtra={
-          <span className="hub-status-badge">
-            <span className={`hub-status-dot ${runningCount > 0 ? 'hub-status-dot--online' : ''}`} />
-            {runningCount}/{surfaces.length} online
-          </span>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span className="hub-status-badge">
+              <span className={`hub-status-dot ${runningCount > 0 ? 'hub-status-dot--online' : ''}`} />
+              {runningCount}/{surfaces.length} online
+            </span>
+            <span className="hub-status-badge" title="Developer surface visibility mode">
+              Dev: {DEV_MODE_ENABLED ? 'on' : 'off'}
+            </span>
+          </div>
         }
       />
 
@@ -782,6 +1266,14 @@ export default function UServerSurface() {
 
         <main className="usx-surface-main">
           {tab === 'dashboard' && <DashboardTab services={services} workflows={workflows} logs={logs} surfaces={surfaces} />}
+          {tab === 'ingest' && <IngestTab />}
+          {tab === 'missions' && <MissionTaskBinderTab />}
+          {tab === 'install' && <InstallPanel />}
+          {tab === 'modules' && <ModulesPanel />}
+          {tab === 'feeds' && <FeedPanelWithContext />}
+          {tab === 'story' && <StoryView />}
+          {tab === 'pages' && <PagesPanel />}
+          {tab === 'settings' && <SettingsPanel />}
           {tab === 'services' && <ServicesTab services={services} />}
           {tab === 'logs' && <LogsTab logs={logs} />}
           {tab === 'workflows' && <WorkflowsTab workflows={workflows} />}

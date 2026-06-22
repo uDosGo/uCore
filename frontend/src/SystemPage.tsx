@@ -62,7 +62,6 @@ const PAGE_REGISTRY: Record<string, PageDef> = {
   s500: { code: 'S500', title: 'Log Viewer', icon: 'history', color: '#8b949e', description: 'System log viewer and analysis.' },
   s600: { code: 'S600', title: 'Learning Hub', icon: 'school', color: '#a855f7', description: 'Tutorials, guides, and educational resources.' },
   s700: { code: 'S700', title: 'Security', icon: 'lock', color: '#f85149', description: 'Security settings and audit logs.' },
-  s800: { code: 'S800', title: 'Labs', icon: 'science', color: '#d29922', description: 'Experimental features and prototypes.' },
   s899: { code: 'S899', title: 'System Console', icon: 'terminal', color: '#00ff9d', description: 'System management console overlay.' },
 }
 
@@ -90,7 +89,6 @@ function SystemPageToolbar({ currentCode }: { currentCode: string }) {
     { code: 's310', icon: 'content_paste', label: 'Clipboard' },
     { code: 's320', icon: 'auto_stories', label: 'Knowledge' },
     { code: 's600', icon: 'school', label: 'Learning' },
-    { code: 's800', icon: 'science', label: 'Labs' },
   ]
 
   return (

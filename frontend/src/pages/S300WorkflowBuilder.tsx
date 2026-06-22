@@ -45,6 +45,11 @@ type WorkflowStatus = {
     status: string
     endpoint: string
     jobs: WorkflowJob[]
+    tray?: {
+      status?: string
+      pid?: number | null
+      lockfile?: string
+    }
   }
   next_actions: string[]
 }
@@ -151,6 +156,7 @@ export default function S300WorkflowBuilder() {
   const boardCount = status?.task_markdown.count ?? 0
   const totalTasks = status?.task_markdown.total_items ?? 0
   const jobs = status?.maintenance.jobs ?? []
+  const tray = status?.maintenance.tray
 
   return (
     <USystemPage
@@ -215,6 +221,13 @@ export default function S300WorkflowBuilder() {
           </header>
           <p>Maintenance chain status from backup to vault sync to brain sync.</p>
           <ul>
+            <li>
+              <strong>tray</strong>{' '}
+              <small>
+                {tray?.status || 'unknown'}
+                {tray?.pid ? ` · pid ${tray.pid}` : ''}
+              </small>
+            </li>
             {jobs.length > 0 ? jobs.slice(0, 4).map((job) => (
               <li key={job.skill_id}>
                 <strong>{job.skill_id}</strong>{' '}

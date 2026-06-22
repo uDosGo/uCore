@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 
@@ -11,21 +11,30 @@ class Settings:
     """Central uCore configuration."""
 
     # ── General ──────────────────────────────────────────────
-    debug: bool = os.environ.get("UCORE_DEBUG", "0").lower() in ("1", "true", "yes")
+    debug: bool = os.environ.get(
+        "UCORE_DEBUG",
+        "0",
+    ).lower() in ("1", "true", "yes")
     app_name: str = "uCore"
     version: str = "4.0.0"
 
     # ── Server ───────────────────────────────────────────────
     host: str = os.environ.get("UCORE_HOST", "0.0.0.0")
     port: int = int(os.environ.get("UCORE_PORT", "8484"))
-    auto_start: bool = os.environ.get("UCORE_AUTO_START", "0").lower() in ("1", "true", "yes")
+    auto_start: bool = os.environ.get(
+        "UCORE_AUTO_START",
+        "0",
+    ).lower() in ("1", "true", "yes")
 
     # ── Paths ────────────────────────────────────────────────
     data_dir: Path = Path(
         os.environ.get("UCORE_DATA_DIR", os.path.expanduser("~/.ucore/data"))
     )
     config_dir: Path = Path(
-        os.environ.get("UCORE_CONFIG_DIR", os.path.expanduser("~/.ucore/config"))
+        os.environ.get(
+            "UCORE_CONFIG_DIR",
+            os.path.expanduser("~/.ucore/config"),
+        )
     )
     logs_dir: Path = Path(
         os.environ.get("UCORE_LOGS_DIR", os.path.expanduser("~/.ucore/logs"))
@@ -42,15 +51,24 @@ class Settings:
     )
 
     # ── Security ─────────────────────────────────────────────
-    require_auth: bool = os.environ.get("UCORE_REQUIRE_AUTH", "0").lower() in ("1", "true")
+    require_auth: bool = os.environ.get(
+        "UCORE_REQUIRE_AUTH",
+        "0",
+    ).lower() in ("1", "true")
     api_key: str | None = os.environ.get("UCORE_API_KEY", None)
 
     # ── Services ─────────────────────────────────────────────
-    enable_cors: bool = os.environ.get("UCORE_ENABLE_CORS", "1").lower() in ("1", "true", "yes")
+    enable_cors: bool = os.environ.get(
+        "UCORE_ENABLE_CORS",
+        "1",
+    ).lower() in ("1", "true", "yes")
 
     # ── ROOT (Code base path — all repos under ~/Code/) ─────
     udos_root: Path = Path(
-        os.environ.get("ROOT", os.environ.get("UDOS_CODE", os.path.expanduser("~/Code")))
+        os.environ.get(
+            "ROOT",
+            os.environ.get("UDOS_CODE", os.path.expanduser("~/Code")),
+        )
     ).expanduser()
 
     # ── Ollama / AI ──────────────────────────────────────────
@@ -58,9 +76,14 @@ class Settings:
         "UCORE_OLLAMA_URL", "http://localhost:11434"
     )
     ollama_default_model: str = os.environ.get(
-        "UCORE_OLLAMA_MODEL", "qwen2.5-coder:7b"
+        "UCORE_OLLAMA_MODEL", "qwen2.5-coder:7b-instruct-q4_K_M"
     )
     ollama_timeout: int = int(os.environ.get("UCORE_OLLAMA_TIMEOUT", "60"))
+
+    # ── Tray / Shortcuts ──────────────────────────────────────
+    clipboard_shortcut: str = os.environ.get(
+        "UCORE_CLIPBOARD_SHORTCUT", "ctrl+cmd+v"
+    )
 
 
 # Singleton

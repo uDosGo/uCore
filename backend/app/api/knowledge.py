@@ -12,6 +12,9 @@ from app.knowledge.local_first import (
     run_query,
     export_to_vault,
 )
+from app.services.mission_task_binder_adapter import (
+    project_mission_task_binder,
+)
 
 import logging
 log = logging.getLogger("ucore.api.knowledge")
@@ -63,6 +66,41 @@ async def handle_search(request: web.Request) -> web.Response:
     limit = int(request.query.get("limit", "10"))
     results = semantic_search(query, workspace_id, limit)
     return web.json_response({"query": query, "results": results, "count": len(results)})
+
+
+async def handle_mission_task_binder(
+    request: web.Request,
+) -> web.Response:
+    """GET /api/knowledge/adapter/mission-task-binder.
+
+    Returns mission/task/binder projection rows.
+
+    Query params:
+      workspace_id (optional) — filter by workspace
+      limit (optional) — max projected rows, default 200
+    """
+    workspace_id = request.query.get("workspace_id")
+    try:
+        limit = max(1, int(request.query.get("limit", "200")))
+    except ValueError:
+        return web.json_response(
+            {"error": "limit must be an integer"},
+            status=400,
+        )
+
+    docs = list_documents(workspace_id)
+    projected = [project_mission_task_binder(doc) for doc in docs[:limit]]
+
+    mission_count = len({row["mission"] for row in projected})
+    binder_count = len({row["binder"] for row in projected})
+
+    return web.json_response({
+        "workspace_id": workspace_id,
+        "rows": projected,
+        "count": len(projected),
+        "mission_count": mission_count,
+        "binder_count": binder_count,
+    })
 
 
 async def handle_local_databases(request: web.Request) -> web.Response:
@@ -140,7 +178,8 @@ async def handle_af_import(request: web.Request) -> web.Response:
 
     Body (optional):
       {
-        "source": "Vault"       # Optional: import a single source by name
+                "source": "Vault",
+                "config_path": "~/.ucore/sync_config.yaml"
       }
 
     If no source specified, imports all enabled sources.
@@ -153,7 +192,8 @@ async def handle_af_import(request: web.Request) -> web.Response:
     from app.af_manager.config import load_config
     from app.af_manager.sync import run_import
 
-    config = load_config()
+    config_path = body.get("config_path")
+    config = load_config(config_path)
 
     # Filter to single source if specified
     source_name = body.get("source")
@@ -231,3 +271,14 @@ async def handle_af_status(request: web.Request) -> web.Response:
         "total_files": total_files,
         "source_count": len(sources),
     })
+
+
+async def handle_af_index_status(request: web.Request) -> web.Response:
+    """GET /api/knowledge/index/status — import/index coverage by source."""
+    from app.af_manager.config import load_config
+    from app.af_manager.sync import get_index_coverage
+
+    config_path = request.query.get("config_path")
+    config = load_config(config_path)
+    summary = get_index_coverage(config)
+    return web.json_response(summary)

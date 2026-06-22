@@ -7,6 +7,16 @@ on:
     branches: [main]
 
 jobs:
+  planning-governance:
+    name: Planning Governance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate planning governance
+        run: bash scripts/validate_planning_governance.sh
+
   backend-tests:
     name: Backend Tests
     runs-on: ubuntu-latest
@@ -49,6 +59,9 @@ jobs:
 
       - name: Install frontend dependencies
         run: npm ci
+
+      - name: Validate prose class standard
+        run: npm run check:prose-standard
 
       - name: Build frontend
         run: npm run build

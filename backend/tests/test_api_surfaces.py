@@ -98,6 +98,91 @@ class SurfaceAPITest(AioHTTPTestCase):
         resp = await self.client.post("/api/surfaces/nonexistent/start")
         assert resp.status == 404
 
+    async def test_start_runtime_alias_ui_hub(self):
+        import app.api.surfaces as mod
+
+        class FakeRuntime:
+            def start(self, surface_id: str):
+                if surface_id == "ui-hub":
+                    return {
+                        "success": True,
+                        "surface_id": "ui-hub",
+                        "status": "running",
+                        "port": 5173,
+                    }
+                return None
+
+            def stop(self, surface_id: str):
+                if surface_id == "ui-hub":
+                    return {
+                        "success": True,
+                        "surface_id": "ui-hub",
+                        "status": "stopped",
+                        "port": 5173,
+                    }
+                return None
+
+            def restart(self, surface_id: str):
+                return None
+
+        old_runtime = mod.get_surface_runtime_manager
+        mod.get_surface_runtime_manager = lambda: FakeRuntime()
+        try:
+            resp = await self.client.post("/api/surfaces/ui-hub/start")
+            assert resp.status == 200
+            data = await resp.json()
+            assert data["surface_id"] == "ui-hub"
+            assert data["port"] == 5173
+
+            stop_resp = await self.client.post("/api/surfaces/ui-hub/stop")
+            assert stop_resp.status == 200
+            stop_data = await stop_resp.json()
+            assert stop_data["status"] == "stopped"
+        finally:
+            mod.get_surface_runtime_manager = old_runtime
+
+    async def test_start_surface_with_runtime_metadata(self):
+        import app.api.surfaces as mod
+
+        class FakeRuntime:
+            def start(self, surface_id: str):
+                if surface_id == "ui-hub":
+                    return {
+                        "success": True,
+                        "surface_id": "ui-hub",
+                        "status": "running",
+                        "port": 5173,
+                    }
+                return None
+
+            def stop(self, surface_id: str):
+                return None
+
+            def restart(self, surface_id: str):
+                return None
+
+        old_runtime = mod.get_surface_runtime_manager
+        mod.get_surface_runtime_manager = lambda: FakeRuntime()
+        try:
+            create_resp = await self.client.post(
+                "/api/surfaces",
+                json={
+                    "name": "Frontend",
+                    "type": "dashboard",
+                    "metadata": {"runtime_id": "ui-hub"},
+                },
+            )
+            assert create_resp.status == 201
+            cid = (await create_resp.json())["id"]
+
+            start_resp = await self.client.post(f"/api/surfaces/{cid}/start")
+            assert start_resp.status == 200
+            payload = await start_resp.json()
+            assert payload["state"] == "running"
+            assert payload["runtime"]["surface_id"] == "ui-hub"
+        finally:
+            mod.get_surface_runtime_manager = old_runtime
+
     async def test_stop_nonexistent(self):
         resp = await self.client.post("/api/surfaces/nonexistent/stop")
         assert resp.status == 404

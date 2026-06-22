@@ -7,7 +7,12 @@ from typing import Any
 
 
 def default_tasker_dir() -> Path:
-    return Path(os.getenv("UCORE_TASKER_DIR", str(settings.udos_root / "uCore/.tasker"))).expanduser()
+    return Path(
+        os.getenv(
+            "UCORE_TASKER_DIR",
+            str(settings.udos_root / "uCore/.tasker"),
+        )
+    ).expanduser()
 
 
 def scan_tasker_boards(tasker_dir: Path | None = None) -> dict[str, Any]:
@@ -35,11 +40,18 @@ def scan_tasker_boards(tasker_dir: Path | None = None) -> dict[str, Any]:
     }
 
 
-def build_workflow_status(maintenance: dict[str, Any] | None = None) -> dict[str, Any]:
+def build_workflow_status(
+    maintenance: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     tasker = scan_tasker_boards()
     maintenance_jobs = []
-    if maintenance and maintenance.get("status") == "ok":
-        maintenance_jobs = maintenance.get("jobs", [])
+    maintenance_state = "unknown"
+    maintenance_tray: dict[str, Any] = {"status": "unknown"}
+    if maintenance:
+        maintenance_state = maintenance.get("status", "unknown")
+        maintenance_tray = maintenance.get("tray") or maintenance_tray
+        if maintenance_state == "ok":
+            maintenance_jobs = maintenance.get("jobs", [])
 
     return {
         "engine": {
@@ -58,19 +70,32 @@ def build_workflow_status(maintenance: dict[str, Any] | None = None) -> dict[str
         },
         "guardrails": [
             "Keep the Kanban server bound to localhost only.",
-            "Do not expose via public host, tunnel, or 0.0.0.0 in the default dev workflow.",
-            "Use ephemeral worktrees to isolate agent changes from the main workspace.",
-            "Prefer SSH tunnel or Tailscale only if remote access is ever required.",
+            (
+                "Do not expose via public host, tunnel, or 0.0.0.0 in "
+                "the default dev workflow."
+            ),
+            (
+                "Use ephemeral worktrees to isolate agent changes from "
+                "the main workspace."
+            ),
+            (
+                "Prefer SSH tunnel or Tailscale only if remote access is "
+                "ever required."
+            ),
         ],
         "task_markdown": tasker,
         "maintenance": {
-            "status": "ok" if maintenance_jobs else "unknown",
+            "status": maintenance_state,
             "jobs": maintenance_jobs,
+            "tray": maintenance_tray,
             "endpoint": "/api/system/maintenance",
         },
         "next_actions": [
             "Expose .tasker board actions in the Workflow Builder UI.",
             "Add sync controls for tasker_sync and vault_sync.",
-            "Integrate richer agent orchestration only after the local workflow substrate is stable.",
+            (
+                "Integrate richer agent orchestration only after the local "
+                "workflow substrate is stable."
+            ),
         ],
     }

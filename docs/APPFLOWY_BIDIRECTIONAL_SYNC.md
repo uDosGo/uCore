@@ -31,6 +31,9 @@ Tracking checklist:
 4. Sync engine
 - scripts/appflowy_vault_sync.py performs bidirectional markdown sync based on config/vault-sync.yaml.
 
+5. DocLang bridge format
+- Canonical normalized export shape is defined in docs/DOCLANG_BRIDGE_EXPORT_SPEC.md.
+
 ## Setup
 
 1. Create runtime config from template:
@@ -54,6 +57,25 @@ python scripts/appflowy_vault_sync.py --config config/vault-sync.yaml --dry-run
 ```bash
 python scripts/appflowy_vault_sync.py --config config/vault-sync.yaml
 ```
+
+## Workspace Import + Index (FS -> AppFlowy)
+
+For full vault ingestion into AppFlowy workspaces and local search index:
+
+```bash
+cd /Users/fredbook/Code/uCore
+python scripts/appflowy_import_workspaces.py --config ~/.ucore/sync_config.yaml
+```
+
+Per-source workspace mapping is configured in
+`backend/app/af_manager/sync_config.yaml` (or `~/.ucore/sync_config.yaml`):
+
+- `Global Vault` -> `~/Vault` -> workspace `Global Vault`
+- `Public Vault` -> `~/Vault/Public` -> workspace `Public Vault`
+- `Shared Vault` -> `~/Vault/Shared` -> workspace `Shared Vault`
+
+If a source workspace name is not found, import falls back to the default
+workspace database discovered from the AppFlowy data directory.
 
 ## Conflict Handling
 

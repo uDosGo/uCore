@@ -13,7 +13,7 @@ import json
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 log = logging.getLogger("ucore.knowledge.appflowy")
 
@@ -27,8 +27,23 @@ WORKSPACE_TYPES = {
 }
 
 
+def _collab_count(db_path: Path) -> int:
+    """Best-effort count of collab snapshots in a workspace DB."""
+    try:
+        conn = sqlite3.connect(str(db_path))
+        cur = conn.execute("SELECT COUNT(*) FROM collab_snapshot")
+        count = int(cur.fetchone()[0])
+        conn.close()
+        return count
+    except Exception:
+        return -1
+
+
 def _find_database(workspace_id: str | None = None) -> Optional[Path]:
     """Find the AppFlowy database path."""
+    best_candidate: Path | None = None
+    best_count = -1
+
     for name, base_dir in WORKSPACE_TYPES.items():
         if not base_dir.exists():
             continue
@@ -37,13 +52,16 @@ def _find_database(workspace_id: str | None = None) -> Optional[Path]:
             if candidate.exists():
                 return candidate
         else:
-            # Return the workspace in use
+            # Prefer the most populated workspace when no id is provided.
             for sub in sorted(base_dir.iterdir()):
                 if sub.is_dir():
                     candidate = sub / "flowy-database.db"
                     if candidate.exists():
-                        return candidate
-    return None
+                        count = _collab_count(candidate)
+                        if count > best_count:
+                            best_count = count
+                            best_candidate = candidate
+    return best_candidate
 
 
 def _get_db() -> Optional[sqlite3.Connection]:
@@ -91,17 +109,33 @@ def list_documents(workspace_id: str | None = None) -> list[dict]:
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     cur = conn.execute(
-        "SELECT object_id, title, collab_type, timestamp FROM collab_snapshot "
+        "SELECT object_id, title, collab_type, timestamp, data "
+        "FROM collab_snapshot "
         "WHERE collab_type IN ('document', 'database', 'folder') "
         "ORDER BY timestamp DESC LIMIT 100"
     )
     docs = []
     for row in cur.fetchall():
+        workspace_meta = None
+        source_meta = None
+        rel_path_meta = None
+        raw_data = row["data"]
+        if raw_data:
+            try:
+                parsed = json.loads(raw_data.decode("utf-8", errors="ignore"))
+                workspace_meta = parsed.get("workspace_id")
+                source_meta = parsed.get("source")
+                rel_path_meta = parsed.get("rel_path")
+            except Exception:
+                pass
         docs.append({
             "id": row["object_id"],
             "title": row["title"],
             "type": row["collab_type"],
             "updated_at": row["timestamp"],
+            "workspace_id": workspace_meta,
+            "source": source_meta,
+            "rel_path": rel_path_meta,
         })
     conn.close()
     return docs
@@ -142,35 +176,65 @@ def semantic_search(query: str, workspace_id: str | None = None, limit: int = 10
     db_path = _find_database(workspace_id)
     if not db_path:
         return []
-    
-    vec_path = db_path.parent.parent / "vector.db"
-    if not vec_path.exists():
-        return []
-    
-    conn = sqlite3.connect(str(vec_path))
-    conn.row_factory = sqlite3.Row
-    
-    # Text-based search on metadata text tables
-    results = []
+
+    results: list[dict] = []
     search_term = f"%{query}%"
-    
-    for i in range(5):
-        table = f"af_collab_embeddings_2560_metadatatext0{i}"
-        try:
-            cur = conn.execute(
-                f"SELECT rowid, data FROM {table} WHERE data LIKE ? LIMIT ?",
-                (search_term, limit),
-            )
-            for row in cur.fetchall():
-                results.append({
-                    "rowid": row["rowid"],
-                    "content": row["data"][:500],
-                    "source": table,
-                })
-        except Exception:
-            pass
-    
-    conn.close()
+
+    vec_path = db_path.parent.parent / "vector.db"
+    if vec_path.exists():
+        conn = sqlite3.connect(str(vec_path))
+        conn.row_factory = sqlite3.Row
+
+        # Text-based fallback on vector metadata text tables.
+        for i in range(5):
+            table = f"af_collab_embeddings_2560_metadatatext0{i}"
+            try:
+                cur = conn.execute(
+                    f"SELECT rowid, data FROM {table} WHERE data LIKE ? LIMIT ?",
+                    (search_term, limit),
+                )
+                for row in cur.fetchall():
+                    results.append({
+                        "rowid": row["rowid"],
+                        "content": row["data"][:500],
+                        "source": table,
+                    })
+            except Exception:
+                pass
+
+        conn.close()
+
+    if results:
+        return results[:limit]
+
+    # If vector tables are unavailable, search imported vault index in flowy DB.
+    conn = sqlite3.connect(str(db_path))
+    conn.row_factory = sqlite3.Row
+    try:
+        cur = conn.execute(
+            """
+            SELECT object_id, title, body, source_name, rel_path
+            FROM ucore_vault_index_fts
+            WHERE ucore_vault_index_fts MATCH ?
+            LIMIT ?
+            """,
+            (query, limit),
+        )
+        for row in cur.fetchall():
+            snippet = str(row["body"] or "")[:500]
+            results.append({
+                "rowid": row["object_id"],
+                "content": snippet,
+                "title": row["title"],
+                "rel_path": row["rel_path"],
+                "source": f"ucore_vault_index:{row['source_name']}",
+            })
+    except Exception:
+        # Index table may not exist until first import.
+        pass
+    finally:
+        conn.close()
+
     return results[:limit]
 
 

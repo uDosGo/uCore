@@ -45,7 +45,7 @@ const ProseView: React.FC<ProseViewProps> = ({ doc = DEFAULT_DOC }) => (
       {doc.date && <span>{doc.date}</span>}
       {doc.status && <span>{doc.status}</span>}
     </div>
-    <div className="prose-body" dangerouslySetInnerHTML={{ __html: doc.body }} />
+    <div className="prose" dangerouslySetInnerHTML={{ __html: doc.body }} />
   </div>
 )
 

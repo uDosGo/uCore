@@ -1,5 +1,4 @@
-"""
-Provider Router — Routes chat requests to AI providers based on config/models.yaml
+"""Provider Router for AI provider/model routing.
 
 Replaces legacy Hivemind MCP server with pure Python.
 Reads config/models.yaml for provider/model configuration.
@@ -17,13 +16,14 @@ import json
 import logging
 import os
 import re
-import subprocess
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import AsyncGenerator, Optional
+from typing import Any, AsyncGenerator, Optional
 
 import aiohttp
-import yaml
+import yaml  # type: ignore[import-untyped]
+from app.services.chat_cache import ChatCache
 
 log = logging.getLogger("snackbar.provider_router")
 
@@ -52,7 +52,10 @@ def _load_env_file(path: Path) -> None:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
-                match = re.match(r'^export\s+([A-Za-z_][A-Za-z0-9_]*)=(.*)$', line)
+                match = re.match(
+                    r'^export\s+([A-Za-z_][A-Za-z0-9_]*)=(.*)$',
+                    line,
+                )
                 if match:
                     key, value = match.groups()
                     value = value.strip().strip('"').strip("'")
@@ -85,7 +88,8 @@ class ProviderConfig:
             name=name,
             type=data.get("type", "ollama"),
             base_url=data.get("base_url", "http://localhost:11434"),
-            api_key=data.get("api_key") or os.environ.get(f"{name.upper()}_API_KEY"),
+            api_key=data.get("api_key")
+            or os.environ.get(f"{name.upper()}_API_KEY"),
             default_model=data.get("default_model", ""),
             priority=data.get("priority", 10),
             enabled=data.get("enabled", True),
@@ -106,8 +110,18 @@ class ProviderRouter:
     """
 
     def __init__(self, config_dir: Optional[str] = None):
-        self.config_dir = Path(config_dir or os.path.expanduser("~/.config/udos"))
+        self.config_dir = Path(
+            config_dir or os.path.expanduser("~/.config/udos")
+        )
         self.providers: dict[str, ProviderConfig] = {}
+        self.cache = ChatCache()
+        self._metrics: dict[str, Any] = {
+            "requests": 0,
+            "errors": 0,
+            "fallbacks": 0,
+            "latency_ms_total": 0.0,
+            "last_latency_ms": None,
+        }
         self._load_config()
 
     def _load_config(self):
@@ -135,7 +149,7 @@ class ProviderRouter:
         self.providers["ollama"] = ProviderConfig(
             name="ollama", type="ollama",
             base_url="http://localhost:11434",
-            default_model="qwen2.5-coder:7b",
+            default_model="qwen2.5-coder:7b-instruct-q4_K_M",
             priority=1,
         )
         self.providers["openrouter"] = ProviderConfig(
@@ -151,7 +165,8 @@ class ProviderRouter:
 
         Supports multiple config formats:
           1. providers: dict of {name: {type, base_url, ...}}  (standard)
-          2. models: list of {id, provider, tier, ...}          (models.yaml format)
+             2. models: list of {id, provider, tier, ...}
+                 (models.yaml format)
           3. models: dict of {name: {type, base_url, ...}}      (legacy)
         """
         # Format 1: providers dict
@@ -176,20 +191,56 @@ class ProviderRouter:
 
             # Create provider configs from discovered providers
             provider_defaults: dict[str, dict] = {
-                "ollama": {"type": "ollama", "base_url": "http://localhost:11434", "priority": 1},
-                "openrouter": {"type": "openrouter", "base_url": "https://openrouter.ai/api/v1", "priority": 5},
-                "deepseek": {"type": "openrouter", "base_url": "https://openrouter.ai/api/v1", "priority": 5},
-                "mistral": {"type": "openrouter", "base_url": "https://openrouter.ai/api/v1", "priority": 5},
-                "google": {"type": "openrouter", "base_url": "https://openrouter.ai/api/v1", "priority": 5},
-                "xai": {"type": "openrouter", "base_url": "https://openrouter.ai/api/v1", "priority": 5},
-                "github-copilot": {"type": "openrouter", "base_url": "https://openrouter.ai/api/v1", "priority": 5},
-                "oklocal": {"type": "oklocal", "base_url": "http://localhost:11434", "priority": 2},
+                "ollama": {
+                    "type": "ollama",
+                    "base_url": "http://localhost:11434",
+                    "priority": 1,
+                },
+                "openrouter": {
+                    "type": "openrouter",
+                    "base_url": "https://openrouter.ai/api/v1",
+                    "priority": 5,
+                },
+                "deepseek": {
+                    "type": "openrouter",
+                    "base_url": "https://openrouter.ai/api/v1",
+                    "priority": 5,
+                },
+                "mistral": {
+                    "type": "openrouter",
+                    "base_url": "https://openrouter.ai/api/v1",
+                    "priority": 5,
+                },
+                "google": {
+                    "type": "openrouter",
+                    "base_url": "https://openrouter.ai/api/v1",
+                    "priority": 5,
+                },
+                "xai": {
+                    "type": "openrouter",
+                    "base_url": "https://openrouter.ai/api/v1",
+                    "priority": 5,
+                },
+                "github-copilot": {
+                    "type": "openrouter",
+                    "base_url": "https://openrouter.ai/api/v1",
+                    "priority": 5,
+                },
+                "oklocal": {
+                    "type": "oklocal",
+                    "base_url": "http://localhost:11434",
+                    "priority": 2,
+                },
             }
             for prov_name, models in provider_models.items():
                 if prov_name not in self.providers:
                     defaults = provider_defaults.get(prov_name)
                     if defaults is None:
-                        defaults = {"type": "openrouter", "base_url": "https://openrouter.ai/api/v1", "priority": 10}
+                        defaults = {
+                            "type": "openrouter",
+                            "base_url": "https://openrouter.ai/api/v1",
+                            "priority": 10,
+                        }
                     self.providers[prov_name] = ProviderConfig(
                         name=prov_name,
                         type=str(defaults["type"]),
@@ -274,20 +325,153 @@ class ProviderRouter:
         Returns:
             dict with keys: content, model, provider, error (optional)
         """
+        started_at = time.perf_counter()
+        self._metrics["requests"] += 1
         prov = self.get_provider(provider)
         model_id = model or prov.default_model
         timeout_s = timeout or prov.timeout
 
+        cached = self.cache.get(
+            provider=prov.name,
+            model=model_id,
+            messages=messages,
+        )
+        if cached is not None:
+            self._record_latency(started_at)
+            return cached
+
         try:
             if prov.type in ("ollama", "oklocal"):
-                return await self._chat_ollama(prov, messages, model_id, timeout_s)
+                result = await self._chat_ollama(
+                    prov,
+                    messages,
+                    model_id,
+                    timeout_s,
+                )
             elif prov.type == "openrouter":
-                return await self._chat_openrouter(prov, messages, model_id, timeout_s)
+                result = await self._chat_openrouter(
+                    prov,
+                    messages,
+                    model_id,
+                    timeout_s,
+                )
             else:
                 return {"error": f"Unknown provider type: {prov.type}"}
+
+            if "error" not in result and result.get("content"):
+                self.cache.set(
+                    provider=prov.name,
+                    model=model_id,
+                    messages=messages,
+                    response=result,
+                )
+            elif prov.type == "openrouter":
+                fallback = await self._chat_with_local_fallback(
+                    messages=messages,
+                    timeout=timeout_s,
+                    primary_provider=prov.name,
+                    primary_model=model_id,
+                    primary_error=result.get("error", "OpenRouter failure"),
+                )
+                if fallback is not None:
+                    self._metrics["fallbacks"] += 1
+                    if "error" not in fallback and fallback.get("content"):
+                        self.cache.set(
+                            provider=fallback.get("provider", "ollama"),
+                            model=fallback.get("model", ""),
+                            messages=messages,
+                            response=fallback,
+                        )
+                    self._record_latency(started_at)
+                    return fallback
+            self._record_latency(started_at)
+            return result
         except Exception as e:
             log.error(f"Provider {prov.name} error: {e}")
+            self._metrics["errors"] += 1
+            if prov.type == "openrouter":
+                fallback = await self._chat_with_local_fallback(
+                    messages=messages,
+                    timeout=timeout_s,
+                    primary_provider=prov.name,
+                    primary_model=model_id,
+                    primary_error=str(e),
+                )
+                if fallback is not None:
+                    self._metrics["fallbacks"] += 1
+                    if "error" not in fallback and fallback.get("content"):
+                        self.cache.set(
+                            provider=fallback.get("provider", "ollama"),
+                            model=fallback.get("model", ""),
+                            messages=messages,
+                            response=fallback,
+                        )
+                    self._record_latency(started_at)
+                    return fallback
+            self._record_latency(started_at)
             return {"error": str(e), "provider": prov.name}
+
+    def _record_latency(self, started_at: float) -> None:
+        latency_ms = (time.perf_counter() - started_at) * 1000.0
+        self._metrics["latency_ms_total"] += latency_ms
+        self._metrics["last_latency_ms"] = round(latency_ms, 2)
+
+    def stats(self) -> dict[str, Any]:
+        requests = int(self._metrics["requests"])
+        average_latency_ms = 0.0
+        if requests > 0:
+            average_latency_ms = round(
+                float(self._metrics["latency_ms_total"]) / requests,
+                2,
+            )
+
+        return {
+            "requests": requests,
+            "errors": int(self._metrics["errors"]),
+            "fallbacks": int(self._metrics["fallbacks"]),
+            "last_latency_ms": self._metrics["last_latency_ms"],
+            "average_latency_ms": average_latency_ms,
+            "cache": self.cache.stats(),
+        }
+
+    async def _chat_with_local_fallback(
+        self,
+        *,
+        messages: list[dict],
+        timeout: int,
+        primary_provider: str,
+        primary_model: str,
+        primary_error: str,
+    ) -> dict | None:
+        fallback = (
+            self.providers.get("ollama")
+            or self.providers.get("oklocal")
+        )
+        if fallback is None or not fallback.enabled:
+            return None
+
+        fallback_model = fallback.default_model
+        if not fallback_model:
+            return None
+
+        fallback_result = await self._chat_ollama(
+            fallback,
+            messages,
+            fallback_model,
+            timeout,
+        )
+        if "error" in fallback_result:
+            return None
+
+        fallback_result["fallback"] = {
+            "used": True,
+            "from_provider": primary_provider,
+            "from_model": primary_model,
+            "reason": primary_error,
+            "to_provider": fallback.name,
+            "to_model": fallback_model,
+        }
+        return fallback_result
 
     async def chat_stream(
         self,
@@ -306,10 +490,18 @@ class ProviderRouter:
 
         try:
             if prov.type in ("ollama", "oklocal"):
-                async for token, final in self._stream_ollama(prov, messages, model_id):
+                async for token, final in self._stream_ollama(
+                    prov,
+                    messages,
+                    model_id,
+                ):
                     yield token, final
             elif prov.type == "openrouter":
-                async for token, final in self._stream_openrouter(prov, messages, model_id):
+                async for token, final in self._stream_openrouter(
+                    prov,
+                    messages,
+                    model_id,
+                ):
                     yield token, final
             else:
                 yield None, {"error": f"Unknown provider type: {prov.type}"}
@@ -332,10 +524,16 @@ class ProviderRouter:
         }
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
+            async with session.post(
+                url,
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=timeout),
+            ) as resp:
                 if resp.status != 200:
                     text = await resp.text()
-                    return {"error": f"Ollama error {resp.status}: {text[:200]}"}
+                    return {
+                        "error": f"Ollama error {resp.status}: {text[:200]}"
+                    }
                 data = await resp.json()
                 return {
                     "content": data.get("message", {}).get("content", ""),
@@ -358,7 +556,9 @@ class ProviderRouter:
             async with session.post(url, json=payload) as resp:
                 if resp.status != 200:
                     text = await resp.text()
-                    yield None, {"error": f"Ollama error {resp.status}: {text[:200]}"}
+                    yield None, {
+                        "error": f"Ollama error {resp.status}: {text[:200]}"
+                    }
                     return
 
                 full_content = ""
@@ -403,10 +603,19 @@ class ProviderRouter:
         }
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=payload, headers=headers, timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
+            async with session.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=timeout),
+            ) as resp:
                 if resp.status != 200:
                     text = await resp.text()
-                    return {"error": f"OpenRouter error {resp.status}: {text[:200]}"}
+                    return {
+                        "error": (
+                            f"OpenRouter error {resp.status}: {text[:200]}"
+                        )
+                    }
                 data = await resp.json()
                 choice = data.get("choices", [{}])[0]
                 return {
@@ -436,18 +645,26 @@ class ProviderRouter:
         }
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=payload, headers=headers) as resp:
+            async with session.post(
+                url,
+                json=payload,
+                headers=headers,
+            ) as resp:
                 if resp.status != 200:
                     text = await resp.text()
-                    yield None, {"error": f"OpenRouter error {resp.status}: {text[:200]}"}
+                    yield None, {
+                        "error": (
+                            f"OpenRouter error {resp.status}: {text[:200]}"
+                        )
+                    }
                     return
 
                 full_content = ""
-                async for line in resp.content:
-                    if line:
-                        line = line.decode().strip()
-                        if line.startswith("data: "):
-                            data_str = line[6:]
+                async for raw_line in resp.content:
+                    if raw_line:
+                        line_text = raw_line.decode().strip()
+                        if line_text.startswith("data: "):
+                            data_str = line_text[6:]
                             if data_str == "[DONE]":
                                 yield None, {
                                     "content": full_content,
@@ -457,7 +674,10 @@ class ProviderRouter:
                                 return
                             try:
                                 data = json.loads(data_str)
-                                delta = data.get("choices", [{}])[0].get("delta", {})
+                                delta = data.get("choices", [{}])[0].get(
+                                    "delta",
+                                    {},
+                                )
                                 token = delta.get("content", "")
                                 if token:
                                     full_content += token

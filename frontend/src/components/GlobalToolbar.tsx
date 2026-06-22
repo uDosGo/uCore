@@ -171,14 +171,14 @@ export function GlobalToolbar({
       {/* ─── Right: Settings + extra ─── */}
       <div className="usx-header-right">
         {rightExtra}
-        {/* ─── Settings gear — always visible, navigates to /system?tab=settings ─── */}
+        {/* ─── Settings gear — always visible, navigates to consolidated Server settings ─── */}
         <button
           className="usx-header-btn"
           onClick={() => {
             if (onOpenSettings) {
               onOpenSettings()
             } else {
-              navigate('/system?tab=settings')
+              navigate('/server?tab=settings')
             }
           }}
           title="Settings"

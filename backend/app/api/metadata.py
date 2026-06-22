@@ -2,10 +2,15 @@
 from __future__ import annotations
 
 import time as time_mod
+import os
+from pathlib import Path
 from aiohttp import web
 from ..core.settings import settings
 import platform as plat
 import subprocess
+
+
+POPCORN_PID_FILE = Path.home() / ".ucore" / "ucore-popcorn.pid"
 
 
 async def system_info_handler(request: web.Request) -> web.Response:
@@ -18,13 +23,14 @@ async def system_info_handler(request: web.Request) -> web.Response:
         "hostname": plat.node(),
         "app": settings.app_name,
         "version": settings.version,
+        "clipboard_shortcut": settings.clipboard_shortcut,
         "resources": resources,
         "services": _get_service_status(),
     })
 
 
 def _get_resource_snapshot() -> dict:
-    resources = {}
+    resources: dict[str, object] = {}
     # CPU load
     try:
         load1, load5, load15 = _get_load_avg()
@@ -56,11 +62,18 @@ def _get_resource_snapshot() -> dict:
 def _get_load_avg() -> tuple[float, float, float]:
     """Get load average — works on macOS and Linux."""
     try:
-        return tuple(float(v) for v in open("/proc/loadavg").read().split()[:3])
+        with open("/proc/loadavg", encoding="utf-8") as f:
+            values = f.read().split()[:3]
+        return float(values[0]), float(values[1]), float(values[2])
     except (FileNotFoundError, OSError):
         pass
     try:
-        result = subprocess.run(["sysctl", "-n", "vm.loadavg"], capture_output=True, text=True, timeout=5)
+        result = subprocess.run(
+            ["sysctl", "-n", "vm.loadavg"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
         values = result.stdout.strip().strip("{}").split()
         return float(values[0]), float(values[1]), float(values[2])
     except Exception:
@@ -74,7 +87,12 @@ def _count_cores() -> int:
 
 def _get_memory_info() -> dict:
     try:
-        result = subprocess.run(["vm_stat"], capture_output=True, text=True, timeout=5)
+        result = subprocess.run(
+            ["vm_stat"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
         page_size = 16384  # Apple Silicon
         free = active = inactive = wired = 0
         for line in result.stdout.splitlines():
@@ -100,10 +118,20 @@ def _get_memory_info() -> dict:
 
 def _get_disk_info() -> dict:
     try:
-        result = subprocess.run(["df", "-h", "/"], capture_output=True, text=True, timeout=5)
+        result = subprocess.run(
+            ["df", "-h", "/"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
         parts = result.stdout.splitlines()[-1].split()
         if len(parts) >= 5:
-            return {"total": parts[1], "used": parts[2], "free": parts[3], "used_pct": int(parts[4].rstrip("%"))}
+            return {
+                "total": parts[1],
+                "used": parts[2],
+                "free": parts[3],
+                "used_pct": int(parts[4].rstrip("%")),
+            }
     except Exception:
         pass
     return {}
@@ -111,7 +139,12 @@ def _get_disk_info() -> dict:
 
 def _get_uptime() -> float:
     try:
-        result = subprocess.run(["sysctl", "-n", "kern.boottime"], capture_output=True, text=True, timeout=5)
+        result = subprocess.run(
+            ["sysctl", "-n", "kern.boottime"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
         import re
         m = re.search(r"sec\s*=\s*(\d+)", result.stdout)
         if m:
@@ -122,24 +155,78 @@ def _get_uptime() -> float:
 
 
 def _get_service_status() -> dict:
-    services = {"ucore": "running"}
+    services: dict[str, object] = {"ucore": "running"}
     # Ollama
     try:
         import urllib.request
-        with urllib.request.urlopen("http://localhost:11434/api/tags", timeout=2):
+
+        with urllib.request.urlopen(
+            "http://localhost:11434/api/tags",
+            timeout=2,
+        ):
             services["ollama"] = "running"
     except Exception:
         services["ollama"] = "stopped"
     # Docker
     try:
-        result = subprocess.run(["docker", "ps", "--format", "{{.Names}}"], capture_output=True, text=True, timeout=3)
+        result = subprocess.run(
+            ["docker", "ps", "--format", "{{.Names}}"],
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
         containers = [c for c in result.stdout.splitlines() if c.strip()]
-        services["docker"] = "running" if result.returncode == 0 else "unavailable"
+        services["docker"] = (
+            "running" if result.returncode == 0 else "unavailable"
+        )
         if containers:
             services["containers"] = containers[:5]
     except Exception:
         services["docker"] = "unavailable"
+
+    try:
+        from app.services.provider_router import get_router
+
+        router = get_router()
+        services["ai_runtime"] = router.stats()
+    except Exception:
+        services["ai_runtime"] = {"status": "unavailable"}
+
     return services
+
+
+def _get_tray_state() -> dict:
+    tray: dict[str, object] = {
+        "status": "stopped",
+        "pid": None,
+        "lockfile": str(POPCORN_PID_FILE),
+    }
+
+    if not POPCORN_PID_FILE.exists():
+        return tray
+
+    try:
+        raw_pid = POPCORN_PID_FILE.read_text(encoding="utf-8").strip()
+        pid = int(raw_pid)
+        if pid <= 0:
+            tray["status"] = "stale-lock"
+            return tray
+    except (ValueError, OSError):
+        tray["status"] = "stale-lock"
+        return tray
+
+    try:
+        os.kill(pid, 0)
+        tray["status"] = "running"
+        tray["pid"] = pid
+    except ProcessLookupError:
+        tray["status"] = "stale-lock"
+    except PermissionError:
+        # Process exists but cannot be signaled by current user.
+        tray["status"] = "running"
+        tray["pid"] = pid
+
+    return tray
 
 
 async def maintenance_status_handler(request: web.Request) -> web.Response:
@@ -147,9 +234,19 @@ async def maintenance_status_handler(request: web.Request) -> web.Response:
     from app.services.maintenance_scheduler import get_maintenance_scheduler
 
     scheduler = get_maintenance_scheduler()
+    tray = _get_tray_state()
     if scheduler is None:
-        return web.json_response({"status": "unavailable", "reason": "scheduler not started"}, status=503)
-    return web.json_response({"status": "ok", **scheduler.status()})
+        return web.json_response(
+            {
+                "status": "unavailable",
+                "reason": "scheduler not started",
+                "tray": tray,
+            },
+            status=503,
+        )
+    return web.json_response(
+        {"status": "ok", "tray": tray, **scheduler.status()}
+    )
 
 
 async def workflow_status_handler(request: web.Request) -> web.Response:
@@ -158,7 +255,10 @@ async def workflow_status_handler(request: web.Request) -> web.Response:
     from app.services.workflow_status import build_workflow_status
 
     scheduler = get_maintenance_scheduler()
-    maintenance = None
+    tray = _get_tray_state()
+    maintenance = {"status": "unavailable", "tray": tray}
     if scheduler is not None:
-        maintenance = {"status": "ok", **scheduler.status()}
-    return web.json_response({"status": "ok", **build_workflow_status(maintenance=maintenance)})
+        maintenance = {"status": "ok", "tray": tray, **scheduler.status()}
+    return web.json_response(
+        {"status": "ok", **build_workflow_status(maintenance=maintenance)}
+    )

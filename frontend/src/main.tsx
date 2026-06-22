@@ -6,12 +6,12 @@
      /[ps]\d{3}     → SystemPage  (P: surface status, S: system pages)
      /assistui/*    → AssistUISurface (canonical AI chat)
      /gridui/*      → GridUISurface (Terminal + Teletext)
-     /gridcore/*    → GridCoreSurface (Map, Grid Editor, Assets, Settings)
+    /gridcore/*    → Redirect to /gridui?panel=terminal (archived)
      /proseui/*     → Redirects to / (absorbed into MissionControl)
      /browserui/*   → BrowserUISurface (kept)
      /userver/*     → UServerSurface (kept)
      /developer/**   → DeveloperSurface (kept)
-     /system/*      → USystemSurface (Install, Modules, Feeds, Story Builder, Pages)
+    /system/*      → Redirect to /server?tab=... (legacy compatibility)
    Removed: HomeNestSurface, WorldMapSurface, Code3UISurface, VibeSurface (dead)
    Absorbed: ChatUISurface → AssistUI, FloatingChatPanel → AssistUI, USystemRouter → UIHubManager
    ═══════════════════════════════════════════════════════════════════
@@ -32,8 +32,10 @@ import BrowserUISurface from './surfaces/browserui/BrowserUISurface'
 import AssistUISurface from './surfaces/assistui/AssistUISurface'
 import DeveloperSurface from './surfaces/developer/DeveloperSurface'
 import UServerSurface from './surfaces/userver/UServerSurface'
-import USystemSurface from './surfaces/system/USystemSurface'
-import GridCoreSurface from './surfaces/gridcore/GridCoreSurface'
+
+const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
+  String(import.meta.env.VITE_DEV_MODE || '').toLowerCase(),
+)
 
 // S-pages (system pages)
 import S100ToolBuilder from './pages/S100ToolBuilder'
@@ -42,7 +44,6 @@ import S300WorkflowBuilder from './pages/S300WorkflowBuilder'
 import S310ClipboardOrchestration from './pages/S310ClipboardOrchestration'
 import S320KnowledgeTools from './pages/S320KnowledgeTools'
 import S600Learning from './pages/S600Learning'
-import S800Labs from './pages/S800Labs'
 
 import './styles/tokens.css'
 import './styles/hub/index.css'
@@ -63,7 +64,6 @@ const S_PAGE_COMPONENTS: Record<string, React.ComponentType> = {
   s310: S310ClipboardOrchestration,
   s320: S320KnowledgeTools,
   s600: S600Learning,
-  s800: S800Labs,
 }
 
 function App() {
@@ -93,11 +93,17 @@ function Root() {
           <Route path="/gridui/*" element={<GridUISurface />} />
           <Route path="/browserui/*" element={<BrowserUISurface />} />
           <Route path="/assistui/*" element={<AssistUISurface />} />
-          <Route path="/developer/**" element={<DeveloperSurface />} />
-          <Route path="/userver/*" element={<UServerSurface />} />
-          <Route path="/system" element={<USystemSurface />} />
-          <Route path="/system/*" element={<USystemSurface />} />
-          <Route path="/gridcore/*" element={<GridCoreSurface />} />
+          <Route
+            path="/developer/**"
+            element={DEV_MODE_ENABLED ? <DeveloperSurface /> : <Navigate to="/" replace />}
+          />
+          <Route path="/server/*" element={<UServerSurface />} />
+          <Route path="/userver/*" element={<UserverRouteRedirect />} />
+          <Route path="/system" element={<SystemRouteRedirect />} />
+          <Route path="/system/*" element={<SystemRouteRedirect />} />
+          <Route path="/system-legacy" element={<Navigate to="/server?tab=install" replace />} />
+          <Route path="/system-legacy/*" element={<Navigate to="/server?tab=install" replace />} />
+          <Route path="/gridcore/*" element={<Navigate to="/gridui?panel=terminal" replace />} />
           <Route path="/*" element={<App />} />
         </Routes>
         {/* Floating chat bubble + panel — hidden on /assistui since full-page AssistUI is shown */}
@@ -107,11 +113,44 @@ function Root() {
   )
 }
 
+function SystemRouteRedirect() {
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const rawTab = params.get('tab') || 'install'
+  const legacyMap: Record<string, string> = {
+    story: 'missions',
+    pages: 'missions',
+    workflows: 'services',
+    agents: 'services',
+    publishing: 'services',
+  }
+  const tab = legacyMap[rawTab] || rawTab
+  const validTabs = new Set([
+    'dashboard',
+    'ingest',
+    'missions',
+    'install',
+    'modules',
+    'feeds',
+    'settings',
+    'services',
+    'logs',
+  ])
+  const nextTab = validTabs.has(tab) ? tab : 'install'
+  return <Navigate to={`/server?tab=${encodeURIComponent(nextTab)}`} replace />
+}
+
+function UserverRouteRedirect() {
+  const location = useLocation()
+  const nextPath = location.pathname.replace(/^\/userver/, '/server') || '/server'
+  return <Navigate to={`${nextPath}${location.search}`} replace />
+}
+
 /** Wraps the floating AssistUI bubble, hiding it on full-page surfaces */
 function FloatingChatWrapper() {
   const location = useLocation()
   if (location.pathname.startsWith('/assistui')) return null
-  if (location.pathname.startsWith('/developer/*')) return null
+  if (location.pathname.startsWith('/developer')) return null
   return <AssistUISurface floating />
 }
 

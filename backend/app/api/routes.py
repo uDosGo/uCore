@@ -29,9 +29,11 @@ def register_routes(app: web.Application) -> None:
     from .knowledge import (
         handle_list_workspaces, handle_list_documents,
         handle_get_document, handle_get_document_content, handle_search,
+        handle_mission_task_binder,
         handle_local_databases, handle_local_tables, handle_local_query,
         handle_local_export,
         handle_af_import, handle_af_sync, handle_af_status,
+        handle_af_index_status,
     )
 
     # Knowledge (AppFlowy bridge)
@@ -40,6 +42,10 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/knowledge/documents/{object_id}", handle_get_document)
     app.router.add_get("/api/knowledge/documents/{object_id}/content", handle_get_document_content)
     app.router.add_get("/api/knowledge/search", handle_search)
+    app.router.add_get(
+        "/api/knowledge/adapter/mission-task-binder",
+        handle_mission_task_binder,
+    )
     app.router.add_get("/api/knowledge/local/databases", handle_local_databases)
     app.router.add_get("/api/knowledge/local/tables", handle_local_tables)
     app.router.add_post("/api/knowledge/local/query", handle_local_query)
@@ -48,6 +54,7 @@ def register_routes(app: web.Application) -> None:
     app.router.add_post("/api/knowledge/import", handle_af_import)
     app.router.add_post("/api/knowledge/sync", handle_af_sync)
     app.router.add_get("/api/knowledge/status", handle_af_status)
+    app.router.add_get("/api/knowledge/index/status", handle_af_index_status)
 
     # MCP Integration
     app.router.add_get("/api/mcp/tools", handle_mcp_discover)

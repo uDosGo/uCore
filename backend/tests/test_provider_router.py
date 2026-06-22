@@ -1,11 +1,11 @@
 """Unit tests for the ProviderRouter service."""
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
 
+from app.services.chat_cache import ChatCache
 from app.services.provider_router import ProviderRouter, ProviderConfig
 
 
@@ -14,15 +14,26 @@ class TestProviderRouter:
 
     def test_init_with_default_providers(self, tmp_path: Path, monkeypatch):
         """When no config files exist, falls back to ollama + openrouter."""
-        monkeypatch.setattr("app.services.provider_router.ProviderRouter._load_config", lambda self: None)
+        monkeypatch.setattr(
+            "app.services.provider_router.ProviderRouter._load_config",
+            lambda self: None,
+        )
         router = ProviderRouter()
         router.providers = {
-            "ollama": ProviderConfig(name="ollama", type="ollama",
-                                     base_url="http://localhost:11434",
-                                     default_model="qwen2.5-coder:7b", priority=1),
-            "openrouter": ProviderConfig(name="openrouter", type="openrouter",
-                                         base_url="https://openrouter.ai/api/v1",
-                                         default_model="deepseek/deepseek-chat", priority=5),
+            "ollama": ProviderConfig(
+                name="ollama",
+                type="ollama",
+                base_url="http://localhost:11434",
+                default_model="qwen2.5-coder:7b-instruct-q4_K_M",
+                priority=1,
+            ),
+            "openrouter": ProviderConfig(
+                name="openrouter",
+                type="openrouter",
+                base_url="https://openrouter.ai/api/v1",
+                default_model="deepseek/deepseek-chat",
+                priority=5,
+            ),
         }
         assert "ollama" in router.providers
         assert "openrouter" in router.providers
@@ -30,9 +41,13 @@ class TestProviderRouter:
     def test_get_provider_by_name(self):
         router = ProviderRouter()
         router.providers = {
-            "ollama": ProviderConfig(name="ollama", type="ollama",
-                                     base_url="http://localhost:11434",
-                                     default_model="qwen2.5-coder:7b", priority=1),
+            "ollama": ProviderConfig(
+                name="ollama",
+                type="ollama",
+                base_url="http://localhost:11434",
+                default_model="qwen2.5-coder:7b-instruct-q4_K_M",
+                priority=1,
+            ),
         }
         prov = router.get_provider("ollama")
         assert prov.name == "ollama"
@@ -41,12 +56,20 @@ class TestProviderRouter:
     def test_get_provider_nonexistent_returns_highest_priority(self):
         router = ProviderRouter()
         router.providers = {
-            "low": ProviderConfig(name="low", type="ollama",
-                                  base_url="http://localhost:11434",
-                                  default_model="model-low", priority=10),
-            "high": ProviderConfig(name="high", type="openrouter",
-                                   base_url="https://example.com",
-                                   default_model="model-high", priority=1),
+            "low": ProviderConfig(
+                name="low",
+                type="ollama",
+                base_url="http://localhost:11434",
+                default_model="model-low",
+                priority=10,
+            ),
+            "high": ProviderConfig(
+                name="high",
+                type="openrouter",
+                base_url="https://example.com",
+                default_model="model-high",
+                priority=1,
+            ),
         }
         prov = router.get_provider("nonexistent")
         assert prov.name == "high"  # highest priority
@@ -54,12 +77,22 @@ class TestProviderRouter:
     def test_get_provider_disabled_skipped(self):
         router = ProviderRouter()
         router.providers = {
-            "disabled_provider": ProviderConfig(name="disabled_provider", type="ollama",
-                                                base_url="http://localhost:11434",
-                                                default_model="model", priority=1, enabled=False),
-            "enabled_provider": ProviderConfig(name="enabled_provider", type="openrouter",
-                                               base_url="https://example.com",
-                                               default_model="model", priority=5, enabled=True),
+            "disabled_provider": ProviderConfig(
+                name="disabled_provider",
+                type="ollama",
+                base_url="http://localhost:11434",
+                default_model="model",
+                priority=1,
+                enabled=False,
+            ),
+            "enabled_provider": ProviderConfig(
+                name="enabled_provider",
+                type="openrouter",
+                base_url="https://example.com",
+                default_model="model",
+                priority=5,
+                enabled=True,
+            ),
         }
         prov = router.get_provider("disabled_provider")
         assert prov.name == "disabled_provider"  # explicit name still works
@@ -73,37 +106,50 @@ class TestProviderRouter:
     def test_list_providers_structure(self):
         router = ProviderRouter()
         router.providers = {
-            "ollama": ProviderConfig(name="ollama", type="ollama",
-                                     base_url="http://localhost:11434",
-                                     default_model="qwen2.5-coder:7b", priority=1, enabled=True),
+            "ollama": ProviderConfig(
+                name="ollama",
+                type="ollama",
+                base_url="http://localhost:11434",
+                default_model="qwen2.5-coder:7b-instruct-q4_K_M",
+                priority=1,
+                enabled=True,
+            ),
         }
         providers = router.list_providers()
         assert len(providers) == 1
         p = providers[0]
         assert p["name"] == "ollama"
         assert p["type"] == "ollama"
-        assert p["default_model"] == "qwen2.5-coder:7b"
+        assert p["default_model"] == "qwen2.5-coder:7b-instruct-q4_K_M"
         assert p["enabled"] is True
         assert p["priority"] == 1
 
     def test_list_models_with_default_model(self):
         router = ProviderRouter()
         router.providers = {
-            "ollama": ProviderConfig(name="ollama", type="ollama",
-                                     base_url="http://localhost:11434",
-                                     default_model="qwen2.5-coder:7b", priority=1),
+            "ollama": ProviderConfig(
+                name="ollama",
+                type="ollama",
+                base_url="http://localhost:11434",
+                default_model="qwen2.5-coder:7b-instruct-q4_K_M",
+                priority=1,
+            ),
         }
         models = router.list_models()
         assert len(models) == 1
-        assert models[0]["id"] == "qwen2.5-coder:7b"
+        assert models[0]["id"] == "qwen2.5-coder:7b-instruct-q4_K_M"
         assert models[0]["provider"] == "ollama"
 
     def test_list_models_with_model_list(self):
         router = ProviderRouter()
         router.providers = {
-            "openrouter": ProviderConfig(name="openrouter", type="openrouter",
-                                         base_url="https://openrouter.ai",
-                                         models=["model-a", "model-b"], priority=5),
+            "openrouter": ProviderConfig(
+                name="openrouter",
+                type="openrouter",
+                base_url="https://openrouter.ai",
+                models=["model-a", "model-b"],
+                priority=5,
+            ),
         }
         models = router.list_models()
         assert len(models) == 2
@@ -150,10 +196,17 @@ async def test_chat_unknown_provider_type():
     """Chat with unknown provider type returns error."""
     router = ProviderRouter()
     router.providers = {
-        "unknown": ProviderConfig(name="unknown", type="nonexistent_type",
-                                  base_url="http://localhost", default_model="m"),
+        "unknown": ProviderConfig(
+            name="unknown",
+            type="nonexistent_type",
+            base_url="http://localhost",
+            default_model="m",
+        ),
     }
-    result = await router.chat(messages=[{"role": "user", "content": "hi"}], provider="unknown")
+    result = await router.chat(
+        messages=[{"role": "user", "content": "hi"}],
+        provider="unknown",
+    )
     assert "error" in result
 
 
@@ -162,10 +215,143 @@ async def test_chat_openrouter_no_api_key():
     """OpenRouter chat without API key returns error."""
     router = ProviderRouter()
     router.providers = {
-        "openrouter": ProviderConfig(name="openrouter", type="openrouter",
-                                     base_url="https://openrouter.ai",
-                                     default_model="test-model", api_key=None),
+        "openrouter": ProviderConfig(
+            name="openrouter",
+            type="openrouter",
+            base_url="https://openrouter.ai",
+            default_model="test-model",
+            api_key=None,
+        ),
     }
-    result = await router.chat(messages=[{"role": "user", "content": "hi"}], provider="openrouter")
+    result = await router.chat(
+        messages=[{"role": "user", "content": "hi"}],
+        provider="openrouter",
+    )
     assert "error" in result
     assert "API key not configured" in result["error"]
+
+
+@pytest.mark.asyncio
+async def test_chat_openrouter_falls_back_to_ollama(monkeypatch):
+    router = ProviderRouter()
+    router.providers = {
+        "openrouter": ProviderConfig(
+            name="openrouter",
+            type="openrouter",
+            base_url="https://openrouter.ai",
+            default_model="openai/o3-mini",
+            api_key="sk-test",
+        ),
+        "ollama": ProviderConfig(
+            name="ollama",
+            type="ollama",
+            base_url="http://localhost:11434",
+            default_model="qwen2.5-coder:7b-instruct-q4_K_M",
+        ),
+    }
+
+    async def fake_chat_openrouter(prov, messages, model, timeout):
+        return {"error": "OpenRouter API key not configured"}
+
+    async def fake_chat_ollama(prov, messages, model, timeout):
+        return {
+            "content": "local fallback response",
+            "model": model,
+            "provider": prov.name,
+        }
+
+    monkeypatch.setattr(router, "_chat_openrouter", fake_chat_openrouter)
+    monkeypatch.setattr(router, "_chat_ollama", fake_chat_ollama)
+
+    result = await router.chat(
+        messages=[{"role": "user", "content": "hi"}],
+        provider="openrouter",
+    )
+
+    assert result["content"] == "local fallback response"
+    assert result["provider"] == "ollama"
+    assert result["fallback"]["used"] is True
+    assert result["fallback"]["from_provider"] == "openrouter"
+
+
+@pytest.mark.asyncio
+async def test_chat_openrouter_exception_falls_back(monkeypatch):
+    router = ProviderRouter()
+    router.providers = {
+        "openrouter": ProviderConfig(
+            name="openrouter",
+            type="openrouter",
+            base_url="https://openrouter.ai",
+            default_model="openai/o3-mini",
+            api_key="sk-test",
+        ),
+        "ollama": ProviderConfig(
+            name="ollama",
+            type="ollama",
+            base_url="http://localhost:11434",
+            default_model="qwen2.5-coder:7b-instruct-q4_K_M",
+        ),
+    }
+
+    async def fake_chat_openrouter(prov, messages, model, timeout):
+        raise RuntimeError("OpenRouter unavailable")
+
+    async def fake_chat_ollama(prov, messages, model, timeout):
+        return {
+            "content": "recovered locally",
+            "model": model,
+            "provider": prov.name,
+        }
+
+    monkeypatch.setattr(router, "_chat_openrouter", fake_chat_openrouter)
+    monkeypatch.setattr(router, "_chat_ollama", fake_chat_ollama)
+
+    result = await router.chat(
+        messages=[{"role": "user", "content": "hi"}],
+        provider="openrouter",
+    )
+
+    assert result["content"] == "recovered locally"
+    assert result["fallback"]["reason"] == "OpenRouter unavailable"
+
+
+@pytest.mark.asyncio
+async def test_provider_router_stats_include_latency_and_cache(
+    tmp_path: Path,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        "app.services.provider_router.ProviderRouter._load_config",
+        lambda self: None,
+    )
+
+    router = ProviderRouter()
+    router.cache = ChatCache(tmp_path / "stats-cache.db")
+    router.providers = {
+        "ollama": ProviderConfig(
+            name="ollama",
+            type="ollama",
+            base_url="http://localhost:11434",
+            default_model="qwen2.5-coder:7b-instruct-q4_K_M",
+        )
+    }
+
+    async def fake_chat_ollama(prov, messages, model, timeout):
+        return {
+            "content": "stats-response",
+            "model": model,
+            "provider": prov.name,
+        }
+
+    monkeypatch.setattr(router, "_chat_ollama", fake_chat_ollama)
+
+    messages = [{"role": "user", "content": "measure"}]
+    await router.chat(messages=messages, provider="ollama")
+    await router.chat(messages=messages, provider="ollama")
+
+    stats = router.stats()
+
+    assert stats["requests"] == 2
+    assert stats["last_latency_ms"] is not None
+    assert stats["average_latency_ms"] >= 0
+    assert stats["cache"]["hits"] == 1

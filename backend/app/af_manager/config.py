@@ -1,7 +1,6 @@
 """Configuration Manager for AppFlowy sync — reads sync_config.yaml."""
 from __future__ import annotations
 
-import os
 import yaml
 from pathlib import Path
 from typing import Any, Optional
@@ -40,16 +39,19 @@ def load_config(config_path: Optional[str] = None) -> dict[str, Any]:
                 "name": "Global Vault",
                 "local_path": str(Path.home() / "Vault"),
                 "tags": ["personal", "knowledge"],
+                "workspace": "Global Vault",
             },
             {
                 "name": "Public Vault",
-                "local_path": str(Path.home() / "Public"),
+                "local_path": str(Path.home() / "Vault" / "Public"),
                 "tags": ["public", "blog"],
+                "workspace": "Public Vault",
             },
             {
                 "name": "Shared Vault",
-                "local_path": str(Path.home() / "Shared"),
+                "local_path": str(Path.home() / "Vault" / "Shared"),
                 "tags": ["shared", "collab"],
+                "workspace": "Shared Vault",
             },
         ],
     }

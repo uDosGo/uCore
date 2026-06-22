@@ -81,6 +81,14 @@ All new documentation should be structured for efficient AI ingestion before any
 3. Favor normalized Markdown that can be transformed into DocLang-style JSON/XML later.
 4. Avoid burying operational rules in narrative prose when a checklist or table is clearer.
 
+Canonical bridge spec:
+
+- `docs/DOCLANG_BRIDGE_EXPORT_SPEC.md`
+
+Initial transform step:
+
+- `scripts/export_doclang_context.py`
+
 ## 3C. Workflow Foundation
 
 uCore's current workflow direction is Markdown-first and local-first:
@@ -113,7 +121,7 @@ Each task file follows the Tasker Markdown format with status, source, source_id
 
 | Complexity | Provider | Model | Cost | When to Use |
 |-----------|----------|-------|------|-------------|
-| **Simple** | Ollama | qwen2.5-coder:7b | **$0.00** (local) | Typos, boilerplate, formatting |
+| **Simple** | Ollama | qwen2.5-coder:7b-instruct-q4_K_M | **$0.00** (local) | Typos, boilerplate, formatting |
 | **Medium** | OpenRouter | o3-mini | **~$0.01/task** | Daily work, features, endpoints |
 | **Complex** | OpenRouter/Claude | claude-sonnet-4 | **~$0.15/task** | Security, architecture, concurrency |
 | **Large Context** | OpenRouter/Gemini | gemini-2.5-flash | **~$0.02/100K tokens** | Repo-wide refactoring, analysis |

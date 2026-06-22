@@ -46,27 +46,15 @@
 
 ## Remaining Plan
 
-### Phase 6: Snackbar / System Orchestration (IN PROGRESS)
-| Task | Status | Description |
-|------|--------|-------------|
-| T6.1 Clipboard maintenance | Todo | Wire S310 capture/cleanup to overnight schedule |
-| T6.2 Spool log rotation | Todo | Add to maintenance scheduler |
-| T6.3 Tray menu state | Todo | Surface state in maintenance model |
+Plan ownership moved to the unified workflow:
 
-### Phase 7: MCP + Tasker Integration (TODO)
-| Task | Status | Description |
-|------|--------|-------------|
-| T7.1 Clipboard MCP tool | Todo | capture/get/delete via /api/mcp |
-| T7.2 Knowledge MCP tools | Todo | workspace list, doc list, search |
-| T7.3 Tasker MCP ops | Todo | .tasker/ read/write/list boards |
-| T7.4 Auto-sync .tasker/ | Todo | From AppFlowy in maintenance chain |
+- `.tasker/UNIFIED_DEV_TASK_WORKFLOW.md`
 
-### Backlog
-| Task | Priority | Description |
-|------|----------|-------------|
-| AI Provider Manager UI | Low | System page for provider config |
-| Cline + Roundtable | Medium | Replace Continue, parallel MCP execution |
-| uCore CLI (uc) | Low | Terminal control, skill execution |
+Archived snapshot:
+
+- `docs/archive/plans/2026-06-21-plan-migration-snapshot.md`
+
+This handover file no longer carries active plan tables.
 
 ---
 

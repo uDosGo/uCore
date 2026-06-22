@@ -35,7 +35,7 @@ from AppKit import (
     NSTableView, NSTableColumn, NSPanel, NSButton, NSBackingStoreBuffered,
     NSWindowStyleMaskTitled, NSWindowStyleMaskClosable,
     NSWindowStyleMaskUtilityWindow, NSFloatingWindowLevel,
-    NSEventModifierFlagCommand,
+    NSEvent, NSEventMaskKeyDown, NSEventModifierFlagCommand,
 )
 from PyObjCTools import AppHelper
 
@@ -47,6 +47,12 @@ REFRESH_INTERVAL = 5.0  # seconds
 
 UCORE_LABEL = "com.udos.ucore-server"
 LEGACY_LABEL = "com.udos.snackbar-server"
+
+# ─── Global Shortcut Config ───────────────────────────────────────────
+
+CLIPBOARD_SHORTCUT = os.environ.get(
+    "UCORE_CLIPBOARD_SHORTCUT", "ctrl+cmd+v"
+).lower().strip()
 UCORE_PLIST = os.path.expanduser("~/Library/LaunchAgents/com.udos.ucore-server.plist")
 UCORE_BACKEND_DIR = f"{settings.udos_root}/uCore/backend"
 
@@ -205,6 +211,53 @@ def disable_start_at_login():
 
 # ─── Icon ─────────────────────────────────────────────────────────────
 
+def _register_global_shortcut(delegate) -> object | None:
+    """Register a system-wide hotkey to open the clipboard panel.
+
+    Uses NSEvent.addGlobalMonitorForEventsMatchingMask:handler: so the
+    shortcut fires even when the tray app does not have keyboard focus.
+    Returns the monitor token (call removeMonitor: to deregister).
+    """
+    from app.menu.shortcut_utils import (
+        MOD_ALL,
+        parse_shortcut,
+        shortcut_display,
+    )
+    parsed = parse_shortcut(CLIPBOARD_SHORTCUT)
+    if parsed is None:
+        log.warning(
+            "Could not parse clipboard shortcut: %s",
+            CLIPBOARD_SHORTCUT,
+        )
+        return None
+    wanted_mods, wanted_key = parsed
+    display = shortcut_display(CLIPBOARD_SHORTCUT)
+
+    def _handler(event):
+        try:
+            actual = int(event.modifierFlags()) & MOD_ALL
+            if actual == wanted_mods and int(event.keyCode()) == wanted_key:
+                delegate.performSelectorOnMainThread_withObject_waitUntilDone_(
+                    "showClipboardPopover:", None, False
+                )
+        except Exception as exc:
+            log.debug("Global shortcut handler error: %s", exc)
+
+    try:
+        token = NSEvent.addGlobalMonitorForEventsMatchingMask_handler_(
+            NSEventMaskKeyDown, _handler
+        )
+        log.info(
+            "Global clipboard shortcut registered: %s (%s)",
+            CLIPBOARD_SHORTCUT,
+            display,
+        )
+        return token
+    except Exception as exc:
+        log.warning("Failed to register global shortcut: %s", exc)
+        return None
+
+
 def _make_status_icon(connected: bool) -> NSImage:
     """Create a hamburger icon using text."""
     char = "🍔"
@@ -284,6 +337,7 @@ class SnackbarMenuDelegate(NSObject):
         self._clipboard_search_field = None
         self._clipboard_table = None
         self._clipboard_panel_items = []
+        self._global_shortcut_monitor = None
         self._start_at_login = False
         self._refresh_timer = None
         return self
@@ -312,6 +366,9 @@ class SnackbarMenuDelegate(NSObject):
         # Start refresh timer
         self._start_refresh()
 
+        # Register global shortcut to open clipboard panel
+        self._global_shortcut_monitor = _register_global_shortcut(self)
+
     def _rebuild_menu(self):
         """Rebuild the entire menu from current state."""
         self._menu.removeAllItems()
@@ -333,8 +390,12 @@ class SnackbarMenuDelegate(NSObject):
         clip_title.setEnabled_(False)
         self._menu.addItem_(clip_title)
 
+        from app.menu.shortcut_utils import shortcut_display
+        clip_hint = shortcut_display(CLIPBOARD_SHORTCUT)
         search_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "📋 Open Clipboard Popover", "showClipboardPopover:", "v"
+            f"📋 Open Clipboard Panel  {clip_hint}",
+            "showClipboardPopover:",
+            "",
         )
         search_item.setTarget_(self)
         self._menu.addItem_(search_item)

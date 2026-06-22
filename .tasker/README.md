@@ -2,6 +2,10 @@
 
 Master source: `/Users/fredbook/Code/uCore/.tasker/`
 
+Canonical workflow: `.tasker/UNIFIED_DEV_TASK_WORKFLOW.md`
+
+Use the unified workflow file as the single plan, handover, and backlog index.
+
 ## Boards
 
 | Board | Description |

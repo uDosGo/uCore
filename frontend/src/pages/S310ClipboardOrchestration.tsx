@@ -19,6 +19,11 @@ type ClipboardEntry = {
 type MaintenanceStatus = {
   status: string
   last_run: string | null
+  tray?: {
+    status?: string
+    pid?: number | null
+    lockfile?: string
+  }
   jobs: Array<{
     skill_id: string
     last_run: string | null
@@ -251,6 +256,10 @@ export default function S310ClipboardOrchestration() {
             <>
               <p><strong>Status:</strong> {maintenance.status}</p>
               <p><strong>Last run:</strong> {maintenance.last_run || 'never'}</p>
+              <p>
+                <strong>Tray:</strong> {maintenance.tray?.status || 'unknown'}
+                {maintenance.tray?.pid ? ` (pid ${maintenance.tray.pid})` : ''}
+              </p>
               <ul>
                 {(maintenance.jobs || []).map(job => (
                   <li key={job.skill_id}>

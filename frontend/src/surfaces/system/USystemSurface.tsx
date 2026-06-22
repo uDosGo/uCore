@@ -53,8 +53,9 @@ const S_PAGES: SPageDef[] = [
   { code: 's100', title: 'Tool Builder', icon: 'build', color: '#58a6ff', description: 'Create and manage system tools.', category: 'Core' },
   { code: 's101', title: 'Story Builder', icon: 'auto_stories', color: '#58a6ff', description: 'Create and manage interactive stories.', category: 'Core' },
   { code: 's300', title: 'Workflow Builder', icon: 'account_tree', color: '#58a6ff', description: 'Design and manage automated workflows.', category: 'Core' },
+  { code: 's310', title: 'Clipboard & Orchestration', icon: 'content_paste', color: '#22c55e', description: 'Clipboard buffer controls and maintenance orchestration status.', category: 'Core' },
+  { code: 's320', title: 'Knowledge Tools', icon: 'auto_stories', color: '#a855f7', description: 'AppFlowy workspace/document tools and semantic knowledge search.', category: 'Core' },
   { code: 's600', title: 'Learning Hub', icon: 'school', color: '#a855f7', description: 'Tutorials, guides, and educational resources.', category: 'Core' },
-  { code: 's800', title: 'Labs', icon: 'science', color: '#d29922', description: 'Experimental features and prototypes.', category: 'Core' },
   // System pages
   { code: 's110', title: 'System Boot', icon: 'power', color: '#00ff9d', description: 'System boot sequence and startup services.', category: 'System' },
   { code: 's120', title: 'System Config', icon: 'tune', color: '#f0883e', description: 'System configuration and environment settings.', category: 'System' },
@@ -72,7 +73,77 @@ const S_PAGES: SPageDef[] = [
 ]
 
 // ─── Modules Panel ──────────────────────────────────────────────────
-function ModulesPanel() {
+export function ModulesPanel() {
+  const [uiHubStatus, setUiHubStatus] = useState<'checking' | 'running' | 'stopped' | 'error'>('checking')
+  const [uiHubBusy, setUiHubBusy] = useState<boolean>(false)
+  const [uiHubMessage, setUiHubMessage] = useState<string>('')
+
+  const probeUiHub = useCallback(async () => {
+    try {
+      await fetch('http://127.0.0.1:5173', {
+        mode: 'no-cors',
+        signal: AbortSignal.timeout(1500),
+      })
+      setUiHubStatus('running')
+    } catch {
+      setUiHubStatus('stopped')
+    }
+  }, [])
+
+  useEffect(() => {
+    void probeUiHub()
+    const timer = window.setInterval(() => {
+      void probeUiHub()
+    }, 5000)
+    return () => window.clearInterval(timer)
+  }, [probeUiHub])
+
+  const runUiHubAction = useCallback(async (action: 'start' | 'stop' | 'restart') => {
+    setUiHubBusy(true)
+    setUiHubMessage('')
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/surfaces/ui-hub/${action}`, {
+        method: 'POST',
+        signal: AbortSignal.timeout(7000),
+      })
+      const data = await res.json().catch(() => ({}))
+      const message = data?.runtime?.message || data?.message || `ui-hub ${action} requested`
+      setUiHubMessage(message)
+
+      if (res.ok) {
+        setUiHubStatus(action === 'stop' ? 'stopped' : 'running')
+      } else {
+        setUiHubStatus('error')
+      }
+    } catch {
+      setUiHubStatus('error')
+      setUiHubMessage(`ui-hub ${action} failed`)
+    } finally {
+      setUiHubBusy(false)
+      window.setTimeout(() => { void probeUiHub() }, 800)
+    }
+  }, [probeUiHub])
+
+  const statusIcon = (s: string) => {
+    switch (s) {
+      case 'running': return 'check_circle'
+      case 'installed': return 'check_circle'
+      case 'missing': return 'error'
+      case 'checking': return 'sync'
+      default: return 'help'
+    }
+  }
+
+  const statusColor = (s: string) => {
+    switch (s) {
+      case 'running': return '#22c55e'
+      case 'installed': return '#58a6ff'
+      case 'missing': return '#f85149'
+      case 'checking': return '#d29922'
+      default: return '#8b949e'
+    }
+  }
+
   const modules = [
     { id: 'terminal', name: 'Terminal', subtitle: 'System Terminal', icon: 'terminal', color: '#58a6ff', desc: 'Full system terminal with SSH, tmux, and command history.' },
     { id: 'vault', name: 'Vault', subtitle: 'Document Store', icon: 'folder', color: '#22c55e', desc: 'Browse, search, and manage documents across all binders.' },
@@ -83,6 +154,8 @@ function ModulesPanel() {
     { id: 'assistui', name: 'Assist', subtitle: 'Full-Page AI Chat', icon: 'smart_toy', color: '#a855f7', desc: 'Full-page AI chat with streaming responses, model selection, conversation management, and multi-agent support.', route: '/assistui' },
     { id: 'story-builder', name: 'Story Builder', subtitle: 'Step-by-step guides', icon: 'menu_book', color: '#22c55e', desc: 'Create step-by-step guides and walkthroughs for your workspace.', route: '/s101' },
     { id: 'workflow-builder', name: 'Workflow Builder', subtitle: 'Automated workflows', icon: 'account_tree', color: '#58a6ff', desc: 'Create and manage automated workflows with triggers for time, GitHub, vault, and more.', route: '/s300' },
+    { id: 'clipboard-orchestration', name: 'Clipboard Orchestration', subtitle: 'Clipboard + maintenance chain', icon: 'content_paste', color: '#22c55e', desc: 'Manage clipboard history and inspect overnight maintenance job status.', route: '/s310' },
+    { id: 'knowledge-tools', name: 'Knowledge Tools', subtitle: 'AppFlowy + semantic search', icon: 'auto_stories', color: '#a855f7', desc: 'Browse workspaces/documents and run semantic search across the knowledge layer.', route: '/s320' },
     { id: 'tool-builder', name: 'Tool Builder', subtitle: 'Custom tool registry', icon: 'puzzle', color: '#f0883e', desc: 'Build and register custom tools for your workspace.', route: '/s100' },
   ]
 
@@ -102,6 +175,39 @@ function ModulesPanel() {
         </div>
 
         <div className="hub-apps-grid">
+          <div className="hub-app-card" style={{ '--hub-app-color': '#58a6ff' } as React.CSSProperties}>
+            <div className="hub-app-card-header">
+              <div className="hub-app-card-icon" style={{ background: `${statusColor(uiHubStatus)}20`, color: statusColor(uiHubStatus) }}>
+                <Icon name={statusIcon(uiHubStatus)} size={24} />
+              </div>
+              <div className="hub-app-card-info">
+                <h3 className="hub-app-card-title">UIHub Runtime</h3>
+                <p className="hub-app-card-subtitle" style={{ color: statusColor(uiHubStatus) }}>{uiHubStatus}</p>
+              </div>
+            </div>
+            <p className="hub-app-card-desc">Start, stop, and restart the UIHub surface runtime on demand.</p>
+            <div className="hub-app-card-footer" style={{ gap: 8, flexWrap: 'wrap' }}>
+              <span className="hub-app-card-badge">http://localhost:5173</span>
+              <button className="hub-btn hub-btn--primary" disabled={uiHubBusy} onClick={() => void runUiHubAction('start')}>
+                Start
+              </button>
+              <button className="hub-btn hub-btn--info" disabled={uiHubBusy} onClick={() => void runUiHubAction('stop')}>
+                Stop
+              </button>
+              <button className="hub-btn hub-btn--info" disabled={uiHubBusy} onClick={() => void runUiHubAction('restart')}>
+                Restart
+              </button>
+              <button className="hub-btn hub-btn--primary" onClick={() => window.open('http://127.0.0.1:5173', '_blank')}>
+                Open
+              </button>
+            </div>
+            {uiHubMessage && (
+              <div className="hub-app-card-footer">
+                <span className="hub-app-card-badge">{uiHubMessage}</span>
+              </div>
+            )}
+          </div>
+
           {modules.map(mod => (
             <div key={mod.id} className="hub-app-card" style={{ '--hub-app-color': mod.color } as React.CSSProperties}>
               <div className="hub-app-card-header">
@@ -127,11 +233,57 @@ function ModulesPanel() {
 }
 
 // ─── Install Panel ──────────────────────────────────────────────────
-function InstallPanel() {
+export function InstallPanel() {
   const [activeSection, setActiveSection] = useState<'apps' | 'browser'>('apps')
   const [appStatuses, setAppStatuses] = useState<Record<string, 'checking' | 'installed' | 'running' | 'missing'>>({})
   const [ollamaModels, setOllamaModels] = useState<string[]>([])
   const [dockerContainers, setDockerContainers] = useState<number>(0)
+  const [uiHubStatus, setUiHubStatus] = useState<'checking' | 'running' | 'stopped' | 'error'>('checking')
+  const [uiHubBusy, setUiHubBusy] = useState<boolean>(false)
+  const [uiHubMessage, setUiHubMessage] = useState<string>('')
+
+  const probeUiHub = useCallback(async () => {
+    try {
+      await fetch('http://127.0.0.1:5173', {
+        mode: 'no-cors',
+        signal: AbortSignal.timeout(1500),
+      })
+      setUiHubStatus('running')
+    } catch {
+      setUiHubStatus('stopped')
+    }
+  }, [])
+
+  const runUiHubAction = useCallback(async (action: 'start' | 'stop' | 'restart') => {
+    setUiHubBusy(true)
+    setUiHubMessage('')
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/surfaces/ui-hub/${action}`, {
+        method: 'POST',
+        signal: AbortSignal.timeout(7000),
+      })
+      const data = await res.json().catch(() => ({}))
+      const message = data?.runtime?.message || data?.message || `ui-hub ${action} requested`
+      setUiHubMessage(message)
+
+      if (res.ok) {
+        if (action === 'stop') {
+          setUiHubStatus('stopped')
+        } else {
+          setUiHubStatus('running')
+        }
+      } else {
+        setUiHubStatus('error')
+      }
+    } catch {
+      setUiHubStatus('error')
+      setUiHubMessage(`ui-hub ${action} failed`)
+    } finally {
+      setUiHubBusy(false)
+      // Reconcile state with actual port reachability after action settles.
+      window.setTimeout(() => { void probeUiHub() }, 800)
+    }
+  }, [probeUiHub])
 
   useEffect(() => {
     let cancelled = false
@@ -276,8 +428,15 @@ function InstallPanel() {
     }
 
     probeAll()
-    return () => { cancelled = true }
-  }, [])
+    void probeUiHub()
+    const timer = window.setInterval(() => {
+      void probeUiHub()
+    }, 5000)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [probeUiHub])
 
   const statusIcon = (s: string) => {
     switch (s) {
@@ -336,6 +495,41 @@ function InstallPanel() {
           </div>
 
           <div className="hub-apps-grid">
+            <div className="hub-app-card">
+              <div className="hub-app-card-header">
+                <div className="hub-app-card-icon" style={{ background: `${statusColor(uiHubStatus)}20`, color: statusColor(uiHubStatus) }}>
+                  <Icon name={statusIcon(uiHubStatus)} size={24} />
+                </div>
+                <div className="hub-app-card-info">
+                  <h3 className="hub-app-card-title">UIHub Runtime</h3>
+                  <p className="hub-app-card-subtitle" style={{ color: statusColor(uiHubStatus) }}>{uiHubStatus}</p>
+                </div>
+              </div>
+              <p className="hub-app-card-desc">
+                Run the UIHub dev surface on demand at <code>http://localhost:5173</code>.
+              </p>
+              <div className="hub-app-card-footer" style={{ gap: 8, flexWrap: 'wrap' }}>
+                <span className="hub-app-card-badge">Surface: ui-hub</span>
+                <button className="hub-btn hub-btn--primary" disabled={uiHubBusy} onClick={() => void runUiHubAction('start')}>
+                  Start
+                </button>
+                <button className="hub-btn hub-btn--info" disabled={uiHubBusy} onClick={() => void runUiHubAction('stop')}>
+                  Stop
+                </button>
+                <button className="hub-btn hub-btn--info" disabled={uiHubBusy} onClick={() => void runUiHubAction('restart')}>
+                  Restart
+                </button>
+                <button className="hub-btn hub-btn--primary" onClick={() => window.open('http://127.0.0.1:5173', '_blank')}>
+                  Open
+                </button>
+              </div>
+              {uiHubMessage && (
+                <div className="hub-app-card-footer">
+                  <span className="hub-app-card-badge">{uiHubMessage}</span>
+                </div>
+              )}
+            </div>
+
             {apps.map(app => {
               const status = appStatuses[app.id] || 'checking'
               return (
@@ -422,7 +616,7 @@ function InstallPanel() {
 }
 
 // ─── Pages Panel ────────────────────────────────────────────────────
-function PagesPanel() {
+export function PagesPanel() {
   const [activeCategory, setActiveCategory] = useState<string>('All')
   const categories = ['All', ...new Set(S_PAGES.map(p => p.category))]
 
@@ -479,7 +673,7 @@ function PagesPanel() {
 }
 
 // ─── Fallback GridUIContext for FeedPanel when rendered outside GridUI ──
-function FeedPanelWithContext() {
+export function FeedPanelWithContext() {
   const fallbackStore = React.useMemo(() => ({
     showSnackbar: (msg: any) => console.log('[FeedPanel]', msg),
     activePanel: 'feeds' as const,

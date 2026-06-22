@@ -74,7 +74,7 @@ export default function GridUISurface() {
     const params = new URLSearchParams(location.search)
     const panel = params.get('panel')
     if (panel === 'feeds') {
-      window.location.href = '/system?tab=feeds'
+      window.location.href = '/server?tab=feeds'
     } else if (panel === 'teletext') {
       store.setActivePanel('teletext')
     } else if (panel === 'terminal') {

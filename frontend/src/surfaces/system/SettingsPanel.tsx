@@ -300,7 +300,7 @@ export function SettingsPanel() {
               <a href="/s600" className="hub-settings-system-link">
                 <Icon name="network_check" size={14} /> Network <span className="hub-settings-system-code">S600</span>
               </a>
-              <a href="/userver" className="hub-settings-system-link">
+              <a href="/server" className="hub-settings-system-link">
                 <Icon name="layers" size={14} /> uServer <span className="hub-settings-system-code">Embedded</span>
               </a>
             </div>

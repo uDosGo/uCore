@@ -82,9 +82,12 @@ interface Task {
 
 // ─── Constants ──────────────────────────────────────────────────────
 const SNACKBAR_API = 'http://localhost:8484'
+const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
+  String(import.meta.env.VITE_DEV_MODE || '').toLowerCase(),
+)
 
 const HIDDEN_FROM_SURFACES_TAB = ['ui-hub', 'mission-control', 'assistui']
-const DEV_SURFACE_IDS: string[] = []
+const DEV_SURFACE_IDS: string[] = DEV_MODE_ENABLED ? [] : ['developer', 'devstudio']
 
 // Map API surface IDs to display IDs (e.g. userver → server, gridui → terminal)
 // NOTE: devstudio is NOT remapped here — it's a separate repo served at /devstudio/*
@@ -92,14 +95,12 @@ const DEV_SURFACE_IDS: string[] = []
 const API_ID_MAP: Record<string, string> = {
   userver: 'server',
   gridui: 'terminal',
-  gridcore: 'gridcore-operations',
 }
 
 // Display name overrides — renames the card title without changing the surface ID/route.
 const DISPLAY_NAME_MAP: Record<string, string> = {
   devstudio: 'Developer',
   assistui: 'Assistant',
-  proseui: 'Mission Control',
 }
 
 // FALLBACK_REGISTRY: only Server, System, Documents, and Groovebox are hardcoded here.
@@ -107,9 +108,7 @@ const DISPLAY_NAME_MAP: Record<string, string> = {
 // are placed dynamically by the snackbar/ui-server. This keeps the fallback minimal
 // for maintenance-only scenarios when the snackbar is offline.
 const FALLBACK_REGISTRY: SurfaceDef[] = [
-  { id: 'system', name: 'System', subtitle: 'System Tools Hub', description: 'Install tools, manage modules, browse system pages, and build stories', port: 0, color: '#58a6ff', icon: 'settings_suggest', status: 'running', embedded: true, route: '/system' },
-  { id: 'server', name: 'Server', subtitle: 'Server Management', description: 'Server management, services, logs, workflows, agents', port: 0, color: '#f59e0b', icon: 'dns', status: 'running', embedded: true, route: '/userver' },
-  { id: 'proseui', name: 'Mission Control', subtitle: 'Markdown Suite', description: 'Universal Document Oriented User Interface — document viewer, schema browser, and workspace manager', port: 5184, color: '#22c55e', icon: 'article', status: 'running', embedded: true, route: '/' },
+  { id: 'server', name: 'Server', subtitle: 'Operations & System', description: 'Consolidated server, system tools, modules, logs, workflows, agents, and publishing', port: 0, color: '#f59e0b', icon: 'dns', status: 'running', embedded: true, route: '/server' },
   { id: 'groovebox', name: 'Groovebox', subtitle: 'Music Production', description: 'Music production environment with MIDI sequencing, synthesis, and audio processing', port: 8888, color: '#da3633', icon: 'play_arrow', status: 'stopped' },
 
 
@@ -172,7 +171,7 @@ const MOCK_MISSIONS: Mission[] = [
 
 // ─── Helpers ────────────────────────────────────────────────────────
 const sortSurfaces = (list: SurfaceDef[]): SurfaceDef[] => {
-  const order = ['assistui', 'terminal', 'teletext', 'gridcore-operations', 'browserui', 'server', 'developer', 'system', 'proseui', 'groovebox']
+  const order = ['assistui', 'terminal', 'teletext', 'browserui', 'server', 'developer', 'groovebox']
   return [...list].sort((a, b) => {
     const ai = order.indexOf(a.id)
     const bi = order.indexOf(b.id)
@@ -181,7 +180,9 @@ const sortSurfaces = (list: SurfaceDef[]): SurfaceDef[] => {
 }
 
 const withoutUiHub = (list: SurfaceDef[]): SurfaceDef[] =>
-  list.filter(s => s.id !== 'ui-hub' && s.id !== 'mission-control' && !DEV_SURFACE_IDS.includes(s.id))
+  list.filter(
+    s => s.id !== 'ui-hub' && s.id !== 'mission-control' && s.id !== 'proseui' && s.id !== 'system' && !DEV_SURFACE_IDS.includes(s.id),
+  )
 
 // ─── Dashboard Panel ────────────────────────────────────────────────
 function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
@@ -210,7 +211,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
   const activity = [
     { date: 'Today', title: 'Surface consolidation complete' },
     { date: 'Yesterday', title: 'GridCore surface created' },
-    { date: '2d ago', title: 'USystemSurface tabs updated' },
+    { date: '2d ago', title: 'Server consolidation tabs updated' },
     { date: '3d ago', title: 'FALLBACK_REGISTRY simplified' },
   ]
 
@@ -224,7 +225,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
   const quickActions = [
     { icon: 'add', label: 'New Surface', color: '#58a6ff' },
     { icon: 'refresh', label: 'Refresh Registry', color: '#22c55e' },
-    { icon: 'settings', label: 'System Settings', color: '#f59e0b', route: '/system' },
+    { icon: 'settings', label: 'Server Settings', color: '#f59e0b', route: '/server?tab=settings' },
     { icon: 'help', label: 'Documentation', color: '#a855f7', route: '/s600' },
   ]
 
@@ -374,15 +375,9 @@ function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
                   </div>
                   <div className="hub-card-actions">
                     {isRunning ? (
-                      card.id === 'proseui' && onNavigate ? (
-                        <button onClick={() => onNavigate('missions')} className="hub-btn hub-btn--primary">
-                          <Icon name="open_in_new" size={14} /> Open
-                        </button>
-                      ) : (
-                        <a href={card.route || `/${card.id}`} className="hub-btn hub-btn--primary">
-                          <Icon name="open_in_new" size={14} /> Open
-                        </a>
-                      )
+                      <a href={card.route || `/${card.id}`} className="hub-btn hub-btn--primary">
+                        <Icon name="open_in_new" size={14} /> Open
+                      </a>
                     ) : onAction ? (
                       <button onClick={() => onAction(card.id, 'start')} className="hub-btn hub-btn--primary">
                         <Icon name="play_arrow" size={14} /> Start
@@ -559,14 +554,13 @@ export default function MissionControlSurface() {
         }),
         ...FALLBACK_REGISTRY.filter(fb => !apiIds.has(fb.id)),
       ]
-      // Expand the terminal surface into 3 derived cards (Terminal, Teletext, GridCore Operations)
+      // Expand the terminal surface into 2 derived cards (Terminal, Teletext)
       // These all point to the same underlying uCode1/GridUI surface but with different routes.
       const expanded = merged.flatMap(s => {
         if (s.id === 'terminal') {
           return [
             { ...s, id: 'terminal', name: 'Terminal', subtitle: 'Grid Terminal', description: 'Interactive terminal with grid-based display, viewport controls, and character maps', color: '#22c55e', icon: 'terminal', route: '/gridui?panel=terminal' },
             { ...s, id: 'teletext', name: 'Teletext', subtitle: 'Teletext Viewer', description: 'Teletext-style information pages with grid rendering and navigation', color: '#a855f7', icon: 'live_tv', route: '/gridui?panel=teletext' },
-            { ...s, id: 'gridcore-operations', name: 'Grid Operations', subtitle: 'Grid Tools Hub', description: 'Map navigation, grid editor, asset library, and system settings', color: '#f97316', icon: 'grid_view', route: '/gridcore' },
           ]
         }
         return [s]
@@ -811,10 +805,15 @@ export default function MissionControlSurface() {
         onToggleSidebar={shell.toggleSidebar}
         sidebarOpen={shell.sidebarOpen}
         rightExtra={
-          <span className="hub-status-badge">
-            <span className={`hub-status-dot ${runningCount > 0 ? 'hub-status-dot--online' : ''}`} />
-            {runningCount}/{surfaces.length} online
-          </span>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span className="hub-status-badge">
+              <span className={`hub-status-dot ${runningCount > 0 ? 'hub-status-dot--online' : ''}`} />
+              {runningCount}/{surfaces.length} online
+            </span>
+            <span className="hub-status-badge" title="Developer surface visibility mode">
+              Dev: {DEV_MODE_ENABLED ? 'on' : 'off'}
+            </span>
+          </div>
         }
       />
 

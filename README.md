@@ -56,6 +56,10 @@ Canonical docs live in **[uDocs](https://github.com/uDosGo/uDocs)**:
 
 Active development tracked in `.tasker/`:
 
+Single source of truth:
+
+- `.tasker/UNIFIED_DEV_TASK_WORKFLOW.md`
+
 | Phase | Status | Description |
 |-------|--------|-------------|
 | Phase 4 | 🏗️ In progress | Docs consolidation → uDocs |
@@ -74,6 +78,16 @@ curl http://localhost:8484/api/models          # 4 providers
 curl http://localhost:8484/api/secrets         # Encrypted store
 curl http://localhost:8484/api/mcp/tools       # 18 MCP tools
 curl http://localhost:8484/api/knowledge/workspaces  # AppFlowy
+curl http://localhost:8484/api/knowledge/index/status # AppFlowy index coverage
+
+# Import configured vaults into AppFlowy workspaces + local index
+python scripts/appflowy_import_workspaces.py --config ~/.ucore/sync_config.yaml
+
+# Map source workspace hints to discovered AppFlowy workspace IDs
+python scripts/appflowy_workspace_map.py --config ~/.ucore/sync_config.yaml --write
+
+# Install recurring launchd import job (macOS)
+bash scripts/install_appflowy_import_launchd.sh --interval-seconds 1800
 ```
 
 ## Status

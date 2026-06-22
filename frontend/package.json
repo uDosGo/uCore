@@ -6,6 +6,7 @@
   "description": "uDosConnect UI Hub — React USX surface linking to all uCode surfaces",
   "scripts": {
     "dev": "vite",
+    "check:prose-standard": "node scripts/check-prose-standard.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

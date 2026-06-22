@@ -6,6 +6,7 @@ import logging
 from aiohttp import web
 from app.models.surface import SurfaceType, SurfaceState
 from app.services.surface_manager import SurfaceManager
+from app.services.surface_runtime import get_surface_runtime_manager
 
 log = logging.getLogger("ucore")
 
@@ -111,27 +112,108 @@ async def delete_surface(request: web.Request) -> web.Response:
 async def start_surface(request: web.Request) -> web.Response:
     """POST /api/surfaces/{surface_id}/start"""
     surface_id = request.match_info.get("surface_id")
-    surface = _surfaces.transition_state(surface_id, SurfaceState.RUNNING)
+    runtime = get_surface_runtime_manager()
+    surface = _surfaces.get_surface(surface_id)
+
     if surface is None:
+        runtime_result = runtime.start(surface_id)
+        if runtime_result is None:
+            return web.json_response({"error": "Surface not found"}, status=404)
+        status = 200 if runtime_result.get("success") else 500
+        return web.json_response(runtime_result, status=status)
+
+    runtime_id = str(surface.metadata.get("runtime_id", "")).strip()
+    if runtime_id:
+        runtime_result = runtime.start(runtime_id)
+        if runtime_result is not None:
+            new_state = (
+                SurfaceState.RUNNING
+                if runtime_result.get("success")
+                else SurfaceState.ERROR
+            )
+            updated = _surfaces.transition_state(surface_id, new_state)
+            status = 200 if runtime_result.get("success") else 500
+            payload = {
+                **(
+                    updated.model_dump(mode="json")
+                    if updated is not None
+                    else surface.model_dump(mode="json")
+                ),
+                "runtime": runtime_result,
+            }
+            return web.json_response(payload, status=status)
+
+    transitioned = _surfaces.transition_state(surface_id, SurfaceState.RUNNING)
+    if transitioned is None:
         return web.json_response({"error": "Surface not found"}, status=404)
-    return web.json_response(surface.model_dump(mode="json"))
+    return web.json_response(transitioned.model_dump(mode="json"))
 
 
 async def stop_surface(request: web.Request) -> web.Response:
     """POST /api/surfaces/{surface_id}/stop"""
     surface_id = request.match_info.get("surface_id")
-    surface = _surfaces.transition_state(surface_id, SurfaceState.STOPPED)
+    runtime = get_surface_runtime_manager()
+    surface = _surfaces.get_surface(surface_id)
+
     if surface is None:
+        runtime_result = runtime.stop(surface_id)
+        if runtime_result is None:
+            return web.json_response({"error": "Surface not found"}, status=404)
+        status = 200 if runtime_result.get("success") else 409
+        return web.json_response(runtime_result, status=status)
+
+    transitioned = _surfaces.transition_state(surface_id, SurfaceState.STOPPED)
+    if transitioned is None:
         return web.json_response({"error": "Surface not found"}, status=404)
-    return web.json_response(surface.model_dump(mode="json"))
+
+    runtime_id = str(surface.metadata.get("runtime_id", "")).strip()
+    if runtime_id:
+        runtime_result = runtime.stop(runtime_id)
+        if runtime_result is not None:
+            status = 200 if runtime_result.get("success") else 409
+            payload = {
+                **transitioned.model_dump(mode="json"),
+                "runtime": runtime_result,
+            }
+            return web.json_response(payload, status=status)
+
+    return web.json_response(transitioned.model_dump(mode="json"))
 
 
 async def restart_surface(request: web.Request) -> web.Response:
     """POST /api/surfaces/{surface_id}/restart — stop then start."""
     surface_id = request.match_info.get("surface_id")
+    runtime = get_surface_runtime_manager()
     surface = _surfaces.get_surface(surface_id)
+
     if surface is None:
-        return web.json_response({"error": "Surface not found"}, status=404)
+        runtime_result = runtime.restart(surface_id)
+        if runtime_result is None:
+            return web.json_response({"error": "Surface not found"}, status=404)
+        status = 200 if runtime_result.get("success") else 500
+        return web.json_response(runtime_result, status=status)
+
+    runtime_id = str(surface.metadata.get("runtime_id", "")).strip()
+    if runtime_id:
+        runtime_result = runtime.restart(runtime_id)
+        if runtime_result is not None:
+            new_state = (
+                SurfaceState.RUNNING
+                if runtime_result.get("success")
+                else SurfaceState.ERROR
+            )
+            updated = _surfaces.transition_state(surface_id, new_state)
+            status = 200 if runtime_result.get("success") else 500
+            payload = {
+                **(
+                    updated.model_dump(mode="json")
+                    if updated is not None
+                    else surface.model_dump(mode="json")
+                ),
+                "runtime": runtime_result,
+                "action": "restart",
+            }
+            return web.json_response(payload, status=status)
     
     stopped = _surfaces.transition_state(surface_id, SurfaceState.STOPPED)
     if stopped is None:

@@ -21,7 +21,34 @@ class MaintenanceJob:
 DEFAULT_JOBS = (
     MaintenanceJob("daily_backup", "03:00", {"type": "full"}),
     MaintenanceJob("vault_sync", "04:00", {"summary_only": True}),
-    MaintenanceJob("brain_sync", "04:15", {"hours": 24, "limit": 20, "include_spool": True, "include_appflowy": True}),
+    MaintenanceJob(
+        "tasker_sync",
+        "04:05",
+        {
+            "db": "database",
+            "board": "inbox",
+        },
+    ),
+    MaintenanceJob(
+        "brain_sync",
+        "04:15",
+        {
+            "hours": 24,
+            "limit": 20,
+            "include_spool": True,
+            "include_appflowy": True,
+        },
+    ),
+    MaintenanceJob(
+        "clipboard_maintenance",
+        "04:30",
+        {"capture_current": True},
+    ),
+    MaintenanceJob(
+        "spool_maintenance",
+        "04:35",
+        {"max_age_days": 14},
+    ),
 )
 
 
@@ -32,7 +59,9 @@ def get_maintenance_scheduler() -> "MaintenanceScheduler | None":
     return _scheduler
 
 
-def set_maintenance_scheduler(scheduler: "MaintenanceScheduler | None") -> None:
+def set_maintenance_scheduler(
+    scheduler: "MaintenanceScheduler | None",
+) -> None:
     global _scheduler
     _scheduler = scheduler
 
@@ -45,7 +74,9 @@ class MaintenanceScheduler:
         jobs: tuple[MaintenanceJob, ...] = DEFAULT_JOBS,
         interval_seconds: int = 60,
     ) -> None:
-        self.state_path = state_path or (settings.data_dir / "maintenance_state.json")
+        self.state_path = (
+            state_path or (settings.data_dir / "maintenance_state.json")
+        )
         self.jobs = jobs
         self.interval_seconds = max(15, int(interval_seconds))
         self._state = self._load_state()
@@ -76,8 +107,12 @@ class MaintenanceScheduler:
                     "skill_id": job.skill_id,
                     "time": job.time_hhmm,
                     "params": job.params,
-                    "last_run": self._state.get("last_run", {}).get(job.skill_id),
-                    "last_result": self._state.get("last_result", {}).get(job.skill_id),
+                    "last_run": self._state.get("last_run", {}).get(
+                        job.skill_id
+                    ),
+                    "last_result": self._state.get("last_result", {}).get(
+                        job.skill_id
+                    ),
                 }
                 for job in self.jobs
             ],
@@ -117,14 +152,20 @@ class MaintenanceScheduler:
             if not self._is_due(job, now):
                 continue
             result = await run_skill_by_id(job.skill_id, **job.params)
-            self._state.setdefault("last_run", {})[job.skill_id] = now.date().isoformat()
+            self._state.setdefault("last_run", {})[
+                job.skill_id
+            ] = now.date().isoformat()
             self._state.setdefault("last_result", {})[job.skill_id] = {
                 "success": result.get("success", False),
                 "timestamp": now.isoformat(),
             }
             self._save_state()
             ran.append({"skill_id": job.skill_id, "result": result})
-            log.info("Maintenance job ran: %s success=%s", job.skill_id, result.get("success"))
+            log.info(
+                "Maintenance job ran: %s success=%s",
+                job.skill_id,
+                result.get("success"),
+            )
         return ran
 
     def _is_due(self, job: MaintenanceJob, now: datetime) -> bool:

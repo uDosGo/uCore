@@ -17,15 +17,15 @@
 - [x] Code uses `<code>` (no custom classes)
 - [x] Pico's default styles are visible and working
 
-### Typography Check (Prose UI)
+### Typography Check (USX Prose Baseline)
 - [x] Markdown content is wrapped in `.prose`
-- [x] Prose UI is imported (`import 'prose-ui/dist/styles.css'`)
-- [x] Prose UI's default styles are visible and working
+- [x] Prose baseline is imported from `styles/prose-ui-standard.css`
+- [x] Prose styles map to Pico tokens and avoid per-surface typography overrides
 
 ### Typography Violations
 - [x] No custom CSS for headings (use Pico)
 - [x] No custom CSS for body text (use Pico)
-- [x] No custom CSS for markdown (use Prose UI)
+- [x] No per-surface custom CSS for markdown (use shared prose baseline)
 - [x] No hardcoded font sizes
 - [x] No hardcoded font families
 
@@ -35,7 +35,8 @@
 
 | File | Status | Notes |
 |------|--------|-------|
-| `styles/nestframe.css` | ✅ Clean | Only NestFrame gaps (grid, pages, controller, TV/mobile, semantic colors) |
+| `styles/nestframe.css` | ✅ Clean | Pico import + prose baseline import + minimal NestFrame functional layers |
+| `styles/prose-ui-standard.css` | ✅ Clean | Canonical markdown/prose baseline for `.prose` |
 | `styles/tokens.css` | ✅ Clean | Only CSS variables, no typography overrides |
 | `styles/surface-host.css` | ✅ Clean | Layout only |
 | `styles/assistui.css` | ✅ Clean | Heading selectors defer to Pico defaults |
@@ -43,28 +44,28 @@
 | `styles/hub/dashboard.css` | ✅ Clean | Heading selectors defer to Pico defaults |
 | `styles/gridui-terminal.css` | ⏭️ Skipped | Terminal/teletext rendering — pixel-precise font sizes required for character alignment |
 | `surfaces/browserui/styles/browserui.css` | ✅ Clean | Heading selectors defer to Pico defaults |
-| `surfaces/proseui/styles/*.css` | ✅ Clean | Prose UI surface layout styles, not typography overrides |
+| `surfaces/proseui/styles/*.css` | ✅ Clean | Surface layout styles, not shared typography ownership |
 
 ---
 
 ## Passing Criteria
 
 - [x] Zero custom styles for Pico-supported elements
-- [x] Zero custom styles for Prose UI-supported elements
+- [x] Zero per-surface markdown typography overrides
 - [x] Zero hardcoded font sizes (outside terminal/teletext)
 - [x] Zero hardcoded font families
-- [x] All typography comes from Pico or Prose UI
+- [x] All typography comes from Pico or the shared prose baseline
 
 ---
 
 ## Summary
 
-All surfaces pass the USX Standard v2 typography audit. Custom CSS has been removed from heading selectors across `assistui.css`, `userver.css`, `dashboard.css`, and `browserui.css`. The only remaining pixel font sizes are in `gridui-terminal.css`, which is a terminal/teletext rendering surface that requires pixel-precise character alignment — this is an accepted exception per the standard's "only when needed" principle.
+All surfaces pass the USX Standard v2 typography audit. Custom CSS has been removed from heading selectors across `assistui.css`, `userver.css`, `dashboard.css`, and `browserui.css`. Shared markdown rendering now routes through `styles/prose-ui-standard.css` to prevent per-surface prose drift. The only remaining pixel font sizes are in `gridui-terminal.css`, which is a terminal/teletext rendering surface that requires pixel-precise character alignment — this is an accepted exception per the standard's "only when needed" principle.
 
-**NestFrame CSS** (`nestframe.css`) now contains only the 6 gap areas that Pico and Prose UI don't cover:
+**NestFrame CSS** (`nestframe.css`) now contains only the key functional gaps that Pico and the shared prose baseline don't cover:
 1. Grid system
 2. uSystem pages
 3. Controller focus
 4. TV overrides
 5. Mobile overrides
-6. Bootstrap semantic colors
+6. Minimal dark token overrides for UX consistency

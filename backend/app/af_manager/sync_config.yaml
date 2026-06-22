@@ -27,20 +27,23 @@ sources:
     local_path: "~/Vault"
     tags: ["personal", "knowledge", "vault"]
     enabled: true
+    workspace: "Global Vault"
     # How to organize in AppFlowy: "folder" (preserve dir structure),
     # "flat" (all in one workspace), or "tagged" (use frontmatter tags)
     organization: "folder"
 
   - name: "Public Vault"
-    local_path: "~/Public"
+    local_path: "~/Vault/Public"
     tags: ["public", "blog", "shared"]
     enabled: true
+    workspace: "Public Vault"
     organization: "folder"
 
   - name: "Shared Vault"
-    local_path: "~/Shared"
+    local_path: "~/Vault/Shared"
     tags: ["shared", "collab", "team"]
     enabled: true
+    workspace: "Shared Vault"
     organization: "folder"
 
 # ─── Conflict Resolution ──────────────────────────────────────────

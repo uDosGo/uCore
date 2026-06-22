@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-06-21T12:11:15Z
+Date: 2026-06-21T21:30:47Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -10,25 +10,25 @@ Status: Refreshed by brain_sync
 - Use explicit, structured docs with stable headings, tables, and low ambiguity so they can be transformed into DocLang-style agent context later.
 
 ## Recent Change Scan
-- backend/tests/test_spool_reader.py
-- backend/.pytest_cache/v/cache/lastfailed
+- .tasker/UNIFIED_DEV_TASK_WORKFLOW.md
 - backend/.pytest_cache/v/cache/nodeids
-- docs/SPOOL_SPEC.md
-- backend/app/api/spool.py
-- backend/app/services/spool_reader.py
-- backend/app/services/maintenance_scheduler.py
-- backend/app/api/routes.py
-- backend/app/skills/builtin/backup.py
+- backend/app/skills/builtin/attach_context.py
 - backend/app/skills/builtin/brain_sync.py
-- .tasker/phases/in-progress-phase-5-memory-brain-a17f3b2d.md
-- .tasker/phases/done-phase-4-docs-4f9fe0c7.md
-- docs/TASKER_MARKDOWN_WORKFLOW.md
-- docs/GITHUB_SKILLS_SUMMARY.md
-- docs/GITHUB_AUTOMATION.md
-- backend/app/skills/builtin/route_task.py
-- .tasker/backlog/todo-cline-orchestration-c901d2e3.md
-- .tasker/backlog/todo-ucore-cli-b567d890.md
-- .tasker/backlog/todo-ai-provider-manager-a12b34c5.md
+- backend/tests/test_skills_memory.py
+- backend/.pytest_cache/v/cache/lastfailed
+- docs/DOCLANG_BRIDGE_EXPORT_SPEC.md
+- scripts/export_doclang_context.py
+- backend/tests/test_doclang_bridge.py
+- backend/app/services/doclang_bridge.py
+- docs/APPFLOWY_BIDIRECTIONAL_SYNC.md
+- scripts/ai_stack_health_check.sh
+- backend/tests/test_provider_router.py
+- backend/tests/test_chat_cache.py
+- backend/tests/test_api_metadata.py
+- backend/app/services/chat_cache.py
+- backend/app/api/metadata.py
+- backend/app/services/provider_router.py
+- backend/app/core/settings.py
 - .tasker/phases/todo-phase-7-mcp-tasker-d6e779f1.md
 
 ## Memory Architecture
@@ -49,41 +49,37 @@ Errors: 0
 Warnings: 0
 
 ### By Module
-- stdout: 180 entries (0 errors)
-- stderr: 168 entries (0 errors)
-- popcorn: 116 entries (0 errors)
-- ucore-menu-stderr: 26 entries (0 errors)
-- ucore-popcorn-stderr: 8 entries (0 errors)
-- ucore-menu: 2 entries (0 errors)
+- popcorn: 498 entries (0 errors)
+- stdout: 2 entries (0 errors)
 
 ### Recent Activity
-- ℹ️ 2026-06-21T12:11:15  ucore-popcorn-stderr  ModuleNotFoundError: No module named 'objc'
-- ℹ️ 2026-06-21T12:11:15  ucore-popcorn-stderr      import objc
-- ℹ️ 2026-06-21T12:11:15  ucore-popcorn-stderr    File "/Users/fredbook/Code/uCore/backend/app/ui/popcorn.py", line 29, in <module>
-- ℹ️ 2026-06-21T12:11:15  ucore-popcorn-stderr  Traceback (most recent call last):
-- ℹ️ 2026-06-21T12:11:15  ucore-popcorn-stderr  ModuleNotFoundError: No module named 'objc'
-- ℹ️ 2026-06-21T12:11:15  ucore-popcorn-stderr      import objc
-- ℹ️ 2026-06-21T12:11:15  ucore-popcorn-stderr    File "/Users/fredbook/Code/uCore/backend/app/ui/popcorn.py", line 29, in <module>
-- ℹ️ 2026-06-21T12:11:15  ucore-popcorn-stderr  Traceback (most recent call last):
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr  objc.BadPrototypeError: 'focusClipboardTable:' expects 1 arguments, <function SnackbarMenuDelegate.f
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr      raise objc.BadPrototypeError(
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr    File "/Users/fredbook/Library/Python/3.9/lib/python/site-packages/objc/_transform.py", line 538, i
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr      new_value = transformAttribute(key, value, class_object, protocols)
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr    File "/Users/fredbook/Library/Python/3.9/lib/python/site-packages/objc/_transform.py", line 113, i
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr      class SnackbarMenuDelegate(NSObject):
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr    File "/Users/fredbook/Code/uCore/backend/app/menu/snackbar_menu.py", line 269, in <module>
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr  Traceback (most recent call last):
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr  objc.BadPrototypeError: 'focusClipboardTable:' expects 1 arguments, <function SnackbarMenuDelegate.f
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr      raise objc.BadPrototypeError(
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr    File "/Users/fredbook/Library/Python/3.9/lib/python/site-packages/objc/_transform.py", line 538, i
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr      new_value = transformAttribute(key, value, class_object, protocols)
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr    File "/Users/fredbook/Library/Python/3.9/lib/python/site-packages/objc/_transform.py", line 113, i
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr      class SnackbarMenuDelegate(NSObject):
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr    File "/Users/fredbook/Code/uCore/backend/app/menu/snackbar_menu.py", line 269, in <module>
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr  Traceback (most recent call last):
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr  ModuleNotFoundError: No module named 'objc'
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr      import objc
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr    File "/Users/fredbook/Code/uCore/backend/app/menu/snackbar_menu.py", line 28, in <module>
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr  Traceback (most recent call last):
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr  ModuleNotFoundError: No module named 'objc'
-- ℹ️ 2026-06-21T12:11:15  ucore-menu-stderr      import objc
+- ℹ️ 2026-06-22T05:30:45  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T05:30:45  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T05:30:40  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T05:30:40  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T05:30:35  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T05:30:35  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T05:30:30  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T05:30:30  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T05:12:35  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T05:12:35  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:54:47  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:54:47  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:38:56  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:38:56  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:22:47  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:22:47  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:18:12  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:18:12  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:02:41  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:02:41  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:02:36  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:02:36  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:02:31  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:02:31  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ✅ 2026-06-22T04:02:29  stdout  [2026-06-22 04:02:29] INFO     ucore — Maintenance job ran: daily_backup success=True
+- ✅ 2026-06-22T04:02:29  stdout  [2026-06-22 04:02:29] INFO     ucore — Maintenance job ran: vault_sync success=True
+- ℹ️ 2026-06-22T04:02:25  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:02:25  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:02:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-22T04:02:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
