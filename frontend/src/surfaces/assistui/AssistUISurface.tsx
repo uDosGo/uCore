@@ -139,7 +139,8 @@ I'm your uDos AI assistant with streaming responses, model selection, and conver
 
 // ─── Simple Markdown Renderer ───────────────────────────────────────
 
-function renderMarkdown(text: string): React.ReactNode[] {
+function renderMarkdown(text: string): React.ReactNode {
+  if (!text) return null
   const lines = text.split('\n')
   const nodes: React.ReactNode[] = []
   let inCodeBlock = false
@@ -153,7 +154,8 @@ function renderMarkdown(text: string): React.ReactNode[] {
     while (listStack.length > 0) {
       const list = listStack.pop()!
       const Tag = list.type === 'ul' ? 'ul' : 'ol'
-      nodes.push(<Tag key={`list-${nodes.length}`}>{list.items.map((item, i) => <li key={i}>{item}</li>)}</Tag>)
+      const listKey = `list-${nodes.length}`
+      nodes.push(<Tag key={listKey}>{list.items.map((item, i) => <li key={`${listKey}-item-${i}`}>{item}</li>)}</Tag>)
     }
   }
 
@@ -288,7 +290,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
   }
   flushList()
 
-  return nodes
+  return <>{nodes}</>
 }
 
 function renderTable(rows: string[], key: string): React.ReactNode {
@@ -302,11 +304,11 @@ function renderTable(rows: string[], key: string): React.ReactNode {
   return (
     <table key={key}>
       <thead>
-        <tr>{header.map((cell, i) => <th key={i}>{cell}</th>)}</tr>
+        <tr>{header.map((cell, i) => <th key={`${key}-h-${i}`}>{cell}</th>)}</tr>
       </thead>
       <tbody>
         {body.map((row, ri) => (
-          <tr key={ri}>{row.map((cell, ci) => <td key={ci}>{cell}</td>)}</tr>
+          <tr key={`${key}-r-${ri}`}>{row.map((cell, ci) => <td key={`${key}-c-${ri}-${ci}`}>{cell}</td>)}</tr>
         ))}
       </tbody>
     </table>
@@ -402,9 +404,14 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
         })
         if (res.ok) {
           const data = await res.json()
-          if (data.prompts?.length > 0) setPrompts(data.prompts)
+          if (Array.isArray(data.prompts) && data.prompts.length > 0) {
+            const validPrompts = data.prompts.filter(p => p.id && p.label && p.icon)
+            if (validPrompts.length > 0) setPrompts(validPrompts)
+          }
         }
-      } catch { /* keep defaults */ }
+      } catch (err) {
+        console.error('Failed to fetch prompts:', err)
+      }
     }
     fetchPrompts()
   }, [activeAgent])
