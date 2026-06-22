@@ -18,7 +18,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useStore, CHAR_W, CHAR_H, BORDER_MODE_CONFIGS } from '../GridUIStore'
 import { TeletextPageStore } from '../grid-algebra/TeletextPage'
 import type { TeletextPage } from '../grid-algebra/TeletextPage'
-import { resize } from '../grid-algebra/GridTransform'
+import { resize } from '@udos/gridcore'
 import type { PaletteId } from '../grid-algebra/ColourPalette'
 import { useSvgBridge } from './useSvgBridge'
 

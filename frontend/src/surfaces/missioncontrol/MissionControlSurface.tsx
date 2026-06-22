@@ -46,7 +46,7 @@ const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
 )
 
 const HIDDEN_FROM_SURFACES_TAB = ['ui-hub', 'mission-control', 'assistui']
-const DEV_SURFACE_IDS: string[] = DEV_MODE_ENABLED ? [] : ['developer']
+const DEV_SURFACE_IDS: string[] = DEV_MODE_ENABLED ? ['developer'] : []
 
 // Map API surface IDs to display IDs (e.g. userver → server, gridui → terminal)
 // Legacy aliases are normalized to canonical cards.
@@ -64,6 +64,7 @@ const DISPLAY_NAME_MAP: Record<string, string> = {
 // are placed dynamically by the snackbar/ui-server. This keeps the fallback minimal
 // for maintenance-only scenarios when the snackbar is offline.
 const FALLBACK_REGISTRY: SurfaceDef[] = [
+  { id: 'ucode', name: 'uCode', subtitle: 'GridCore Surface', description: 'Unified GridCore surface with Terminal, Teletext, and grid management toolset dashboard.', port: 0, color: '#39d2c0', icon: 'grid_view', status: 'running', embedded: true, route: '/ucode' },
   { id: 'server', name: 'Server', subtitle: 'Operations & System', description: 'Consolidated server, system tools, modules, logs, workflows, agents, and publishing', port: 0, color: '#f59e0b', icon: 'dns', status: 'running', embedded: true, route: '/server' },
   { id: 'groovebox', name: 'Groovebox', subtitle: 'Music Production', description: 'Music production environment with MIDI sequencing, synthesis, and audio processing', port: 8888, color: '#da3633', icon: 'play_arrow', status: 'stopped' },
 
@@ -76,7 +77,7 @@ const MISSION_TABS: { id: MissionTab; icon: string; label: string }[] = [
 
 // ─── Helpers ────────────────────────────────────────────────────────
 const sortSurfaces = (list: SurfaceDef[]): SurfaceDef[] => {
-  const order = ['assistui', 'terminal', 'teletext', 'browserui', 'server', 'developer', 'groovebox']
+  const order = ['assistui', 'ucode', 'terminal', 'teletext', 'browserui', 'server', 'developer', 'groovebox']
   return [...list].sort((a, b) => {
     const ai = order.indexOf(a.id)
     const bi = order.indexOf(b.id)
@@ -548,6 +549,13 @@ export default function MissionControlSurface() {
       active: activeTab === t.id,
       onClick: () => setActiveTab(t.id),
     })),
+    {
+      id: 'ucode',
+      icon: 'grid_view',
+      label: 'uCode',
+      active: false,
+      onClick: () => navigate('/ucode'),
+    },
     {
       id: 'server',
       icon: 'dns',

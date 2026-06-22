@@ -38,20 +38,24 @@ interface ActionProgress {
 }
 
 // ─── Core Surface IDs (always shown in order) ─────────────────────
-// Consolidated lineup: GridUI, Server, AssistUI, BrowserUI, Developer
-const CORE_SURFACE_IDS = ['gridui', 'server', 'assistui', 'browserui', 'developer']
+// Consolidated lineup: GridUI, Server, AssistUI, Documentation, System Tools, BrowserUI, Developer
+const CORE_SURFACE_IDS = ['ucode', 'gridui', 'server', 'assistui', 'documentation', 'system-tools', 'browserui', 'developer']
 
 // ─── Surfaces hidden from Surfaces tab (accessible via toolbar icons/tabs) ──
 // These are hidden unless the user has starred them.
 // 'browserui' is hidden because it's accessible via the Globe icon in the toolbar.
 // 'developer' is hidden because it's a dev-only surface.
-const HIDDEN_FROM_SURFACES_TAB = ['browserui', 'developer']
+// 'system-tools' is hidden because it's an advanced admin section.
+const HIDDEN_FROM_SURFACES_TAB = ['browserui', 'developer', 'system-tools']
 
 // ─── Fallback Surface Registry ─────────────────────────────────────
 const FALLBACK_REGISTRY: SurfaceDef[] = [
+  { id: 'ucode',     name: 'uCode',          subtitle: 'GridCore Surface',          description: 'Unified GridCore surface with Terminal, Teletext, sidebar, vault picker, and grid toolset dashboard.', port: 0, color: '#39d2c0', icon: 'grid_view',    status: 'stopped', cell: 'L100-AA10-0100-1', embedded: true, route: '/ucode' },
   { id: 'gridui',    name: 'Terminal Teletext - Grid view', subtitle: 'Grid Layer Composer',       description: 'Chat sheets, nav rails, teledesk panels, terminal, vault docs, and maps layers.', port: 5178, color: '#f0883e', icon: 'widgets',     status: 'stopped', cell: 'L100-AA10-0101-1', embedded: true, route: '/gridui' },
   { id: 'server',    name: 'Server',         subtitle: 'Server Management',         description: 'Consolidated backend operations, ingest, workflows, agents, and logs.', port: 0, color: '#58a6ff', icon: 'layers',      status: 'stopped', cell: 'L100-AA10-0103-1', embedded: true, route: '/server' },
   { id: 'assistui',  name: 'AssistUI',       subtitle: 'Canonical AI Chat',         description: 'Full-page AI chat with streaming responses, model selection, conversation management, and multi-agent support. Absorbed FloatingChatPanel + ChatUISurface.', port: 0, color: '#a855f7', icon: 'smart_toy',   status: 'stopped', cell: 'L100-AA10-0104-1', embedded: true, route: '/assistui' },
+  { id: 'documentation', name: 'Documentation', subtitle: 'Learning Hub',             description: 'Learning hub with tutorials, guides, courses, skill tracker, and educational resources.', port: 0, color: '#a371f7', icon: 'menu_book',   status: 'stopped', cell: 'L100-AA10-0105-1', embedded: true, route: '/documentation' },
+  { id: 'system-tools', name: 'System Tools',  subtitle: 'Admin & Settings',         description: 'System page browser, tool builders, workflows, modules, settings, and administrative controls for S100-S899.', port: 0, color: '#79c0ff', icon: 'build',       status: 'stopped', cell: 'L100-AA10-0108-1', embedded: true, route: '/system-tools' },
   { id: 'browserui', name: 'Web Reader',     subtitle: 'Research Bookmarks',        description: 'Clean browser interface with centered search bar and research bookmarks.', port: 5179, color: '#f59e0b', icon: 'visibility',  status: 'stopped', cell: 'L100-AA10-0106-1', embedded: true, route: '/browserui' },
   { id: 'developer', name: 'Developer',      subtitle: 'Development Lane',          description: 'Developer development environment with dev-mode chat, repo browser, skill runner, and code review.', port: 0, color: '#f97583', icon: 'tune',       status: 'stopped', cell: 'L100-AA10-0109-1', embedded: true, route: '/developer' },
   { id: 'groovebox', name: 'Groovebox',      subtitle: 'Music Production',          description: 'Music production environment with MIDI sequencing, synthesis, and audio processing.', port: 8888, color: '#da3633', icon: 'play_arrow', status: 'stopped', cell: 'L100-AA10-0113-1' },
@@ -184,14 +188,12 @@ function ActionProgressIndicator({ progress, action }: {
 }
 
 // ─── Surface Card ──────────────────────────────────────────────────
-function SurfaceCard({ surface, snackbarAvailable, onAction, pendingAction, actionProgress, starred, onToggleStar }: {
+function SurfaceCard({ surface, snackbarAvailable, onAction, pendingAction, actionProgress }: {
   surface: SurfaceDef
   snackbarAvailable: boolean
   onAction: (id: string, action: SurfaceAction) => void
   pendingAction: SurfaceAction | null
   actionProgress: ActionProgress | null
-  starred?: boolean
-  onToggleStar?: (id: string) => void
 }) {
   const isRunning = surface.status === 'running'
   const isPending = pendingAction !== null
@@ -256,11 +258,6 @@ function SurfaceCard({ surface, snackbarAvailable, onAction, pendingAction, acti
           <p className="hub-card-subtitle" style={{ color: surface.color }}>{surface.subtitle}</p>
         </div>
         <StatusBadge status={surface.status} />
-        {onToggleStar && (
-          <button className={`hub-star-btn ${starred ? 'hub-star-btn--active' : ''}`} onClick={(e) => { e.stopPropagation(); onToggleStar(surface.id) }} title={starred ? 'Unstar' : 'Star'}>
-            <Icon name={starred ? 'star' : 'star_border'} size={16} />
-          </button>
-        )}
       </div>
 
       {isPending && actionProgress && (
@@ -370,18 +367,6 @@ const HUB_TABS: { id: HubTab; icon: string; label: string }[] = [
   { id: 'docs', icon: 'menu_book', label: 'Documentation' },
 ]
 
-// ─── Starred Surfaces (localStorage) ───────────────────────────────
-function loadStarred(): string[] {
-  try {
-    const raw = localStorage.getItem('hub-starred')
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
-}
-
-function saveStarred(ids: string[]) {
-  localStorage.setItem('hub-starred', JSON.stringify(ids))
-}
-
 // ─── Dashboard Card Types ──────────────────────────────────────────
 interface DashboardCard {
   id: string
@@ -401,7 +386,6 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
   performAction: (id: string, action: SurfaceAction) => void
   pendingActions: Record<string, { action: SurfaceAction; progress: ActionProgress }>
 }) {
-  const [starred, setStarred] = useState<string[]>(loadStarred)
   const [expandedCard, setExpandedCard] = useState<string | null>(null)
   const [cardOrder, setCardOrder] = useState<string[]>(() => {
     try {
@@ -411,15 +395,6 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
   })
   const running = surfaces.filter(s => s.status === 'running')
   const stopped = surfaces.filter(s => s.status === 'stopped')
-  const starredSurfaces = surfaces.filter(s => starred.includes(s.id))
-
-  const toggleStar = (id: string) => {
-    setStarred(prev => {
-      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-      saveStarred(next)
-      return next
-    })
-  }
 
   // ─── Tasks state (from GridUI Dashboard) ───────────────────────
   const [tasks, setTasks] = useState([
@@ -620,9 +595,6 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
                     <div className="hub-dash-list-subtitle">{s.subtitle}</div>
                   </div>
                   <StatusBadge status={s.status} />
-                  <button className="hub-star-btn" onClick={(e) => { e.stopPropagation(); toggleStar(s.id) }} title={starred.includes(s.id) ? 'Unstar' : 'Star'}>
-                    <Icon name={starred.includes(s.id) ? 'star' : 'star_border'} size={14} />
-                  </button>
                 </div>
               ))}
             </div>
@@ -1433,28 +1405,27 @@ function UIHubInner() {
     if (tabParam === 'surfaces') return 'surfaces'
     return 'dashboard'
   })
-  const [starred, setStarred] = useState<string[]>(loadStarred)
-
+  const [devModeToggled, setDevModeToggled] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('hub-dev-mode-toggled') === 'true'
+    } catch { return false }
+  })
 
   const runningCount = surfaces.filter(s => s.status === 'running').length
 
-  const toggleStar = (id: string) => {
-    setStarred(prev => {
-      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-      saveStarred(next)
+  const toggleDevMode = () => {
+    setDevModeToggled(prev => {
+      const next = !prev
+      localStorage.setItem('hub-dev-mode-toggled', String(next))
       return next
     })
   }
 
-  // ─── Filter surfaces for Surfaces tab: hide HIDDEN_FROM_SURFACES_TAB unless starred ──
-  // Legacy IDs are explicitly hidden from active nav.
+  // ─── Filter surfaces for Surfaces tab: show all (except test surfaces and legacy IDs) ──
+  // All surfaces are now visible; no more hiding based on stars
   const surfacesForTab = surfaces.filter(s => {
     if (isTestSurface(s)) return false
     if (['devstudio', 'proseui', 'usystem', 'userver'].includes(s.id)) return false
-    // Hide hidden surfaces unless starred
-    if (HIDDEN_FROM_SURFACES_TAB.includes(s.id)) {
-      return starred.includes(s.id)
-    }
     return true
   })
 
@@ -1778,15 +1749,47 @@ function UIHubInner() {
     onClick: () => setActiveTab(t.id),
   }))
 
+  hubTabs.push({
+    id: 'ucode-link',
+    icon: 'grid_view',
+    label: 'uCode',
+    active: false,
+    onClick: () => {
+      window.location.href = '/ucode'
+    },
+  })
+
   return (
     <div className="hub-surface">
       <GlobalToolbar
         tabs={hubTabs}
         rightExtra={
-          <span className="hub-status-badge">
-            <span className={`hub-status-dot ${runningCount > 0 ? 'hub-status-dot--online' : ''}`} />
-            {runningCount}/{surfaces.length} online
-          </span>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <button
+              onClick={toggleDevMode}
+              title={devModeToggled ? 'Hide Developer surface' : 'Show Developer surface'}
+              style={{
+                padding: '6px 12px',
+                background: devModeToggled ? 'var(--pico-form-element-valid-border-color, #3fb950)' : 'var(--pico-muted-color, #8b949e)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <Icon name={devModeToggled ? 'debug' : 'tune'} size={14} />
+              <span>Dev: {devModeToggled ? 'On' : 'Off'}</span>
+            </button>
+            <span className="hub-status-badge">
+              <span className={`hub-status-dot ${runningCount > 0 ? 'hub-status-dot--online' : ''}`} />
+              {runningCount}/{surfaces.length} online
+            </span>
+          </div>
         }
       />
 
@@ -1806,8 +1809,6 @@ function UIHubInner() {
                   onAction={performAction}
                   pendingAction={pendingActions[s.id]?.action || null}
                   actionProgress={pendingActions[s.id]?.progress || null}
-                  starred={starred.includes(s.id)}
-                  onToggleStar={toggleStar}
                 />
               ))}
             </div>

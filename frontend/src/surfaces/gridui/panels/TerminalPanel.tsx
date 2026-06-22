@@ -10,13 +10,12 @@
    POST /api/bbcsdl/exec for real BBC BASIC execution.
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { useStore, CHAR_W, CHAR_H, BORDER_MODE_CONFIGS } from '../GridUIStore'
-import { createBuffer, getDimensions } from '../grid-algebra/GridCell'
-import type { GridBuffer } from '../grid-algebra/GridCell'
-import { writeString } from '../grid-algebra/GridTransform'
+import { useStore } from '../GridUIStore'
+import { createBuffer, type GridBuffer, writeString } from '@udos/gridcore'
 import { GridBufferRenderer } from './GridBufferRenderer'
 import { locationStore } from '../grid-algebra/LocationStore'
 import { cityRegistry } from '../grid-algebra/CityRegistry'
+import { GridViewportWidget } from '../widgets/GridViewportWidget'
 
 // ─── Snackbar API URL ─────────────────────────────────────────────────
 const SNACKBAR_URL = 'http://127.0.0.1:8484'
@@ -357,61 +356,38 @@ export function TerminalPanel() {
     return buf
   }, [lines, inputBuffer, lineNumber, vp.cols, vp.rows])
 
-  // ─── Auto-zoom: calculate scale to fit container ──────────────────
-  const cellW = CHAR_W
-  const cellH = CHAR_H
-  const contentW = vp.cols * cellW
-  const contentH = vp.rows * cellH
-
-  // Border padding: the border takes up (1 - fillFraction) of the space
-  const borderCfg = BORDER_MODE_CONFIGS[vp.borderMode]
-  const borderPadFraction = (1 - borderCfg.fillFraction) / 2
-
-  // Available space after border padding
-  const availableW = containerSize.w * (1 - borderPadFraction * 2)
-  const availableH = containerSize.h * (1 - borderPadFraction * 2)
-
-  const scaleX = availableW / contentW
-  const scaleY = availableH / contentH
-  const scale = Math.min(scaleX, scaleY, 4)
-  // Render cells at their final scaled size so fonts are crisp (no blurry CSS scaling)
-  const scaledCellW = cellW * scale
-  const scaledCellH = cellH * scale
-  const zoomedW = contentW * scale
-  const zoomedH = contentH * scale
-
-  const displayModeFilter: React.CSSProperties =
-    store.displayMode === 'mono' ? { filter: 'grayscale(100%)' } :
-    store.displayMode === 'wireframe' ? { filter: 'invert(100%) contrast(200%)' } :
-    { filter: 'none' }
-
   return (
     <div className="gridui-panel">
-      {/* Viewport area: fills remaining space, applies border padding, centers the grid */}
       <div
         ref={containerRef}
         className="gridui-terminal-viewport"
-        style={{
-          padding: `${containerSize.h * borderPadFraction}px ${containerSize.w * borderPadFraction}px`,
-        }}
       >
-        <div
-          ref={bodyRef}
-          className="gridui-terminal-screen"
-          style={{
-            width: zoomedW,
-            height: zoomedH,
-            ...displayModeFilter,
-          }}
+        <GridViewportWidget
+          containerWidth={containerSize.w}
+          containerHeight={containerSize.h}
+          cols={vp.cols}
+          rows={vp.rows}
+          className="gridui-terminal-widget"
         >
-          <GridBufferRenderer
-            buffer={gridBuffer}
-            paletteId="unified"
-            cellWidth={scaledCellW}
-            cellHeight={scaledCellH}
-            gridFont={store.gridFont}
-          />
-        </div>
+          {metrics => (
+            <div
+              ref={bodyRef}
+              className="gridui-terminal-screen"
+              style={{
+                width: metrics.width,
+                height: metrics.height,
+              }}
+            >
+              <GridBufferRenderer
+                buffer={gridBuffer}
+                paletteId="unified"
+                cellWidth={metrics.scaledCellW}
+                cellHeight={metrics.scaledCellH}
+                gridFont={store.gridFont}
+              />
+            </div>
+          )}
+        </GridViewportWidget>
       </div>
       {/* Hidden input for keyboard capture */}
       <input

@@ -9,6 +9,7 @@
 import React from 'react'
 import { Icon } from './components/Icon'
 import { GlobalToolbar } from './components/GlobalToolbar'
+import SystemPageFallback from './pages/SystemPageFallback'
 import './styles/hub/index.css'
 import './styles/global-toolbar.css'
 
@@ -127,6 +128,11 @@ function SystemPageToolbar({ currentCode }: { currentCode: string }) {
 
 // ─── System Page Component ─────────────────────────────────────────
 export function SystemPage({ pageCode, surface, error }: SystemPageProps) {
+  // For unmapped S-pages, use the fallback component
+  if (pageCode.toLowerCase().startsWith('s') && !PAGE_REGISTRY[pageCode.toLowerCase()]) {
+    return <SystemPageFallback pageCode={pageCode} />
+  }
+
   const code = pageCode.toLowerCase().replace(/[^ps0-9]/g, '')
   const page = PAGE_REGISTRY[code] || PAGE_REGISTRY['p999']
   const accentColor = surface?.color || page.color

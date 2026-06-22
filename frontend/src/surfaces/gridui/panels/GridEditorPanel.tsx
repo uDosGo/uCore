@@ -14,8 +14,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { Icon } from '../../../components/Icon'
 import { useStore, CHAR_W, CHAR_H } from '../GridUIStore'
-import { createBuffer, createCell, cloneBuffer, getDimensions } from '../grid-algebra/GridCell'
-import { overlay, merge, writeString, fill } from '../grid-algebra/GridTransform'
+import { createBuffer, createBufferCell, cloneBuffer, getDimensions, overlay, merge, writeString, fill } from '@udos/gridcore'
 import { GridBufferRenderer } from './GridBufferRenderer'
 import type { PaletteId } from '../grid-algebra/ColourPalette'
 import { useSvgBridge } from '../hooks/useSvgBridge'
@@ -27,7 +26,7 @@ type EditorTab = 'layers' | 'chars'
 // map keyed by layer ID, seeded with demo content for visual feedback.
 
 interface LayerBufferEntry {
-  buffer: import('../grid-algebra/GridCell').GridBuffer
+  buffer: import('@udos/gridcore').GridBuffer
   label: string
 }
 
@@ -45,7 +44,7 @@ function getOrCreateLayerBuffer(layerId: string, label: string, cols: number, ro
   return layerBuffers.get(layerId)!
 }
 
-function updateLayerBuffer(layerId: string, buffer: import('../grid-algebra/GridCell').GridBuffer) {
+function updateLayerBuffer(layerId: string, buffer: import('@udos/gridcore').GridBuffer) {
   const existing = layerBuffers.get(layerId)
   if (existing) {
     layerBuffers.set(layerId, { ...existing, buffer })
@@ -198,12 +197,12 @@ export function GridEditorPanel() {
       // Toggle: if cell has content, clear it; otherwise place a block
       const cell = buf[row][col]
       if (cell.char !== ' ' || cell.bg !== 0) {
-        buf[row][col] = createCell(' ', 7, 0)
+        buf[row][col] = createBufferCell(' ', 7, 0)
       } else {
         // Find the layer colour index (use 4=blue as default)
         const layer = store.gridLayers.find(l => l.id === activeLayerId)
         const colorIdx = 4 // blue
-        buf[row][col] = createCell('█', 7, colorIdx)
+        buf[row][col] = createBufferCell('█', 7, colorIdx)
       }
       updateLayerBuffer(activeLayerId, buf)
       // Force re-render by toggling a state

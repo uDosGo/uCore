@@ -9,8 +9,7 @@
      <GridWidget buffer={myBuffer} width={360} height={200} />
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useMemo } from 'react'
-import type { GridBuffer } from '../grid-algebra/GridCell'
-import { getDimensions } from '../grid-algebra/GridCell'
+import { getDimensions, type GridBuffer } from '@udos/gridcore'
 import { getColor } from '../grid-algebra/ColourPalette'
 import type { PaletteId } from '../grid-algebra/ColourPalette'
 import type { GridFont } from '../GridUIStore'

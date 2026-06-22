@@ -21,6 +21,8 @@ export default defineConfig({
       "@usxd-browser": path.resolve(CODE_ROOT, "uConnect/usxd-browser"),
       // @usx-pkg avoids conflict with @usx/styles npm package (symlinked in node_modules)
       "@usx-pkg": path.resolve(CODE_ROOT, "uConnect/packages/usx"),
+      "@udos/gridcore": path.resolve(CODE_ROOT, "uCode/packages/gridcore/src/index.ts"),
+      "@udos/viewport-renderer": path.resolve(CODE_ROOT, "uCode/packages/viewport-renderer/src/index.ts"),
     },
   },
   server: {

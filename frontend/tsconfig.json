@@ -25,7 +25,9 @@
       "@HomeNest/*": ["../../HomeNest/*"],
       "@uCode3/*": ["../../uCode3/*"],
       "@usxd-browser/*": ["../usxd-browser/*"],
-      "@usx-pkg/*": ["../packages/usx/*"]
+      "@usx-pkg/*": ["../packages/usx/*"],
+      "@udos/gridcore": ["../../uCode/packages/gridcore/src/index.ts"],
+      "@udos/viewport-renderer": ["../../uCode/packages/viewport-renderer/src/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx"],

@@ -28,9 +28,12 @@ import MissionControlSurface from './surfaces/missioncontrol/MissionControlSurfa
 import { SystemPage, parseSystemRoute } from './SystemPage'
 import { SurfaceShellProvider } from './components/SurfaceShellContext'
 import GridUISurface from './surfaces/gridui/GridUISurface'
+import UCodeSurface from './surfaces/ucode/UCodeSurface'
 import BrowserUISurface from './surfaces/browserui/BrowserUISurface'
 import AssistUISurface from './surfaces/assistui/AssistUISurface'
 import DeveloperSurface from './surfaces/developer/DeveloperSurface'
+import SystemToolsSurface from './surfaces/systemtools/SystemToolsSurface'
+import DocumentationSurface from './surfaces/documentation/DocumentationSurface'
 import UServerSurface from './surfaces/userver/UServerSurface'
 
 const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
@@ -53,6 +56,7 @@ import './styles/gridui.css'
 import './styles/gridui-terminal.css'
 import './styles/global-toolbar.css'
 import './styles/surfaces/developer.css'
+import './styles/surfaces/ucode.css'
 import './styles/vault-sidebar.css'
 import './surfaces/browserui/styles/browserui.css'
 
@@ -91,8 +95,11 @@ function Root() {
         <Routes>
           <Route path="/proseui/*" element={<Navigate to="/" replace />} />
           <Route path="/gridui/*" element={<GridUISurface />} />
+          <Route path="/ucode/*" element={<UCodeSurface />} />
           <Route path="/browserui/*" element={<BrowserUISurface />} />
           <Route path="/assistui/*" element={<AssistUISurface />} />
+          <Route path="/documentation/*" element={<DocumentationSurface />} />
+          <Route path="/system-tools/*" element={<SystemToolsSurface />} />
           <Route
             path="/developer/**"
             element={DEV_MODE_ENABLED ? <DeveloperSurface /> : <Navigate to="/" replace />}

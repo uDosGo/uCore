@@ -11,11 +11,12 @@
      - Cell editor mode
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useEffect } from 'react'
-import { useStore, BORDER_MODE_CONFIGS } from '../GridUIStore'
+import { useStore } from '../GridUIStore'
 import { GridBufferRenderer } from './GridBufferRenderer'
 import { getColor } from '../grid-algebra/ColourPalette'
 import { useTeletextPage, FG_COLOURS, BG_COLOURS } from '../hooks/useTeletextPage'
 import type { UseTeletextPageOptions } from '../hooks/useTeletextPage'
+import { GridViewportWidget } from '../widgets/GridViewportWidget'
 
 // ─── TeletextGrid Component ──────────────────────────────────────────
 
@@ -42,8 +43,6 @@ export const TeletextGrid: React.FC<TeletextGridProps> = ({
   })
 
   const vp = store.viewport
-  const borderCfg = BORDER_MODE_CONFIGS[vp.borderMode]
-  const borderPadFraction = (1 - borderCfg.fillFraction) / 2
 
   // ─── Keyboard shortcut ────────────────────────────────────────────
   useEffect(() => {
@@ -68,45 +67,53 @@ export const TeletextGrid: React.FC<TeletextGridProps> = ({
         ref={page.containerRef as React.RefObject<HTMLDivElement>}
         className="gridui-terminal-viewport"
         style={{
-          padding: `${page.containerSize.h * borderPadFraction}px ${page.containerSize.w * borderPadFraction}px`,
           cursor: page.editorMode ? 'cell' : 'default',
         }}
       >
-        <div
-          className="gridui-terminal-screen"
-          style={{
-            width: page.zoomedW,
-            height: page.zoomedH,
-            ...page.displayModeFilter,
-            position: 'relative',
-          }}
+        <GridViewportWidget
+          containerWidth={page.containerSize.w}
+          containerHeight={page.containerSize.h}
+          cols={vp.cols}
+          rows={vp.rows}
+          className="gridui-teletext-widget"
         >
-          {/* Click overlay for editor mode */}
-          {page.editorMode && (
-            <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
-              {Array.from({ length: vp.rows }).map((_, row) => (
-                <div key={row} style={{ display: 'flex', height: page.scaledCellH }}>
-                  {Array.from({ length: vp.cols }).map((_, col) => (
-                    <div
-                      key={col}
-                      onClick={() => page.handleCellClick(row, col)}
-                      style={{ width: page.scaledCellW, height: page.scaledCellH, cursor: 'pointer' }}
-                      title={`(${col}, ${row})`}
-                    />
+          {metrics => (
+            <div
+              className="gridui-terminal-screen"
+              style={{
+                width: metrics.width,
+                height: metrics.height,
+                position: 'relative',
+              }}
+            >
+              {/* Click overlay for editor mode */}
+              {page.editorMode && (
+                <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+                  {Array.from({ length: vp.rows }).map((_, row) => (
+                    <div key={row} style={{ display: 'flex', height: metrics.scaledCellH }}>
+                      {Array.from({ length: vp.cols }).map((_, col) => (
+                        <div
+                          key={col}
+                          onClick={() => page.handleCellClick(row, col)}
+                          style={{ width: metrics.scaledCellW, height: metrics.scaledCellH, cursor: 'pointer' }}
+                          title={`(${col}, ${row})`}
+                        />
+                      ))}
+                    </div>
                   ))}
                 </div>
-              ))}
+              )}
+
+              <GridBufferRenderer
+                buffer={page.displayBuffer}
+                paletteId={page.paletteId}
+                cellWidth={metrics.scaledCellW}
+                cellHeight={metrics.scaledCellH}
+                gridFont={store.gridFont}
+              />
             </div>
           )}
-
-          <GridBufferRenderer
-            buffer={page.displayBuffer}
-            paletteId={page.paletteId}
-            cellWidth={page.scaledCellW}
-            cellHeight={page.scaledCellH}
-            gridFont={store.gridFont}
-          />
-        </div>
+        </GridViewportWidget>
       </div>
 
       {/* Cell Editor Popup */}
