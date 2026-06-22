@@ -8,9 +8,8 @@
    - Story Builder (step-by-step guides)
    - Pages (S100-S899 system page previews)
    ═══════════════════════════════════════════════════════════════════
-   NOTE: Map, Grid, Assets, and Settings have been moved to
-   GridCoreSurface (/gridcore/*) to keep grid-based CSS styles
-   separate from USX styles.
+  NOTE: Legacy GridCore surface is archived; /gridcore/* now
+  redirects to /gridui?panel=terminal for compatibility.
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useEffect, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'

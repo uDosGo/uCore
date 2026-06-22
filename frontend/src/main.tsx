@@ -2,7 +2,7 @@
    ui-hub — React Entry Point
    ═══════════════════════════════════════════════════════════════════
    Surfaces (after consolidation):
-     /              → MissionControlSurface (dashboard + missions + kanban/list + prose/editor + schedule)
+     /              → MissionControlSurface (dashboard + missions)
      /[ps]\d{3}     → SystemPage  (P: surface status, S: system pages)
      /assistui/*    → AssistUISurface (canonical AI chat)
      /gridui/*      → GridUISurface (Terminal + Teletext)
@@ -101,8 +101,8 @@ function Root() {
           <Route path="/userver/*" element={<UserverRouteRedirect />} />
           <Route path="/system" element={<SystemRouteRedirect />} />
           <Route path="/system/*" element={<SystemRouteRedirect />} />
-          <Route path="/system-legacy" element={<Navigate to="/server?tab=install" replace />} />
-          <Route path="/system-legacy/*" element={<Navigate to="/server?tab=install" replace />} />
+          <Route path="/system-legacy" element={<Navigate to="/server?tab=settings" replace />} />
+          <Route path="/system-legacy/*" element={<Navigate to="/server?tab=settings" replace />} />
           <Route path="/gridcore/*" element={<Navigate to="/gridui?panel=terminal" replace />} />
           <Route path="/*" element={<App />} />
         </Routes>
@@ -118,25 +118,25 @@ function SystemRouteRedirect() {
   const params = new URLSearchParams(location.search)
   const rawTab = params.get('tab') || 'install'
   const legacyMap: Record<string, string> = {
+    install: 'settings',
+    modules: 'settings',
+    feeds: 'settings',
     story: 'missions',
     pages: 'missions',
-    workflows: 'services',
-    agents: 'services',
-    publishing: 'services',
+    publishing: 'workflows',
   }
   const tab = legacyMap[rawTab] || rawTab
   const validTabs = new Set([
     'dashboard',
     'ingest',
     'missions',
-    'install',
-    'modules',
-    'feeds',
     'settings',
     'services',
     'logs',
+    'workflows',
+    'agents',
   ])
-  const nextTab = validTabs.has(tab) ? tab : 'install'
+  const nextTab = validTabs.has(tab) ? tab : 'settings'
   return <Navigate to={`/server?tab=${encodeURIComponent(nextTab)}`} replace />
 }
 

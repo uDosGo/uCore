@@ -15,14 +15,7 @@ import { Icon } from '../../components/Icon'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import VaultSidebar from '../../components/VaultSidebar'
 import AssistUISurface from '../assistui/AssistUISurface'
-import StoryView from '../../components/StoryView'
 import { SettingsPanel } from '../system/SettingsPanel'
-import {
-  FeedPanelWithContext,
-  InstallPanel,
-  ModulesPanel,
-  PagesPanel,
-} from '../system/USystemSurface'
 import '../../styles/userver.css'
 
 const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
@@ -34,17 +27,11 @@ type UServerTab =
   | 'dashboard'
   | 'ingest'
   | 'missions'
-  | 'install'
-  | 'modules'
-  | 'feeds'
-  | 'story'
-  | 'pages'
   | 'settings'
   | 'services'
   | 'logs'
   | 'workflows'
   | 'agents'
-  | 'publishing'
 
 interface ServiceStatus {
   name: string
@@ -184,18 +171,21 @@ const SERVER_TABS: UServerTab[] = [
   'dashboard',
   'ingest',
   'missions',
-  'install',
-  'modules',
-  'feeds',
-  'story',
-  'pages',
   'settings',
   'services',
   'logs',
   'workflows',
   'agents',
-  'publishing',
 ]
+
+const LEGACY_TAB_MAP: Record<string, UServerTab> = {
+  install: 'settings',
+  modules: 'settings',
+  feeds: 'settings',
+  story: 'missions',
+  pages: 'missions',
+  publishing: 'workflows',
+}
 
 // ─── API Base ───────────────────────────────────────────────────────
 const API_BASE = 'http://192.168.20.11:8484'
@@ -647,175 +637,6 @@ function AgentsTab() {
   )
 }
 
-// ─── Publishing Tab ─────────────────────────────────────────────────
-interface PublishedDoc {
-  slug: string
-  title: string
-  status: 'synced' | 'stale' | 'missing'
-  lastSync: string
-}
-
-const DEFAULT_PUBLISHED_DOCS: PublishedDoc[] = [
-  { slug: 'architecture-overview', title: 'Architecture Overview', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'developer-guide', title: 'Developer Guide', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'dev-workflow', title: 'Dev Workflow', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'configuration', title: 'Configuration', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'user-guide', title: 'User Guide', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'cli-tools', title: 'CLI Tools', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'skills-pipeline', title: 'Skills Pipeline', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'narrator-system', title: 'Narrator System', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'snackbar-api', title: 'Snackbar API', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'changelog', title: 'Changelog', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'roadmap-overview', title: 'Roadmap Overview', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'surfaces-guide', title: 'Surfaces Guide', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'scripts', title: 'Scripts', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'extensions', title: 'Extensions', status: 'synced', lastSync: '2026-06-18' },
-  { slug: 'modules', title: 'Modules', status: 'synced', lastSync: '2026-06-18' },
-]
-
-const PUBLISHING_WORKFLOWS = [
-  { name: 'daily-docs-sync', status: 'completed', lastRun: '2026-06-18 04:00', schedule: '0 4 * * *', service: 'docs-site-sync' },
-  { name: 'docs-publisher', status: 'idle', lastRun: '2026-06-17 12:00', schedule: '0 12 * * *', service: 'docs-publisher' },
-]
-
-function PublishingTab() {
-  const [syncing, setSyncing] = useState(false)
-  const [buildStatus, setBuildStatus] = useState<string | null>(null)
-  const [docs] = useState<PublishedDoc[]>(DEFAULT_PUBLISHED_DOCS)
-
-  const syncedCount = docs.filter(d => d.status === 'synced').length
-  const staleCount = docs.filter(d => d.status === 'stale').length
-
-  const handleSync = async () => {
-    setSyncing(true)
-    setBuildStatus(null)
-    try {
-      const res = await fetch('http://localhost:8484/api/docs/sync', { method: 'POST', signal: AbortSignal.timeout(30000) })
-      if (res.ok) {
-        setBuildStatus('success')
-      } else {
-        setBuildStatus('error')
-      }
-    } catch {
-      setBuildStatus('error')
-    }
-    setSyncing(false)
-  }
-
-  return (
-    <div>
-      <div className="userver-toolbar">
-        <div className="userver-toolbar-left">
-          <h2 className="userver-heading">Publishing</h2>
-          <span className="userver-card-subtitle">
-            {syncedCount} synced · {staleCount} stale
-          </span>
-        </div>
-        <div className="userver-toolbar-right">
-          <button
-            className="userver-action-btn"
-            onClick={handleSync}
-            disabled={syncing}
-          >
-            {syncing ? 'Syncing...' : 'Sync Now'}
-          </button>
-        </div>
-      </div>
-
-      {/* Build Status */}
-      {buildStatus && (
-        <div className={`userver-card`} style={{ margin: '0 16px 16px', borderLeft: `3px solid ${buildStatus === 'success' ? 'var(--pico-ins-color, #3fb950)' : 'var(--pico-del-color, #f85149)'}` }}>
-          <div className="userver-card-content">
-            <p className="userver-text">
-              {buildStatus === 'success' ? '✅ Docs synced and Jekyll site rebuilt successfully' : '❌ Sync failed — check the docs-site-sync service logs'}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Publishing Workflows */}
-      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
-        <div className="userver-card-header">
-          <h3>Publishing Workflows</h3>
-        </div>
-        <div className="userver-card-content">
-          {PUBLISHING_WORKFLOWS.map(wf => (
-            <div key={wf.name} className="userver-workflow-row">
-              <div className="userver-workflow-info">
-                <span className="userver-workflow-name">{wf.name}</span>
-                <span className="userver-workflow-schedule">{wf.service} · {wf.schedule}</span>
-              </div>
-              <div className="userver-workflow-meta">
-                <span className={`userver-workflow-status ${wf.status}`}>
-                  {wf.status.charAt(0).toUpperCase() + wf.status.slice(1)}
-                </span>
-                <span className="userver-workflow-lastrun">{wf.lastRun}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Published Docs */}
-      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
-        <div className="userver-card-header">
-          <h3>Published Guides</h3>
-          <span className="userver-card-subtitle">
-            <a href="http://localhost:4000/Developer/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--pico-primary, #58a6ff)' }}>
-              View site ↗
-            </a>
-          </span>
-        </div>
-        <div className="userver-card-content">
-          <div className="userver-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-            {docs.map(doc => (
-              <div key={doc.slug} className="userver-service-row" style={{ padding: '8px 0', borderBottom: '1px solid var(--pico-border-color, #30363d)' }}>
-                <div className="userver-service-info">
-                  <span className="userver-service-name">{doc.title}</span>
-                  <span className="userver-service-desc">/{doc.slug}</span>
-                </div>
-                <div className="userver-service-meta">
-                  <span className={`userver-service-status ${doc.status === 'synced' ? 'up' : 'degraded'}`}>
-                    {doc.status === 'synced' ? 'Synced' : doc.status === 'stale' ? 'Stale' : 'Missing'}
-                  </span>
-                  <span className="userver-service-port" style={{ fontSize: 11 }}>{doc.lastSync}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Publishing Flow Info */}
-      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
-        <div className="userver-card-header">
-          <h3>Publishing Pipeline</h3>
-        </div>
-        <div className="userver-card-content">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ color: 'var(--pico-muted-color, #8b949e)' }}>①</span>
-              <span><strong>Developer docs/</strong> — source of truth (raw markdown)</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ color: 'var(--pico-muted-color, #8b949e)' }}>②</span>
-              <span><strong>docs-site-sync</strong> — syncs docs → Jekyll guide/ directory</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ color: 'var(--pico-muted-color, #8b949e)' }}>③</span>
-              <span><strong>Jekyll build</strong> — generates static HTML site</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ color: 'var(--pico-muted-color, #8b949e)' }}>④</span>
-              <span><strong>GitHub Pages</strong> — publishes gh-pages branch</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function MissionTaskBinderTab() {
   const [workspaces, setWorkspaces] = useState<KnowledgeWorkspace[]>([])
   const [rows, setRows] = useState<AdapterRow[]>([])
@@ -983,10 +804,20 @@ function IngestTab() {
     setRunning(true)
     setStatusMessage('')
     try {
-      const payload: Record<string, string> = {}
+      const payload: {
+        source?: string
+        mission?: string
+        binder?: string
+        files?: string[]
+      } = {}
       if (selectedSource !== 'all') {
         payload.source = selectedSource
       }
+      const missionValue = mission.trim()
+      const binderValue = binder.trim()
+      if (missionValue) payload.mission = missionValue
+      if (binderValue) payload.binder = binderValue
+      if (selectedFiles.length > 0) payload.files = selectedFiles
 
       const res = await fetch(`${SNACKBAR_API}/api/knowledge/import`, {
         method: 'POST',
@@ -1184,12 +1015,18 @@ function IngestTab() {
 export default function UServerSurface() {
   const location = useLocation()
   const navigate = useNavigate()
-  const selectedTab = useMemo<UServerTab>(() => {
+  const tabState = useMemo(() => {
     const params = new URLSearchParams(location.search)
-    const raw = (params.get('tab') || 'dashboard') as UServerTab
-    return SERVER_TABS.includes(raw) ? raw : 'dashboard'
+    const raw = (params.get('tab') || 'dashboard').toLowerCase()
+    const mapped = LEGACY_TAB_MAP[raw] || raw
+    const candidate = mapped as UServerTab
+    return {
+      raw,
+      mapped,
+      selectedTab: SERVER_TABS.includes(candidate) ? candidate : 'dashboard',
+    }
   }, [location.search])
-  const [tab, setTab] = useState<UServerTab>(selectedTab)
+  const [tab, setTab] = useState<UServerTab>(tabState.selectedTab)
   const [services] = useState<ServiceStatus[]>(DEFAULT_SERVICES)
   const [logs] = useState<LogEntry[]>(DEFAULT_LOGS)
   const [workflows] = useState<Workflow[]>(DEFAULT_WORKFLOWS)
@@ -1200,8 +1037,14 @@ export default function UServerSurface() {
   const runningCount = surfaces.filter(s => s.status === 'running').length
 
   useEffect(() => {
-    setTab(selectedTab)
-  }, [selectedTab])
+    if (tabState.mapped !== tabState.raw) {
+      navigate(`/server?tab=${tabState.mapped}`, { replace: true })
+    }
+  }, [navigate, tabState.mapped, tabState.raw])
+
+  useEffect(() => {
+    setTab(tabState.selectedTab)
+  }, [tabState.selectedTab])
 
   const setTabAndRoute = (nextTab: UServerTab) => {
     setTab(nextTab)
@@ -1212,17 +1055,11 @@ export default function UServerSurface() {
     { id: 'dashboard', icon: 'home', label: 'Dashboard', active: tab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
     { id: 'ingest', icon: 'upload_file', label: 'Ingest', active: tab === 'ingest', onClick: () => setTabAndRoute('ingest') },
     { id: 'missions', icon: 'account_tree', label: 'Missions', active: tab === 'missions', onClick: () => setTabAndRoute('missions') },
-    { id: 'install', icon: 'download', label: 'Install', active: tab === 'install', onClick: () => setTabAndRoute('install') },
-    { id: 'modules', icon: 'apps', label: 'Modules', active: tab === 'modules', onClick: () => setTabAndRoute('modules') },
-    { id: 'feeds', icon: 'rss_feed', label: 'Feeds', active: tab === 'feeds', onClick: () => setTabAndRoute('feeds') },
-    { id: 'story', icon: 'auto_stories', label: 'Story', active: tab === 'story', onClick: () => setTabAndRoute('story') },
-    { id: 'pages', icon: 'menu_book', label: 'Pages', active: tab === 'pages', onClick: () => setTabAndRoute('pages') },
     { id: 'settings', icon: 'settings', label: 'Settings', active: tab === 'settings', onClick: () => setTabAndRoute('settings') },
     { id: 'services', icon: 'dns', label: 'Services', active: tab === 'services', onClick: () => setTabAndRoute('services') },
     { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTabAndRoute('logs') },
     { id: 'workflows', icon: 'layers', label: 'Workflows', active: tab === 'workflows', onClick: () => setTabAndRoute('workflows') },
     { id: 'agents', icon: 'smart_toy', label: 'Agents', active: tab === 'agents', onClick: () => setTabAndRoute('agents') },
-    { id: 'publishing', icon: 'menu_book', label: 'Publishing', active: tab === 'publishing', onClick: () => setTabAndRoute('publishing') },
   ]
 
   return (
@@ -1268,17 +1105,11 @@ export default function UServerSurface() {
           {tab === 'dashboard' && <DashboardTab services={services} workflows={workflows} logs={logs} surfaces={surfaces} />}
           {tab === 'ingest' && <IngestTab />}
           {tab === 'missions' && <MissionTaskBinderTab />}
-          {tab === 'install' && <InstallPanel />}
-          {tab === 'modules' && <ModulesPanel />}
-          {tab === 'feeds' && <FeedPanelWithContext />}
-          {tab === 'story' && <StoryView />}
-          {tab === 'pages' && <PagesPanel />}
           {tab === 'settings' && <SettingsPanel />}
           {tab === 'services' && <ServicesTab services={services} />}
           {tab === 'logs' && <LogsTab logs={logs} />}
           {tab === 'workflows' && <WorkflowsTab workflows={workflows} />}
           {tab === 'agents' && <AgentsTab />}
-          {tab === 'publishing' && <PublishingTab />}
         </main>
       </div>
     </div>

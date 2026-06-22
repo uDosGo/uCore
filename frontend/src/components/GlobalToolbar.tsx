@@ -7,7 +7,7 @@
    ═══════════════════════════════════════════════════════════════════
    Chat toggle removed from toolbar — now a floating Intercom-style
    launcher button in ProseSurfaceManager (bottom-right, fixed).
-   Feeds (rss_feed) removed — now a tab in USystemSurface.
+  Feeds (rss_feed) removed — now consolidated under /server tabs.
    ═══════════════════════════════════════════════════════════════════ */
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -126,7 +126,7 @@ export function GlobalToolbar({
           </button>
         )}
         {/* ─── Feeds (rss_feed) — REMOVED from global bar ─── */}
-        {/* Feeds now lives as a tab in USystemSurface. If you need it back,
+        {/* Feeds now routes through the consolidated server surface. If you need it back,
             uncomment the block below and pass hideFeeds={false} from callers.
         {!hideFeeds && (
           <button

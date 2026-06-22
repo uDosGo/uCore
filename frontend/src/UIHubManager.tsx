@@ -39,9 +39,9 @@ interface ActionProgress {
   timestamp: string
 }
 
-// ─── Core Surface IDs (final 6, always shown in order) ────────────
-// Final lineup: AssistUI, GridUI, ProseUI, BrowserUI, UServer, UIHub
-const CORE_SURFACE_IDS = ['gridui', 'proseui', 'userver', 'assistui', 'browserui']
+// ─── Core Surface IDs (always shown in order) ─────────────────────
+// Consolidated lineup: GridUI, Server, AssistUI, BrowserUI, Developer
+const CORE_SURFACE_IDS = ['gridui', 'server', 'assistui', 'browserui', 'developer']
 
 // ─── Surfaces hidden from Surfaces tab (accessible via toolbar icons/tabs) ──
 // These are hidden unless the user has starred them.
@@ -52,13 +52,10 @@ const HIDDEN_FROM_SURFACES_TAB = ['browserui', 'developer']
 // ─── Fallback Surface Registry ─────────────────────────────────────
 const FALLBACK_REGISTRY: SurfaceDef[] = [
   { id: 'gridui',    name: 'Terminal Teletext - Grid view', subtitle: 'Grid Layer Composer',       description: 'Chat sheets, nav rails, teledesk panels, terminal, vault docs, and maps layers.', port: 5178, color: '#f0883e', icon: 'widgets',     status: 'stopped', cell: 'L100-AA10-0101-1', embedded: true, route: '/gridui' },
-  { id: 'proseui',   name: 'Mission Control - Markdown Suite', subtitle: 'Markdown Editor',           description: 'Universal Document Oriented User Interface — document viewer, schema browser, and workspace manager for uCode2.', port: 5184, color: '#22c55e', icon: 'article',    status: 'stopped', cell: 'L100-AA10-0112-1', embedded: true, route: '/proseui' },
-
-  { id: 'userver',   name: 'uServer',        subtitle: 'Server Management',         description: 'uServer backend services — secret server, OAuth, sync, and surface definitions.', port: 0, color: '#58a6ff', icon: 'layers',      status: 'stopped', cell: 'L100-AA10-0103-1', embedded: true, route: '/server' },
+  { id: 'server',    name: 'Server',         subtitle: 'Server Management',         description: 'Consolidated backend operations, ingest, workflows, agents, and logs.', port: 0, color: '#58a6ff', icon: 'layers',      status: 'stopped', cell: 'L100-AA10-0103-1', embedded: true, route: '/server' },
   { id: 'assistui',  name: 'AssistUI',       subtitle: 'Canonical AI Chat',         description: 'Full-page AI chat with streaming responses, model selection, conversation management, and multi-agent support. Absorbed FloatingChatPanel + ChatUISurface.', port: 0, color: '#a855f7', icon: 'smart_toy',   status: 'stopped', cell: 'L100-AA10-0104-1', embedded: true, route: '/assistui' },
   { id: 'browserui', name: 'Web Reader',     subtitle: 'Research Bookmarks',        description: 'Clean browser interface with centered search bar and research bookmarks.', port: 5179, color: '#f59e0b', icon: 'visibility',  status: 'stopped', cell: 'L100-AA10-0106-1', embedded: true, route: '/browserui' },
   { id: 'developer', name: 'Developer',      subtitle: 'Development Lane',          description: 'Developer development environment with dev-mode chat, repo browser, skill runner, and code review.', port: 0, color: '#f97583', icon: 'tune',       status: 'stopped', cell: 'L100-AA10-0109-1', embedded: true, route: '/developer' },
-  { id: 'usystem',   name: 'uSystem',        subtitle: 'System Pages Hub',          description: 'System information, health dashboard, diagnostics, maintenance, logs, network, security, storage, and console pages. Absorbed from USystemRouter.', port: 5199, color: '#00ff9d', icon: 'smart_display', status: 'stopped', cell: 'L100-AA10-0110-1', embedded: true, route: '/system' },
   { id: 'groovebox', name: 'Groovebox',      subtitle: 'Music Production',          description: 'Music production environment with MIDI sequencing, synthesis, and audio processing.', port: 8888, color: '#da3633', icon: 'play_arrow', status: 'stopped', cell: 'L100-AA10-0113-1' },
 ]
 
@@ -773,12 +770,12 @@ function ModulesPanel() {
     { id: 'vault', name: 'Vault', subtitle: 'Document Store', icon: 'folder', color: '#22c55e', desc: 'Browse, search, and manage documents across all binders.' },
     { id: 'maps', name: 'Maps', subtitle: 'Spatial Grid', icon: 'map', color: '#f0883e', desc: 'Visual spatial grid system for surface layout management.' },
     { id: 'settings', name: 'Settings', subtitle: 'System Config', icon: 'tune', color: '#f59e0b', desc: 'Configure system preferences, themes, and surface settings.' },
-    { id: 'usystem', name: 'uSystem', subtitle: 'System Pages Hub', icon: 'settings_suggest', color: '#58a6ff', desc: 'System information, health dashboard, diagnostics, maintenance, logs, network, security, storage, and console pages.', route: '/s100' },
+    { id: 'system-pages', name: 'System Pages', subtitle: 'System Pages Hub', icon: 'settings_suggest', color: '#58a6ff', desc: 'System information, diagnostics, maintenance, and workflow pages.', route: '/s100' },
     { id: 'vibe-agent', name: 'Vibe Agent', subtitle: 'Chat UI · OK Assistant', icon: 'school', color: '#a855f7', desc: 'AI-powered chat interface with Vibe Agent and Developer modes. Ask questions, run commands, and manage your workspace.', route: '/assistui' },
     { id: 'assistui', name: 'Assist', subtitle: 'Full-Page AI Chat', icon: 'smart_toy', color: '#a855f7', desc: 'Full-page AI chat with streaming responses, model selection, conversation management, and multi-agent support.', route: '/assistui' },
-    { id: 'story-builder', name: 'Story Builder', subtitle: 'Step-by-step guides', icon: 'menu_book', color: '#22c55e', desc: 'Create step-by-step guides and walkthroughs for your workspace.', route: '/usystem/story' },
-    { id: 'workflow-builder', name: 'Workflow Builder', subtitle: 'Automated workflows', icon: 'account_tree', color: '#58a6ff', desc: 'Create and manage automated workflows with triggers for time, GitHub, vault, and more.', route: '/usystem/workflow' },
-    { id: 'tool-builder', name: 'Tool Builder', subtitle: 'Custom tool registry', icon: 'puzzle', color: '#f0883e', desc: 'Build and register custom tools for your workspace.', route: '/usystem/tools' },
+    { id: 'story-builder', name: 'Story Builder', subtitle: 'Step-by-step guides', icon: 'menu_book', color: '#22c55e', desc: 'Create step-by-step guides and walkthroughs for your workspace.', route: '/s101' },
+    { id: 'workflow-builder', name: 'Workflow Builder', subtitle: 'Automated workflows', icon: 'account_tree', color: '#58a6ff', desc: 'Create and manage automated workflows with triggers for time, GitHub, vault, and more.', route: '/s300' },
+    { id: 'tool-builder', name: 'Tool Builder', subtitle: 'Custom tool registry', icon: 'puzzle', color: '#f0883e', desc: 'Build and register custom tools for your workspace.', route: '/s100' },
   ]
   // Update the Open button to navigate to the route if present
   const openModule = (mod: any) => {
@@ -823,8 +820,8 @@ function ModulesPanel() {
 
 // ─── Settings Panel — REMOVED from UIHubManager ────────────────────
 // SettingsPanel + AIModelsStatus have been moved to
-// src/surfaces/system/SettingsPanel.tsx and are now a tab in
-// USystemSurface (/system?tab=settings).
+// src/surfaces/system/SettingsPanel.tsx and are now served from
+// the consolidated server surface settings tab (/server?tab=settings).
 // The gear icon in GlobalToolbar navigates there from any surface.
 
 // ─── Install Panel ─────────────────────────────────────────────────
@@ -1439,10 +1436,9 @@ function UIHubInner() {
   }
 
   // ─── Filter surfaces for Surfaces tab: hide HIDDEN_FROM_SURFACES_TAB unless starred ──
-  // devstudio ID kept for backward compat — hidden from surfaces tab.
+  // Legacy IDs are explicitly hidden from active nav.
   const surfacesForTab = surfaces.filter(s => {
-    // Hide developer — merged into Developer Tools
-    if (s.id === 'devstudio') return false
+    if (['devstudio', 'proseui', 'usystem', 'userver'].includes(s.id)) return false
     // Hide hidden surfaces unless starred
     if (HIDDEN_FROM_SURFACES_TAB.includes(s.id)) {
       return starred.includes(s.id)

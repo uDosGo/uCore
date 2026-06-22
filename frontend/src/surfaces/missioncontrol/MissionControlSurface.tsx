@@ -1,17 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════
    MissionControlSurface — Unified Surface Hub
    ═══════════════════════════════════════════════════════════════════
-   Consolidates:
-   - Dashboard (surface cards, starred surfaces)
-   - Missions (missions, goals, tasks)
-   - Kanban (document workflow board)
-   - List (document table view)
-   - Prose (read-only document renderer)
-   - Editor (Markdown editor with preview)
-   - GitHub (file tree browser)
-   - Story (story builder)
-   - Roadmap (project phases)
-   - Schedule (calendar events)
+  Consolidates:
+  - Dashboard (surface cards, starred surfaces)
+  - Missions (missions, goals, tasks)
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Icon } from '../../components/Icon'
@@ -19,18 +11,10 @@ import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import VaultSidebar from '../../components/VaultSidebar'
 import AssistUISurface from '../assistui/AssistUISurface'
-import KanbanBoard from '../../components/KanbanBoard'
-import DataTable from '../../components/DataTable'
-import ProseView from '../../components/ProseView'
-import EditorView from '../../components/EditorView'
-import StoryView from '../../components/StoryView'
-import type { KanbanItem, KanbanColumn } from '../../components/KanbanBoard'
-import type { TableColumn, TableRow } from '../../components/DataTable'
-import { statusColor } from '../../utils/statusColor'
 import '../../styles/hub/index.css'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type MissionTab = 'dashboard' | 'missions' | 'kanban' | 'list' | 'prose' | 'editor' | 'schedule'
+type MissionTab = 'dashboard' | 'missions'
 
 interface SurfaceDef {
   id: string
@@ -87,11 +71,10 @@ const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
 )
 
 const HIDDEN_FROM_SURFACES_TAB = ['ui-hub', 'mission-control', 'assistui']
-const DEV_SURFACE_IDS: string[] = DEV_MODE_ENABLED ? [] : ['developer', 'devstudio']
+const DEV_SURFACE_IDS: string[] = DEV_MODE_ENABLED ? [] : ['developer']
 
 // Map API surface IDs to display IDs (e.g. userver → server, gridui → terminal)
-// NOTE: devstudio is NOT remapped here — it's a separate repo served at /devstudio/*
-// and its route must stay intact. The card name override is handled via DISPLAY_NAME_MAP.
+// Legacy aliases are normalized to canonical cards.
 const API_ID_MAP: Record<string, string> = {
   userver: 'server',
   gridui: 'terminal',
@@ -99,12 +82,11 @@ const API_ID_MAP: Record<string, string> = {
 
 // Display name overrides — renames the card title without changing the surface ID/route.
 const DISPLAY_NAME_MAP: Record<string, string> = {
-  devstudio: 'Developer',
   assistui: 'Assistant',
 }
 
 // FALLBACK_REGISTRY: only Server, System, Documents, and Groovebox are hardcoded here.
-// All other surface cards (Terminal, Teletext, GridCore, BrowserUI, Developer, etc.)
+// All other surface cards (Terminal, Teletext, BrowserUI, Developer, etc.)
 // are placed dynamically by the snackbar/ui-server. This keeps the fallback minimal
 // for maintenance-only scenarios when the snackbar is offline.
 const FALLBACK_REGISTRY: SurfaceDef[] = [
@@ -117,50 +99,6 @@ const FALLBACK_REGISTRY: SurfaceDef[] = [
 const MISSION_TABS: { id: MissionTab; icon: string; label: string }[] = [
   { id: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
   { id: 'missions', icon: 'star', label: 'Missions' },
-  { id: 'kanban', icon: 'view_column', label: 'Kanban' },
-  { id: 'list', icon: 'format_list_bulleted', label: 'List' },
-  { id: 'prose', icon: 'article', label: 'Prose' },
-  { id: 'editor', icon: 'edit_note', label: 'Editor' },
-  { id: 'schedule', icon: 'calendar_month', label: 'Schedule' },
-]
-
-// ─── Mock Data ──────────────────────────────────────────────────────
-const INITIAL_KANBAN: KanbanColumn[] = [
-  { id: 'draft', title: 'Draft', color: '#94a3b8', items: [
-    { id: 'd1', title: 'Getting Started Guide', type: 'doc', date: '2d ago' },
-    { id: 'd2', title: 'API Reference v2', type: 'doc', date: '3d ago' },
-    { id: 'd3', title: 'Tutorial: Kanban Setup', type: 'tutorial', date: '5d ago' },
-  ]},
-  { id: 'review', title: 'Review', color: '#f59e0b', items: [
-    { id: 'r1', title: 'Architecture Overview', type: 'doc', date: '1d ago' },
-    { id: 'r2', title: 'Workflow Automation', type: 'guide', date: '2d ago' },
-  ]},
-  { id: 'published', title: 'Published', color: '#22c55e', items: [
-    { id: 'p1', title: 'Quickstart Guide', type: 'doc', date: '1w ago' },
-    { id: 'p2', title: 'USXD Format Spec', type: 'spec', date: '2w ago' },
-    { id: 'p3', title: 'uCode1 User Manual', type: 'manual', date: '3w ago' },
-    { id: 'p4', title: 'Vault Integration', type: 'guide', date: '1m ago' },
-  ]},
-]
-
-const INITIAL_TABLE: TableRow[] = [
-  { id: '1', title: 'Getting Started Guide', status: 'draft', type: 'doc', date: '2026-05-14' },
-  { id: '2', title: 'API Reference v2', status: 'draft', type: 'doc', date: '2026-05-13' },
-  { id: '3', title: 'Architecture Overview', status: 'review', type: 'doc', date: '2026-05-15' },
-  { id: '4', title: 'Workflow Automation', status: 'review', type: 'guide', date: '2026-05-14' },
-  { id: '5', title: 'Quickstart Guide', status: 'published', type: 'doc', date: '2026-05-09' },
-  { id: '6', title: 'USXD Format Spec', status: 'published', type: 'spec', date: '2026-05-02' },
-  { id: '7', title: 'uCode1 User Manual', status: 'published', type: 'manual', date: '2026-04-25' },
-  { id: '8', title: 'Vault Integration', status: 'published', type: 'guide', date: '2026-04-16' },
-]
-
-const TABLE_COLUMNS: TableColumn[] = [
-  { key: 'title', label: 'Title' },
-  { key: 'status', label: 'Status', render: (val: string) => (
-    <span className={`status-badge ${val}`} style={{ background: `${statusColor(val)}20`, color: statusColor(val) }}>{val}</span>
-  )},
-  { key: 'type', label: 'Type' },
-  { key: 'date', label: 'Date' },
 ]
 
 const MOCK_MISSIONS: Mission[] = [
@@ -196,7 +134,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
     { id: 't1', title: 'Review surface consolidation PR', done: false, priority: 'high' },
     { id: 't2', title: 'Update USX component audit', done: false, priority: 'medium' },
     { id: 't3', title: 'Write documentation for v3.1', done: false, priority: 'low' },
-    { id: 't4', title: 'Test GridCore surface', done: true, priority: 'high' },
+    { id: 't4', title: 'Validate server tab cleanup', done: true, priority: 'high' },
     { id: 't5', title: 'Deploy snackbar update', done: true, priority: 'medium' },
   ])
 
@@ -210,7 +148,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
 
   const activity = [
     { date: 'Today', title: 'Surface consolidation complete' },
-    { date: 'Yesterday', title: 'GridCore surface created' },
+    { date: 'Yesterday', title: 'Legacy surface links removed' },
     { date: '2d ago', title: 'Server consolidation tabs updated' },
     { date: '3d ago', title: 'FALLBACK_REGISTRY simplified' },
   ]
@@ -471,34 +409,6 @@ function MissionsPanel() {
   )
 }
 
-// ─── Schedule Panel ────────────────────────────────────────────────
-function SchedulePanel() {
-  const events = [
-    { date: '2026-06-20', title: 'Surface Consolidation Review', type: 'milestone' },
-    { date: '2026-06-25', title: 'USX Component Audit Due', type: 'deadline' },
-    { date: '2026-07-01', title: 'v3.1 Release Candidate', type: 'release' },
-  ]
-
-  return (
-    <div className="mc-schedule">
-      <div className="mc-schedule-header">
-        <h2>Schedule</h2>
-      </div>
-      <div className="mc-schedule-events">
-        {events.map(evt => (
-          <div key={evt.title} className={`mc-schedule-event mc-schedule-event--${evt.type}`}>
-            <div className="mc-schedule-event-date">{evt.date}</div>
-            <div className="mc-schedule-event-info">
-              <span className="mc-schedule-event-title">{evt.title}</span>
-              <span className="mc-schedule-event-type">{evt.type}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 // ─── Main Component ────────────────────────────────────────────────
 export default function MissionControlSurface() {
   const shell = useSurfaceShell()
@@ -509,21 +419,6 @@ export default function MissionControlSurface() {
   const [pendingActions, setPendingActions] = useState<Record<string, { action: SurfaceAction; progress: ActionProgress }>>({})
   const progressIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({})
   const [chatMode, setChatMode] = useState<'closed' | 'panel'>('closed')
-
-  // Kanban state
-  const [kanbanColumns, setKanbanColumns] = useState<KanbanColumn[]>(INITIAL_KANBAN)
-
-  // Editor state
-  const [editorContent, setEditorContent] = useState(() => {
-    try { return localStorage.getItem('mc-editor') || '# New Document\n\nStart writing your content here...\n\n## Section 1\n\nLorem ipsum dolor sit amet.\n\n## Section 2\n\n- Item one\n- Item two\n- Item three\n' }
-    catch { return '# New Document\n\nStart writing your content here...\n\n## Section 1\n\nLorem ipsum dolor sit amet.\n\n## Section 2\n\n- Item one\n- Item two\n- Item three\n' }
-  })
-  const [publishStatus, setPublishStatus] = useState<string | null>(null)
-
-  // Save editor to localStorage
-  useEffect(() => {
-    try { localStorage.setItem('mc-editor', editorContent) } catch {}
-  }, [editorContent])
 
   const toggleChat = useCallback(() => {
     setChatMode(prev => prev === 'closed' ? 'panel' : 'closed')
@@ -565,7 +460,7 @@ export default function MissionControlSurface() {
         }
         return [s]
       })
-      // Apply display name overrides (e.g. devstudio → Developer) without changing the ID/route.
+      // Apply display name overrides without changing the ID/route.
       const renamed = expanded.map(s => ({
         ...s,
         name: DISPLAY_NAME_MAP[s.id] || s.name,
@@ -742,51 +637,6 @@ export default function MissionControlSurface() {
     }
   }, [refresh])
 
-  // ─── Kanban callbacks ───────────────────────────────────────────
-  const handleKanbanItemClick = useCallback((item: KanbanItem, column: KanbanColumn) => {
-    // Navigate to editor with the selected item
-    setActiveTab('editor')
-  }, [])
-
-  const handleKanbanItemDelete = useCallback((itemId: string) => {
-    setKanbanColumns(prev => prev.map(col => ({
-      ...col,
-      items: col.items.filter(i => i.id !== itemId),
-    })))
-  }, [])
-
-  const handleKanbanItemMove = useCallback((item: KanbanItem, fromColId: string, toColId: string) => {
-    setKanbanColumns(prev => {
-      const next = prev.map(col => ({ ...col, items: [...col.items] }))
-      const srcCol = next.find(c => c.id === fromColId)
-      const tgtCol = next.find(c => c.id === toColId)
-      if (!srcCol || !tgtCol) return prev
-      const idx = srcCol.items.findIndex(i => i.id === item.id)
-      if (idx === -1) return prev
-      const [moved] = srcCol.items.splice(idx, 1)
-      tgtCol.items.push(moved)
-      return next
-    })
-  }, [])
-
-  const handleKanbanAddCard = useCallback((colId: string, title: string) => {
-    const newItem: KanbanItem = {
-      id: `card-${Date.now()}`,
-      title,
-      type: 'doc',
-      date: 'just now',
-    }
-    setKanbanColumns(prev => prev.map(col =>
-      col.id === colId ? { ...col, items: [...col.items, newItem] } : col
-    ))
-  }, [])
-
-  // ─── Publish callback ───────────────────────────────────────────
-  const handlePublish = useCallback((content: string) => {
-    setPublishStatus('Document published successfully!')
-    setTimeout(() => setPublishStatus(null), 3000)
-  }, [])
-
   // ─── Render ─────────────────────────────────────────────────────
   const tabs: ToolbarTab[] = MISSION_TABS.map(t => ({
     id: t.id,
@@ -841,32 +691,6 @@ export default function MissionControlSurface() {
 
           ) : activeTab === 'missions' ? (
             <MissionsPanel />
-          ) : activeTab === 'kanban' ? (
-            <KanbanBoard
-              columns={kanbanColumns}
-              onItemClick={handleKanbanItemClick}
-              onItemDelete={handleKanbanItemDelete}
-              onItemMove={handleKanbanItemMove}
-              onAddCard={handleKanbanAddCard}
-            />
-          ) : activeTab === 'list' ? (
-            <DataTable
-              columns={TABLE_COLUMNS}
-              rows={INITIAL_TABLE}
-              defaultSortField="date"
-              defaultSortDir="desc"
-            />
-          ) : activeTab === 'prose' ? (
-            <ProseView />
-          ) : activeTab === 'editor' ? (
-            <EditorView
-              content={editorContent}
-              onChange={setEditorContent}
-              onPublish={handlePublish}
-              publishStatus={publishStatus}
-            />
-          ) : activeTab === 'schedule' ? (
-            <SchedulePanel />
           ) : null}
         </main>
       </div>
