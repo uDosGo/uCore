@@ -161,6 +161,12 @@ const DEFAULT_AGENTS: AgentInfo[] = [
   { name: 'doc-syncer', status: 'idle', model: 'gpt-4', tasks: 18, uptime: '5d' },
 ]
 
+const MISSION_CONTROL_NOTES = [
+  { id: 1, title: 'Surface Consolidation', status: 'active', priority: 'high', description: 'Consolidate surfaces into canonical lineup.' },
+  { id: 2, title: 'USX Component Audit', status: 'active', priority: 'medium', description: 'Audit and standardise USX components.' },
+  { id: 3, title: 'Documentation Refresh', status: 'planned', priority: 'low', description: 'Update documentation after UI/server consolidation.' },
+]
+
 const DEFAULT_SURFACES: SurfaceInfo[] = [
   { name: 'gridui', label: 'uCode1', description: 'Grid Layer Composer', port: 5178, status: 'running', icon: 'widgets', color: '#f0883e', url: 'http://localhost:5178' },
   { name: 'chatui', label: 'Chat UI', description: 'AI Chat Interface', port: 5182, status: 'running', icon: 'chat', color: '#58a6ff', url: 'http://localhost:5182' },
@@ -693,10 +699,27 @@ function MissionTaskBinderTab() {
     <div>
       <div className="userver-toolbar">
         <div className="userver-toolbar-left">
-          <h2 className="userver-heading">Mission / Task / Binder</h2>
+          <h2 className="userver-heading">Mission Control</h2>
           <span className="userver-card-subtitle">
             AppFlowy adapter view · {missionCount} missions · {rows.length} tasks · {binderCount} binders
           </span>
+        </div>
+      </div>
+
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Mission Notes</h3>
+          <span className="userver-card-subtitle">Merged from legacy UIHub Missions view</span>
+        </div>
+        <div className="userver-card-content">
+          {MISSION_CONTROL_NOTES.map(note => (
+            <div key={note.id} className="userver-log-entry">
+              <span className="userver-log-service">{note.title}</span>
+              <span style={{ fontSize: 11, color: 'var(--pico-primary, #58a6ff)' }}>{note.priority}</span>
+              <span className="userver-log-message">{note.description}</span>
+              <span className="userver-log-time">{note.status}</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -1034,7 +1057,7 @@ export default function UServerSurface() {
   const [surfaces] = useState<SurfaceInfo[]>(DEFAULT_SURFACES)
   const [chatOpen, setChatOpen] = useState(false)
   const [sidebarMode, setSidebarMode] = useState<'server' | 'filepicker'>('server')
-  const { sidebarOpen, toggleSidebar } = useSurfaceShell()
+  const { sidebarOpen, setSidebarOpen, toggleSidebar } = useSurfaceShell()
   const runningCount = surfaces.filter(s => s.status === 'running').length
 
   useEffect(() => {
@@ -1047,6 +1070,10 @@ export default function UServerSurface() {
     setTab(tabState.selectedTab)
   }, [tabState.selectedTab])
 
+  useEffect(() => {
+    setSidebarOpen(true)
+  }, [setSidebarOpen])
+
   const setTabAndRoute = (nextTab: UServerTab) => {
     setTab(nextTab)
     navigate(`/server?tab=${nextTab}`)
@@ -1055,7 +1082,7 @@ export default function UServerSurface() {
   const serverNavItems: SidebarNavItem[] = [
     { id: 'dashboard', icon: 'home', label: 'Dashboard', active: tab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
     { id: 'ingest', icon: 'upload_file', label: 'Ingest', active: tab === 'ingest', onClick: () => setTabAndRoute('ingest') },
-    { id: 'missions', icon: 'account_tree', label: 'Missions', active: tab === 'missions', onClick: () => setTabAndRoute('missions') },
+    { id: 'missions', icon: 'account_tree', label: 'Mission Control', active: tab === 'missions', onClick: () => setTabAndRoute('missions') },
     { id: 'settings', icon: 'settings', label: 'Settings', active: tab === 'settings', onClick: () => setTabAndRoute('settings') },
     { id: 'services', icon: 'dns', label: 'Services', active: tab === 'services', onClick: () => setTabAndRoute('services') },
     { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTabAndRoute('logs') },
@@ -1087,7 +1114,6 @@ export default function UServerSurface() {
       <div className="usx-surface-body" style={{ position: 'relative' }}>
         <VaultSidebar
           open={sidebarOpen}
-          onToggle={toggleSidebar}
           showModeTabs
           sidebarMode={sidebarMode}
           onSidebarModeChange={setSidebarMode}

@@ -10,7 +10,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { GlobalToolbar } from '../../components/GlobalToolbar'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
-import VaultSidebar from '../../components/VaultSidebar'
 import AssistUISurface from '../assistui/AssistUISurface'
 import { Icon } from '../../components/Icon'
 
@@ -133,8 +132,6 @@ export default function BrowserUISurface() {
         tabs={[]}
         chatMode={shell.chatOpen ? 'panel' : 'closed'}
         onToggleChat={shell.toggleChat}
-        sidebarOpen={shell.sidebarOpen}
-        onToggleSidebar={shell.toggleSidebar}
       />
 
       <div className="usx-surface-body">
@@ -146,12 +143,6 @@ export default function BrowserUISurface() {
             </div>
           </div>
         )}
-
-        {/* ─── Vault Sidebar (filepicker) ──────────────────────── */}
-        <VaultSidebar
-          open={shell.sidebarOpen}
-          onToggle={shell.toggleSidebar}
-        />
 
         <main className="usx-surface-main">
           {/* Search Bar — Pico CSS form style */}

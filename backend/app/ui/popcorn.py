@@ -380,7 +380,11 @@ class PopcornDelegate(NSObject):
             self._connected = is_ucore_alive()
             if self._connected:
                 surfaces_data = api_get("/api/surfaces")
-                self._surfaces = surfaces_data.get("surfaces", []) if surfaces_data else []
+                raw_surfaces = surfaces_data.get("surfaces", []) if surfaces_data else []
+                self._surfaces = [
+                    s for s in raw_surfaces
+                    if str(s.get("id", "")).lower() not in {"terminal", "teletext"}
+                ]
                 self._any_running = any(s.get("state", "").lower() == "running" for s in self._surfaces)
             else:
                 self._surfaces = []

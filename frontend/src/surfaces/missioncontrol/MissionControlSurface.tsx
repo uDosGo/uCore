@@ -3,18 +3,15 @@
    ═══════════════════════════════════════════════════════════════════
   Consolidates:
   - Dashboard (surface cards, starred surfaces)
-  - Missions (missions, goals, tasks)
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Icon } from '../../components/Icon'
 import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
-import { useSurfaceShell } from '../../components/SurfaceShellContext'
-import VaultSidebar from '../../components/VaultSidebar'
 import AssistUISurface from '../assistui/AssistUISurface'
 import '../../styles/hub/index.css'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type MissionTab = 'dashboard' | 'missions'
+type MissionTab = 'dashboard'
 
 interface SurfaceDef {
   id: string
@@ -41,29 +38,6 @@ interface ActionProgress {
   timestamp: string
 }
 
-interface Mission {
-  id: number
-  title: string
-  description: string
-  status: string
-  priority: string
-  progress?: { tasks_total: number; tasks_completed: number }
-  goals?: Goal[]
-}
-
-interface Goal {
-  id: number
-  title: string
-  status: string
-  tasks?: Task[]
-}
-
-interface Task {
-  id: number
-  title: string
-  status: string
-}
-
 // ─── Constants ──────────────────────────────────────────────────────
 const SNACKBAR_API = 'http://localhost:8484'
 const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
@@ -77,7 +51,6 @@ const DEV_SURFACE_IDS: string[] = DEV_MODE_ENABLED ? [] : ['developer']
 // Legacy aliases are normalized to canonical cards.
 const API_ID_MAP: Record<string, string> = {
   userver: 'server',
-  gridui: 'terminal',
 }
 
 // Display name overrides — renames the card title without changing the surface ID/route.
@@ -98,13 +71,6 @@ const FALLBACK_REGISTRY: SurfaceDef[] = [
 
 const MISSION_TABS: { id: MissionTab; icon: string; label: string }[] = [
   { id: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
-  { id: 'missions', icon: 'star', label: 'Missions' },
-]
-
-const MOCK_MISSIONS: Mission[] = [
-  { id: 1, title: 'Surface Consolidation', description: 'Consolidate surfaces into canonical lineup', status: 'active', priority: 'high', progress: { tasks_total: 16, tasks_completed: 8 } },
-  { id: 2, title: 'USX Component Audit', description: 'Audit and standardise USX components', status: 'active', priority: 'medium', progress: { tasks_total: 12, tasks_completed: 4 } },
-  { id: 3, title: 'Documentation Refresh', description: 'Update all documentation for v3.1', status: 'planned', priority: 'low' },
 ]
 
 // ─── Helpers ────────────────────────────────────────────────────────
@@ -117,9 +83,17 @@ const sortSurfaces = (list: SurfaceDef[]): SurfaceDef[] => {
   })
 }
 
+const TEST_SURFACE_IDS = new Set(['terminal', 'teletext'])
+
 const withoutUiHub = (list: SurfaceDef[]): SurfaceDef[] =>
   list.filter(
-    s => s.id !== 'ui-hub' && s.id !== 'mission-control' && s.id !== 'proseui' && s.id !== 'system' && !DEV_SURFACE_IDS.includes(s.id),
+    s =>
+      s.id !== 'ui-hub' &&
+      s.id !== 'mission-control' &&
+      s.id !== 'proseui' &&
+      s.id !== 'system' &&
+      !DEV_SURFACE_IDS.includes(s.id) &&
+      !TEST_SURFACE_IDS.has(s.id),
   )
 
 // ─── Dashboard Panel ────────────────────────────────────────────────
@@ -334,84 +308,8 @@ function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
   )
 }
 
-// ─── Missions Panel ─────────────────────────────────────────────────
-function MissionsPanel() {
-  const [missions] = useState<Mission[]>(MOCK_MISSIONS)
-  const [selectedMission, setSelectedMission] = useState<Mission | null>(null)
-
-  const statusColor = (s: string) => {
-    switch (s) {
-      case 'active': case 'high': return '#22c55e'
-      case 'planned': case 'medium': return '#f59e0b'
-      case 'paused': return '#d29922'
-      case 'cancelled': case 'low': return '#8b949e'
-      default: return '#8b949e'
-    }
-  }
-
-  if (selectedMission) {
-    return (
-      <div className="mc-mission-detail">
-        <button className="hub-btn hub-btn--info" onClick={() => setSelectedMission(null)}>
-          <Icon name="arrow_back" size={14} /> Back
-        </button>
-        <h2>{selectedMission.title}</h2>
-        <p>{selectedMission.description}</p>
-        <div className="mc-mission-meta">
-          <span className="mc-mission-badge" style={{ background: `${statusColor(selectedMission.status)}20`, color: statusColor(selectedMission.status) }}>
-            {selectedMission.status}
-          </span>
-          <span className="mc-mission-badge" style={{ background: `${statusColor(selectedMission.priority)}20`, color: statusColor(selectedMission.priority) }}>
-            {selectedMission.priority}
-          </span>
-        </div>
-        {selectedMission.progress && (
-          <div className="mc-progress-bar">
-            <div className="mc-progress-bar-fill" style={{ width: `${(selectedMission.progress.tasks_completed / selectedMission.progress.tasks_total) * 100}%` }} />
-            <span>{selectedMission.progress.tasks_completed}/{selectedMission.progress.tasks_total} tasks</span>
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  return (
-    <div className="mc-missions">
-      <div className="mc-missions-header">
-        <h2>Missions</h2>
-        <span className="mc-missions-count">{missions.length} total</span>
-      </div>
-      <div className="mc-missions-grid">
-        {missions.map(m => (
-          <div key={m.id} className="mc-mission-card" onClick={() => setSelectedMission(m)}>
-            <div className="mc-mission-card-header">
-              <h3>{m.title}</h3>
-              <div className="mc-mission-meta">
-                <span className="mc-mission-badge" style={{ background: `${statusColor(m.status)}20`, color: statusColor(m.status) }}>
-                  {m.status}
-                </span>
-                <span className="mc-mission-badge" style={{ background: `${statusColor(m.priority)}20`, color: statusColor(m.priority) }}>
-                  {m.priority}
-                </span>
-              </div>
-            </div>
-            <p>{m.description}</p>
-            {m.progress && (
-              <div className="mc-progress-bar">
-                <div className="mc-progress-bar-fill" style={{ width: `${(m.progress.tasks_completed / m.progress.tasks_total) * 100}%` }} />
-                <span>{m.progress.tasks_completed}/{m.progress.tasks_total}</span>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 // ─── Main Component ────────────────────────────────────────────────
 export default function MissionControlSurface() {
-  const shell = useSurfaceShell()
   const [activeTab, setActiveTab] = useState<MissionTab>('dashboard')
   const [surfaces, setSurfaces] = useState<SurfaceDef[]>([])
   const [loading, setLoading] = useState(true)
@@ -449,19 +347,8 @@ export default function MissionControlSurface() {
         }),
         ...FALLBACK_REGISTRY.filter(fb => !apiIds.has(fb.id)),
       ]
-      // Expand the terminal surface into 2 derived cards (Terminal, Teletext)
-      // These all point to the same underlying uCode1/GridUI surface but with different routes.
-      const expanded = merged.flatMap(s => {
-        if (s.id === 'terminal') {
-          return [
-            { ...s, id: 'terminal', name: 'Terminal', subtitle: 'Grid Terminal', description: 'Interactive terminal with grid-based display, viewport controls, and character maps', color: '#22c55e', icon: 'terminal', route: '/gridui?panel=terminal' },
-            { ...s, id: 'teletext', name: 'Teletext', subtitle: 'Teletext Viewer', description: 'Teletext-style information pages with grid rendering and navigation', color: '#a855f7', icon: 'live_tv', route: '/gridui?panel=teletext' },
-          ]
-        }
-        return [s]
-      })
       // Apply display name overrides without changing the ID/route.
-      const renamed = expanded.map(s => ({
+      const renamed = merged.map(s => ({
         ...s,
         name: DISPLAY_NAME_MAP[s.id] || s.name,
       }))
@@ -652,8 +539,6 @@ export default function MissionControlSurface() {
         tabs={tabs}
         chatMode={chatMode}
         onToggleChat={toggleChat}
-        onToggleSidebar={shell.toggleSidebar}
-        sidebarOpen={shell.sidebarOpen}
         rightExtra={
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <span className="hub-status-badge">
@@ -668,13 +553,6 @@ export default function MissionControlSurface() {
       />
 
       <div className="usx-surface-body" style={{ display: 'flex', overflow: 'hidden', position: 'relative' }}>
-        <VaultSidebar
-          open={shell.sidebarOpen}
-          onToggle={shell.toggleSidebar}
-          onNewFile={(binderId) => console.log('New file in', binderId)}
-          onFileSelect={(file) => console.log('Selected:', file.name)}
-        />
-
         <main className="usx-surface-main" style={{ flex: 1, overflow: 'auto' }}>
           {loading ? (
             <div className="hub-loading">
@@ -688,9 +566,6 @@ export default function MissionControlSurface() {
               onNavigate={setActiveTab}
               onAction={performAction}
             />
-
-          ) : activeTab === 'missions' ? (
-            <MissionsPanel />
           ) : null}
         </main>
       </div>

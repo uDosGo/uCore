@@ -8,7 +8,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Icon } from '../../components/Icon'
 import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
-import VaultSidebar from '../../components/VaultSidebar'
 import '../../styles/assistui.css'
 
 
@@ -736,8 +735,6 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
           onOpenSettings={() => {}}
           hideChatToggle
           assistUIActive
-          onToggleSidebar={shell.toggleSidebar}
-          sidebarOpen={shell.sidebarOpen}
         />
       )}
 
@@ -787,14 +784,6 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
 
       {/* ─── Main Content ──────────────────────────────────────── */}
       <div className="assistui-main">
-        {/* VaultSidebar */}
-        <VaultSidebar
-          open={shell.sidebarOpen}
-          onToggle={shell.toggleSidebar}
-          onNewFile={(binderId) => console.log('New file in', binderId)}
-          onFileSelect={(file) => console.log('Selected:', file.name)}
-        />
-
         {/* Chat Body */}
         <div className="assistui-body">
           <div className="assistui-body-inner">

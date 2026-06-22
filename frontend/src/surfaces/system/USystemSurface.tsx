@@ -15,8 +15,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
 import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
-import { useSurfaceShell } from '../../components/SurfaceShellContext'
-import VaultSidebar from '../../components/VaultSidebar'
 import StoryView from '../../components/StoryView'
 import { FeedPanel } from '../gridui/panels/FeedPanel'
 import { SettingsPanel } from './SettingsPanel'
@@ -723,7 +721,6 @@ export default function USystemSurface() {
 
   const location = useLocation()
   const navigate = useNavigate()
-  const { sidebarOpen, toggleSidebar } = useSurfaceShell()
 
   // Derive active tab from URL query param on every location change.
   // This avoids flash: the tab is computed synchronously during render,
@@ -767,11 +764,8 @@ export default function USystemSurface() {
           active: activeTab === t.id,
           onClick: () => navigate(`/system?tab=${t.id}`),
         }))}
-        onToggleSidebar={toggleSidebar}
-        sidebarOpen={sidebarOpen}
       />
       <div className="usx-surface-body">
-        <VaultSidebar open={sidebarOpen} onToggle={toggleSidebar} />
         <main className="usx-surface-main">
           {renderContent()}
         </main>

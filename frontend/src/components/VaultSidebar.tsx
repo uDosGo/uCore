@@ -109,7 +109,6 @@ const getFileIcon = (name: string): string => {
 // ─── Props ──────────────────────────────────────────────────────────
 interface VaultSidebarProps {
   open: boolean
-  onToggle?: () => void
   /** Optional: if provided, shows a "New" button that calls this */
   onNewFile?: (binderId: string) => void
   /** Optional: called when a file is selected */
@@ -129,7 +128,6 @@ interface VaultSidebarProps {
 // ─── Component ──────────────────────────────────────────────────────
 const VaultSidebar: React.FC<VaultSidebarProps> = ({
   open,
-  onToggle,
   onNewFile,
   onFileSelect,
   compact = false,
@@ -380,12 +378,6 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
         </div>
       </div>
 
-      {/* Toggle button — always visible, sits at the edge of the sidebar */}
-      {onToggle && (
-        <button className="vault-sidebar-toggle" onClick={onToggle} title={open ? 'Close sidebar' : 'Open sidebar'}>
-          <Icon name={open ? 'chevron_left' : 'chevron_right'} size={14} />
-        </button>
-      )}
     </div>
   )
 }

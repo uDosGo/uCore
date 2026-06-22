@@ -9,8 +9,6 @@ import { useSurfaceStore } from './hooks/useSurfaceStore'
 import './styles/hub/index.css'
 import './styles/global-toolbar.css'
 import { GlobalToolbar, type ToolbarTab } from './components/GlobalToolbar'
-import { useSurfaceShell } from './components/SurfaceShellContext'
-import VaultSidebar from './components/VaultSidebar'
 
 
 // ─── Types ──────────────────────────────────────────────────────────
@@ -76,7 +74,7 @@ function sortSurfaces(list: SurfaceDef[]): SurfaceDef[] {
 
 // ─── Filter out the ui-hub (uDosConnect) from surface lists ──────
 function withoutUiHub(list: SurfaceDef[]): SurfaceDef[] {
-  return list.filter(s => s.id !== 'ui-hub')
+  return list.filter(s => s.id !== 'ui-hub' && s.id !== 'terminal' && s.id !== 'teletext')
 }
 
 const SNACKBAR_API = 'http://localhost:8484'
@@ -1421,7 +1419,6 @@ function UIHubInner() {
     if (tabParam === 'surfaces') return 'surfaces'
     return 'dashboard'
   })
-  const shell = useSurfaceShell()
   const [starred, setStarred] = useState<string[]>(loadStarred)
 
 
@@ -1770,8 +1767,6 @@ function UIHubInner() {
     <div className="hub-surface">
       <GlobalToolbar
         tabs={hubTabs}
-        onToggleSidebar={shell.toggleSidebar}
-        sidebarOpen={shell.sidebarOpen}
         rightExtra={
           <span className="hub-status-badge">
             <span className={`hub-status-dot ${runningCount > 0 ? 'hub-status-dot--online' : ''}`} />
@@ -1782,15 +1777,6 @@ function UIHubInner() {
 
 
       <div className="usx-surface-body" style={{ display: 'flex', overflow: 'hidden', position: 'relative' }}>
-        {/* ─── VaultSidebar (full-height slide-out panel) ──────── */}
-        <VaultSidebar
-          open={shell.sidebarOpen}
-          onToggle={shell.toggleSidebar}
-          onNewFile={(binderId) => console.log('New file in', binderId)}
-          onFileSelect={(file) => console.log('Selected:', file.name)}
-        />
-
-
         <main className="usx-surface-main" style={{ flex: 1, overflow: 'auto' }}>
           {loading ? (
             <LoadingOverlay message={loadingMessage} progress={loadingProgress} />

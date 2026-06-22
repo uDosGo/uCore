@@ -18,15 +18,11 @@ import { GridUIContext, useGridUIStore, PANELS } from './GridUIStore'
 import type { GridPanelId } from './GridUIStore'
 import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
-import VaultSidebar from '../../components/VaultSidebar'
 import AssistUISurface from '../assistui/AssistUISurface'
 
 import { TerminalPanel } from './panels/TerminalPanel'
 import { TeletextGrid } from './panels/TeletextGrid'
 import { ViewportSettingsPopup } from './panels/ViewportSettingsPopup'
-
-// ─── Panels that use overlay sidebar (terminal/teletext — viewport-sensitive) ──
-const OVERLAY_SIDEBAR_PANELS = new Set(['terminal', 'teletext'])
 
 // ─── Snackbar ───────────────────────────────────────────────────────
 function Snackbar() {
@@ -82,8 +78,6 @@ export default function GridUISurface() {
     }
   }, [location.search, store])
 
-  const isOverlayPanel = OVERLAY_SIDEBAR_PANELS.has(store.activePanel)
-
   // ─── Render content based on active panel ──────────────────────────
   const renderContent = () => {
     if (store.activePanel === 'terminal') return <TerminalPanel />
@@ -108,8 +102,6 @@ export default function GridUISurface() {
           tabs={navTabs}
           chatMode={shell.chatOpen ? 'panel' : 'closed'}
           onToggleChat={shell.toggleChat}
-          onToggleSidebar={shell.toggleSidebar}
-          sidebarOpen={shell.sidebarOpen}
           rightExtra={<DisplaySettingsBtn />}
           hideGlobe
           hideAssistUI
@@ -118,25 +110,6 @@ export default function GridUISurface() {
 
         {/* USX v3.1 Surface Body */}
         <div className="usx-surface-body" style={{ display: 'flex', overflow: 'hidden', position: 'relative' }}>
-          {/* Vault Sidebar — overlays for terminal/teletext */}
-          {isOverlayPanel ? (
-            <div className={`gridui-overlay gridui-overlay--left ${shell.sidebarOpen ? 'gridui-overlay--open' : ''}`}>
-              <VaultSidebar
-                open={shell.sidebarOpen}
-                onToggle={shell.toggleSidebar}
-                onNewFile={(binderId) => console.log('New file in', binderId)}
-                onFileSelect={(file) => console.log('Selected:', file.name)}
-              />
-            </div>
-          ) : (
-            <VaultSidebar
-              open={shell.sidebarOpen}
-              onToggle={shell.toggleSidebar}
-              onNewFile={(binderId) => console.log('New file in', binderId)}
-              onFileSelect={(file) => console.log('Selected:', file.name)}
-            />
-          )}
-
           <main className="usx-surface-main" style={{ minHeight: 0 }}>
             {renderContent()}
           </main>
