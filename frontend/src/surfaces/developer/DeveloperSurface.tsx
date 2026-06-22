@@ -7,12 +7,16 @@
    Binder: ⚙️ Technical/Developer | Tags: #developer #development #ide
    Wiki: [[Developer Hub]] | Backlinks: [[Skill Runner]], [[Repo Browser]]
    ═══════════════════════════════════════════════════════════════════ */
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { GlobalToolbar } from '../../components/GlobalToolbar'
 import { Icon } from '../../components/Icon'
+import TaskDetailDrawer, { TaskDetailData } from '../../components/TaskDetailDrawer'
+import VaultSidebar, { Binder, SidebarNavItem, VaultFile } from '../../components/VaultSidebar'
+import { useSurfaceShell } from '../../components/SurfaceShellContext'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type DeveloperTab = 'chat' | 'repos' | 'skills' | 'review' | 'workflows' | 'benchbench' | 'creative' | 'agents' | 'settings'
+type DeveloperTab = 'repos' | 'skills' | 'review' | 'workflows' | 'benchbench' | 'creative' | 'agents' | 'settings'
 
 // ─── Agent Router Types ─────────────────────────────────────────────
 interface RouterAgent {
@@ -41,6 +45,7 @@ interface RepoInfo {
   status: string
   changes: number
   remote: string
+  fileCount?: number
 }
 
 interface SkillInfo {
@@ -56,6 +61,26 @@ interface ReviewEntry {
   lines: number
   summary: string
 }
+
+interface FilePreview {
+  repo: string
+  path: string
+  content: string
+  type: string
+  size: number
+  truncated: boolean
+  updatedAt: string
+}
+
+interface FileDiff {
+  repo: string
+  path: string
+  status: 'modified' | 'added' | 'deleted'
+  diff: string
+  hasDiff: boolean
+}
+
+type PreviewMode = 'file' | 'diff' | 'edit'
 
 // ─── Developer Chat Prompts ─────────────────────────────────────────
 const DEV_PROMPTS = [
@@ -80,6 +105,9 @@ const SAMPLE_REPOS: RepoInfo[] = [
 
 ]
 
+const SNACKBAR_API = 'http://localhost:8484'
+const DEVELOPER_TABS: DeveloperTab[] = ['repos', 'skills', 'review', 'workflows', 'benchbench', 'creative', 'agents', 'settings']
+
 // ─── Sample Skills ──────────────────────────────────────────────────
 const SAMPLE_SKILLS: SkillInfo[] = [
   { id: 'surface-repair', name: 'Surface Repair', description: 'Diagnose and repair surface configuration issues', path: 'skills/surface-repair' },
@@ -100,6 +128,23 @@ const SAMPLE_REVIEWS: ReviewEntry[] = [
   { file: 'snackbar/server.py', status: 'modified', lines: 45, summary: 'Added /api/chat/prompts endpoint for dynamic prompt cards' },
   { file: 'CHANGELOG.md', status: 'modified', lines: 12, summary: 'Updated with latest changes' },
 ]
+
+// ─── Syntax Highlighter ────────────────────────────────────────────
+function highlightSyntax(code: string, language: string): React.ReactNode {
+  // Simple syntax highlighting for common languages
+  if (language === 'diff') {
+    return code.split('\n').map((line, i) => {
+      const color = line.startsWith('+') ? '#3fb950' : line.startsWith('-') ? '#f85149' : line.startsWith('@@') ? '#79c0ff' : 'inherit'
+      return (
+        <div key={i} style={{ color, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+          {line}
+        </div>
+      )
+    })
+  }
+  // Default: no highlighting
+  return code
+}
 
 // ─── Prose Markdown Renderer ────────────────────────────────────────
 function renderProseMarkdown(text: string): string {
@@ -185,8 +230,10 @@ function ChatPanel() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    if (messages.length > 1 || loading) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, loading])
 
   const handlePrompt = (prompt: string) => {
     setInput(prompt)
@@ -221,22 +268,7 @@ function ChatPanel() {
 
   return (
     <div className="developer-chat-panel">
-      {/* Prompt Cards */}
-      <div className="developer-chat-prompt-row">
-        {DEV_PROMPTS.map(p => (
-          <button
-            key={p.id}
-            className="developer-chat-prompt-card"
-            onClick={() => handlePrompt(p.label)}
-          >
-            <Icon name={p.icon} className="developer-chat-prompt-icon" />
-            <span className="developer-chat-prompt-label">{p.label}</span>
-            <span className="developer-chat-prompt-ctx">{p.context}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Messages */}
+      {/* Messages + Prompt Cards together in one scrollable area */}
       <div className="developer-chat-messages">
         {messages.map((m, i) => (
           <div key={i} className={`developer-chat-msg developer-chat-msg--${m.role}`}>
@@ -268,6 +300,24 @@ function ChatPanel() {
             </div>
           </div>
         )}
+
+        {/* Prompt Cards — only show with intro, wrapping layout */}
+        {messages.length <= 1 && (
+          <div className="developer-chat-prompt-row">
+            {DEV_PROMPTS.map(p => (
+              <button
+                key={p.id}
+                className="developer-chat-prompt-card"
+                onClick={() => handlePrompt(p.label)}
+              >
+                <Icon name={p.icon} className="developer-chat-prompt-icon" />
+                <span className="developer-chat-prompt-label">{p.label}</span>
+                <span className="developer-chat-prompt-ctx">{p.context}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -294,8 +344,7 @@ function ChatPanel() {
 }
 
 // ─── Repos Panel ────────────────────────────────────────────────────
-function ReposPanel() {
-  const [repos] = useState<RepoInfo[]>(SAMPLE_REPOS)
+function ReposPanel({ repos, loading, onBrowseRepo }: { repos: RepoInfo[]; loading: boolean; onBrowseRepo: (repoName: string) => void }) {
   const [filter, setFilter] = useState('')
 
   const filtered = filter
@@ -320,6 +369,7 @@ function ReposPanel() {
       </div>
 
       <div className="developer-repo-list">
+        {loading && <div className="developer-panel-count">Loading repositories...</div>}
         {filtered.map(repo => (
           <div key={repo.name} className="developer-repo-card">
             <div className="developer-repo-card-header">
@@ -334,7 +384,7 @@ function ReposPanel() {
             </div>
             <div className="developer-repo-remote">{repo.remote}</div>
             <div className="developer-repo-actions">
-              <button className="developer-repo-btn" title="Open in VS Code">Open</button>
+              <button className="developer-repo-btn" title="Browse workspace files" onClick={() => onBrowseRepo(repo.name)}>Browse</button>
               <button className="developer-repo-btn" title="Pull latest">Pull</button>
               <button className="developer-repo-btn" title="View status">Status</button>
             </div>
@@ -413,8 +463,25 @@ function SkillsPanel() {
 }
 
 // ─── Review Panel ───────────────────────────────────────────────────
-function ReviewPanel() {
-  const [reviews] = useState<ReviewEntry[]>(SAMPLE_REVIEWS)
+function ReviewPanel({
+  reviews,
+  loading,
+  repoName,
+  onPreviewFile,
+  onReviewFile,
+  onStageFile,
+  onUnstageFile,
+  stagedFiles,
+}: {
+  reviews: ReviewEntry[]
+  loading: boolean
+  repoName: string
+  onPreviewFile: (path: string) => void
+  onReviewFile: (path: string) => void
+  onStageFile?: (path: string) => void
+  onUnstageFile?: (path: string) => void
+  stagedFiles?: Set<string>
+}) {
 
   const statusIcon: Record<string, string> = {
     modified: 'edit_note',
@@ -429,7 +496,17 @@ function ReviewPanel() {
         <span className="developer-panel-count">{reviews.length} files</span>
       </div>
 
+      {repoName && (
+        <div className="developer-panel-count" style={{ width: 'fit-content' }}>
+          Active repo: {repoName}
+        </div>
+      )}
+
       <div className="developer-review-list">
+        {loading && <div className="developer-panel-count">Loading review status...</div>}
+        {!loading && reviews.length === 0 && (
+          <div className="developer-panel-count">No local git changes in this repository.</div>
+        )}
         {reviews.map((entry, i) => (
           <div key={i} className="developer-review-card">
             <div className="developer-review-card-header">
@@ -442,9 +519,14 @@ function ReviewPanel() {
             <div className="developer-review-file">{entry.file}</div>
             <p className="developer-review-summary">{entry.summary}</p>
             <div className="developer-review-actions">
-              <button className="developer-repo-btn">View Diff</button>
-              <button className="developer-repo-btn">Review</button>
-              <button className="developer-repo-btn">Approve</button>
+              <button className="developer-repo-btn" onClick={() => onPreviewFile(entry.file)}>Preview</button>
+              <button className="developer-repo-btn" onClick={() => onReviewFile(entry.file)}>Review</button>
+              {onStageFile && !stagedFiles?.has(entry.file) && (
+                <button className="developer-repo-btn" onClick={() => onStageFile(entry.file)}>Stage</button>
+              )}
+              {onUnstageFile && stagedFiles?.has(entry.file) && (
+                <button className="developer-repo-btn" onClick={() => onUnstageFile(entry.file)}>Unstage</button>
+              )}
             </div>
           </div>
         ))}
@@ -453,7 +535,103 @@ function ReviewPanel() {
   )
 }
 
+function FilePreviewPanel({
+  preview,
+  diff,
+  loading,
+  diffLoading,
+  repoName,
+  mode,
+  onModeChange,
+  draftContent,
+  onDraftChange,
+  onSave,
+  saveLoading,
+  saveNotice,
+  onClose,
+  offsetRight,
+}: {
+  preview: FilePreview | null
+  diff: FileDiff | null
+  loading: boolean
+  diffLoading: boolean
+  repoName: string
+  mode: PreviewMode
+  onModeChange: (mode: PreviewMode) => void
+  draftContent: string
+  onDraftChange: (content: string) => void
+  onSave: () => void
+  saveLoading: boolean
+  saveNotice: string | null
+  onClose: () => void
+  offsetRight: number
+}) {
+  const editDisabled = !preview || preview.truncated
+
+  return (
+    <div className="developer-preview-panel" style={{ right: offsetRight }}>
+      <div className="developer-preview-header">
+        <div className="developer-preview-title-wrap">
+          <span className="developer-preview-title">File Preview</span>
+          <span className="developer-preview-subtitle">{repoName || 'No repo selected'}</span>
+        </div>
+        <div className="developer-preview-actions">
+          <button className={`developer-preview-toggle ${mode === 'file' ? 'active' : ''}`} onClick={() => onModeChange('file')} disabled={!preview}>File</button>
+          <button className={`developer-preview-toggle ${mode === 'diff' ? 'active' : ''}`} onClick={() => onModeChange('diff')} disabled={!preview}>Diff</button>
+          <button className={`developer-preview-toggle ${mode === 'edit' ? 'active' : ''}`} onClick={() => onModeChange('edit')} disabled={editDisabled}>Edit</button>
+          {mode === 'edit' && (
+            <button className="developer-preview-save" onClick={onSave} disabled={saveLoading || editDisabled}>
+              {saveLoading ? 'Saving...' : 'Save'}
+            </button>
+          )}
+        </div>
+        <button className="usx-header-btn" onClick={onClose} title="Close preview">
+          <Icon name="close" size={16} />
+        </button>
+      </div>
+      <div className="developer-preview-meta">
+        <span>{preview?.path || 'Select a file from the sidebar or review list'}</span>
+        {preview && <span>{preview.type} · {preview.size} bytes</span>}
+      </div>
+      <div className="developer-preview-body">
+        {loading || (mode === 'diff' && diffLoading) ? (
+          <div className="developer-preview-empty">Loading preview...</div>
+        ) : !preview ? (
+          <div className="developer-preview-empty">No file selected.</div>
+        ) : mode === 'edit' ? (
+          <div className="developer-preview-editor-wrap">
+            {preview.truncated && <div className="developer-preview-truncated">Large file previews cannot be edited safely while truncated.</div>}
+            {saveNotice && <div className="developer-preview-save-notice">{saveNotice}</div>}
+            <textarea
+              className="developer-preview-editor"
+              value={draftContent}
+              onChange={e => onDraftChange(e.target.value)}
+              spellCheck={false}
+              disabled={preview.truncated || saveLoading}
+            />
+          </div>
+        ) : mode === 'diff' ? (
+          diff?.hasDiff ? (
+            <pre className="developer-preview-code developer-preview-code--diff"><code>{diff.diff}</code></pre>
+          ) : (
+            <div className="developer-preview-empty">No diff available for this file.</div>
+          )
+        ) : (
+          <>
+            <pre className="developer-preview-code"><code>{preview.content}</code></pre>
+            {saveNotice && <div className="developer-preview-save-notice">{saveNotice}</div>}
+            {preview.truncated && (
+              <div className="developer-preview-truncated">Preview truncated for large file.</div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Workflows Panel ────────────────────────────────────────────────
+
 function WorkflowsPanel() {
   const [workflows] = useState([
     { id: 'build-deploy', name: 'Build & Deploy', status: 'idle', lastRun: '2h ago', steps: 4 },
@@ -462,6 +640,7 @@ function WorkflowsPanel() {
     { id: 'archive-cleanup', name: 'Archive Cleanup', status: 'failed', lastRun: '1h ago', steps: 2 },
     { id: 'skill-audit', name: 'Skill Audit', status: 'idle', lastRun: '1d ago', steps: 6 },
   ])
+  const [selectedTask, setSelectedTask] = useState<TaskDetailData | null>(null)
 
   const statusColor: Record<string, string> = {
     idle: 'var(--pico-muted-color, #8b949e)',
@@ -470,8 +649,35 @@ function WorkflowsPanel() {
     failed: 'var(--pico-del-color, #f85149)',
   }
 
+  const handleTaskUpdate = async (task: TaskDetailData) => {
+    const res = await fetch(`http://localhost:8484/api/workflows/task/${task.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(task),
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    setSelectedTask(task)
+  }
+
+  const loadTaskDetails = async (taskId: string) => {
+    try {
+      const res = await fetch(`http://localhost:8484/api/workflows/task/${taskId}`, {
+        signal: AbortSignal.timeout(5000),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setSelectedTask(data)
+      } else {
+        alert(`Task not found: ${taskId}`)
+      }
+    } catch (e) {
+      alert(`Error fetching task: ${e}`)
+    }
+  }
+
   return (
-    <div className="developer-panel">
+    <div className="developer-panel" style={{ position: 'relative' }}>
       <div className="developer-panel-header">
         <h3 className="developer-panel-title">Workflow Pipelines</h3>
         <span className="developer-panel-count">{workflows.length} pipelines</span>
@@ -481,7 +687,12 @@ function WorkflowsPanel() {
         {workflows.map(wf => (
           <div key={wf.id} className="developer-workflow-card">
             <div className="developer-workflow-header">
-              <span className="developer-workflow-name">{wf.name}</span>
+              <div
+                style={{ cursor: 'pointer', flex: 1 }}
+                onClick={() => loadTaskDetails(wf.id)}
+              >
+                <span className="developer-workflow-name">{wf.name}</span>
+              </div>
               <span className="developer-workflow-status" style={{ color: statusColor[wf.status] }}>
                 ● {wf.status}
               </span>
@@ -505,12 +716,22 @@ function WorkflowsPanel() {
               <button className="developer-repo-btn" disabled={wf.status === 'running'}>
                 {wf.status === 'running' ? 'Running...' : '▶ Run'}
               </button>
-              <button className="developer-repo-btn">View Logs</button>
+              <button className="developer-repo-btn" onClick={() => loadTaskDetails(wf.id)}>
+                Details
+              </button>
               <button className="developer-repo-btn">Configure</button>
             </div>
           </div>
         ))}
       </div>
+
+      {selectedTask && (
+        <TaskDetailDrawer
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onUpdate={handleTaskUpdate}
+        />
+      )}
     </div>
   )
 }
@@ -882,41 +1103,442 @@ function SettingsPanel() {
 
 // ─── Main Surface ───────────────────────────────────────────────────
 export default function DeveloperSurface() {
-  const [activeTab, setActiveTab] = useState<DeveloperTab>('chat')
+  const location = useLocation()
+  const navigate = useNavigate()
+  const tabState = useMemo(() => {
+    const params = new URLSearchParams(location.search)
+    const raw = (params.get('tab') || 'repos').toLowerCase()
+    const candidate = raw as DeveloperTab
+    return {
+      raw,
+      selectedTab: DEVELOPER_TABS.includes(candidate) ? candidate : 'repos',
+    }
+  }, [location.search])
+  const [activeTab, setActiveTab] = useState<DeveloperTab>(tabState.selectedTab)
+  const [chatOpen, setChatOpen] = useState(false)
+  const [sidebarMode, setSidebarMode] = useState<'server' | 'filepicker'>('server')
+  const [repos, setRepos] = useState<RepoInfo[]>([])
+  const [reposLoading, setReposLoading] = useState(true)
+  const [selectedRepoId, setSelectedRepoId] = useState<string>('')
+  const [repoFiles, setRepoFiles] = useState<VaultFile[]>([])
+  const [repoFilesLoading, setRepoFilesLoading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<VaultFile | null>(null)
+  const [filePreview, setFilePreview] = useState<FilePreview | null>(null)
+  const [filePreviewLoading, setFilePreviewLoading] = useState(false)
+  const [fileDiff, setFileDiff] = useState<FileDiff | null>(null)
+  const [fileDiffLoading, setFileDiffLoading] = useState(false)
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('file')
+  const [draftContent, setDraftContent] = useState('')
+  const [saveLoading, setSaveLoading] = useState(false)
+  const [saveNotice, setSaveNotice] = useState<string | null>(null)
+  const [commitMessage, setCommitMessage] = useState('')
+  const [isCommitting, setIsCommitting] = useState(false)
+  const [showCommitDialog, setShowCommitDialog] = useState(false)
+  const [stagedFiles, setStagedFiles] = useState<Set<string>>(new Set())
 
-  const tabs = [
-    { id: 'chat', icon: 'chat', label: 'Chat' },
-    { id: 'repos', icon: 'folder_open', label: 'Repos' },
-    { id: 'skills', icon: 'build', label: 'Skills' },
-    { id: 'review', icon: 'visibility', label: 'Review' },
-    { id: 'workflows', icon: 'play_circle', label: 'Workflows' },
-    { id: 'benchbench', icon: 'bar_chart', label: 'Bench' },
-    { id: 'creative', icon: 'palette', label: 'Creative' },
-    { id: 'agents', icon: 'smart_toy', label: 'Agents' },
-    { id: 'settings', icon: 'settings', label: 'Settings' },
+  useEffect(() => {
+    setSidebarOpen(true)
+  }, [setSidebarOpen])
+
+  useEffect(() => {
+    if (tabState.raw !== tabState.selectedTab) {
+      navigate(`/developer?tab=${tabState.selectedTab}`, { replace: true })
+    }
+  }, [navigate, tabState.raw, tabState.selectedTab])
+
+  useEffect(() => {
+    setActiveTab(tabState.selectedTab)
+  }, [tabState.selectedTab])
+
+  const fetchRepos = useCallback(async () => {
+    setReposLoading(true)
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/developer/repos`, { signal: AbortSignal.timeout(4000) })
+      if (!res.ok) throw new Error('Developer repos unavailable')
+      const data = await res.json()
+      const nextRepos = (data.repos || []) as RepoInfo[]
+      setRepos(nextRepos)
+      setSelectedRepoId(prev => prev || nextRepos[0]?.name || '')
+    } catch {
+      setRepos(SAMPLE_REPOS)
+      setSelectedRepoId(prev => prev || SAMPLE_REPOS[0]?.name || '')
+    } finally {
+      setReposLoading(false)
+    }
+  }, [])
+
+  const fetchRepoFiles = useCallback(async (repoName: string) => {
+    if (!repoName) {
+      setRepoFiles([])
+      return
+    }
+    setRepoFilesLoading(true)
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/developer/repos/${encodeURIComponent(repoName)}/files`, {
+        signal: AbortSignal.timeout(4000),
+      })
+      if (!res.ok) throw new Error('Developer files unavailable')
+      const data = await res.json()
+      setRepoFiles(data.files || [])
+    } catch {
+      setRepoFiles([])
+    } finally {
+      setRepoFilesLoading(false)
+    }
+  }, [])
+
+  const fetchRepoReview = useCallback(async (repoName: string) => {
+    if (!repoName) {
+      setReviewEntries([])
+      return
+    }
+    setReviewLoading(true)
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/developer/repos/${encodeURIComponent(repoName)}/review`, {
+        signal: AbortSignal.timeout(4000),
+      })
+      if (!res.ok) throw new Error('Developer review unavailable')
+      const data = await res.json()
+      setReviewEntries(data.review || [])
+    } catch {
+      setReviewEntries(SAMPLE_REVIEWS)
+    } finally {
+      setReviewLoading(false)
+    }
+  }, [])
+
+  const fetchFilePreview = useCallback(async (repoName: string, filePath: string) => {
+    if (!repoName || !filePath) {
+      setFilePreview(null)
+      return
+    }
+    setFilePreviewLoading(true)
+    try {
+      const url = `${SNACKBAR_API}/api/developer/repos/${encodeURIComponent(repoName)}/file-preview?path=${encodeURIComponent(filePath)}`
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000) })
+      if (!res.ok) throw new Error('Preview unavailable')
+      const data = await res.json()
+      setFilePreview(data)
+    } catch {
+      setFilePreview({
+        repo: repoName,
+        path: filePath,
+        content: 'Preview unavailable from backend.',
+        type: selectedFile?.type || 'file',
+        size: selectedFile?.size || 0,
+        truncated: false,
+        updatedAt: selectedFile?.updatedAt || new Date().toISOString(),
+      })
+    } finally {
+      setFilePreviewLoading(false)
+    }
+  }, [selectedFile?.size, selectedFile?.type, selectedFile?.updatedAt])
+
+  const fetchFileDiff = useCallback(async (repoName: string, filePath: string) => {
+    if (!repoName || !filePath) {
+      setFileDiff(null)
+      return
+    }
+    setFileDiffLoading(true)
+    try {
+      const url = `${SNACKBAR_API}/api/developer/repos/${encodeURIComponent(repoName)}/diff?path=${encodeURIComponent(filePath)}`
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000) })
+      if (!res.ok) throw new Error('Diff unavailable')
+      const data = await res.json()
+      setFileDiff(data)
+    } catch {
+      setFileDiff({
+        repo: repoName,
+        path: filePath,
+        status: 'modified',
+        diff: '',
+        hasDiff: false,
+      })
+    } finally {
+      setFileDiffLoading(false)
+    }
+  }, [])
+
+  const handleStageFile = useCallback(async (filePath: string) => {
+    if (!selectedRepoId) return
+    try {
+      const url = `${SNACKBAR_API}/api/developer/repos/${encodeURIComponent(selectedRepoId)}/stage?path=${encodeURIComponent(filePath)}`
+      const res = await fetch(url, { method: 'POST', signal: AbortSignal.timeout(3000) })
+      if (!res.ok) throw new Error('Stage failed')
+      setStagedFiles(prev => new Set(prev).add(filePath))
+      await fetchRepoReview(selectedRepoId)
+    } catch (error) {
+      console.error('Stage error:', error)
+    }
+  }, [selectedRepoId, fetchRepoReview])
+
+  const handleUnstageFile = useCallback(async (filePath: string) => {
+    if (!selectedRepoId) return
+    try {
+      const url = `${SNACKBAR_API}/api/developer/repos/${encodeURIComponent(selectedRepoId)}/unstage?path=${encodeURIComponent(filePath)}`
+      const res = await fetch(url, { method: 'POST', signal: AbortSignal.timeout(3000) })
+      if (!res.ok) throw new Error('Unstage failed')
+      setStagedFiles(prev => {
+        const next = new Set(prev)
+        next.delete(filePath)
+        return next
+      })
+      await fetchRepoReview(selectedRepoId)
+    } catch (error) {
+      console.error('Unstage error:', error)
+    }
+  }, [selectedRepoId, fetchRepoReview])
+
+  const handleCommit = useCallback(async () => {
+    if (!selectedRepoId || !commitMessage.trim()) return
+    setIsCommitting(true)
+    try {
+      const url = `${SNACKBAR_API}/api/developer/repos/${encodeURIComponent(selectedRepoId)}/commit`
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: commitMessage }),
+        signal: AbortSignal.timeout(5000),
+      })
+      if (!res.ok) throw new Error('Commit failed')
+      setCommitMessage('')
+      setStagedFiles(new Set())
+      setShowCommitDialog(false)
+      await fetchRepoReview(selectedRepoId)
+    } catch (error) {
+      console.error('Commit error:', error)
+    } finally {
+      setIsCommitting(false)
+    }
+  }, [selectedRepoId, commitMessage, fetchRepoReview])
+
+  const handleSaveFile = useCallback(async () => {
+    if (!selectedRepoId || !selectedFile || !filePreview) return
+    setSaveLoading(true)
+    setSaveNotice(null)
+    try {
+      const url = `${SNACKBAR_API}/api/developer/repos/${encodeURIComponent(selectedRepoId)}/file-preview?path=${encodeURIComponent(selectedFile.name)}`
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: draftContent }),
+        signal: AbortSignal.timeout(5000),
+      })
+      if (!res.ok) throw new Error(`Save failed (${res.status})`)
+      const data = await res.json()
+      setFilePreview(data)
+      setDraftContent(data.content || '')
+      setPreviewMode('file')
+      setSaveNotice('Saved to workspace file.')
+      setSelectedFile(prev => prev ? { ...prev, size: data.size, updatedAt: data.updatedAt, type: data.type } : prev)
+      await Promise.all([
+        fetchRepoFiles(selectedRepoId),
+        fetchRepoReview(selectedRepoId),
+        fetchFileDiff(selectedRepoId, selectedFile.name),
+      ])
+    } catch (error: any) {
+      setSaveNotice(error?.message || 'Save failed')
+    } finally {
+      setSaveLoading(false)
+    }
+  }, [draftContent, fetchFileDiff, fetchRepoFiles, fetchRepoReview, filePreview, selectedFile, selectedRepoId])
+
+  useEffect(() => {
+    fetchRepos()
+  }, [fetchRepos])
+
+  useEffect(() => {
+    fetchRepoFiles(selectedRepoId)
+  }, [fetchRepoFiles, selectedRepoId])
+
+  useEffect(() => {
+    fetchRepoReview(selectedRepoId)
+  }, [fetchRepoReview, selectedRepoId])
+
+  useEffect(() => {
+    if (!selectedFile || !selectedRepoId) {
+      setFilePreview(null)
+      setFileDiff(null)
+      return
+    }
+    fetchFilePreview(selectedRepoId, selectedFile.name)
+    fetchFileDiff(selectedRepoId, selectedFile.name)
+  }, [fetchFileDiff, fetchFilePreview, selectedFile, selectedRepoId])
+
+  useEffect(() => {
+    setDraftContent(filePreview?.content || '')
+  }, [filePreview?.content])
+
+  const setTabAndRoute = (nextTab: DeveloperTab) => {
+    setActiveTab(nextTab)
+    navigate(`/developer?tab=${nextTab}`)
+  }
+
+  const repoBinders: Binder[] = repos.map(repo => ({
+    id: repo.name,
+    name: repo.name,
+    path: repo.path,
+    icon: 'folder',
+    description: `${repo.branch} · ${repo.status}`,
+    fileCount: repo.fileCount,
+  }))
+
+  const developerNavItems: SidebarNavItem[] = [
+    { id: 'repos', icon: 'folder_open', label: 'Repos', active: activeTab === 'repos', onClick: () => setTabAndRoute('repos') },
+    { id: 'skills', icon: 'build', label: 'Skills', active: activeTab === 'skills', onClick: () => setTabAndRoute('skills') },
+    { id: 'review', icon: 'visibility', label: 'Review', active: activeTab === 'review', onClick: () => setTabAndRoute('review') },
+    { id: 'workflows', icon: 'play_circle', label: 'Workflows', active: activeTab === 'workflows', onClick: () => setTabAndRoute('workflows') },
+    { id: 'benchbench', icon: 'bar_chart', label: 'Bench', active: activeTab === 'benchbench', onClick: () => setTabAndRoute('benchbench') },
+    { id: 'creative', icon: 'palette', label: 'Creative', active: activeTab === 'creative', onClick: () => setTabAndRoute('creative') },
+    { id: 'agents', icon: 'smart_toy', label: 'Agents', active: activeTab === 'agents', onClick: () => setTabAndRoute('agents') },
+    { id: 'settings', icon: 'settings', label: 'Settings', active: activeTab === 'settings', onClick: () => setTabAndRoute('settings') },
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--pico-background-color, #010409)' }}>
+    <div className="developer-surface">
       <GlobalToolbar
-        tabs={tabs.map((tab) => ({
-          ...tab,
-          active: activeTab === (tab.id as DeveloperTab),
-          onClick: () => setActiveTab(tab.id as DeveloperTab),
-        }))}
-        rightExtra={<span style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)' }}>Developer Studio · L4 Delegator</span>}
+        onToggleSidebar={toggleSidebar}
+        sidebarOpen={sidebarOpen}
+        sidebarToggleLabel="Developer sidebar"
+        rightExtra={
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {selectedRepoId && <span className="hub-status-badge">Repo: {selectedRepoId}</span>}
+            {selectedFile && <span className="hub-status-badge">File: {selectedFile.name}</span>}
+            <span style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)' }}>Developer Studio · L4 Delegator</span>
+          </div>
+        }
       />
 
-      <div style={{ flex: 1, overflow: 'auto', background: 'var(--pico-background-color, #010409)' }}>
-        {activeTab === 'chat' && <ChatPanel />}
-        {activeTab === 'repos' && <ReposPanel />}
+      <div className="usx-surface-body" style={{ position: 'relative' }}>
+        <VaultSidebar
+          open={sidebarOpen}
+          showModeTabs
+          sidebarMode={sidebarMode}
+          onSidebarModeChange={setSidebarMode}
+          serverNavItems={developerNavItems}
+          binders={repoBinders}
+          activeBinderId={selectedRepoId}
+          onBinderChange={(binderId) => {
+            setSelectedRepoId(binderId)
+            setSelectedFile(null)
+            setFilePreview(null)
+            setFileDiff(null)
+            setPreviewMode('file')
+            setSaveNotice(null)
+          }}
+          files={repoFiles}
+          loadingFiles={repoFilesLoading}
+          searchPlaceholder="Filter workspace files"
+          emptyHint={selectedRepoId ? 'No matching workspace files found' : 'Select a repository to browse files'}
+          onFileSelect={setSelectedFile}
+        />
+
+        {(selectedFile || filePreviewLoading || fileDiffLoading) && (
+          <FilePreviewPanel
+            preview={filePreview}
+            diff={fileDiff}
+            loading={filePreviewLoading}
+            diffLoading={fileDiffLoading}
+            repoName={selectedRepoId}
+            mode={previewMode}
+            onModeChange={(mode) => {
+              setPreviewMode(mode)
+              setSaveNotice(null)
+            }}
+            draftContent={draftContent}
+            onDraftChange={setDraftContent}
+            onSave={handleSaveFile}
+            saveLoading={saveLoading}
+            saveNotice={saveNotice}
+            onClose={() => {
+              setSelectedFile(null)
+              setFilePreview(null)
+              setFileDiff(null)
+              setSaveNotice(null)
+              setPreviewMode('file')
+            }}
+            offsetRight={chatOpen ? 452 : 16}
+          />
+        )}
+
+        {chatOpen && (
+          <div className="developer-chat-float-panel">
+            <div className="developer-chat-float-header">
+              <span className="developer-chat-float-title">
+                <Icon name="code" size={15} />
+                Dev Chat
+              </span>
+              <button className="usx-header-btn" onClick={() => setChatOpen(false)} title="Close dev chat">
+                <Icon name="close" size={16} />
+              </button>
+            </div>
+            <div className="developer-chat-float-body">
+              <ChatPanel />
+            </div>
+          </div>
+        )}
+
+        <main className="usx-surface-main developer-surface-main">
+        {activeTab === 'repos' && <ReposPanel repos={repos} loading={reposLoading} onBrowseRepo={(repoName) => {
+          setSelectedRepoId(repoName)
+          setSidebarMode('filepicker')
+          setSelectedFile(null)
+          setFilePreview(null)
+          setFileDiff(null)
+          setSaveNotice(null)
+        }} />}
         {activeTab === 'skills' && <SkillsPanel />}
-        {activeTab === 'review' && <ReviewPanel />}
+        {activeTab === 'review' && <ReviewPanel reviews={reviewEntries} loading={reviewLoading} repoName={selectedRepoId} onPreviewFile={(filePath) => {
+          setSidebarMode('filepicker')
+          setPreviewMode('file')
+          setSaveNotice(null)
+          const existing = repoFiles.find(file => file.name === filePath)
+          if (existing) {
+            setSelectedFile(existing)
+          } else {
+            setSelectedFile({
+              id: Date.now(),
+              name: filePath,
+              type: filePath.split('.').pop() || 'file',
+              size: 0,
+              updatedAt: new Date().toISOString(),
+              binder: selectedRepoId,
+            })
+          }
+        }} onReviewFile={(filePath) => {
+          setSidebarMode('filepicker')
+          setPreviewMode('diff')
+          setSaveNotice(null)
+          const existing = repoFiles.find(file => file.name === filePath)
+          if (existing) {
+            setSelectedFile(existing)
+          } else {
+            setSelectedFile({
+              id: Date.now(),
+              name: filePath,
+              type: filePath.split('.').pop() || 'file',
+              size: 0,
+              updatedAt: new Date().toISOString(),
+              binder: selectedRepoId,
+            })
+          }
+          fetchFileDiff(selectedRepoId, filePath)
+        }} onStageFile={handleStageFile} onUnstageFile={handleUnstageFile} stagedFiles={stagedFiles} />}
         {activeTab === 'workflows' && <WorkflowsPanel />}
         {activeTab === 'benchbench' && <BenchBenchPanel />}
         {activeTab === 'creative' && <CreativePanel />}
         {activeTab === 'agents' && <AgentsPanel />}
         {activeTab === 'settings' && <SettingsPanel />}
+        </main>
+
+        <button
+          className={`developer-chat-bubble ${chatOpen ? 'developer-chat-bubble--open' : ''}`}
+          onClick={() => setChatOpen(prev => !prev)}
+          title={chatOpen ? 'Close dev chat' : 'Open dev chat'}
+          aria-label="Toggle developer chat"
+        >
+          <Icon name={chatOpen ? 'close' : 'chat'} size={22} />
+        </button>
       </div>
     </div>
   )

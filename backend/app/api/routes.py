@@ -26,6 +26,18 @@ def register_routes(app: web.Application) -> None:
         handle_list_secrets, handle_get_secret, handle_set_secret,
         handle_delete_secret, handle_list_env_vars, handle_import_from_env,
     )
+    from .config_api import handle_get_config
+    from .developer_api import (
+        handle_list_repos,
+        handle_list_repo_files,
+        handle_get_repo_file_preview,
+        handle_update_repo_file,
+        handle_get_repo_file_diff,
+        handle_list_repo_review,
+        handle_stage_repo_file,
+        handle_unstage_repo_file,
+        handle_commit_repo_files,
+    )
     from .knowledge import (
         handle_list_workspaces, handle_list_documents,
         handle_get_document, handle_get_document_content, handle_search,
@@ -34,6 +46,11 @@ def register_routes(app: web.Application) -> None:
         handle_local_export,
         handle_af_import, handle_af_sync, handle_af_status,
         handle_af_index_status,
+    )
+    from .workflows import (
+        handle_import_status, handle_index_coverage,
+        handle_get_task, handle_update_task,
+        handle_board_health,
     )
 
     # Knowledge (AppFlowy bridge)
@@ -55,6 +72,12 @@ def register_routes(app: web.Application) -> None:
     app.router.add_post("/api/knowledge/sync", handle_af_sync)
     app.router.add_get("/api/knowledge/status", handle_af_status)
     app.router.add_get("/api/knowledge/index/status", handle_af_index_status)
+    # Phase 9 new endpoints
+    app.router.add_get("/api/knowledge/import/status", handle_import_status)
+    app.router.add_get("/api/knowledge/index/coverage", handle_index_coverage)
+    app.router.add_get("/api/workflows/task/{task_id}", handle_get_task)
+    app.router.add_put("/api/workflows/task/{task_id}", handle_update_task)
+    app.router.add_get("/api/workflows/board/{board_id}/health", handle_board_health)
 
     # MCP Integration
     app.router.add_get("/api/mcp/tools", handle_mcp_discover)
@@ -67,6 +90,18 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/secrets/{name}", handle_get_secret)
     app.router.add_post("/api/secrets/{name}", handle_set_secret)
     app.router.add_delete("/api/secrets/{name}", handle_delete_secret)
+
+    # Central config
+    app.router.add_get("/api/config", handle_get_config)
+    app.router.add_get("/api/developer/repos", handle_list_repos)
+    app.router.add_get("/api/developer/repos/{repo_name}/files", handle_list_repo_files)
+    app.router.add_get("/api/developer/repos/{repo_name}/file-preview", handle_get_repo_file_preview)
+    app.router.add_put("/api/developer/repos/{repo_name}/file-preview", handle_update_repo_file)
+    app.router.add_get("/api/developer/repos/{repo_name}/diff", handle_get_repo_file_diff)
+    app.router.add_get("/api/developer/repos/{repo_name}/review", handle_list_repo_review)
+    app.router.add_post("/api/developer/repos/{repo_name}/stage", handle_stage_repo_file)
+    app.router.add_post("/api/developer/repos/{repo_name}/unstage", handle_unstage_repo_file)
+    app.router.add_post("/api/developer/repos/{repo_name}/commit", handle_commit_repo_files)
 
     app.router.add_get("/api/skills", handle_list_skills)
     app.router.add_get("/api/tools", handle_list_tools)

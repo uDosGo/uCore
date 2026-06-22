@@ -123,6 +123,20 @@ interface VaultSidebarProps {
   onSidebarModeChange?: (mode: 'server' | 'filepicker') => void
   /** Optional: server navigation items shown when mode=server */
   serverNavItems?: SidebarNavItem[]
+  /** Optional: externally supplied binders/workspaces */
+  binders?: Binder[]
+  /** Optional: externally supplied files for the active binder */
+  files?: VaultFile[]
+  /** Optional: externally supplied loading state for files */
+  loadingFiles?: boolean
+  /** Optional: externally controlled active binder */
+  activeBinderId?: string
+  /** Optional: binder change callback for externally controlled mode */
+  onBinderChange?: (binderId: string) => void
+  /** Optional: custom search placeholder */
+  searchPlaceholder?: string
+  /** Optional: custom empty-state hint */
+  emptyHint?: string
 }
 
 // ─── Component ──────────────────────────────────────────────────────
@@ -135,7 +149,15 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
   sidebarMode = 'filepicker',
   onSidebarModeChange,
   serverNavItems = [],
+  binders,
+  files: externalFiles,
+  loadingFiles,
+  activeBinderId,
+  onBinderChange,
+  searchPlaceholder,
+  emptyHint,
 }) => {
+  const availableBinders = binders && binders.length > 0 ? binders : BINDERS
   const [activeBinder, setActiveBinder] = useState<Binder>(DEFAULT_BINDER)
   const [binderDropdownOpen, setBinderDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -144,6 +166,13 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
   const binderRef = useRef<HTMLDivElement>(null)
   const isServerMode = showModeTabs && sidebarMode === 'server'
   const modeOrder: Array<'server' | 'filepicker'> = ['server', 'filepicker']
+
+  useEffect(() => {
+    const nextActive = availableBinders.find(b => b.id === activeBinderId) || availableBinders[0] || DEFAULT_BINDER
+    if (nextActive && nextActive.id !== activeBinder.id) {
+      setActiveBinder(nextActive)
+    }
+  }, [activeBinder.id, activeBinderId, availableBinders])
 
   // Load files for active binder
   const loadFiles = useCallback(async (binder: Binder) => {
@@ -159,7 +188,10 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
     }
   }, [])
 
-  useEffect(() => { loadFiles(activeBinder) }, [activeBinder, loadFiles])
+  useEffect(() => {
+    if (externalFiles) return
+    loadFiles(activeBinder)
+  }, [activeBinder, externalFiles, loadFiles])
 
   // Close binder dropdown on outside click
   useEffect(() => {
@@ -172,14 +204,16 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [binderDropdownOpen])
 
+  const sourceFiles = externalFiles || files
+
   const filteredFiles = useMemo(() => {
     if (!searchQuery) return files
     const q = searchQuery.toLowerCase()
-    return files.filter(f =>
+    return sourceFiles.filter(f =>
       f.name.toLowerCase().includes(q) ||
       (f.tags && f.tags.some(t => t.toLowerCase().includes(q)))
     )
-  }, [files, searchQuery])
+  }, [searchQuery, sourceFiles])
 
   const handleModeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (!showModeTabs || !onSidebarModeChange) return
@@ -284,13 +318,18 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
                 {binderDropdownOpen && (
                   <div className="vault-sidebar-binder-dropdown">
                     <div className="vault-sidebar-binder-list">
-                      {BINDERS.map(b => {
+                      {availableBinders.map(b => {
                         const isActive = b.id === activeBinder.id
                         return (
                           <button
                             key={b.id}
                             className={`vault-sidebar-binder-item ${isActive ? 'active' : ''}`}
-                            onClick={() => { setActiveBinder(b); setBinderDropdownOpen(false); setSearchQuery('') }}
+                            onClick={() => {
+                              setActiveBinder(b)
+                              onBinderChange?.(b.id)
+                              setBinderDropdownOpen(false)
+                              setSearchQuery('')
+                            }}
                           >
                             <Icon name={b.icon || 'folder'} size={14} />
                             <div className="vault-sidebar-binder-item-info">
@@ -316,13 +355,13 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
                   type="search"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Filter files"
+                  placeholder={searchPlaceholder || 'Filter files'}
                   className="vault-sidebar-search-input"
                 />
 
                 {/* File list */}
                 <div className="vault-sidebar-file-list">
-                  {isLoading ? (
+                  {(loadingFiles ?? isLoading) ? (
                     <div className="vault-sidebar-loading">
                       <Icon name="sync" size={14} className="vault-sidebar-spin" />
                       <span>Loading...</span>
@@ -332,7 +371,7 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
                       <Icon name={searchQuery ? 'search_off' : 'folder_open'} size={20} />
                       <span>{searchQuery ? 'No files found' : 'No files in this binder'}</span>
                       {!searchQuery && (
-                        <span className="vault-sidebar-empty-hint">Create a new document to get started</span>
+                        <span className="vault-sidebar-empty-hint">{emptyHint || 'Create a new document to get started'}</span>
                       )}
                     </div>
                   ) : (
