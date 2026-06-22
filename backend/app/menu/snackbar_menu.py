@@ -550,8 +550,6 @@ class SnackbarMenuDelegate(NSObject):
             self._menu.addItem_(item)
 
         self._menu.addItem_(NSMenuItem.separatorItem())
-
-        # ── Start at Login ─────────────────────────────────────
         state = "✓" if self._start_at_login else "  "
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
             f"{state} Start at Login", "toggleStartAtLogin:", ""
@@ -576,10 +574,29 @@ class SnackbarMenuDelegate(NSObject):
         self._menu.addItem_(item)
 
     def openSurface_(self, sender):
-        """Open a surface URL in the default browser."""
+        """Open a surface URL in the default browser with auto-start capability."""
         url = sender.representedObject()
-        if url:
-            open_url(url)
+        if not url:
+            return
+        
+        # Try to auto-start backend if not running
+        if not is_ucore_alive():
+            log.info("Backend not running. Attempting to start...")
+            try:
+                # Start backend in background
+                subprocess.Popen(
+                    ["/usr/bin/python3", "-m", "app"],
+                    cwd=UCORE_BACKEND_DIR,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
+                )
+                time.sleep(2)  # Give it time to start
+            except Exception as e:
+                log.warning(f"Failed to auto-start backend: {e}")
+        
+        # Open the surface URL in browser
+        open_url(url)
 
     def _start_refresh(self):
         """Start the periodic refresh timer."""
