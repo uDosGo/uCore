@@ -119,7 +119,7 @@ export default function S320KnowledgeTools() {
 
   const loadIndexCoverage = useCallback(async () => {
     try {
-      const res = await fetch(`${SNACKBAR_API}/api/knowledge/index/status`, {
+      const res = await fetch(`${SNACKBAR_API}/api/knowledge/index/coverage`, {
         signal: AbortSignal.timeout(3000),
       })
       if (res.ok) {

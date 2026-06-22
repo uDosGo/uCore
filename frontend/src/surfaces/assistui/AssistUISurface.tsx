@@ -123,17 +123,11 @@ function resolveIcon(icon: string): string {
 const WELCOME_MESSAGE: ChatMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: `# Welcome to AssistUI
+  content: `# Hi friend
 
-I'm your uDos AI assistant with streaming responses, model selection, and conversation management.
+I'm your OK assistant with streaming MCP protocol, model selection, and agent management.
 
-**Features:**
-- **Streaming** — responses appear token-by-token as they're generated
-- **Model selection** — choose from Ollama, OpenRouter, or OK Local models
-- **Conversations** — save, switch, and manage multiple threads
-- **Agents** — switch between Vault, Developer, and Agent modes
-
-> _Select a model above, then type a message or click a prompt card to get started._`,
+What would you like to do, today?`,
   timestamp: new Date(),
 }
 
@@ -405,7 +399,7 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
         if (res.ok) {
           const data = await res.json()
           if (Array.isArray(data.prompts) && data.prompts.length > 0) {
-            const validPrompts = data.prompts.filter(p => p.id && p.label && p.icon)
+            const validPrompts = data.prompts.filter((p: any) => p.id && p.label && p.icon)
             if (validPrompts.length > 0) setPrompts(validPrompts)
           }
         }
@@ -864,9 +858,21 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
               </div>
             </div>
 
-            {/* Messages (scrollable area — prompt cards at top, then messages) */}
+            {/* Messages (scrollable area — messages first, then prompt cards below intro) */}
             <div className="assistui-messages">
-              {/* Prompt Cards (at top of scrollable area, wrapping onto new rows) */}
+              {messages.map(msg => (
+                <div key={msg.id} className={`assistui-message assistui-message--${msg.role}`}>
+                  <div className="assistui-message-header">
+                    <span className="assistui-message-role">
+                      {msg.role === 'user' ? 'You' : 'Assistant'}
+                    </span>
+                    <span className="assistui-message-time">{formatTime(msg.timestamp)}</span>
+                  </div>
+                  <div className="assistui-message-body assistui-prose">
+                    {renderMarkdown(msg.content)}
+                  </div>
+                </div>
+              ))}
               {prompts.length > 0 && messages.length <= 1 && (
                 <div className="assistui-prompt-row">
                   {prompts.map(prompt => (
@@ -884,19 +890,6 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
                   ))}
                 </div>
               )}
-              {messages.map(msg => (
-                <div key={msg.id} className={`assistui-message assistui-message--${msg.role}`}>
-                  <div className="assistui-message-header">
-                    <span className="assistui-message-role">
-                      {msg.role === 'user' ? 'You' : 'Assistant'}
-                    </span>
-                    <span className="assistui-message-time">{formatTime(msg.timestamp)}</span>
-                  </div>
-                  <div className="assistui-message-body assistui-prose">
-                    {renderMarkdown(msg.content)}
-                  </div>
-                </div>
-              ))}
 
               {loading && (
                 <div className="assistui-loading">

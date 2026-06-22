@@ -1,6 +1,6 @@
 # uCore — Handover Note for Copilot
 
-**Date:** 2026-06-22  
+**Date:** 2026-06-22
 **Last commit:** (to be pushed)
 
 ---
@@ -86,7 +86,7 @@
    - Maps all integration paths: appflowy-cli, appflowy-mcp, n8n, Zapier
    - Includes workflow automation examples and scheduling strategies
    - Documents command-line usage for scripting and Cline CLI integration
-   
+
 2. **docs/ZEN_PLAYWRIGHT_AUTOMATION_TOOLCHAIN.md**
    - Recommends Zen Browser (Firefox-based) as UI shell
    - **Firewatch MCP**: Preferred for agent-integrated browser control
@@ -181,16 +181,16 @@ npm run dev
 1. **`GET /api/knowledge/local/databases`** ← LocalDB tab requires this
    - Returns: `[{id, name, path, size, last_sync}]`
    - Used by: S320 LocalDB tab → populate database list
-   
+
 2. **`POST /api/knowledge/local/query`** ← SQL query execution
    - Input: `{database_id, query}`
    - Returns: `{columns, rows, error?}`
    - Used by: S320 LocalDB tab → execute button
-   
+
 3. **`GET /api/knowledge/import/status`** ← Import job tracking
    - Returns: `{jobs: [{id, status, progress_pct, message, timestamp}]}`
    - Used by: S330 → Recent Import Jobs section
-   
+
 4. **`GET /api/knowledge/index/coverage`** ← Index metrics
    - Returns: `{total_docs, coverage_pct, by_source: [{source, expected, indexed, coverage_pct}]}`
    - Used by: S320 Coverage tab & S330 → metrics visualization
@@ -199,12 +199,12 @@ npm run dev
 5. **`GET /api/workflows/task/{taskId}`** ← Fetch task details
    - Returns: `{id, title, status, priority, board, assignee, due_date, description, tags}`
    - Used by: TaskDetailDrawer → read-only preview mode
-   
+
 6. **`PUT /api/workflows/task/{taskId}`** ← Update task metadata
    - Input: Task object with edits
    - Returns: Updated task
    - Used by: TaskDetailDrawer → save edits
-   
+
 7. **`GET /api/workflows/board/{boardId}/health`** ← Board health check
    - Returns: `{status, issues: [], warning_count, task_count}`
    - Used by: S300 Board Actions → "Health" button
@@ -312,36 +312,36 @@ This handover file no longer carries active plan tables.
 
 ## Phase 9: Next Steps for Cline (Priority Order)
 
-### Priority 1️⃣: Backend Endpoints (Critical Blocker)
+### Priority 1️⃣: Backend Endpoints ✅ Done
 **Goal**: Implement 7 endpoints so Phase 8 UI is fully functional
 
-**Task**: Create `/api/knowledge/local/query`, `/api/knowledge/import/status`, `/api/knowledge/index/coverage`, `/api/workflows/task/*`, `/api/workflows/board/*/health`
+**Status**: Complete. The Phase 9 endpoints are implemented and route-registered:
+`/api/knowledge/local/databases`, `/api/knowledge/local/query`, `/api/knowledge/import/status`, `/api/knowledge/index/coverage`, `/api/workflows/task/*`, and `/api/workflows/board/*/health`.
 
-**Effort**: ~4-6 hours (database queries, status tracking, health check logic)
+**Verification**: `backend/tests/test_api_workflows_phase9.py` and `backend/tests/test_api_knowledge_local.py` cover the workflow and knowledge endpoint shapes used by the UI.
 
-**Why**: Frontend components are complete but non-functional without data. All UI is wired to these endpoints.
-
-### Priority 2️⃣: Component Integration (Medium Blocker)
+### Priority 2️⃣: Component Integration ✅ Done
 **Goal**: Wire TaskDetailDrawer into Developer surface and S300
 
-**Task**: 
-1. Import TaskDetailDrawer in `DeveloperSurface.tsx`
-2. Add `?task={taskId}` query param handler
-3. Test drawer open/close/edit/save flow
-4. Add similar integration to S300 if needed
+**Status**: Complete for Developer surface.
+1. `TaskDetailDrawer` is imported in `DeveloperSurface.tsx`
+2. `?task={taskId}` query param handler is wired
+3. Drawer load/save uses `/api/workflows/task/{taskId}`
+4. Closing the drawer removes `task` from the URL while preserving other query params
 
-**Effort**: ~2 hours
-
-### Priority 3️⃣: E2E Testing (Medium)
-**Goal**: Test all Phase 8 components in running app (S320, S330, S300, TaskDetailDrawer)
+### Priority 3️⃣: E2E Testing (Next)
+**Goal**: Test all Phase 8/9B components in running app (S320, S330, S300, Developer TaskDetailDrawer)
 
 **Task**:
 1. Start backend & frontend dev servers
 2. Navigate to each new page and verify tabs/buttons work
-3. Test async operations (workspace load, DB query, task save)
+3. Test async operations (workspace load, DB query, board health, task save)
 4. Capture any errors in browser console or network tab
 
-**Effort**: ~1-2 hours
+**Validation already completed**:
+- Frontend build passes
+- Targeted backend tests pass
+- AI stack health check passes with 13 OK / 0 Warn / 0 Fail
 
 ### Priority 4️⃣: Firewatch MCP Setup (Optional for Phase 9, Nice-to-Have)
 **Goal**: Enable Cline agent to control browser automatically
@@ -433,6 +433,6 @@ This handover file no longer carries active plan tables.
 
 ---
 
-**Last Updated**: 2026-06-22T16:00:00Z  
-**Session**: Phase 8 UI Refinement Complete  
-**Status**: Ready for Phase 9 Backend Implementation
+**Last Updated**: 2026-06-22T21:30:00+08:00
+**Session**: Phase 9B Developer wiring and endpoint verification
+**Status**: Ready for E2E UI smoke testing

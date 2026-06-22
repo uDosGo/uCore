@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
+import socket
 
 
 @dataclass
@@ -39,6 +40,9 @@ class Settings:
     logs_dir: Path = Path(
         os.environ.get("UCORE_LOGS_DIR", os.path.expanduser("~/.ucore/logs"))
     )
+    secrets_dir: Path = Path(
+        os.environ.get("UCORE_SECRETS_DIR", os.path.expanduser("~/.ucore"))
+    )
 
     # ── Snackbar ─────────────────────────────────────────────
     snack_timeout: int = int(os.environ.get("UCORE_SNACK_TIMEOUT", "300"))
@@ -63,11 +67,19 @@ class Settings:
         "1",
     ).lower() in ("1", "true", "yes")
 
-    # ── ROOT (Code base path — all repos under ~/Code/) ─────
+    # ── Identity / User ──────────────────────────────────────
+    user_name: str = os.environ.get("UCORE_USER_NAME", os.environ.get("USER", "fredbook"))
+    user_email: str = os.environ.get("UCORE_USER_EMAIL", "fred@okagent.digital")
+    install_name: str = os.environ.get("UDOS_INSTALL_NAME", socket.gethostname())
+
+    # ── Spine (Code base path — all repos under ~/Code/) ─────
     udos_root: Path = Path(
         os.environ.get(
-            "ROOT",
-            os.environ.get("UDOS_CODE", os.path.expanduser("~/Code")),
+            "UDOS_ROOT",
+            os.environ.get(
+                "ROOT",
+                os.environ.get("UDOS_CODE", os.path.expanduser("~/Code")),
+            ),
         )
     ).expanduser()
 
@@ -84,6 +96,14 @@ class Settings:
     clipboard_shortcut: str = os.environ.get(
         "UCORE_CLIPBOARD_SHORTCUT", "ctrl+cmd+v"
     )
+
+    @property
+    def secrets_file(self) -> Path:
+        return self.secrets_dir / "secrets.enc"
+
+    @property
+    def secret_key_file(self) -> Path:
+        return self.secrets_dir / ".store_key"
 
 
 # Singleton

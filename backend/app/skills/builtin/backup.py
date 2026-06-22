@@ -34,7 +34,7 @@ class BackupData(BaseSkill):
             backup_entries.append({"file": str(wisdom_backup), "size": wisdom_backup.stat().st_size})
 
         # 3. Secrets
-        secrets_path = Path.home() / ".ucore/secrets.enc"
+        secrets_path = settings.secrets_file
         if secrets_path.exists():
             secrets_backup = dest / f"secrets-{ts}.enc"
             shutil.copy2(secrets_path, secrets_backup)

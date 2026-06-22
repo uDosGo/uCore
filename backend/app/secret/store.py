@@ -12,6 +12,8 @@ import secrets as pysecrets
 from pathlib import Path
 from typing import Optional
 
+from app.core.settings import settings
+
 try:
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 except ImportError:
@@ -19,10 +21,10 @@ except ImportError:
 
 log = logging.getLogger("ucore.secret")
 
-SECRETS_DIR = Path.home() / ".ucore"
-SECRETS_FILE = SECRETS_DIR / "secrets.enc"
-KEY_FILE = SECRETS_DIR / ".store_key"
-DATA_DIR = Path(os.environ.get("UCORE_DATA_DIR", str(SECRETS_DIR)))
+SECRETS_DIR = settings.secrets_dir
+SECRETS_FILE = settings.secrets_file
+KEY_FILE = settings.secret_key_file
+DATA_DIR = settings.data_dir
 
 
 def _derive_key(master_key: bytes) -> bytes:

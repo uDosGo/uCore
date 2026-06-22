@@ -36,7 +36,7 @@ import DocumentationSurface from './surfaces/documentation/DocumentationSurface'
 import UServerSurface from './surfaces/userver/UServerSurface'
 
 const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
-  String(import.meta.env.VITE_DEV_MODE || '').toLowerCase(),
+  String(import.meta.env.VITE_DEV_MODE || 'true').toLowerCase(),
 )
 
 // S-pages (system pages)
@@ -94,14 +94,17 @@ function Root() {
         <Routes>
           <Route path="/proseui/*" element={<Navigate to="/" replace />} />
           <Route path="/gridui/*" element={<Navigate to="/ucode" replace />} />
+          <Route path="/story-builder" element={<Navigate to="/s101" replace />} />
+          <Route path="/user-setup-story" element={<Navigate to="/s101" replace />} />
+          <Route path="/story/gtx-form" element={<Navigate to="/s101" replace />} />
           <Route path="/ucode/*" element={<UCodeSurface />} />
           <Route path="/browserui/*" element={<BrowserUISurface />} />
           <Route path="/assistui/*" element={<AssistUISurface />} />
           <Route path="/documentation/*" element={<DocumentationSurface />} />
-          <Route
-            path="/developer/**"
-            element={DEV_MODE_ENABLED ? <DeveloperSurface /> : <Navigate to="/" replace />}
-          />
+          <Route path="/devstudio" element={<Navigate to="/developer" replace />} />
+          <Route path="/devstudio/*" element={<Navigate to="/developer" replace />} />
+          <Route path="/developer" element={DEV_MODE_ENABLED ? <DeveloperSurface /> : <Navigate to="/" replace />} />
+          <Route path="/developer/*" element={DEV_MODE_ENABLED ? <DeveloperSurface /> : <Navigate to="/" replace />} />
           <Route path="/server/*" element={<UServerSurface />} />
           <Route path="/userver/*" element={<UserverRouteRedirect />} />
           <Route path="/system" element={<SystemRouteRedirect />} />
@@ -126,7 +129,12 @@ function SystemRouteRedirect() {
     install: 'settings',
     modules: 'settings',
     feeds: 'settings',
-    story: 'missions',
+    story: 'story',
+    'story-builder': 'story',
+    'user-setup-story': 'story',
+    'gtx-form': 'story',
+    'secret-store': 'secrets',
+    secrets: 'secrets',
     pages: 'missions',
     publishing: 'workflows',
   }
@@ -135,6 +143,8 @@ function SystemRouteRedirect() {
     'dashboard',
     'ingest',
     'missions',
+    'story',
+    'secrets',
     'settings',
     'services',
     'logs',

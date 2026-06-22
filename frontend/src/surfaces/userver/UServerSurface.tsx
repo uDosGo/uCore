@@ -17,6 +17,7 @@ import VaultSidebar, { SidebarNavItem } from '../../components/VaultSidebar'
 import AssistUISurface from '../assistui/AssistUISurface'
 import SystemToolsSurface, { ToolsPanel, SystemPagesPanel } from '../systemtools/SystemToolsSurface'
 import { SettingsPanel } from '../system/SettingsPanel'
+import SecretStorePanel from '../system/SecretStorePanel'
 import '../../styles/userver.css'
 
 const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
@@ -28,8 +29,10 @@ type UServerTab =
   | 'dashboard'
   | 'ingest'
   | 'missions'
+  | 'story'
   | 'pages'
   | 'tools'
+  | 'secrets'
   | 'settings'
   | 'services'
   | 'logs'
@@ -180,8 +183,10 @@ const SERVER_TABS: UServerTab[] = [
   'dashboard',
   'ingest',
   'missions',
+  'story',
   'pages',
   'tools',
+  'secrets',
   'settings',
   'services',
   'logs',
@@ -194,7 +199,12 @@ const LEGACY_TAB_MAP: Record<string, UServerTab> = {
   modules: 'settings',
   feeds: 'settings',
   settings: 'settings',
-  story: 'missions',
+  story: 'story',
+  'story-builder': 'story',
+  'user-setup-story': 'story',
+  'gtx-form': 'story',
+  'secret-store': 'secrets',
+  secrets: 'secrets',
   publishing: 'workflows',
 }
 
@@ -216,11 +226,12 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T | nul
 }
 
 // ─── Dashboard Tab ──────────────────────────────────────────────────
-function DashboardTab({ services, workflows, logs, surfaces }: {
+function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick }: {
   services: ServiceStatus[]
   workflows: Workflow[]
   logs: LogEntry[]
   surfaces: SurfaceInfo[]
+  onSecretStoreClick?: () => void
 }) {
   const upCount = services.filter(s => s.status === 'up').length
   const degradedCount = services.filter(s => s.status === 'degraded').length
@@ -254,6 +265,30 @@ function DashboardTab({ services, workflows, logs, surfaces }: {
               <span className="userver-stat-label">Running</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Secret Store Quick Access */}
+      <div className="userver-card" style={{ borderLeft: '3px solid #f0883e', background: 'linear-gradient(135deg, rgba(240,136,62,0.08), rgba(240,136,62,0.02))' }}>
+        <div className="userver-card-header">
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
+            <Icon name="key" size={18} style={{ color: '#f0883e' }} />
+            Secret Store
+          </h3>
+          <span className="userver-card-subtitle">AES-256-GCM encrypted credentials</span>
+        </div>
+        <div className="userver-card-content">
+          <p className="userver-text" style={{ marginBottom: 12 }}>
+            Manage API keys, tokens, and encrypted credentials. All secrets are stored at rest with AES-256-GCM encryption.
+          </p>
+          <button
+            className="userver-action-btn"
+            onClick={onSecretStoreClick}
+            style={{ background: '#f0883e20', color: '#f0883e', border: '1px solid #f0883e40' }}
+          >
+            <Icon name="key" size={14} style={{ marginRight: 6 }} />
+            Open Secret Store
+          </button>
         </div>
       </div>
 
@@ -1039,6 +1074,60 @@ function IngestTab() {
   )
 }
 
+function StoryLinksTab({ onNavigate }: { onNavigate: (path: string) => void }) {
+  const links = [
+    {
+      title: 'User Setup Story',
+      subtitle: 'Legacy alias',
+      description: 'Opens Story Builder via /user-setup-story alias.',
+      path: '/user-setup-story',
+      icon: 'flag',
+    },
+    {
+      title: 'Story Builder',
+      subtitle: 'S101 page',
+      description: 'Core story workspace for creating and managing stories.',
+      path: '/story-builder',
+      icon: 'auto_stories',
+    },
+    {
+      title: 'Story/gtx-form Styles & Examples',
+      subtitle: 'Legacy alias',
+      description: 'Opens the Story Builder route for gtx-form style/example workflows.',
+      path: '/story/gtx-form',
+      icon: 'design_services',
+    },
+  ]
+
+  return (
+    <div>
+      <div className="userver-toolbar">
+        <div className="userver-toolbar-left">
+          <h2 className="userver-heading">Story Links</h2>
+          <span className="userver-card-subtitle">Quick links for story setup, builder, and gtx-form aliases.</span>
+        </div>
+      </div>
+      <div className="userver-grid">
+        {links.map(link => (
+          <div key={link.path} className="userver-card">
+            <div className="userver-card-header">
+              <h3>{link.title}</h3>
+              <span className="userver-card-subtitle">{link.subtitle}</span>
+            </div>
+            <div className="userver-card-content">
+              <p className="userver-text" style={{ marginBottom: 12 }}>{link.description}</p>
+              <button className="userver-action-btn" onClick={() => onNavigate(link.path)}>
+                <Icon name={link.icon} size={14} style={{ marginRight: 6 }} />
+                Open {link.path}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Surface ───────────────────────────────────────────────────
 export default function UServerSurface() {
   const location = useLocation()
@@ -1088,8 +1177,10 @@ export default function UServerSurface() {
     { id: 'dashboard', icon: 'home', label: 'Dashboard', active: tab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
     { id: 'ingest', icon: 'upload_file', label: 'Import', active: tab === 'ingest', onClick: () => setTabAndRoute('ingest') },
     { id: 'missions', icon: 'account_tree', label: 'Mission Control', active: tab === 'missions', onClick: () => setTabAndRoute('missions') },
+    { id: 'story', icon: 'auto_stories', label: 'Story Links', active: tab === 'story', onClick: () => setTabAndRoute('story') },
     { id: 'pages', icon: 'dashboard', label: 'System Pages', active: tab === 'pages', onClick: () => setTabAndRoute('pages') },
     { id: 'tools', icon: 'build', label: 'Tools', active: tab === 'tools', onClick: () => setTabAndRoute('tools') },
+    { id: 'secrets', icon: 'key', label: 'Secret Store', active: tab === 'secrets', onClick: () => setTabAndRoute('secrets') },
     { id: 'settings', icon: 'settings', label: 'Settings', active: tab === 'settings', onClick: () => setTabAndRoute('settings') },
     { id: 'services', icon: 'dns', label: 'Services', active: tab === 'services', onClick: () => setTabAndRoute('services') },
     { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTabAndRoute('logs') },
@@ -1143,11 +1234,13 @@ export default function UServerSurface() {
         )}
 
         <main className="usx-surface-main">
-          {tab === 'dashboard' && <DashboardTab services={services} workflows={workflows} logs={logs} surfaces={surfaces} />}
+          {tab === 'dashboard' && <DashboardTab services={services} workflows={workflows} logs={logs} surfaces={surfaces} onSecretStoreClick={() => setTabAndRoute('secrets')} />}
           {tab === 'ingest' && <IngestTab />}
           {tab === 'missions' && <MissionTaskBinderTab />}
+            {tab === 'story' && <StoryLinksTab onNavigate={path => navigate(path)} />}
           {tab === 'pages' && <SystemPagesPanel />}
           {tab === 'tools' && <ToolsPanel />}
+            {tab === 'secrets' && <SecretStorePanel />}
           {tab === 'settings' && <SettingsPanel />}
           {tab === 'services' && <ServicesTab services={services} />}
           {tab === 'logs' && <LogsTab logs={logs} />}

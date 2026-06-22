@@ -1,8 +1,8 @@
 # Cline Handover Brief — Phase 8 Complete
 
-**Date**: 2026-06-22  
-**Session Status**: ✅ Complete  
-**Git Commit**: `2ea0f2b` (Phase 8: Complete UI refinement layer)  
+**Date**: 2026-06-22
+**Session Status**: ✅ Complete
+**Git Commit**: `2ea0f2b` (Phase 8: Complete UI refinement layer)
 **Next Phase**: Phase 9 Backend Implementation
 
 ---
@@ -44,8 +44,8 @@ npm run dev
 - All TypeScript compiles
 - State management is clean
 
-### 4. What's Missing (Backend Blockers) ⚠️
-These 7 endpoints **must be implemented** for full functionality:
+### 4. Phase 9B Status ✅
+The Phase 9 backend endpoints are implemented and covered by targeted tests.
 
 **Knowledge/AppFlowy**:
 1. `GET /api/knowledge/local/databases` — List local DBs
@@ -58,7 +58,10 @@ These 7 endpoints **must be implemented** for full functionality:
 6. `PUT /api/workflows/task/{taskId}` — Update task
 7. `GET /api/workflows/board/{boardId}/health` — Board health check
 
-**Estimated Effort**: 4-6 hours total
+**Validation**:
+- Frontend build passes.
+- Targeted backend workflow/knowledge tests pass.
+- AI stack health check passes with 13 OK / 0 Warn / 0 Fail.
 
 ---
 
@@ -79,11 +82,12 @@ frontend/src/
 └── surfaces/system/USystemSurface.tsx ← S330 registry added
 ```
 
-### Backend Endpoints Needed
+### Backend Endpoints Implemented
 ```
-backend/app/api/routes/
-├── knowledge.py  (add 4 endpoints)
-└── workflows.py  (add 3 endpoints)
+backend/app/api/
+├── knowledge.py   (local DB, import/sync, index status handlers)
+├── workflows.py  (import status, index coverage, task CRUD, board health)
+└── routes.py     (Phase 9 endpoint registration)
 ```
 
 ### Documentation
@@ -96,28 +100,29 @@ docs/
 
 ---
 
-## 🎯 Phase 9: Priority Order for Cline
+## 🎯 Phase 9B: Current Priority Order for Cline
 
-### 1️⃣ CRITICAL: Backend Endpoints (4-6 hours)
-Implement 7 API endpoints so S320/S330/S300 are fully functional.
-- Start with `/api/knowledge/index/coverage` (needed by S330)
-- Then task endpoints (needed by TaskDetailDrawer)
-- Then board health check
+### 1️⃣ DONE: Backend Endpoints
+The 7 API endpoints needed by S300/S320/S330/TaskDetailDrawer are implemented and route-registered.
 
-**Why First**: Frontend is complete but non-functional without these.
+### 2️⃣ DONE: Developer Task Drawer Integration
+TaskDetailDrawer is wired into the Developer surface with `?task={taskId}` query param support.
+- `DeveloperSurface.tsx` imports and renders the drawer globally.
+- Task load uses `GET /api/workflows/task/{taskId}`.
+- Task save uses `PUT /api/workflows/task/{taskId}`.
+- Closing the drawer removes `task` from the URL while preserving other query params.
 
-### 2️⃣ HIGH: Component Integration (2 hours)
-Wire TaskDetailDrawer into Developer surface.
-- Import component in `DeveloperSurface.tsx`
-- Add `?task={taskId}` query param handler
-- Test drawer lifecycle
+### 3️⃣ DONE: Targeted Validation
+- Frontend build: passing.
+- Backend targeted tests: passing.
+- AI stack health: passing.
 
-### 3️⃣ MEDIUM: E2E Testing (1-2 hours)
-Test all Phase 8 in running app.
-- Click through each page
-- Open/close modals
-- Verify no console errors
-- Test save operations (once endpoints exist)
+### 4️⃣ NEXT: E2E Testing
+Test all Phase 8/9B components in running app.
+- Click through S300, S320, S330, and Developer.
+- Open/close task drawer from a real `.tasker` task URL.
+- Verify save operations persist to Markdown.
+- Verify no console errors.
 
 ### 4️⃣ OPTIONAL: Firewatch MCP Setup (1 hour)
 Enable automated UI testing.
@@ -198,9 +203,9 @@ The remaining work (backend endpoints, integration, testing) is **straightforwar
 | Frontend UI | ✅ Complete | All components render, routes wired, state managed |
 | TypeScript | ✅ Compiling | No errors, strict mode passing |
 | Styling | ✅ Complete | Responsive, color-coded progress bars, animations |
-| Backend Endpoints | ⚠️ TODO | 7 endpoints needed for Phase 9 |
-| Integration | ⚠️ TODO | TaskDetailDrawer not yet in Developer surface |
-| Testing | ⚠️ TODO | E2E testing deferred to Phase 9 |
+| Backend Endpoints | ✅ Complete | Phase 9 endpoints implemented and route-registered |
+| Integration | ✅ Complete | TaskDetailDrawer wired into Developer with `?task={taskId}` |
+| Testing | ✅ Targeted | Frontend build, backend targeted tests, and AI stack health pass |
 | Documentation | ✅ Complete | Two new guides + updated handover |
 
 ---
@@ -216,6 +221,6 @@ If restarting work:
 
 ---
 
-**Last Updated**: 2026-06-22T16:30:00Z  
-**Ready for**: Phase 9 Backend Implementation  
+**Last Updated**: 2026-06-22T21:30:00+08:00
+**Ready for**: Phase 9B follow-up hardening
 **Handover Status**: ✅ COMPLETE

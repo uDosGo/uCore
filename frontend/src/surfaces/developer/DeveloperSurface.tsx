@@ -1105,6 +1105,7 @@ function SettingsPanel() {
 export default function DeveloperSurface() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { sidebarOpen, setSidebarOpen, toggleSidebar } = useSurfaceShell()
   const tabState = useMemo(() => {
     const params = new URLSearchParams(location.search)
     const raw = (params.get('tab') || 'repos').toLowerCase()
@@ -1112,6 +1113,7 @@ export default function DeveloperSurface() {
     return {
       raw,
       selectedTab: DEVELOPER_TABS.includes(candidate) ? candidate : 'repos',
+      taskId: params.get('task')?.trim() || null,
     }
   }, [location.search])
   const [activeTab, setActiveTab] = useState<DeveloperTab>(tabState.selectedTab)
@@ -1135,6 +1137,11 @@ export default function DeveloperSurface() {
   const [isCommitting, setIsCommitting] = useState(false)
   const [showCommitDialog, setShowCommitDialog] = useState(false)
   const [stagedFiles, setStagedFiles] = useState<Set<string>>(new Set())
+  const [reviewEntries, setReviewEntries] = useState<ReviewEntry[]>([])
+  const [reviewLoading, setReviewLoading] = useState(false)
+  const [routeTask, setRouteTask] = useState<TaskDetailData | null>(null)
+  const [routeTaskLoading, setRouteTaskLoading] = useState(false)
+  const [routeTaskError, setRouteTaskError] = useState<string | null>(null)
 
   useEffect(() => {
     setSidebarOpen(true)
@@ -1142,13 +1149,70 @@ export default function DeveloperSurface() {
 
   useEffect(() => {
     if (tabState.raw !== tabState.selectedTab) {
-      navigate(`/developer?tab=${tabState.selectedTab}`, { replace: true })
+      const params = new URLSearchParams(location.search)
+      params.set('tab', tabState.selectedTab)
+      navigate(`/developer?${params.toString()}`, { replace: true })
     }
-  }, [navigate, tabState.raw, tabState.selectedTab])
+  }, [location.search, navigate, tabState.raw, tabState.selectedTab])
 
   useEffect(() => {
     setActiveTab(tabState.selectedTab)
   }, [tabState.selectedTab])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function fetchRouteTask(taskId: string) {
+      setRouteTaskLoading(true)
+      setRouteTaskError(null)
+      try {
+        const res = await fetch(`${SNACKBAR_API}/api/workflows/task/${encodeURIComponent(taskId)}`, {
+          signal: AbortSignal.timeout(5000),
+        })
+        if (!res.ok) throw new Error(`Task ${taskId} unavailable (${res.status})`)
+        const data = await res.json()
+        if (!cancelled) setRouteTask(data)
+      } catch (error: any) {
+        if (!cancelled) {
+          setRouteTask(null)
+          setRouteTaskError(error?.message || 'Unable to load task')
+        }
+      } finally {
+        if (!cancelled) setRouteTaskLoading(false)
+      }
+    }
+
+    if (tabState.taskId) {
+      fetchRouteTask(tabState.taskId)
+    } else {
+      setRouteTask(null)
+      setRouteTaskError(null)
+      setRouteTaskLoading(false)
+    }
+
+    return () => {
+      cancelled = true
+    }
+  }, [tabState.taskId])
+
+  const closeRouteTaskDrawer = useCallback(() => {
+    const params = new URLSearchParams(location.search)
+    params.delete('task')
+    const query = params.toString()
+    navigate(`/developer${query ? `?${query}` : ''}`)
+  }, [location.search, navigate])
+
+  const updateRouteTask = useCallback(async (task: TaskDetailData) => {
+    const res = await fetch(`${SNACKBAR_API}/api/workflows/task/${encodeURIComponent(task.id)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(task),
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!res.ok) throw new Error(`Task save failed (${res.status})`)
+    const updated = await res.json()
+    setRouteTask(updated)
+  }, [])
 
   const fetchRepos = useCallback(async () => {
     setReposLoading(true)
@@ -1371,7 +1435,9 @@ export default function DeveloperSurface() {
 
   const setTabAndRoute = (nextTab: DeveloperTab) => {
     setActiveTab(nextTab)
-    navigate(`/developer?tab=${nextTab}`)
+    const params = new URLSearchParams(location.search)
+    params.set('tab', nextTab)
+    navigate(`/developer?${params.toString()}`)
   }
 
   const repoBinders: Binder[] = repos.map(repo => ({
@@ -1458,6 +1524,26 @@ export default function DeveloperSurface() {
               setPreviewMode('file')
             }}
             offsetRight={chatOpen ? 452 : 16}
+          />
+        )}
+
+        {routeTaskLoading && (
+          <div className="hub-status-badge" style={{ position: 'fixed', right: chatOpen ? 452 : 16, top: 72, zIndex: 1001 }}>
+            Loading task…
+          </div>
+        )}
+
+        {routeTaskError && (
+          <div className="hub-status-badge" style={{ position: 'fixed', right: chatOpen ? 452 : 16, top: 72, zIndex: 1001, color: 'var(--pico-del-color, #f85149)' }}>
+            {routeTaskError}
+          </div>
+        )}
+
+        {routeTask && (
+          <TaskDetailDrawer
+            task={routeTask}
+            onClose={closeRouteTaskDrawer}
+            onUpdate={updateRouteTask}
           />
         )}
 

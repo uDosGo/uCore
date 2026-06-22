@@ -284,7 +284,7 @@ class PopcornDelegate(NSObject):
             item.setTarget_(self)
             self._menu.addItem_(item)
             item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                "🥞 Restart Ollama", "restartOllama:", ""
+                "○ Restart Ollama", "restartOllama:", ""
             )
             item.setTarget_(self)
             self._menu.addItem_(item)

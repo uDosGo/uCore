@@ -1,19 +1,23 @@
 #!/bin/bash
-# install-root.sh — Set ROOT env var and lock the spine of all repos under ~/Code/
+# install-root.sh — Set UDOS_ROOT env var and lock the spine of all repos under ~/Code/
 set -euo pipefail
 
-ROOT="${ROOT:-$HOME/Code}"
-echo "Setting ROOT=$ROOT"
+UDOS_ROOT="${UDOS_ROOT:-${ROOT:-${UDOS_CODE:-$HOME/Code}}}"
+echo "Setting UDOS_ROOT=$UDOS_ROOT"
 
 ZSHRC="$HOME/.zshrc"
-if ! grep -q 'export ROOT=' "$ZSHRC" 2>/dev/null; then
-  echo 'export ROOT="$HOME/Code"' >> "$ZSHRC"
-  echo "Added ROOT to $ZSHRC"
+if ! grep -q 'export UDOS_ROOT=' "$ZSHRC" 2>/dev/null; then
+  echo 'export UDOS_ROOT="$HOME/Code"' >> "$ZSHRC"
+  echo "Added UDOS_ROOT to $ZSHRC"
 else
-  echo "ROOT already in $ZSHRC"
+  echo "UDOS_ROOT already in $ZSHRC"
 fi
 
-mkdir -p "$ROOT"
-touch "$ROOT/.udos-root"
-echo "Created $ROOT/.udos-root"
-echo "Spine locked: all repos under \$ROOT are discoverable."
+if ! grep -q 'export ROOT=' "$ZSHRC" 2>/dev/null; then
+  echo 'export ROOT="$UDOS_ROOT"' >> "$ZSHRC"
+fi
+
+mkdir -p "$UDOS_ROOT"
+touch "$UDOS_ROOT/.udos-root"
+echo "Created $UDOS_ROOT/.udos-root"
+echo "Spine locked: all repos under \$UDOS_ROOT are discoverable."

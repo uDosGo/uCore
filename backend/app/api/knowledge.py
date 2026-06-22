@@ -234,12 +234,24 @@ async def handle_af_import(request: web.Request) -> web.Response:
 
     task_id = str(uuid.uuid4())[:8]
 
+    from .workflows import record_import_job
+
+    record_import_job(task_id, status="queued", progress=0, message="Import queued")
+
     async def run_async():
         try:
+            record_import_job(task_id, status="in-progress", progress=10, message="Starting import...")
             result = run_import(config, ingest_context=ingest_context)
             log.info("Import task %s completed: %s", task_id, result)
+            record_import_job(
+                task_id,
+                status="completed",
+                progress=100,
+                message=f"Imported {result.get('total_imported', 0)} docs",
+            )
         except Exception as e:
             log.error("Import task %s failed: %s", task_id, e)
+            record_import_job(task_id, status="error", progress=0, message=str(e))
 
     asyncio.ensure_future(run_async())
 

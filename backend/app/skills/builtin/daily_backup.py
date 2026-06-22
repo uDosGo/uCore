@@ -66,7 +66,8 @@ class DailyBackup(BaseSkill):
         }
 
     def _backup_database(self, timestamp: str) -> dict:
-        db_path = Path(os.environ.get("UCORE_DATA_DIR", str(Path.home() / ".ucore/data")))
+        from app.core.settings import settings
+        db_path = settings.data_dir
         backup_file = BACKUP_DIR / f"database_{timestamp}.sqlite"
 
         if not db_path.exists():
@@ -80,9 +81,10 @@ class DailyBackup(BaseSkill):
         return {"status": "skipped", "reason": "No database file"}
 
     def _backup_config(self, timestamp: str) -> dict:
+        from app.core.settings import settings
         config_dirs = [
-            Path.home() / ".config/udos",
-            Path.home() / ".ucore/config",
+            settings.config_dir,
+            settings.udos_root / "uCore/config",
         ]
         backup_file = BACKUP_DIR / f"config_{timestamp}.tar.gz"
 
@@ -99,7 +101,12 @@ class DailyBackup(BaseSkill):
         import tarfile
         with tarfile.open(backup_file, "w:gz") as tar:
             for f in files_to_backup:
-                tar.add(f, arcname=str(Path(f).relative_to(Path.home())))
+                path = Path(f)
+                try:
+                    arcname = str(path.relative_to(Path.home()))
+                except ValueError:
+                    arcname = path.name
+                tar.add(f, arcname=arcname)
 
         size_kb = backup_file.stat().st_size / 1024
         return {
@@ -110,8 +117,9 @@ class DailyBackup(BaseSkill):
         }
 
     def _backup_secrets(self, timestamp: str) -> dict:
-        secrets_file = Path.home() / ".ucore/secrets.enc"
-        key_file = Path.home() / ".ucore/.store_key"
+        from app.core.settings import settings
+        secrets_file = settings.secrets_file
+        key_file = settings.secret_key_file
         backup_file = BACKUP_DIR / f"secrets_{timestamp}"
 
         if not secrets_file.exists():

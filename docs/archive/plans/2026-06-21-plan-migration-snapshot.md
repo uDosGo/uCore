@@ -68,3 +68,15 @@ Purpose: Preserve pre-consolidation plan content after migration into .tasker/UN
 - All snapshot items are normalized into UDW-001 through UDW-026.
 - New planning should not be added to source snapshot docs.
 - Update status only in .tasker/UNIFIED_DEV_TASK_WORKFLOW.md and underlying .tasker phase/backlog files.
+
+## Canonical Link Map
+
+- Developer Surface rename: [frontend/src/surfaces/developer/DeveloperSurface.tsx](../../../frontend/src/surfaces/developer/DeveloperSurface.tsx) and route `/developer`
+- Legacy DevStudio alias: `/devstudio` now redirects to `/developer`
+- User/System/Installation variables: [backend/app/core/settings.py](../../../backend/app/core/settings.py), [backend/app/api/config_api.py](../../../backend/app/api/config_api.py), and [frontend/src/surfaces/system/SettingsPanel.tsx](../../../frontend/src/surfaces/system/SettingsPanel.tsx)
+- Secret Store tab in uServer: [frontend/src/surfaces/system/SecretStorePanel.tsx](../../../frontend/src/surfaces/system/SecretStorePanel.tsx) and [frontend/src/surfaces/userver/UServerSurface.tsx](../../../frontend/src/surfaces/userver/UServerSurface.tsx)
+- Encrypted secret store context and `.env` notes: [CONTEXT.md](../../../CONTEXT.md)
+- P100-P899 fallback states: [frontend/src/SystemPage.tsx](../../../frontend/src/SystemPage.tsx) and [frontend/src/pages/SystemPageFallback.tsx](../../../frontend/src/pages/SystemPageFallback.tsx)
+- Story Builder + shared NestFrame styles: [frontend/src/pages/S101StoryBuilder.tsx](../../../frontend/src/pages/S101StoryBuilder.tsx) and [frontend/src/styles/nestframe.css](../../../frontend/src/styles/nestframe.css)
+- Concrete S100+ pages: [frontend/src/pages/S100ToolBuilder.tsx](../../../frontend/src/pages/S100ToolBuilder.tsx), [frontend/src/pages/S300WorkflowBuilder.tsx](../../../frontend/src/pages/S300WorkflowBuilder.tsx), [frontend/src/pages/S310ClipboardOrchestration.tsx](../../../frontend/src/pages/S310ClipboardOrchestration.tsx), [frontend/src/pages/S320KnowledgeTools.tsx](../../../frontend/src/pages/S320KnowledgeTools.tsx), [frontend/src/pages/S330MigrationDashboard.tsx](../../../frontend/src/pages/S330MigrationDashboard.tsx), [frontend/src/pages/S600Learning.tsx](../../../frontend/src/pages/S600Learning.tsx)
+- Legacy DevStudio docs URLs are archival-only; current documentation surface entry point is [frontend/src/surfaces/documentation/DocumentationSurface.tsx](../../../frontend/src/surfaces/documentation/DocumentationSurface.tsx)

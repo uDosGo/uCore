@@ -62,6 +62,9 @@ All plan-oriented documents should point here instead of carrying parallel task 
 | UDW-029 | done | P1 | Knowledge | Consolidation | Add workspace mapping script to bind source entries to discovered AppFlowy workspace IDs |
 | UDW-030 | done | P1 | UI | Consolidation | Remove legacy GridCore/Labs surface links and reduce active UI surface footprint |
 | UDW-031 | done | P1 | UI | Consolidation | Add mission drop panel ingest flow for binder and mission processing |
+| UDW-032 | done | P0 | Frontend/Developer | Phase 9B | Fix Developer surface runtime wiring and global task drawer query routing |
+| UDW-033 | done | P0 | QA | Phase 9B | Add targeted tests for Phase 9 workflow and migration endpoints |
+| UDW-034 | done | P0 | QA | Phase 9B | Validate Phase 9B frontend build, backend workflow tests, and AI stack health |
 
 ## Execution Order
 
@@ -70,6 +73,7 @@ All plan-oriented documents should point here instead of carrying parallel task 
 3. UDW-019 through UDW-023
 4. UDW-013 through UDW-018
 5. UDW-024 through UDW-026
+6. UDW-032 through UDW-034
 
 ## Source Mapping
 
@@ -85,6 +89,10 @@ All plan-oriented documents should point here instead of carrying parallel task 
   - docs/HANDOVER_UDOS_LOCAL_MODEL_PERFORMANCE.md
 - Checklist source:
   - docs/NEXT_ROUNDS_CHECKLIST.md
+- Phase 9B sources:
+  - CLINE_BRIEF.md
+  - HANDOVER.md
+  - wisdom.md
 - Archive snapshot:
   - docs/archive/plans/2026-06-21-plan-migration-snapshot.md
 

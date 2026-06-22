@@ -272,11 +272,22 @@ export default function S300WorkflowBuilder() {
                       onClick={async () => {
                         setBoardMsg(`Checking health of ${board.name}...`)
                         try {
-                          // Simulate health check (backend endpoint not yet implemented)
-                          const health = { status: 'healthy', items: board.count, invalid: 0 }
-                          setBoardMsg(`✅ ${board.name} health: ${health.items} items, ${health.invalid} invalid`)
+                          const res = await fetch(
+                            `${SNACKBAR_API}/api/workflows/board/${encodeURIComponent(board.name)}/health`,
+                            { signal: AbortSignal.timeout(5000) }
+                          )
+                          if (res.ok) {
+                            const health = await res.json()
+                            setBoardMsg(
+                              health.status === 'healthy'
+                                ? `✅ ${board.name} health: ${health.task_count} items, ${health.warning_count} warnings`
+                                : `⚠️ ${board.name}: ${health.warning_count} issues - ${health.issues.join(', ')}`
+                            )
+                          } else {
+                            setBoardMsg(`❌ Health check failed (${res.status})`)
+                          }
                         } catch (e) {
-                          setBoardMsg(`❌ Health check failed`)
+                          setBoardMsg(`❌ Health check error: ${e}`)
                         }
                       }}
                       style={{ padding: '4px 8px', fontSize: '0.8rem' }}

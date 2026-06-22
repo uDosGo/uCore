@@ -44,8 +44,8 @@ Status: Refreshed by brain_sync
 
 ## Next Synthesis Targets
 - **Phase 8 complete** (UDW-020 to UDW-023): S320 enhanced, S330 created, S300 wired, TaskDetailDrawer built.
-- **Phase 9 planning**: Expand Developer surface with task integration, wire Cline CLI to uCore workflows, integrate Firewatch MCP for browser automation.
-- **Backend endpoint priority**: Implement `/api/workflows/task/{id}` CRUD, `/api/workflows/board/{id}/health`, consolidation status endpoints.
+- **Phase 9B complete**: Developer surface task query routing is wired via `?task={taskId}`, Phase 9 workflow endpoints have targeted tests, frontend build passes, and AI stack health is green.
+- **Backend endpoint status**: `/api/workflows/task/{id}` CRUD, `/api/workflows/board/{id}/health`, `/api/knowledge/import/status`, and `/api/knowledge/index/coverage` are implemented and covered by targeted tests.
 - **n8n template workflows**: Create example flows for AppFlowy → uCore → webhook pipelines.
 - **Zen + Firewatch integration**: Setup Cline + Firewatch MCP for automated UI testing and data extraction workflows.
 

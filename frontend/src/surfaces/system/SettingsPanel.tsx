@@ -9,6 +9,14 @@ import { Icon } from '../../components/Icon'
 
 const SNACKBAR_API = 'http://localhost:8484'
 
+type ConfigItem = { label: string; value: string; masked?: boolean }
+type ConfigPayload = {
+  user: ConfigItem[]
+  system: ConfigItem[]
+  installation: ConfigItem[]
+  secrets: { store_dir: string; store_file: string; key_file: string; count: number; items: Array<{ name: string; masked: string }>; env_keys: string[] }
+}
+
 // ─── AIModelsStatus (extracted from UIHubManager) ──────────────────
 function AIModelsStatus() {
   const [ollamaStatus, setOllamaStatus] = useState<'checking' | 'running' | 'stopped'>('checking')
@@ -107,6 +115,24 @@ export function SettingsPanel() {
   const [displayMode, setDisplayMode] = useState<'grid' | 'list' | 'compact'>('grid')
 
   const [palette, setPalette] = useState('default')
+  const [config, setConfig] = useState<ConfigPayload | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadConfig() {
+      try {
+        const res = await fetch(`${SNACKBAR_API}/api/config`, { signal: AbortSignal.timeout(2500) })
+        if (res.ok) {
+          const data = await res.json()
+          if (!cancelled) setConfig(data)
+        }
+      } catch {
+        if (!cancelled) setConfig(null)
+      }
+    }
+    loadConfig()
+    return () => { cancelled = true }
+  }, [])
 
   const palettes = [
     { id: 'default', name: 'Default', color: '#58a6ff' },
@@ -185,25 +211,61 @@ export function SettingsPanel() {
         <div className="hub-settings-card">
           <div className="hub-settings-card-header">
             <Icon name="person" size={16} />
-            <h3>User Settings</h3>
+            <h3>Central Variables</h3>
           </div>
           <div className="hub-settings-card-body">
             <div className="hub-settings-connections">
-              <div className="hub-settings-connection-row">
-                <span>Username</span>
-                <span className="hub-settings-mono">fredbook</span>
+              <div className="hub-settings-connection-row" style={{ alignItems: 'flex-start' }}>
+                <span>User</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+                  {(config?.user || []).map(item => (
+                    <span key={item.label} className="hub-settings-mono" style={{ fontSize: 12 }}>
+                      {item.label}: {item.value}
+                    </span>
+                  )) || <span className="hub-settings-mono" style={{ fontSize: 12 }}>Loading...</span>}
+                </div>
               </div>
-              <div className="hub-settings-connection-row">
-                <span>Email</span>
-                <span className="hub-settings-mono">fred@okagent.digital</span>
+              <div className="hub-settings-connection-row" style={{ alignItems: 'flex-start' }}>
+                <span>System</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+                  {(config?.system || []).map(item => (
+                    <span key={item.label} className="hub-settings-mono" style={{ fontSize: 12 }}>
+                      {item.label}: {item.value}
+                    </span>
+                  )) || <span className="hub-settings-mono" style={{ fontSize: 12 }}>Loading...</span>}
+                </div>
               </div>
-              <div className="hub-settings-connection-row">
-                <span>GitHub Token</span>
-                <span className="hub-settings-mono">••••••••••••••••</span>
+              <div className="hub-settings-connection-row" style={{ alignItems: 'flex-start' }}>
+                <span>Installation</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+                  {(config?.installation || []).map(item => (
+                    <span key={item.label} className="hub-settings-mono" style={{ fontSize: 12 }}>
+                      {item.label}: {item.value}
+                    </span>
+                  )) || <span className="hub-settings-mono" style={{ fontSize: 12 }}>Loading...</span>}
+                </div>
               </div>
-              <div className="hub-settings-connection-row">
-                <span>SSH Key</span>
-                <span className="hub-settings-mono">ed25519 (active)</span>
+              <div className="hub-settings-connection-row" style={{ alignItems: 'flex-start' }}>
+                <span>Secrets</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+                  {config?.secrets ? (
+                    <>
+                      <span className="hub-settings-mono" style={{ fontSize: 12 }}>
+                        Store: {config.secrets.store_file}
+                      </span>
+                      <span className="hub-settings-mono" style={{ fontSize: 12 }}>
+                        {config.secrets.count} secrets · {config.secrets.env_keys.length} env imports
+                      </span>
+                      {config.secrets.items.slice(0, 4).map(secret => (
+                        <span key={secret.name} className="hub-settings-mono" style={{ fontSize: 12 }}>
+                          {secret.name}: {secret.masked}
+                        </span>
+                      ))}
+                    </>
+                  ) : (
+                    <span className="hub-settings-mono" style={{ fontSize: 12 }}>Loading...</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -217,47 +279,20 @@ export function SettingsPanel() {
           <div className="hub-settings-card-body">
             <div className="hub-settings-connections">
               <div className="hub-settings-connection-row">
-                <span>Language</span>
-                <span className="hub-settings-mono">English (US)</span>
+                <span>Display Mode</span>
+                <span className="hub-settings-mono">{displayMode}</span>
               </div>
               <div className="hub-settings-connection-row">
-                <span>Timezone</span>
-                <span className="hub-settings-mono">Australia/Brisbane (UTC+10)</span>
+                <span>Font Size</span>
+                <span className="hub-settings-mono">{fontSize}px</span>
               </div>
               <div className="hub-settings-connection-row">
-                <span>Theme</span>
-                <span className="hub-settings-mono">Dark (USX)</span>
+                <span>Palette</span>
+                <span className="hub-settings-mono">{palette}</span>
               </div>
               <div className="hub-settings-connection-row">
                 <span>Auto-save</span>
                 <span className="hub-settings-mono">Enabled</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="hub-settings-card">
-          <div className="hub-settings-card-header">
-            <Icon name="dns" size={16} />
-            <h3>uServer Connections</h3>
-          </div>
-          <div className="hub-settings-card-body">
-            <div className="hub-settings-connections">
-              <div className="hub-settings-connection-row">
-                <span>uServer Host</span>
-                <span className="hub-settings-mono">192.168.20.11</span>
-              </div>
-              <div className="hub-settings-connection-row">
-                <span>Snackbar Port</span>
-                <span className="hub-settings-mono">8484</span>
-              </div>
-              <div className="hub-settings-connection-row">
-                <span>Secret Server</span>
-                <span className="hub-settings-mono">:30001</span>
-              </div>
-              <div className="hub-settings-connection-row">
-                <span>Hivemind</span>
-                <span className="hub-settings-mono">:8485</span>
               </div>
             </div>
           </div>

@@ -272,10 +272,22 @@ Python stdio bridge translating MCP JSON-RPC ↔ uCore HTTP API:
 ### Environment Variables
 | Variable | Purpose | Currently Set |
 |----------|---------|--------------|
+| `UDOS_ROOT` | Canonical repo spine for all local repos | ✅ Canonical (fallback: `ROOT`, `UDOS_CODE`) |
 | `OPENROUTER_API_KEY` | OpenRouter AI provider | ✅ Imported + encrypted |
 | `GITHUB_TOKEN` | GitHub API access | ✅ Imported + encrypted |
 | `UCORE_PORT` | Server port (default: 8484) | — |
 | `UCORE_DEBUG` | Enable debug mode | ✅ (via launchd) |
+| `UCORE_SECRETS_DIR` | Encrypted secret store directory | ✅ Defaults to `~/.ucore` |
+| `UCORE_USER_NAME` | User display name in settings | ✅ Optional |
+| `UCORE_USER_EMAIL` | User email in settings | ✅ Optional |
+
+### Centralized Configuration Groups
+| Group | Source | Notes |
+|-------|--------|-------|
+| User | `backend/app/core/settings.py` + `/api/config` | Display identity and shortcut variables |
+| System | `backend/app/core/settings.py` + `/api/config` | Runtime, host, AI, auth, and transport vars |
+| Installation | `backend/app/core/settings.py` + `/api/config` | `UDOS_ROOT`, data/config/logs, registry |
+| Secrets | `backend/app/secret/store.py` + `/api/secrets` + `/api/config` | Encrypted store, key file, imported env keys |
 
 ## 8. Running & Testing
 
@@ -295,6 +307,7 @@ curl http://localhost:8484/api/skills                  # 15 skills
 curl http://localhost:8484/api/tools                   # 7 tools
 curl http://localhost:8484/api/models                  # 4 providers
 curl http://localhost:8484/api/secrets                 # Secret store
+curl http://localhost:8484/api/config                  # Central config groups
 curl http://localhost:8484/api/mcp/tools               # 18 MCP tools
 curl http://localhost:8484/api/knowledge/workspaces    # AppFlowy
 ```
