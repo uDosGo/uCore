@@ -38,6 +38,8 @@ interface GlobalToolbarProps {
   onToggleSidebar?: () => void
   /** Whether filepicker sidebar is currently open */
   sidebarOpen?: boolean
+  /** Optional custom label for sidebar toggle button (e.g. "Server sidebar") */
+  sidebarToggleLabel?: string
   /** Open settings panel callback */
   onOpenSettings?: () => void
   /** When true, hides the Globe/Web Reader button (used on BrowserUI itself) */
@@ -64,6 +66,7 @@ export function GlobalToolbar({
   rightExtra,
   onToggleSidebar,
   sidebarOpen,
+  sidebarToggleLabel,
   onOpenSettings,
   hideGlobe,
   hideAssistUI,
@@ -75,6 +78,7 @@ export function GlobalToolbar({
 
 
   const navigate = useNavigate()
+  const resolvedSidebarLabel = sidebarToggleLabel || 'Filepicker sidebar'
 
   const handleHome = () => {
     navigate('/?tab=surfaces')
@@ -108,8 +112,8 @@ export function GlobalToolbar({
           <button
             className={`usx-header-btn ${sidebarOpen ? 'active' : ''}`}
             onClick={onToggleSidebar}
-            title={sidebarOpen ? 'Close filepicker sidebar' : 'Open filepicker sidebar'}
-            aria-label="Toggle filepicker sidebar"
+            title={sidebarOpen ? `Close ${resolvedSidebarLabel.toLowerCase()}` : `Open ${resolvedSidebarLabel.toLowerCase()}`}
+            aria-label={`Toggle ${resolvedSidebarLabel.toLowerCase()}`}
           >
             <Icon name="folder" size={18} />
           </button>

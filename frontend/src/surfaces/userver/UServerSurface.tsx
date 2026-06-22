@@ -10,10 +10,10 @@
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
+import { GlobalToolbar } from '../../components/GlobalToolbar'
 import { Icon } from '../../components/Icon'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
-import VaultSidebar from '../../components/VaultSidebar'
+import VaultSidebar, { SidebarNavItem } from '../../components/VaultSidebar'
 import AssistUISurface from '../assistui/AssistUISurface'
 import { SettingsPanel } from '../system/SettingsPanel'
 import '../../styles/userver.css'
@@ -1033,6 +1033,7 @@ export default function UServerSurface() {
   const [agents] = useState<AgentInfo[]>(DEFAULT_AGENTS)
   const [surfaces] = useState<SurfaceInfo[]>(DEFAULT_SURFACES)
   const [chatOpen, setChatOpen] = useState(false)
+  const [sidebarMode, setSidebarMode] = useState<'server' | 'filepicker'>('server')
   const { sidebarOpen, toggleSidebar } = useSurfaceShell()
   const runningCount = surfaces.filter(s => s.status === 'running').length
 
@@ -1051,7 +1052,7 @@ export default function UServerSurface() {
     navigate(`/server?tab=${nextTab}`)
   }
 
-  const tabs: ToolbarTab[] = [
+  const serverNavItems: SidebarNavItem[] = [
     { id: 'dashboard', icon: 'home', label: 'Dashboard', active: tab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
     { id: 'ingest', icon: 'upload_file', label: 'Ingest', active: tab === 'ingest', onClick: () => setTabAndRoute('ingest') },
     { id: 'missions', icon: 'account_tree', label: 'Missions', active: tab === 'missions', onClick: () => setTabAndRoute('missions') },
@@ -1065,11 +1066,11 @@ export default function UServerSurface() {
   return (
     <div className="userver-surface">
       <GlobalToolbar
-        tabs={tabs}
         chatMode={chatOpen ? 'panel' : 'closed'}
         onToggleChat={() => setChatOpen(prev => !prev)}
         onToggleSidebar={toggleSidebar}
         sidebarOpen={sidebarOpen}
+        sidebarToggleLabel="Server sidebar"
         rightExtra={
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <span className="hub-status-badge">
@@ -1084,7 +1085,14 @@ export default function UServerSurface() {
       />
 
       <div className="usx-surface-body" style={{ position: 'relative' }}>
-        <VaultSidebar open={sidebarOpen} onToggle={toggleSidebar} />
+        <VaultSidebar
+          open={sidebarOpen}
+          onToggle={toggleSidebar}
+          showModeTabs
+          sidebarMode={sidebarMode}
+          onSidebarModeChange={setSidebarMode}
+          serverNavItems={serverNavItems}
+        />
 
         {/* ─── Chat Panel — overlays ALL surfaces (absolute, z-index) ─── */}
         {chatOpen && (

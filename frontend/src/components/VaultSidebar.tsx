@@ -26,6 +26,14 @@ export interface Binder {
   fileCount?: number
 }
 
+export interface SidebarNavItem {
+  id: string
+  icon: string
+  label: string
+  active?: boolean
+  onClick: () => void
+}
+
 // ─── Allowed uDoS file types ────────────────────────────────────────
 const UDOS_EXTENSIONS = new Set(['.md', '.json', '.yaml', '.yml', '.txt', '.csv'])
 
@@ -108,6 +116,14 @@ interface VaultSidebarProps {
   onFileSelect?: (file: VaultFile) => void
   /** Optional: compact mode for embedded use (e.g. chat panel) */
   compact?: boolean
+  /** Optional: show server/filepicker mode tabs (used by Server surface) */
+  showModeTabs?: boolean
+  /** Optional: selected sidebar mode */
+  sidebarMode?: 'server' | 'filepicker'
+  /** Optional: mode switch callback */
+  onSidebarModeChange?: (mode: 'server' | 'filepicker') => void
+  /** Optional: server navigation items shown when mode=server */
+  serverNavItems?: SidebarNavItem[]
 }
 
 // ─── Component ──────────────────────────────────────────────────────
@@ -117,6 +133,10 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
   onNewFile,
   onFileSelect,
   compact = false,
+  showModeTabs = false,
+  sidebarMode = 'filepicker',
+  onSidebarModeChange,
+  serverNavItems = [],
 }) => {
   const [activeBinder, setActiveBinder] = useState<Binder>(DEFAULT_BINDER)
   const [binderDropdownOpen, setBinderDropdownOpen] = useState(false)
@@ -124,6 +144,8 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
   const [files, setFiles] = useState<VaultFile[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const binderRef = useRef<HTMLDivElement>(null)
+  const isServerMode = showModeTabs && sidebarMode === 'server'
+  const modeOrder: Array<'server' | 'filepicker'> = ['server', 'filepicker']
 
   // Load files for active binder
   const loadFiles = useCallback(async (binder: Binder) => {
@@ -161,112 +183,199 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
     )
   }, [files, searchQuery])
 
+  const handleModeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!showModeTabs || !onSidebarModeChange) return
+    const currentIdx = modeOrder.indexOf(sidebarMode)
+    if (currentIdx === -1) return
+
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      onSidebarModeChange(modeOrder[(currentIdx + 1) % modeOrder.length])
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      onSidebarModeChange(modeOrder[(currentIdx - 1 + modeOrder.length) % modeOrder.length])
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      onSidebarModeChange(modeOrder[0])
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      onSidebarModeChange(modeOrder[modeOrder.length - 1])
+    }
+  }
+
   return (
     <div className="vault-sidebar-wrapper">
       {/* Sidebar panel — slides open/closed */}
       <div className={`vault-sidebar ${open ? 'vault-sidebar--open' : 'vault-sidebar--closed'} ${compact ? 'vault-sidebar--compact' : ''}`}>
         <div className="vault-sidebar-inner">
-          {/* Binder selector */}
-          <div className="vault-sidebar-binder-selector" ref={binderRef}>
-            <button
-              className="vault-sidebar-binder-btn"
-              onClick={() => setBinderDropdownOpen(prev => !prev)}
-            >
-              <Icon name={activeBinder.icon || 'folder'} size={14} />
-              <span className="vault-sidebar-binder-label">{activeBinder.name}</span>
-              <Icon name={binderDropdownOpen ? 'expand_less' : 'expand_more'} size={12} />
-            </button>
-            {binderDropdownOpen && (
-              <div className="vault-sidebar-binder-dropdown">
-                <div className="vault-sidebar-binder-list">
-                  {BINDERS.map(b => {
-                    const isActive = b.id === activeBinder.id
-                    return (
-                      <button
-                        key={b.id}
-                        className={`vault-sidebar-binder-item ${isActive ? 'active' : ''}`}
-                        onClick={() => { setActiveBinder(b); setBinderDropdownOpen(false); setSearchQuery('') }}
-                      >
-                        <Icon name={b.icon || 'folder'} size={14} />
-                        <div className="vault-sidebar-binder-item-info">
-                          <span className="vault-sidebar-binder-item-name">{b.name}</span>
-                          {b.fileCount !== undefined && (
-                            <span className="vault-sidebar-binder-item-count">{b.fileCount} files</span>
-                          )}
-                        </div>
-                        {isActive && <Icon name="check" size={12} />}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Scrollable content area — search + file list */}
-          <div className="vault-sidebar-content">
-            {/* Search */}
-            <div className="vault-sidebar-search">
-              <Icon name="search" size={12} className="vault-sidebar-search-icon" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search files..."
-                className="vault-sidebar-search-input"
-              />
-              {searchQuery && (
-                <button className="vault-sidebar-search-clear" onClick={() => setSearchQuery('')}>
-                  <Icon name="close" size={12} />
-                </button>
-              )}
-            </div>
-
-            {/* File list */}
-            <div className="vault-sidebar-file-list">
-              {isLoading ? (
-                <div className="vault-sidebar-loading">
-                  <Icon name="sync" size={14} className="vault-sidebar-spin" />
-                  <span>Loading...</span>
-                </div>
-              ) : filteredFiles.length === 0 ? (
-                <div className="vault-sidebar-empty">
-                  <Icon name={searchQuery ? 'search_off' : 'folder_open'} size={20} />
-                  <span>{searchQuery ? 'No files found' : 'No files in this binder'}</span>
-                  {!searchQuery && (
-                    <span className="vault-sidebar-empty-hint">Create a new document to get started</span>
-                  )}
-                </div>
-              ) : (
-                filteredFiles.map(file => (
-                  <div
-                    key={file.id}
-                    className="vault-sidebar-file-item"
-                    onClick={() => onFileSelect?.(file)}
-                    title={file.name}
-                  >
-                    <Icon name={getFileIcon(file.name)} size={14} className="vault-sidebar-file-icon" />
-                    <div className="vault-sidebar-file-info">
-                      <span className="vault-sidebar-file-name">{file.name}</span>
-                      <span className="vault-sidebar-file-meta">{formatRelativeTime(file.updatedAt)}</span>
-                    </div>
-                    {file.tags && file.tags.length > 0 && (
-                      <span className="vault-sidebar-file-tag">{file.tags[0]}</span>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* New file button */}
-          {onNewFile && (
-            <div className="vault-sidebar-footer">
-              <button className="vault-sidebar-new-btn" onClick={() => onNewFile(activeBinder.id)}>
-                <Icon name="add" size={14} />
-                <span>New Document</span>
+          {showModeTabs && (
+            <div className="vault-sidebar-mode-switch" role="tablist" aria-label="Sidebar mode" onKeyDown={handleModeKeyDown}>
+              <button
+                className={`vault-sidebar-mode-btn ${sidebarMode === 'server' ? 'active' : ''}`}
+                onClick={() => onSidebarModeChange?.('server')}
+                role="tab"
+                aria-selected={sidebarMode === 'server'}
+                aria-controls="vault-sidebar-panel-server"
+                id="vault-sidebar-tab-server"
+                tabIndex={sidebarMode === 'server' ? 0 : -1}
+              >
+                <Icon name="dns" size={13} />
+                <span>Server Tabs</span>
+              </button>
+              <button
+                className={`vault-sidebar-mode-btn ${sidebarMode === 'filepicker' ? 'active' : ''}`}
+                onClick={() => onSidebarModeChange?.('filepicker')}
+                role="tab"
+                aria-selected={sidebarMode === 'filepicker'}
+                aria-controls="vault-sidebar-panel-filepicker"
+                id="vault-sidebar-tab-filepicker"
+                tabIndex={sidebarMode === 'filepicker' ? 0 : -1}
+              >
+                <Icon name="folder" size={13} />
+                <span>Filepicker</span>
               </button>
             </div>
+          )}
+
+          {isServerMode ? (
+            <div
+              className="vault-sidebar-content vault-sidebar-content--server"
+              role="tabpanel"
+              id="vault-sidebar-panel-server"
+              aria-labelledby="vault-sidebar-tab-server"
+            >
+              <div className="vault-sidebar-server-list">
+                {serverNavItems.length === 0 ? (
+                  <div className="vault-sidebar-empty">
+                    <Icon name="dns" size={20} />
+                    <span>No server tabs available</span>
+                  </div>
+                ) : (
+                  serverNavItems.map(item => (
+                    <button
+                      key={item.id}
+                      className={`vault-sidebar-server-item ${item.active ? 'active' : ''}`}
+                      onClick={item.onClick}
+                      title={item.label}
+                    >
+                      <Icon name={item.icon} size={14} />
+                      <span>{item.label}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Binder selector */}
+              <div
+                className="vault-sidebar-binder-selector"
+                ref={binderRef}
+                role="tabpanel"
+                id="vault-sidebar-panel-filepicker"
+                aria-labelledby="vault-sidebar-tab-filepicker"
+              >
+                <button
+                  className="vault-sidebar-binder-btn"
+                  onClick={() => setBinderDropdownOpen(prev => !prev)}
+                >
+                  <Icon name={activeBinder.icon || 'folder'} size={14} />
+                  <span className="vault-sidebar-binder-label">{activeBinder.name}</span>
+                  <Icon name={binderDropdownOpen ? 'expand_less' : 'expand_more'} size={12} />
+                </button>
+                {binderDropdownOpen && (
+                  <div className="vault-sidebar-binder-dropdown">
+                    <div className="vault-sidebar-binder-list">
+                      {BINDERS.map(b => {
+                        const isActive = b.id === activeBinder.id
+                        return (
+                          <button
+                            key={b.id}
+                            className={`vault-sidebar-binder-item ${isActive ? 'active' : ''}`}
+                            onClick={() => { setActiveBinder(b); setBinderDropdownOpen(false); setSearchQuery('') }}
+                          >
+                            <Icon name={b.icon || 'folder'} size={14} />
+                            <div className="vault-sidebar-binder-item-info">
+                              <span className="vault-sidebar-binder-item-name">{b.name}</span>
+                              {b.fileCount !== undefined && (
+                                <span className="vault-sidebar-binder-item-count">{b.fileCount} files</span>
+                              )}
+                            </div>
+                            {isActive && <Icon name="check" size={12} />}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Scrollable content area — search + file list */}
+              <div className="vault-sidebar-content">
+                {/* Search */}
+                <div className="vault-sidebar-search">
+                  <Icon name="search" size={12} className="vault-sidebar-search-icon" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Search files..."
+                    className="vault-sidebar-search-input"
+                  />
+                  {searchQuery && (
+                    <button className="vault-sidebar-search-clear" onClick={() => setSearchQuery('')}>
+                      <Icon name="close" size={12} />
+                    </button>
+                  )}
+                </div>
+
+                {/* File list */}
+                <div className="vault-sidebar-file-list">
+                  {isLoading ? (
+                    <div className="vault-sidebar-loading">
+                      <Icon name="sync" size={14} className="vault-sidebar-spin" />
+                      <span>Loading...</span>
+                    </div>
+                  ) : filteredFiles.length === 0 ? (
+                    <div className="vault-sidebar-empty">
+                      <Icon name={searchQuery ? 'search_off' : 'folder_open'} size={20} />
+                      <span>{searchQuery ? 'No files found' : 'No files in this binder'}</span>
+                      {!searchQuery && (
+                        <span className="vault-sidebar-empty-hint">Create a new document to get started</span>
+                      )}
+                    </div>
+                  ) : (
+                    filteredFiles.map(file => (
+                      <div
+                        key={file.id}
+                        className="vault-sidebar-file-item"
+                        onClick={() => onFileSelect?.(file)}
+                        title={file.name}
+                      >
+                        <Icon name={getFileIcon(file.name)} size={14} className="vault-sidebar-file-icon" />
+                        <div className="vault-sidebar-file-info">
+                          <span className="vault-sidebar-file-name">{file.name}</span>
+                          <span className="vault-sidebar-file-meta">{formatRelativeTime(file.updatedAt)}</span>
+                        </div>
+                        {file.tags && file.tags.length > 0 && (
+                          <span className="vault-sidebar-file-tag">{file.tags[0]}</span>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* New file button */}
+              {onNewFile && (
+                <div className="vault-sidebar-footer">
+                  <button className="vault-sidebar-new-btn" onClick={() => onNewFile(activeBinder.id)}>
+                    <Icon name="add" size={14} />
+                    <span>New Document</span>
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -47,6 +47,87 @@
   overflow: hidden;
 }
 
+/* ─── Sidebar Mode Switch (Server/Filepicker) ───────────────────── */
+.vault-sidebar-mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  flex-shrink: 0;
+}
+
+.vault-sidebar-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.4rem;
+  background: var(--pico-background-color-variant, #1c2128);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  color: var(--pico-color, #c9d1d9);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.vault-sidebar-mode-btn:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.vault-sidebar-mode-btn:focus-visible {
+  outline: 2px solid var(--pico-primary, #58a6ff);
+  outline-offset: 1px;
+}
+
+.vault-sidebar-mode-btn.active {
+  background: var(--pico-primary-container, rgba(13, 110, 253, 0.15));
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary, #58a6ff);
+}
+
+.vault-sidebar-content--server {
+  padding-top: 0.5rem;
+}
+
+.vault-sidebar-server-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.vault-sidebar-server-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.4rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-color, #c9d1d9);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.vault-sidebar-server-item:hover {
+  background: var(--pico-background-color-variant, #1c2128);
+}
+
+.vault-sidebar-server-item:focus-visible {
+  outline: 2px solid var(--pico-primary, #58a6ff);
+  outline-offset: 1px;
+}
+
+.vault-sidebar-server-item.active {
+  background: var(--pico-primary-container, rgba(13, 110, 253, 0.15));
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary, #58a6ff);
+}
+
 /* ─── Binder Selector (fixed top) ───────────────────────────────── */
 .vault-sidebar-binder-selector {
   position: relative;
