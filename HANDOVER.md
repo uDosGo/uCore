@@ -7,6 +7,16 @@
 
 ## What's Changed
 
+### 2026-06-22 Follow-up: Ingest + Surface Cleanup
+- UDW-031 completed: mission drop ingest flow now wired end-to-end.
+- `/api/knowledge/import` now accepts optional `mission`, `binder`, and `files` payload fields.
+- AF import path propagates ingest context through `run_import(...)` and records context metadata in imported document payloads.
+- Ingest UI sends mission/binder/files from `UServerSurface` Drop Ingest panel.
+- Legacy server tabs removed from active nav: `install`, `modules`, `feeds`, `story`, `pages`, `publishing`.
+- Legacy tab names still compatibility-mapped into canonical server tabs (`settings`, `missions`, `workflows`).
+- Archived dead frontend files removed: `frontend/src/surfaces/gridcore/GridCoreSurface.tsx` and `frontend/src/pages/S800Labs.tsx`.
+- Mission Control global toolbar now only exposes canonical tabs (`Dashboard`, `Missions`); legacy ProseUI-era tabs (`Kanban`, `List`, `Prose`, `Editor`, `Schedule`) removed.
+
 ### Rename: DevStudio → Developer
 - Surface route: `/devstudio/*` → `/developer/*`
 - Component: `DevStudioSurface` → `DeveloperSurface`

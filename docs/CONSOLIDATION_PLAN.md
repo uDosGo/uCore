@@ -62,7 +62,7 @@ Archive or deprecate in-place:
 
 1. Populate architecture/overview.md and api/rest-api.md directly from current uCore routes and handlers.
 2. Populate runbooks/development.md from current backend/frontend setup commands.
-3. Populate surfaces/ceefax.md and surfaces/devstudio.md from current uCore surfaces and frontend modules.
+3. Populate surfaces/ceefax.md and surfaces/developer.md from current uCore surfaces and frontend modules.
 4. Populate runtimes/basic.md from uCode runtime docs.
 5. Update repository README files to point to uDocs.
 
@@ -98,3 +98,12 @@ Archive or deprecate in-place:
 - Every repo README links to uDocs canonical sections.
 - Duplicate detailed docs outside uDocs are archived or replaced with pointers.
 - AI context files reference uDocs as source of truth.
+
+## 2026-06-22 Progress Update
+
+- Completed ingest orchestration wiring (mission/binder/files context) for `/api/knowledge/import` and UServer Drop Ingest UI flow.
+- Consolidated server tabs now exclude legacy tabs from active nav while retaining compatibility routing.
+- Mission Control global toolbar removed legacy ProseUI-era tabs and now keeps only canonical navigation (`Dashboard`, `Missions`).
+- Archived legacy frontend remnants removed from codebase:
+	- `frontend/src/surfaces/gridcore/GridCoreSurface.tsx`
+	- `frontend/src/pages/S800Labs.tsx`

@@ -61,7 +61,7 @@ All plan-oriented documents should point here instead of carrying parallel task 
 | UDW-028 | done | P1 | Automation | Consolidation | Add launchd installer script for scheduled AppFlowy import runs |
 | UDW-029 | done | P1 | Knowledge | Consolidation | Add workspace mapping script to bind source entries to discovered AppFlowy workspace IDs |
 | UDW-030 | done | P1 | UI | Consolidation | Remove legacy GridCore/Labs surface links and reduce active UI surface footprint |
-| UDW-031 | in-progress | P1 | UI | Consolidation | Add mission drop panel ingest flow for binder and mission processing |
+| UDW-031 | done | P1 | UI | Consolidation | Add mission drop panel ingest flow for binder and mission processing |
 
 ## Execution Order
 
