@@ -68,7 +68,7 @@ const DEV_PROMPTS = [
 
 // ─── Sample Repos ───────────────────────────────────────────────────
 const SAMPLE_REPOS: RepoInfo[] = [
-  { name: 'uCore', path: '~/Code/uCore', branch: 'main', status: 'clean', changes: 0, remote: 'origin: git@github.com:uDosGo/uCore.git' },
+  { name: 'Developer', path: '~/Code/Developer', branch: 'main', status: 'clean', changes: 0, remote: 'origin: git@github.com:OkAgentDigital/Developer.git' },
   { name: 'uConnect', path: '~/Code/uConnect', branch: 'main', status: 'modified', changes: 3, remote: 'origin: git@github.com:uDosGo/uConnect.git' },
   { name: 'uServer', path: '~/Code/uServer', branch: 'main', status: 'clean', changes: 0, remote: 'origin: git@github.com:uDosGo/uServer.git' },
   { name: 'uPlace', path: '~/Code/uPlace', branch: 'main', status: 'clean', changes: 0, remote: 'origin: git@github.com:uDosGo/uPlace.git' },
