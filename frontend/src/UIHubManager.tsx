@@ -72,9 +72,23 @@ function sortSurfaces(list: SurfaceDef[]): SurfaceDef[] {
   return [...core.filter(Boolean), ...rest]
 }
 
+function isTestSurface(surface: Pick<SurfaceDef, 'id' | 'name'>): boolean {
+  const id = String(surface.id || '').toLowerCase()
+  const name = String(surface.name || '').toLowerCase()
+  return (
+    id === 'terminal' ||
+    id === 'teletext' ||
+    id.includes('test') ||
+    id.includes('persist') ||
+    name.includes('test surface') ||
+    name.includes('test persist') ||
+    name.includes('test')
+  )
+}
+
 // ─── Filter out the ui-hub (uDosConnect) from surface lists ──────
 function withoutUiHub(list: SurfaceDef[]): SurfaceDef[] {
-  return list.filter(s => s.id !== 'ui-hub' && s.id !== 'terminal' && s.id !== 'teletext')
+  return list.filter(s => s.id !== 'ui-hub' && !isTestSurface(s))
 }
 
 const SNACKBAR_API = 'http://localhost:8484'
@@ -1435,6 +1449,7 @@ function UIHubInner() {
   // ─── Filter surfaces for Surfaces tab: hide HIDDEN_FROM_SURFACES_TAB unless starred ──
   // Legacy IDs are explicitly hidden from active nav.
   const surfacesForTab = surfaces.filter(s => {
+    if (isTestSurface(s)) return false
     if (['devstudio', 'proseui', 'usystem', 'userver'].includes(s.id)) return false
     // Hide hidden surfaces unless starred
     if (HIDDEN_FROM_SURFACES_TAB.includes(s.id)) {

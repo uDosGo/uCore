@@ -5,6 +5,7 @@
   - Dashboard (surface cards, starred surfaces)
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
 import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
 import AssistUISurface from '../assistui/AssistUISurface'
@@ -85,6 +86,19 @@ const sortSurfaces = (list: SurfaceDef[]): SurfaceDef[] => {
 
 const TEST_SURFACE_IDS = new Set(['terminal', 'teletext'])
 
+const isTestSurface = (surface: Pick<SurfaceDef, 'id' | 'name'>): boolean => {
+  const id = String(surface.id || '').toLowerCase()
+  const name = String(surface.name || '').toLowerCase()
+  return (
+    TEST_SURFACE_IDS.has(id) ||
+    id.includes('test') ||
+    id.includes('persist') ||
+    name.includes('test surface') ||
+    name.includes('test persist') ||
+    name.includes('test')
+  )
+}
+
 const withoutUiHub = (list: SurfaceDef[]): SurfaceDef[] =>
   list.filter(
     s =>
@@ -93,7 +107,7 @@ const withoutUiHub = (list: SurfaceDef[]): SurfaceDef[] =>
       s.id !== 'proseui' &&
       s.id !== 'system' &&
       !DEV_SURFACE_IDS.includes(s.id) &&
-      !TEST_SURFACE_IDS.has(s.id),
+        !isTestSurface(s),
   )
 
 // ─── Dashboard Panel ────────────────────────────────────────────────
@@ -310,6 +324,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
 
 // ─── Main Component ────────────────────────────────────────────────
 export default function MissionControlSurface() {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<MissionTab>('dashboard')
   const [surfaces, setSurfaces] = useState<SurfaceDef[]>([])
   const [loading, setLoading] = useState(true)
@@ -525,13 +540,22 @@ export default function MissionControlSurface() {
   }, [refresh])
 
   // ─── Render ─────────────────────────────────────────────────────
-  const tabs: ToolbarTab[] = MISSION_TABS.map(t => ({
-    id: t.id,
-    icon: t.icon,
-    label: t.label,
-    active: activeTab === t.id,
-    onClick: () => setActiveTab(t.id),
-  }))
+  const tabs: ToolbarTab[] = [
+    ...MISSION_TABS.map(t => ({
+      id: t.id,
+      icon: t.icon,
+      label: t.label,
+      active: activeTab === t.id,
+      onClick: () => setActiveTab(t.id),
+    })),
+    {
+      id: 'server',
+      icon: 'dns',
+      label: 'Server',
+      active: false,
+      onClick: () => navigate('/server?tab=dashboard'),
+    },
+  ]
 
   return (
     <div className="hub-surface">

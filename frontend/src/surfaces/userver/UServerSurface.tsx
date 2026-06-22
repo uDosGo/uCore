@@ -27,7 +27,7 @@ type UServerTab =
   | 'dashboard'
   | 'ingest'
   | 'missions'
-  | 'settings'
+  | 'system'
   | 'services'
   | 'logs'
   | 'workflows'
@@ -177,7 +177,7 @@ const SERVER_TABS: UServerTab[] = [
   'dashboard',
   'ingest',
   'missions',
-  'settings',
+  'system',
   'services',
   'logs',
   'workflows',
@@ -185,9 +185,10 @@ const SERVER_TABS: UServerTab[] = [
 ]
 
 const LEGACY_TAB_MAP: Record<string, UServerTab> = {
-  install: 'settings',
-  modules: 'settings',
-  feeds: 'settings',
+  install: 'system',
+  modules: 'system',
+  feeds: 'system',
+  settings: 'system',
   story: 'missions',
   pages: 'missions',
   publishing: 'workflows',
@@ -1083,7 +1084,7 @@ export default function UServerSurface() {
     { id: 'dashboard', icon: 'home', label: 'Dashboard', active: tab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
     { id: 'ingest', icon: 'upload_file', label: 'Ingest', active: tab === 'ingest', onClick: () => setTabAndRoute('ingest') },
     { id: 'missions', icon: 'account_tree', label: 'Mission Control', active: tab === 'missions', onClick: () => setTabAndRoute('missions') },
-    { id: 'settings', icon: 'settings', label: 'Settings', active: tab === 'settings', onClick: () => setTabAndRoute('settings') },
+    { id: 'system', icon: 'settings_suggest', label: 'System', active: tab === 'system', onClick: () => setTabAndRoute('system') },
     { id: 'services', icon: 'dns', label: 'Services', active: tab === 'services', onClick: () => setTabAndRoute('services') },
     { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTabAndRoute('logs') },
     { id: 'workflows', icon: 'layers', label: 'Workflows', active: tab === 'workflows', onClick: () => setTabAndRoute('workflows') },
@@ -1139,7 +1140,7 @@ export default function UServerSurface() {
           {tab === 'dashboard' && <DashboardTab services={services} workflows={workflows} logs={logs} surfaces={surfaces} />}
           {tab === 'ingest' && <IngestTab />}
           {tab === 'missions' && <MissionTaskBinderTab />}
-          {tab === 'settings' && <SettingsPanel />}
+          {tab === 'system' && <SettingsPanel />}
           {tab === 'services' && <ServicesTab services={services} />}
           {tab === 'logs' && <LogsTab logs={logs} />}
           {tab === 'workflows' && <WorkflowsTab workflows={workflows} />}

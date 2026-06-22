@@ -12,13 +12,15 @@ export interface IconProps {
  * Renders a Material Icons symbol using the Google Material Symbols font.
  */
 export const Icon: React.FC<IconProps> = ({ name, size = 24, className, style }) => {
+  const resolvedSize = Math.max(size, 24)
+
   return (
     <span
       className={`material-symbols-outlined ${className || ''}`}
       style={{
-        fontSize: size,
-        width: size,
-        height: size,
+        fontSize: resolvedSize,
+        width: resolvedSize,
+        height: resolvedSize,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',

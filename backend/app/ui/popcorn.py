@@ -381,9 +381,22 @@ class PopcornDelegate(NSObject):
             if self._connected:
                 surfaces_data = api_get("/api/surfaces")
                 raw_surfaces = surfaces_data.get("surfaces", []) if surfaces_data else []
+
+                def _is_test_surface(surface: dict) -> bool:
+                    sid = str(surface.get("id", "")).lower()
+                    sname = str(surface.get("name", "")).lower()
+                    return (
+                        sid in {"terminal", "teletext"}
+                        or "test" in sid
+                        or "persist" in sid
+                        or "test surface" in sname
+                        or "test persist" in sname
+                        or "test" in sname
+                    )
+
                 self._surfaces = [
                     s for s in raw_surfaces
-                    if str(s.get("id", "")).lower() not in {"terminal", "teletext"}
+                    if not _is_test_surface(s)
                 ]
                 self._any_running = any(s.get("state", "").lower() == "running" for s in self._surfaces)
             else:

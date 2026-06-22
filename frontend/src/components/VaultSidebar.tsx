@@ -218,7 +218,7 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
                 tabIndex={sidebarMode === 'server' ? 0 : -1}
               >
                 <Icon name="dns" size={13} />
-                <span>Server Tabs</span>
+                <span>Dashbaord</span>
               </button>
               <button
                 className={`vault-sidebar-mode-btn ${sidebarMode === 'filepicker' ? 'active' : ''}`}
@@ -311,21 +311,14 @@ const VaultSidebar: React.FC<VaultSidebarProps> = ({
               {/* Scrollable content area — search + file list */}
               <div className="vault-sidebar-content">
                 {/* Search */}
-                <div className="vault-sidebar-search">
-                  <Icon name="search" size={12} className="vault-sidebar-search-icon" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="Search files..."
-                    className="vault-sidebar-search-input"
-                  />
-                  {searchQuery && (
-                    <button className="vault-sidebar-search-clear" onClick={() => setSearchQuery('')}>
-                      <Icon name="close" size={12} />
-                    </button>
-                  )}
-                </div>
+                <input
+                  id="vault-sidebar-search-input"
+                  type="search"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Filter files"
+                  className="vault-sidebar-search-input"
+                />
 
                 {/* File list */}
                 <div className="vault-sidebar-file-list">
