@@ -46,7 +46,7 @@ const CORE_SURFACE_IDS = ['ucode', 'gridui', 'server', 'assistui', 'documentatio
 // 'browserui' is hidden because it's accessible via the Globe icon in the toolbar.
 // 'developer' is hidden because it's a dev-only surface.
 // 'system-tools' is hidden because it's an advanced admin section.
-const HIDDEN_FROM_SURFACES_TAB = ['browserui', 'developer', 'system-tools']
+const HIDDEN_FROM_SURFACES_TAB = ['browserui', 'developer']
 
 // ─── Fallback Surface Registry ─────────────────────────────────────
 const FALLBACK_REGISTRY: SurfaceDef[] = [
