@@ -8,6 +8,7 @@
    Wiki: [[Developer Hub]] | Backlinks: [[Skill Runner]], [[Repo Browser]]
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { GlobalToolbar } from '../../components/GlobalToolbar'
 import { Icon } from '../../components/Icon'
 
 // ─── Types ──────────────────────────────────────────────────────────
@@ -172,26 +173,6 @@ function renderProseMarkdown(text: string): string {
   html = html.replace(/<\/pre><\/p>/g, '</pre>')
 
   return html
-}
-
-// ─── Tab Button ─────────────────────────────────────────────────────
-function TabButton({ tab, current, icon, label, onClick }: {
-  tab: DeveloperTab
-  current: DeveloperTab
-  icon: string
-  label: string
-  onClick: (t: DeveloperTab) => void
-}) {
-  const isActive = tab === current
-  return (
-    <button
-      className={`developer-tab-btn ${isActive ? 'developer-tab-btn--active' : ''}`}
-      onClick={() => onClick(tab)}
-    >
-      <Icon name={icon} />
-      <span className="developer-tab-label">{label}</span>
-    </button>
-  )
 }
 
 // ─── Chat Panel ─────────────────────────────────────────────────────
@@ -901,51 +882,41 @@ function SettingsPanel() {
 
 // ─── Main Surface ───────────────────────────────────────────────────
 export default function DeveloperSurface() {
-  const [tab, setTab] = useState<DeveloperTab>('chat')
+  const [activeTab, setActiveTab] = useState<DeveloperTab>('chat')
+
+  const tabs = [
+    { id: 'chat', icon: 'chat', label: 'Chat' },
+    { id: 'repos', icon: 'folder_open', label: 'Repos' },
+    { id: 'skills', icon: 'build', label: 'Skills' },
+    { id: 'review', icon: 'visibility', label: 'Review' },
+    { id: 'workflows', icon: 'play_circle', label: 'Workflows' },
+    { id: 'benchbench', icon: 'bar_chart', label: 'Bench' },
+    { id: 'creative', icon: 'palette', label: 'Creative' },
+    { id: 'agents', icon: 'smart_toy', label: 'Agents' },
+    { id: 'settings', icon: 'settings', label: 'Settings' },
+  ]
 
   return (
-    <div className="developer-surface">
-      {/* USX v3.1 Surface Header */}
-      <header className="usx-surface-header global-toolbar">
-        <div className="usx-header-left">
-          <button onClick={() => window.location.href = '/'} className="usx-header-btn" title="Back to UI Hub">
-            <Icon name="home" size={18} />
-          </button>
-          <span className="usx-header-title">Developer</span>
-        </div>
-        <div className="usx-header-right">
-          <span className="developer-status-badge">
-            <span className="developer-status-dot" />
-            L4 Delegator
-          </span>
-        </div>
-      </header>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--pico-background-color, #010409)' }}>
+      <GlobalToolbar
+        tabs={tabs.map((tab) => ({
+          ...tab,
+          active: activeTab === (tab.id as DeveloperTab),
+          onClick: () => setActiveTab(tab.id as DeveloperTab),
+        }))}
+        rightExtra={<span style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)' }}>Developer Studio · L4 Delegator</span>}
+      />
 
-      <div className="developer-surface-body">
-        {/* Tab Navigation */}
-        <nav className="developer-tab-bar">
-          <TabButton tab="benchbench" current={tab} icon="bar_chart" label="Bench" onClick={setTab} />
-          <TabButton tab="repos" current={tab} icon="folder_open" label="Repos" onClick={setTab} />
-          <TabButton tab="skills" current={tab} icon="build" label="Skills" onClick={setTab} />
-          <TabButton tab="review" current={tab} icon="visibility" label="Review" onClick={setTab} />
-          <TabButton tab="workflows" current={tab} icon="bolt" label="Workflows" onClick={setTab} />
-          <TabButton tab="creative" current={tab} icon="palette" label="Creative" onClick={setTab} />
-          <TabButton tab="agents" current={tab} icon="smart_toy" label="Agents" onClick={setTab} />
-          <TabButton tab="settings" current={tab} icon="settings" label="Settings" onClick={setTab} />
-          <TabButton tab="chat" current={tab} icon="chat" label="Chat" onClick={setTab} />
-        </nav>
-
-        <main className="developer-surface-main">
-          {tab === 'chat' && <ChatPanel />}
-          {tab === 'repos' && <ReposPanel />}
-          {tab === 'skills' && <SkillsPanel />}
-          {tab === 'review' && <ReviewPanel />}
-          {tab === 'workflows' && <WorkflowsPanel />}
-          {tab === 'benchbench' && <BenchBenchPanel />}
-          {tab === 'creative' && <CreativePanel />}
-          {tab === 'agents' && <AgentsPanel />}
-          {tab === 'settings' && <SettingsPanel />}
-        </main>
+      <div style={{ flex: 1, overflow: 'auto', background: 'var(--pico-background-color, #010409)' }}>
+        {activeTab === 'chat' && <ChatPanel />}
+        {activeTab === 'repos' && <ReposPanel />}
+        {activeTab === 'skills' && <SkillsPanel />}
+        {activeTab === 'review' && <ReviewPanel />}
+        {activeTab === 'workflows' && <WorkflowsPanel />}
+        {activeTab === 'benchbench' && <BenchBenchPanel />}
+        {activeTab === 'creative' && <CreativePanel />}
+        {activeTab === 'agents' && <AgentsPanel />}
+        {activeTab === 'settings' && <SettingsPanel />}
       </div>
     </div>
   )
