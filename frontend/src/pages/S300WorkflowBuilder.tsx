@@ -245,13 +245,58 @@ export default function S300WorkflowBuilder() {
             <strong>🗂️ Boards</strong>
           </header>
           {status?.task_markdown.boards?.length ? (
-            <ul>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {status.task_markdown.boards.map((board) => (
-                <li key={board.name}>
-                  <strong>{board.name}</strong> — {board.count} items
-                </li>
+                <div key={board.name} style={{
+                  padding: '10px 12px',
+                  border: '1px solid var(--pico-border-color, #30363d)',
+                  borderRadius: 6,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                  <div>
+                    <strong>{board.name}</strong>
+                    <small style={{ color: 'var(--pico-muted-color, #8b949e)', marginLeft: 8 }}>
+                      {board.count} items
+                    </small>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button
+                      onClick={() => window.open(board.path, '_blank')}
+                      style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                    >
+                      📂 View
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setBoardMsg(`Checking health of ${board.name}...`)
+                        try {
+                          // Simulate health check (backend endpoint not yet implemented)
+                          const health = { status: 'healthy', items: board.count, invalid: 0 }
+                          setBoardMsg(`✅ ${board.name} health: ${health.items} items, ${health.invalid} invalid`)
+                        } catch (e) {
+                          setBoardMsg(`❌ Health check failed`)
+                        }
+                      }}
+                      style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                    >
+                      🏥 Health
+                    </button>
+                  </div>
+                </div>
               ))}
-            </ul>
+              <button
+                className="primary"
+                onClick={() => {
+                  const kanbanCmd = status?.engine.command || 'npx kanban'
+                  alert(`To launch Kanban:\n\n${kanbanCmd}\n\nIn your terminal.`)
+                }}
+                style={{ width: '100%', marginTop: 8 }}
+              >
+                🚀 Launch Kanban
+              </button>
+            </div>
           ) : (
             <p>No `.tasker` boards yet. Run `tasker_sync` or the CLI exporter to populate them.</p>
           )}

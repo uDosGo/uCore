@@ -56,25 +56,30 @@ const DISPLAY_NAME_MAP: Record<string, string> = {
   assistui: 'Assistant',
 }
 
-// FALLBACK_REGISTRY: only Server, System, Documents, and Groovebox are hardcoded here.
-// All other surface cards (Terminal, Teletext, BrowserUI, Developer, etc.)
-// are placed dynamically by the snackbar/ui-server. This keeps the fallback minimal
-// for maintenance-only scenarios when the snackbar is offline.
+// Canonical fallback surface registry used when snackbar discovery is partial or unavailable.
+// Keep this aligned with routed core surfaces so dashboard cards are always visible.
 const FALLBACK_REGISTRY: SurfaceDef[] = [
   { id: 'ucode', name: 'uCode', subtitle: 'GridCore Surface', description: 'Unified GridCore surface with Terminal, Teletext, and grid management toolset dashboard.', port: 0, color: '#39d2c0', icon: 'grid_view', status: 'running', embedded: true, route: '/ucode' },
   { id: 'server', name: 'Server', subtitle: 'Operations & System', description: 'Consolidated server, system tools, modules, logs, workflows, agents, and publishing', port: 0, color: '#f59e0b', icon: 'dns', status: 'running', embedded: true, route: '/server' },
+  { id: 'assistui', name: 'AssistUI', subtitle: 'Canonical AI Chat', description: 'Full-page AI chat with streaming responses, model selection, conversation management, and multi-agent support.', port: 0, color: '#a855f7', icon: 'smart_toy', status: 'running', embedded: true, route: '/assistui' },
+  { id: 'documentation', name: 'Documentation', subtitle: 'Learning Hub', description: 'Learning hub with tutorials, guides, courses, skill tracker, and API docs.', port: 0, color: '#a371f7', icon: 'menu_book', status: 'running', embedded: true, route: '/documentation' },
+  { id: 'browserui', name: 'Web Reader', subtitle: 'Research Bookmarks', description: 'Clean browser interface with centered search and research bookmarks.', port: 5179, color: '#f97583', icon: 'language', status: 'running', embedded: true, route: '/browserui' },
+  { id: 'developer', name: 'Developer', subtitle: 'Development Lane', description: 'Developer environment with chat, repos, skills, reviews, workflows, and settings.', port: 0, color: '#d29922', icon: 'tune', status: 'running', embedded: true, route: '/developer' },
   { id: 'groovebox', name: 'Groovebox', subtitle: 'Music Production', description: 'Music production environment with MIDI sequencing, synthesis, and audio processing', port: 8888, color: '#da3633', icon: 'play_arrow', status: 'stopped' },
-
-
 ]
 
 const MISSION_TABS: { id: MissionTab; icon: string; label: string }[] = [
   { id: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
 ]
 
+const QUICK_SURFACE_TABS: Array<{ id: string; icon: string; label: string; href: string }> = [
+  { id: 'ucode', icon: 'grid_view', label: 'uCode', href: '/ucode' },
+  { id: 'server', icon: 'dns', label: 'Server', href: '/server?tab=dashboard' },
+]
+
 // ─── Helpers ────────────────────────────────────────────────────────
 const sortSurfaces = (list: SurfaceDef[]): SurfaceDef[] => {
-  const order = ['assistui', 'ucode', 'terminal', 'teletext', 'browserui', 'server', 'developer', 'groovebox']
+  const order = ['ucode', 'server', 'assistui', 'documentation', 'browserui', 'developer', 'groovebox']
   return [...list].sort((a, b) => {
     const ai = order.indexOf(a.id)
     const bi = order.indexOf(b.id)
@@ -102,6 +107,7 @@ const withoutUiHub = (list: SurfaceDef[]): SurfaceDef[] =>
     s =>
       s.id !== 'ui-hub' &&
       s.id !== 'mission-control' &&
+      s.id !== 'devstudio' &&
       s.id !== 'proseui' &&
       s.id !== 'system' &&
       !isTestSurface(s),
@@ -545,20 +551,13 @@ export default function MissionControlSurface() {
       active: activeTab === t.id,
       onClick: () => setActiveTab(t.id),
     })),
-    {
-      id: 'ucode',
-      icon: 'grid_view',
-      label: 'uCode',
+    ...QUICK_SURFACE_TABS.map(t => ({
+      id: t.id,
+      icon: t.icon,
+      label: t.label,
       active: false,
-      onClick: () => navigate('/ucode'),
-    },
-    {
-      id: 'server',
-      icon: 'dns',
-      label: 'Server',
-      active: false,
-      onClick: () => navigate('/server?tab=dashboard'),
-    },
+      onClick: () => navigate(t.href),
+    })),
   ]
 
   return (

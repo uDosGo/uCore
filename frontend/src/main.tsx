@@ -5,14 +5,15 @@
      /              → MissionControlSurface (dashboard + missions)
      /[ps]\d{3}     → SystemPage  (P: surface status, S: system pages)
      /assistui/*    → AssistUISurface (canonical AI chat)
-     /gridui/*      → GridUISurface (Terminal + Teletext)
-    /gridcore/*    → Redirect to /gridui?panel=terminal (archived)
+     /ucode/*       → UCodeSurface (Terminal + Teletext + Grid)
+    /gridui/*      → Redirect to /ucode (archived)
+    /gridcore/*    → Redirect to /ucode?panel=terminal (archived)
      /proseui/*     → Redirects to / (absorbed into MissionControl)
      /browserui/*   → BrowserUISurface (kept)
-     /userver/*     → UServerSurface (kept)
-     /developer/**   → DeveloperSurface (kept)
+     /server/*      → UServerSurface (kept)
+     /developer/**  → DeveloperSurface (kept)
     /system/*      → Redirect to /server?tab=... (legacy compatibility)
-   Removed: HomeNestSurface, WorldMapSurface, Code3UISurface, VibeSurface (dead)
+   Removed: HomeNestSurface, WorldMapSurface, Code3UISurface, VibeSurface, GridUISurface (dead)
    Absorbed: ChatUISurface → AssistUI, FloatingChatPanel → AssistUI, USystemRouter → UIHubManager
    ═══════════════════════════════════════════════════════════════════
    NOTE: @usx/styles symlinks to packages/usx/ which is currently
@@ -27,12 +28,10 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import MissionControlSurface from './surfaces/missioncontrol/MissionControlSurface'
 import { SystemPage, parseSystemRoute } from './SystemPage'
 import { SurfaceShellProvider } from './components/SurfaceShellContext'
-import GridUISurface from './surfaces/gridui/GridUISurface'
 import UCodeSurface from './surfaces/ucode/UCodeSurface'
 import BrowserUISurface from './surfaces/browserui/BrowserUISurface'
 import AssistUISurface from './surfaces/assistui/AssistUISurface'
 import DeveloperSurface from './surfaces/developer/DeveloperSurface'
-import SystemToolsSurface from './surfaces/systemtools/SystemToolsSurface'
 import DocumentationSurface from './surfaces/documentation/DocumentationSurface'
 import UServerSurface from './surfaces/userver/UServerSurface'
 
@@ -46,14 +45,13 @@ import S101StoryBuilder from './pages/S101StoryBuilder'
 import S300WorkflowBuilder from './pages/S300WorkflowBuilder'
 import S310ClipboardOrchestration from './pages/S310ClipboardOrchestration'
 import S320KnowledgeTools from './pages/S320KnowledgeTools'
+import S330MigrationDashboard from './pages/S330MigrationDashboard'
 import S600Learning from './pages/S600Learning'
 
 import './styles/tokens.css'
 import './styles/hub/index.css'
 import './styles/nestframe.css'
 import './styles/surface-host.css'
-import './styles/gridui.css'
-import './styles/gridui-terminal.css'
 import './styles/global-toolbar.css'
 import './styles/surfaces/developer.css'
 import './styles/surfaces/ucode.css'
@@ -67,6 +65,7 @@ const S_PAGE_COMPONENTS: Record<string, React.ComponentType> = {
   s300: S300WorkflowBuilder,
   s310: S310ClipboardOrchestration,
   s320: S320KnowledgeTools,
+  s330: S330MigrationDashboard,
   s600: S600Learning,
 }
 
@@ -94,12 +93,11 @@ function Root() {
       <SurfaceShellProvider>
         <Routes>
           <Route path="/proseui/*" element={<Navigate to="/" replace />} />
-          <Route path="/gridui/*" element={<GridUISurface />} />
+          <Route path="/gridui/*" element={<Navigate to="/ucode" replace />} />
           <Route path="/ucode/*" element={<UCodeSurface />} />
           <Route path="/browserui/*" element={<BrowserUISurface />} />
           <Route path="/assistui/*" element={<AssistUISurface />} />
           <Route path="/documentation/*" element={<DocumentationSurface />} />
-          <Route path="/system-tools/*" element={<SystemToolsSurface />} />
           <Route
             path="/developer/**"
             element={DEV_MODE_ENABLED ? <DeveloperSurface /> : <Navigate to="/" replace />}
@@ -110,7 +108,7 @@ function Root() {
           <Route path="/system/*" element={<SystemRouteRedirect />} />
           <Route path="/system-legacy" element={<Navigate to="/server?tab=settings" replace />} />
           <Route path="/system-legacy/*" element={<Navigate to="/server?tab=settings" replace />} />
-          <Route path="/gridcore/*" element={<Navigate to="/gridui?panel=terminal" replace />} />
+          <Route path="/gridcore/*" element={<Navigate to="/ucode?panel=terminal" replace />} />
           <Route path="/*" element={<App />} />
         </Routes>
         {/* Floating chat bubble + panel — hidden on /assistui since full-page AssistUI is shown */}

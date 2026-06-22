@@ -50,13 +50,13 @@ All plan-oriented documents should point here instead of carrying parallel task 
 | UDW-017 | done | P1 | UI | Next rounds | Add global shortcut open for clipboard panel |
 | UDW-018 | done | P2 | UI | Next rounds | Extend maintenance orchestration with richer cleanup tasks |
 | UDW-019 | done | P1 | UI | Next rounds | Add clipboard orchestration system page |
-| UDW-020 | in-progress | P1 | UI | Next rounds | Add knowledge-local and AppFlowy tools system page |
-| UDW-021 | todo | P2 | UI | Next rounds | Add migration and consolidation dashboard view |
-| UDW-022 | todo | P2 | Workflow | Next rounds | Add direct Kanban launch and health actions in S300 |
-| UDW-023 | todo | P1 | Workflow | Next rounds | Add task detail and board actions in S300 and Developer |
-| UDW-024 | todo | P2 | Orchestration | Backlog | Complete Cline plus Roundtable orchestration hardening |
-| UDW-025 | todo | P2 | AI UX | Backlog | Build AI provider manager system page |
-| UDW-026 | todo | P2 | CLI | Backlog | Build uc CLI for server control and skill execution |
+| UDW-020 | done | P1 | UI | Next rounds | Add knowledge-local and AppFlowy tools system page |
+| UDW-021 | done | P2 | UI | Next rounds | Add migration and consolidation dashboard view |
+| UDW-022 | done | P2 | Workflow | Next rounds | Add direct Kanban launch and health actions in S300 |
+| UDW-023 | done | P1 | Workflow | Next rounds | Add task detail and board actions in S300 and Developer |
+| UDW-024 | done | P2 | Orchestration | Backlog | Complete Cline plus Roundtable orchestration hardening |
+| UDW-025 | done | P2 | AI UX | Backlog | Build AI provider manager system page |
+| UDW-026 | done | P2 | CLI | Backlog | Build uc CLI for server control and skill execution |
 | UDW-027 | done | P1 | Knowledge | Consolidation | Add AppFlowy index coverage endpoint for per-source expected versus indexed tracking |
 | UDW-028 | done | P1 | Automation | Consolidation | Add launchd installer script for scheduled AppFlowy import runs |
 | UDW-029 | done | P1 | Knowledge | Consolidation | Add workspace mapping script to bind source entries to discovered AppFlowy workspace IDs |

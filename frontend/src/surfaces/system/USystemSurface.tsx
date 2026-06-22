@@ -52,6 +52,7 @@ const S_PAGES: SPageDef[] = [
   { code: 's300', title: 'Workflow Builder', icon: 'account_tree', color: '#58a6ff', description: 'Design and manage automated workflows.', category: 'Core' },
   { code: 's310', title: 'Clipboard & Orchestration', icon: 'content_paste', color: '#22c55e', description: 'Clipboard buffer controls and maintenance orchestration status.', category: 'Core' },
   { code: 's320', title: 'Knowledge Tools', icon: 'auto_stories', color: '#a855f7', description: 'AppFlowy workspace/document tools and semantic knowledge search.', category: 'Core' },
+  { code: 's330', title: 'Migration & Consolidation', icon: 'redo', color: '#f0883e', description: 'Track import progress, index coverage, and consolidation checklist.', category: 'Core' },
   { code: 's600', title: 'Learning Hub', icon: 'school', color: '#a855f7', description: 'Tutorials, guides, and educational resources.', category: 'Core' },
   // System pages
   { code: 's110', title: 'System Boot', icon: 'power', color: '#00ff9d', description: 'System boot sequence and startup services.', category: 'System' },
@@ -153,6 +154,7 @@ export function ModulesPanel() {
     { id: 'workflow-builder', name: 'Workflow Builder', subtitle: 'Automated workflows', icon: 'account_tree', color: '#58a6ff', desc: 'Create and manage automated workflows with triggers for time, GitHub, vault, and more.', route: '/s300' },
     { id: 'clipboard-orchestration', name: 'Clipboard Orchestration', subtitle: 'Clipboard + maintenance chain', icon: 'content_paste', color: '#22c55e', desc: 'Manage clipboard history and inspect overnight maintenance job status.', route: '/s310' },
     { id: 'knowledge-tools', name: 'Knowledge Tools', subtitle: 'AppFlowy + semantic search', icon: 'auto_stories', color: '#a855f7', desc: 'Browse workspaces/documents and run semantic search across the knowledge layer.', route: '/s320' },
+    { id: 'migration-dashboard', name: 'Migration & Consolidation', subtitle: 'Import progress + coverage', icon: 'redo', color: '#f0883e', desc: 'Track AppFlowy import jobs, index coverage metrics, and consolidation progress.', route: '/s330' },
     { id: 'tool-builder', name: 'Tool Builder', subtitle: 'Custom tool registry', icon: 'puzzle', color: '#f0883e', desc: 'Build and register custom tools for your workspace.', route: '/s100' },
   ]
 

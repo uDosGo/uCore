@@ -13,6 +13,15 @@ import '../../styles/hub/index.css'
 
 type SystemToolsTab = 'pages' | 'tools' | 'settings'
 
+interface SystemPageEntry {
+  code: string
+  name: string
+  description: string
+  icon: string
+  category: string
+  route: string
+}
+
 // ─── Tools Registry ──────────────────────────────────────────────
 interface Tool {
   id: string
@@ -273,26 +282,7 @@ function SystemPagesPanel() {
 
   return (
     <div style={{ padding: '24px', maxWidth: '900px' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ margin: '0 0 8px 0', fontSize: '20px' }}>System Tools</h2>
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--pico-muted-color, #8b949e)' }}>
-          Administrative tools and system page builders
-        </p>
-      </div>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: '16px',
-        }}
-      >
-        {SYSTEM_PAGES.map((page) => (
-          <SystemPageCard key={page.code} page={page} onClick={() => navigate(page.route)} />
-        ))}
-      </div>
-
-      <div style={{ marginTop: '48px', paddingTop: '24px', borderTop: '1px solid var(--pico-form-element-border-color, #30363d)' }}>
+      <div style={{ marginTop: '0', paddingTop: '0' }}>
         <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600' }}>System Pages Reference</h3>
         <div style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)', lineHeight: '1.6' }}>
           <p>
@@ -325,7 +315,13 @@ function SystemPagesPanel() {
   )
 }
 
-export default function SystemToolsSurface() {
+interface SystemToolsSurfaceProps {
+  embedded?: boolean
+}
+
+export { ToolsPanel, SystemPagesPanel }
+
+export default function SystemToolsSurface({ embedded = false }: SystemToolsSurfaceProps) {
   const [activeTab, setActiveTab] = useState<SystemToolsTab>('pages')
 
   const tabs = [
@@ -333,6 +329,43 @@ export default function SystemToolsSurface() {
     { id: 'tools', icon: 'build', label: 'Tools' },
     { id: 'settings', icon: 'settings', label: 'Settings' },
   ]
+
+  if (embedded) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--pico-background-color, #010409)' }}>
+        <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', borderBottom: '1px solid var(--pico-form-element-border-color, #30363d)' }}>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as SystemToolsTab)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: '1px solid var(--pico-form-element-border-color, #30363d)',
+                background: activeTab === tab.id ? '#58a6ff20' : 'transparent',
+                color: activeTab === tab.id ? '#58a6ff' : 'var(--pico-muted-color, #8b949e)',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 600,
+              }}
+            >
+              <Icon name={tab.icon} size={14} />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <div style={{ flex: 1, overflow: 'auto', background: 'var(--pico-background-color, #010409)' }}>
+          {activeTab === 'pages' && <SystemPagesPanel />}
+          {activeTab === 'tools' && <ToolsPanel />}
+          {activeTab === 'settings' && <SettingsPanel />}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--pico-background-color, #010409)' }}>

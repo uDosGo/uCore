@@ -8,6 +8,12 @@ Status: Refreshed by brain_sync
 - Prefer local-first flows for AppFlowy, Snackbar spool, and clipboard workflows so offline operation remains the default.
 - Treat the tray menu, clipboard buffer, and system snacks as one orchestration surface, not separate side features.
 - Use explicit, structured docs with stable headings, tables, and low ambiguity so they can be transformed into DocLang-style agent context later.
+- **Cline CLI is the single orchestrator**: Both interactive TUI (pair programming) and headless `--yolo` mode (automation). Avoid separate CLI wrappers; Cline already has all modes.
+- **Firewatch MCP + Playwright for UI automation**: Zen Browser (Firefox) + Firewatch MCP tools directly available to agents. Lightpanda for high-scale headless only.
+- **AppFlowy integration is multi-path**: CLI for data sync, n8n for workflows, Zapier for broad integrations. No single "configure everything" panel; compose tools based on use case.
+- **Playwright Python/JS API is standardized**: Whether connecting to Zen, Lightpanda CDP, or headless Firefox, same Playwright code works. Switch backend, keep same interface.
+- **UI Refinement = Multiple Tabs + Shared Components**: S320 tabbed interface reduces cognitive load. TaskDetailDrawer reusable across surfaces. Progressive disclosure pattern works well.
+- **Consolidation Dashboard mirrors progress**: Checkbox-based checklist + metric tracking builds confidence. Visual progress bars (coverage %) are more compelling than raw numbers.
 
 ## Recent Change Scan
 - .tasker/UNIFIED_DEV_TASK_WORKFLOW.md
@@ -37,10 +43,11 @@ Status: Refreshed by brain_sync
 - Episodic: wisdom.md, spool logs, and recent change summaries.
 
 ## Next Synthesis Targets
-- Migration checklist status and canonical doc destinations.
-- Snackbar/system orchestration refinements and tray workflows.
-- UI view wiring across frontend surfaces and system pages.
-- DocLang-style structured export for AI-efficient document context.
+- **Phase 8 complete** (UDW-020 to UDW-023): S320 enhanced, S330 created, S300 wired, TaskDetailDrawer built.
+- **Phase 9 planning**: Expand Developer surface with task integration, wire Cline CLI to uCore workflows, integrate Firewatch MCP for browser automation.
+- **Backend endpoint priority**: Implement `/api/workflows/task/{id}` CRUD, `/api/workflows/board/{id}/health`, consolidation status endpoints.
+- **n8n template workflows**: Create example flows for AppFlowy → uCore → webhook pipelines.
+- **Zen + Firewatch integration**: Setup Cline + Firewatch MCP for automated UI testing and data extraction workflows.
 
 ## Spool Activity (last 24h)
 

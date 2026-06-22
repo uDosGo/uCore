@@ -15,6 +15,7 @@ import { Icon } from '../../components/Icon'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import VaultSidebar, { SidebarNavItem } from '../../components/VaultSidebar'
 import AssistUISurface from '../assistui/AssistUISurface'
+import SystemToolsSurface, { ToolsPanel, SystemPagesPanel } from '../systemtools/SystemToolsSurface'
 import { SettingsPanel } from '../system/SettingsPanel'
 import '../../styles/userver.css'
 
@@ -27,7 +28,9 @@ type UServerTab =
   | 'dashboard'
   | 'ingest'
   | 'missions'
-  | 'system'
+  | 'pages'
+  | 'tools'
+  | 'settings'
   | 'services'
   | 'logs'
   | 'workflows'
@@ -177,7 +180,9 @@ const SERVER_TABS: UServerTab[] = [
   'dashboard',
   'ingest',
   'missions',
-  'system',
+  'pages',
+  'tools',
+  'settings',
   'services',
   'logs',
   'workflows',
@@ -185,12 +190,11 @@ const SERVER_TABS: UServerTab[] = [
 ]
 
 const LEGACY_TAB_MAP: Record<string, UServerTab> = {
-  install: 'system',
-  modules: 'system',
-  feeds: 'system',
-  settings: 'system',
+  install: 'settings',
+  modules: 'settings',
+  feeds: 'settings',
+  settings: 'settings',
   story: 'missions',
-  pages: 'missions',
   publishing: 'workflows',
 }
 
@@ -883,7 +887,7 @@ function IngestTab() {
     <div>
       <div className="userver-toolbar">
         <div className="userver-toolbar-left">
-          <h2 className="userver-heading">Drop Ingest</h2>
+          <h2 className="userver-heading">Drop Import</h2>
           <span className="userver-card-subtitle">
             Import vault sources into AppFlowy and track index coverage.
           </span>
@@ -1082,9 +1086,11 @@ export default function UServerSurface() {
 
   const serverNavItems: SidebarNavItem[] = [
     { id: 'dashboard', icon: 'home', label: 'Dashboard', active: tab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
-    { id: 'ingest', icon: 'upload_file', label: 'Ingest', active: tab === 'ingest', onClick: () => setTabAndRoute('ingest') },
+    { id: 'ingest', icon: 'upload_file', label: 'Import', active: tab === 'ingest', onClick: () => setTabAndRoute('ingest') },
     { id: 'missions', icon: 'account_tree', label: 'Mission Control', active: tab === 'missions', onClick: () => setTabAndRoute('missions') },
-    { id: 'system', icon: 'settings_suggest', label: 'System', active: tab === 'system', onClick: () => setTabAndRoute('system') },
+    { id: 'pages', icon: 'dashboard', label: 'System Pages', active: tab === 'pages', onClick: () => setTabAndRoute('pages') },
+    { id: 'tools', icon: 'build', label: 'Tools', active: tab === 'tools', onClick: () => setTabAndRoute('tools') },
+    { id: 'settings', icon: 'settings', label: 'Settings', active: tab === 'settings', onClick: () => setTabAndRoute('settings') },
     { id: 'services', icon: 'dns', label: 'Services', active: tab === 'services', onClick: () => setTabAndRoute('services') },
     { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTabAndRoute('logs') },
     { id: 'workflows', icon: 'layers', label: 'Workflows', active: tab === 'workflows', onClick: () => setTabAndRoute('workflows') },
@@ -1140,7 +1146,9 @@ export default function UServerSurface() {
           {tab === 'dashboard' && <DashboardTab services={services} workflows={workflows} logs={logs} surfaces={surfaces} />}
           {tab === 'ingest' && <IngestTab />}
           {tab === 'missions' && <MissionTaskBinderTab />}
-          {tab === 'system' && <SettingsPanel />}
+          {tab === 'pages' && <SystemPagesPanel />}
+          {tab === 'tools' && <ToolsPanel />}
+          {tab === 'settings' && <SettingsPanel />}
           {tab === 'services' && <ServicesTab services={services} />}
           {tab === 'logs' && <LogsTab logs={logs} />}
           {tab === 'workflows' && <WorkflowsTab workflows={workflows} />}

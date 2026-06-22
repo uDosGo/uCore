@@ -1425,7 +1425,7 @@ function UIHubInner() {
   // ─── Snackbar Health Check (with retry) ─────────────────────────
   const checkSnackbarHealth = useCallback(async (retries = 3, delay = 1000) => {
     for (let attempt = 0; attempt < retries; attempt++) {
-      for (const endpoint of ['/v1/health', '/health']) {
+      for (const endpoint of ['/api/health', '/v1/health', '/health']) {
         try {
           const res = await fetch(`${SNACKBAR_API}${endpoint}`, { signal: AbortSignal.timeout(2000) })
           if (res.status >= 200 && res.status < 400) return true
@@ -1441,27 +1441,32 @@ function UIHubInner() {
   // ─── Discover Surfaces (from snackbar) ──────────────────────────
   const tryDiscover = useCallback(async (): Promise<SurfaceDef[] | null> => {
     try {
-      const res = await fetch(`${SNACKBAR_API}/v1/surfaces`)
-      if (!res.ok) throw new Error('HTTP ' + res.status)
-      const data = await res.json()
-      if (data && data.surfaces) {
-        const statusMap: Record<string, string> = {}
-        for (const s of data.surfaces) {
-          statusMap[s.id] = (s.status || (s.running ? 'running' : 'stopped')).toLowerCase()
-        }
-        return data.surfaces.map((def: any) => ({
-          id: def.id,
-          name: def.name,
-          subtitle: def.subtitle,
-          description: def.description,
-          port: def.port,
-          color: def.color,
-          icon: def.icon,
-          status: statusMap[def.id] || 'stopped',
-          cell: def.cell || null,
-          embedded: def.embedded || false,
-          route: def.route || '',
-        }))
+      // Try multiple endpoint patterns
+      for (const endpoint of ['/api/surfaces/list', '/api/surfaces', '/v1/surfaces']) {
+        try {
+          const res = await fetch(`${SNACKBAR_API}${endpoint}`)
+          if (!res.ok) continue
+          const data = await res.json()
+          if (data && data.surfaces && Array.isArray(data.surfaces) && data.surfaces.length > 0) {
+            const statusMap: Record<string, string> = {}
+            for (const s of data.surfaces) {
+              statusMap[s.id] = (s.status || (s.running ? 'running' : 'stopped')).toLowerCase()
+            }
+            return data.surfaces.map((def: any) => ({
+              id: def.id,
+              name: def.name,
+              subtitle: def.subtitle || def.name,
+              description: def.description || '',
+              port: def.port || 0,
+              color: def.color || '#58a6ff',
+              icon: def.icon || 'widgets',
+              status: statusMap[def.id] || 'stopped',
+              cell: def.cell || null,
+              embedded: def.embedded !== false, // default to embedded
+              route: def.route || '',
+            }))
+          }
+        } catch { /* try next endpoint */ }
       }
     } catch { /* ignore */ }
     return null
@@ -1491,17 +1496,20 @@ function UIHubInner() {
       const discovered = await tryDiscover()
       if (discovered && discovered.length > 0) {
         const filtered = withoutUiHub(discovered)
-        const discoveredIds = new Set(filtered.map(s => s.id))
-        const merged = [
-          ...filtered,
-          ...FALLBACK_REGISTRY.filter(fb => !discoveredIds.has(fb.id)),
-        ]
-        setSurfaces(sortSurfaces(merged))
-        setLoading(false)
-        return
+        if (filtered.length > 0) {
+          const discoveredIds = new Set(filtered.map(s => s.id))
+          const merged = [
+            ...filtered,
+            ...FALLBACK_REGISTRY.filter(fb => !discoveredIds.has(fb.id)),
+          ]
+          setSurfaces(sortSurfaces(merged))
+          setLoading(false)
+          return
+        }
       }
     }
 
+    // Fallback: use FALLBACK_REGISTRY with port probing
     const probed = await probePorts(FALLBACK_REGISTRY)
     setSurfaces(probed)
     setLoading(false)

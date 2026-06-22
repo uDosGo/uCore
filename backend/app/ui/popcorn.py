@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """
-uDos Popcorn — macOS menu bar app for Surface & Runner Management v3.0.
+uDos Popcorn — macOS menu bar app for Ollama Management v3.0.
 
 Shows a popcorn icon in the menu bar:
-  🍿 green = any surface running
-  🍿 grey  = all surfaces offline
+  🍿 green = placeholder (reserved for future features)
+  🍿 grey  = default state
 
 Menu items:
-  - Surfaces → list all surfaces with 🟢/⚫ status indicators, click to open
-  - Runners → list all runners with status
-  - Ollama → 🟢/🟡/⚫ status + installed models
   - Open UI Hub
+  - Ollama → 🏖️/checking/stopped status + installed models
+  - Ollama controls: Start, Stop, Restart
   - Quit
 
 Depends on: PyObjC (included with macOS Python)
@@ -230,7 +229,7 @@ class PopcornDelegate(NSObject):
 
         # ── Header ──────────────────────────────────────────────
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🍿 Popcorn — Surface Manager", None, ""
+            "🍿 Popcorn — Ollama Manager", None, ""
         )
         item.setEnabled_(False)
         self._menu.addItem_(item)
@@ -243,59 +242,6 @@ class PopcornDelegate(NSObject):
         )
         item.setTarget_(self)
         self._menu.addItem_(item)
-
-        self._menu.addItem_(NSMenuItem.separatorItem())
-
-        # ── Surfaces ────────────────────────────────────────────
-        surfaces_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "Surfaces", None, ""
-        )
-        surfaces_title.setEnabled_(False)
-        self._menu.addItem_(surfaces_title)
-
-        if self._connected and self._surfaces:
-            for s in self._surfaces:
-                status_icon = "●" if s.get("state", "").lower() == "running" else "○"
-                label = f"{status_icon} {s['name']}"
-                subtitle = s.get("subtitle", "")
-                if subtitle:
-                    label += f" — {subtitle}"
-                item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                    label, "openSurface:", ""
-                )
-                item.setTarget_(self)
-                item.setRepresentedObject_(s.get("url", "#"))
-                self._menu.addItem_(item)
-        else:
-            item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                "(snackbar offline)" if not self._connected else "(no surfaces)",
-                None, ""
-            )
-            item.setEnabled_(False)
-            self._menu.addItem_(item)
-
-        self._menu.addItem_(NSMenuItem.separatorItem())
-
-        # ── Summary (weather-themed status) ─────────────────────
-        if self._connected and self._surfaces:
-            running = sum(1 for s in self._surfaces if s.get("state", "").lower() == "running")
-            total = len(self._surfaces)
-            ratio = running / total if total > 0 else 0
-            if ratio == 0:
-                weather = "🌙"       # crescent moon — nothing running
-            elif ratio <= 0.33:
-                weather = "🌥️"      # overcast — a few running
-            elif ratio <= 0.66:
-                weather = "⛅"       # mostly cloudy — about half
-            elif ratio < 1.0:
-                weather = "🌤️"      # partly cloudy — most running
-            else:
-                weather = "☀️"       # full sun — all running
-            item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                f"{weather} {running}/{total} surfaces running", None, ""
-            )
-            item.setEnabled_(False)
-            self._menu.addItem_(item)
 
         self._menu.addItem_(NSMenuItem.separatorItem())
 
@@ -375,37 +321,7 @@ class PopcornDelegate(NSObject):
         self._refresh()
 
     def _refresh(self):
-        """Refresh surface status and rebuild menu."""
-        try:
-            self._connected = is_ucore_alive()
-            if self._connected:
-                surfaces_data = api_get("/api/surfaces")
-                raw_surfaces = surfaces_data.get("surfaces", []) if surfaces_data else []
-
-                def _is_test_surface(surface: dict) -> bool:
-                    sid = str(surface.get("id", "")).lower()
-                    sname = str(surface.get("name", "")).lower()
-                    return (
-                        sid in {"terminal", "teletext"}
-                        or "test" in sid
-                        or "persist" in sid
-                        or "test surface" in sname
-                        or "test persist" in sname
-                        or "test" in sname
-                    )
-
-                self._surfaces = [
-                    s for s in raw_surfaces
-                    if not _is_test_surface(s)
-                ]
-                self._any_running = any(s.get("state", "").lower() == "running" for s in self._surfaces)
-            else:
-                self._surfaces = []
-                self._any_running = False
-        except Exception as e:
-            log.warning(f"Refresh error: {e}")
-            self._connected = False
-            self._any_running = False
+        """Refresh Ollama status and rebuild menu."""
 
         # Check Ollama status
         try:
@@ -436,7 +352,7 @@ class PopcornDelegate(NSObject):
 
     def updateUI_(self, sender):
         """Called on main thread to update icon and menu."""
-        icon = _make_status_icon(self._any_running)
+        icon = _make_status_icon(False)
         self._status_item.setImage_(icon)
         self._rebuild_menu()
 
