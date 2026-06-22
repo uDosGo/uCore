@@ -176,11 +176,14 @@ async def handle_local_export(request: web.Request) -> web.Response:
 async def handle_af_import(request: web.Request) -> web.Response:
     """POST /api/knowledge/import — run vault-to-AppFlowy import.
 
-    Body (optional):
-      {
+        Body (optional):
+            {
                 "source": "Vault",
-                "config_path": "~/.ucore/sync_config.yaml"
-      }
+                "config_path": "~/.ucore/sync_config.yaml",
+                "mission": "Vault Consolidation",
+                "binder": "runbook",
+                "files": ["README.md", "notes.md"]
+            }
 
     If no source specified, imports all enabled sources.
     """
@@ -206,6 +209,25 @@ async def handle_af_import(request: web.Request) -> web.Response:
             )
         config["sources"] = sources
 
+    mission = str(body.get("mission") or "").strip()
+    binder = str(body.get("binder") or "").strip()
+    raw_files_value = body.get("files")
+    files: list[str] = []
+    if isinstance(raw_files_value, list):
+        files = [
+            str(item).strip()
+            for item in raw_files_value
+            if str(item).strip()
+        ]
+
+    ingest_context: dict[str, object] = {}
+    if mission:
+        ingest_context["mission"] = mission
+    if binder:
+        ingest_context["binder"] = binder
+    if files:
+        ingest_context["files"] = files
+
     # Run import in the background; return immediately with a tracking ID
     import asyncio
     import uuid
@@ -214,7 +236,7 @@ async def handle_af_import(request: web.Request) -> web.Response:
 
     async def run_async():
         try:
-            result = run_import(config)
+            result = run_import(config, ingest_context=ingest_context)
             log.info("Import task %s completed: %s", task_id, result)
         except Exception as e:
             log.error("Import task %s failed: %s", task_id, e)
@@ -224,6 +246,7 @@ async def handle_af_import(request: web.Request) -> web.Response:
     return web.json_response({
         "status": "started",
         "task_id": task_id,
+        "ingest_context": ingest_context,
         "message": f"Import of '{source_name or 'all'}' sources started in background",
     })
 

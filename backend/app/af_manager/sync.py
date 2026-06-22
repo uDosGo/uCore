@@ -129,6 +129,7 @@ def import_file_to_appflowy(
     record: dict[str, Any],
     source_name: str,
     workspace_id: str | None = None,
+    ingest_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Import a single file record into the AppFlowy database.
 
@@ -173,18 +174,37 @@ def import_file_to_appflowy(
 
     body = record["body"]
     # Store frontmatter summary as data blob
-    blob_data = json.dumps(
-        {
-            "title": title,
-            "source": source_name,
-            "workspace_id": workspace_id,
-            "rel_path": record["rel_path"],
-            "tags": clean_tags,
-            "frontmatter": record.get("frontmatter", {}),
-            "body_preview": body[:500],
-        },
-        default=str,
-    ).encode("utf-8")
+    metadata: dict[str, Any] = {}
+    frontmatter = record.get("frontmatter") or {}
+    if isinstance(frontmatter, dict):
+        mission = str(frontmatter.get("mission") or "").strip()
+        task = str(frontmatter.get("task") or "").strip()
+        binder = str(frontmatter.get("binder") or "").strip()
+        if mission:
+            metadata["mission"] = mission
+        if task:
+            metadata["task"] = task
+        if binder:
+            metadata["binder"] = binder
+
+    payload = {
+        "title": title,
+        "source": source_name,
+        "workspace_id": workspace_id,
+        "rel_path": record["rel_path"],
+        "tags": clean_tags,
+        "frontmatter": frontmatter,
+        "body_preview": body[:500],
+    }
+    if metadata:
+        payload["metadata"] = metadata
+    if ingest_context:
+        payload["ingest_context"] = {
+            "mission": ingest_context.get("mission"),
+            "binder": ingest_context.get("binder"),
+        }
+
+    blob_data = json.dumps(payload, default=str).encode("utf-8")
 
     if exists:
         if has_id_col:
@@ -459,6 +479,7 @@ def _resolve_source_path(local_path: str, source_name: str) -> str:
 def run_import(
     config: dict[str, Any],
     progress_callback=None,
+    ingest_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Run a full import from all configured source vaults into AppFlowy.
 
@@ -486,6 +507,18 @@ def run_import(
     log.info("Using AppFlowy database: %s", db_path)
 
     workspace_catalog = _discover_workspace_catalog(data_dir)
+
+    ingest_context = ingest_context or {}
+    mission_context = str(ingest_context.get("mission") or "").strip()
+    binder_context = str(ingest_context.get("binder") or "").strip()
+    requested_files_raw = ingest_context.get("files")
+    requested_files: set[str] = set()
+    if isinstance(requested_files_raw, list):
+        requested_files = {
+            str(item).strip().lower()
+            for item in requested_files_raw
+            if str(item).strip()
+        }
 
     total_imported = 0
     total_updated = 0
@@ -523,6 +556,16 @@ def run_import(
             progress_callback(f"Scanning {source_name}...", 0)
 
         records = scan_vault(local_path, tags=tags)
+        if requested_files:
+            records = [
+                record
+                for record in records
+                if (
+                    Path(str(record.get("rel_path") or "")).name.lower()
+                    in requested_files
+                    or str(record.get("rel_path") or "").lower() in requested_files
+                )
+            ]
         if not records:
             log.info("No files found in %s", local_path)
             source_results.append({"source": source_name, "files": 0, "created": 0, "updated": 0})
@@ -534,11 +577,34 @@ def run_import(
 
         for i, record in enumerate(records):
             try:
+                enriched_record = dict(record)
+                enriched_frontmatter = dict(record.get("frontmatter") or {})
+                enriched_tags = list(record.get("tags") or [])
+                if mission_context and not str(enriched_frontmatter.get("mission") or "").strip():
+                    enriched_frontmatter["mission"] = mission_context
+                if binder_context and not str(enriched_frontmatter.get("binder") or "").strip():
+                    enriched_frontmatter["binder"] = binder_context
+                if mission_context:
+                    mission_tag = f"mission:{mission_context}"
+                    if mission_tag not in enriched_tags:
+                        enriched_tags.append(mission_tag)
+                if binder_context:
+                    binder_tag = f"binder:{binder_context}"
+                    if binder_tag not in enriched_tags:
+                        enriched_tags.append(binder_tag)
+
+                enriched_record["frontmatter"] = enriched_frontmatter
+                enriched_record["tags"] = enriched_tags
+
                 result = import_file_to_appflowy(
                     db_path=target_db_path,
-                    record=record,
+                    record=enriched_record,
                     source_name=source_name,
                     workspace_id=target_workspace_id,
+                    ingest_context={
+                        "mission": mission_context,
+                        "binder": binder_context,
+                    },
                 )
                 if result["action"] == "created":
                     created += 1
@@ -569,6 +635,11 @@ def run_import(
     summary = {
         "status": "completed",
         "db_path": db_path,
+        "ingest_context": {
+            "mission": mission_context,
+            "binder": binder_context,
+            "file_count": len(requested_files),
+        },
         "workspace_count": len({
             item.get("workspace_id") or item.get("db_path")
             for item in source_results
