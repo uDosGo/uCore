@@ -16,7 +16,17 @@ import VaultSidebar, { Binder, SidebarNavItem, VaultFile } from '../../component
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type DeveloperTab = 'repos' | 'skills' | 'review' | 'workflows' | 'benchbench' | 'creative' | 'agents' | 'settings'
+type DeveloperTab = 'kanban' | 'tasks' | 'repos' | 'skills' | 'review' | 'workflows' | 'benchbench' | 'creative' | 'agents' | 'settings'
+
+interface WorkflowRun {
+  run_id: string
+  workflow_id: string
+  workflow_name: string
+  started_at: string
+  finished_at: string
+  status: string
+  steps?: Array<{ step_index: number; step_name: string; status: string }>
+}
 
 // ─── Agent Router Types ─────────────────────────────────────────────
 interface RouterAgent {
@@ -106,7 +116,7 @@ const SAMPLE_REPOS: RepoInfo[] = [
 ]
 
 const SNACKBAR_API = 'http://localhost:8484'
-const DEVELOPER_TABS: DeveloperTab[] = ['repos', 'skills', 'review', 'workflows', 'benchbench', 'creative', 'agents', 'settings']
+const DEVELOPER_TABS: DeveloperTab[] = ['kanban', 'tasks', 'repos', 'skills', 'review', 'workflows', 'benchbench', 'creative', 'agents', 'settings']
 
 // ─── Sample Skills ──────────────────────────────────────────────────
 const SAMPLE_SKILLS: SkillInfo[] = [
@@ -626,6 +636,229 @@ function FilePreviewPanel({
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+// ─── Workflows Panel ────────────────────────────────────────────────
+
+function ActiveTasksPanel() {
+  const [tasks, setTasks] = useState<WorkflowRun[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch(`${SNACKBAR_API}/api/workflows/runs?limit=50`, {
+          signal: AbortSignal.timeout(4000),
+        })
+        if (!res.ok) throw new Error('Failed to load tasks')
+        const data = await res.json()
+        const sorted = (data.runs || []).sort((a: WorkflowRun, b: WorkflowRun) => {
+          const aTime = new Date(a.started_at).getTime()
+          const bTime = new Date(b.started_at).getTime()
+          return bTime - aTime
+        })
+        setTasks(sorted)
+      } catch {
+        setTasks([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    void fetchTasks()
+  }, [])
+
+  const statusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+        return '#3fb950'
+      case 'failed':
+        return '#f85149'
+      case 'running':
+        return '#58a6ff'
+      default:
+        return '#8b949e'
+    }
+  }
+
+  return (
+    <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
+      <div style={{ marginBottom: 16 }}>
+        <h2 style={{ marginBottom: 8 }}>Active Dev Flow Tasks</h2>
+        <p style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)' }}>
+          Real-time workflow execution tracking
+        </p>
+      </div>
+
+      {loading ? (
+        <p style={{ color: 'var(--pico-muted-color, #8b949e)' }}>Loading...</p>
+      ) : tasks.length === 0 ? (
+        <p style={{ color: 'var(--pico-muted-color, #8b949e)' }}>No active tasks.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {tasks.map(task => (
+            <div
+              key={task.run_id}
+              style={{
+                padding: 12,
+                borderRadius: 6,
+                border: '1px solid var(--pico-form-element-border-color, #30363d)',
+                background: 'var(--pico-card-sectioning-background-color, #1c2128)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 8 }}>
+                <div>
+                  <h4 style={{ margin: '0 0 4px' }}>{task.workflow_name}</h4>
+                  <p style={{ margin: 0, fontSize: '11px', color: 'var(--pico-muted-color, #8b949e)' }}>
+                    {new Date(task.started_at).toLocaleTimeString()}
+                  </p>
+                </div>
+                <span
+                  style={{
+                    fontSize: '10px',
+                    padding: '2px 8px',
+                    borderRadius: 999,
+                    background: 'rgba(0,0,0,0.2)',
+                    color: statusColor(task.status),
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {task.status?.toUpperCase() || 'UNKNOWN'}
+                </span>
+              </div>
+              {task.steps && task.steps.length > 0 && (
+                <div style={{ fontSize: '11px' }}>
+                  <p style={{ margin: '4px 0', color: 'var(--pico-muted-color, #8b949e)' }}>
+                    Steps: {task.steps.filter(s => s.status === 'completed').length} / {task.steps.length}
+                  </p>
+                  <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
+                    {task.steps.map(step => (
+                      <div
+                        key={`${task.run_id}-${step.step_index}`}
+                        title={step.step_name}
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          background:
+                            step.status === 'completed'
+                              ? '#3fb950'
+                              : step.status === 'failed'
+                                ? '#f85149'
+                                : step.status === 'running'
+                                  ? '#58a6ff'
+                                  : '#8b949e',
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Kanban Panel ──────────────────────────────────────────────────
+
+function KanbanPanel() {
+  const [tasks, setTasks] = useState<WorkflowRun[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch(`${SNACKBAR_API}/api/workflows/runs?limit=100`, {
+          signal: AbortSignal.timeout(4000),
+        })
+        if (!res.ok) throw new Error('Failed to load tasks')
+        const data = await res.json()
+        setTasks(data.runs || [])
+      } catch {
+        setTasks([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    void fetchTasks()
+  }, [])
+
+  const columns = {
+    pending: tasks.filter(t => t.status?.toLowerCase() === 'pending'),
+    running: tasks.filter(t => t.status?.toLowerCase() === 'running'),
+    completed: tasks.filter(t => t.status?.toLowerCase() === 'completed'),
+    failed: tasks.filter(t => t.status?.toLowerCase() === 'failed'),
+  }
+
+  const KanbanColumn = ({ title, color, items }: { title: string; color: string; items: WorkflowRun[] }) => (
+    <div
+      style={{
+        flex: '0 0 calc(25% - 9px)',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'var(--pico-card-sectioning-background-color, #1c2128)',
+        borderRadius: 8,
+        border: `2px solid ${color}`,
+        padding: 12,
+        minHeight: 200,
+      }}
+    >
+      <h4 style={{ margin: '0 0 12px', color, fontSize: '12px', fontWeight: 'bold' }}>
+        {title} ({items.length})
+      </h4>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+        {items.length === 0 ? (
+          <p style={{ fontSize: '11px', color: 'var(--pico-muted-color, #8b949e)', margin: 0 }}>No tasks</p>
+        ) : (
+          items.slice(0, 5).map(task => (
+            <div
+              key={task.run_id}
+              style={{
+                padding: 8,
+                borderRadius: 4,
+                background: 'rgba(0,0,0,0.2)',
+                borderLeft: `3px solid ${color}`,
+                overflow: 'hidden',
+              }}
+            >
+              <p style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: 500, whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                {task.workflow_name}
+              </p>
+              <p style={{ margin: 0, fontSize: '10px', color: 'var(--pico-muted-color, #8b949e)' }}>
+                {new Date(task.started_at).toLocaleTimeString()}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )
+
+  return (
+    <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
+      <div style={{ marginBottom: 16 }}>
+        <h2 style={{ marginBottom: 8 }}>Cline Kanban Board</h2>
+        <p style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)', margin: 0 }}>
+          Workflow task flow visualization · Drag to reorder
+        </p>
+      </div>
+
+      {loading ? (
+        <p style={{ color: 'var(--pico-muted-color, #8b949e)' }}>Loading...</p>
+      ) : (
+        <div style={{ display: 'flex', gap: 12, overflow: 'auto', paddingBottom: 8 }}>
+          <KanbanColumn title="Pending" color="#8b949e" items={columns.pending} />
+          <KanbanColumn title="Running" color="#58a6ff" items={columns.running} />
+          <KanbanColumn title="Completed" color="#3fb950" items={columns.completed} />
+          <KanbanColumn title="Failed" color="#f85149" items={columns.failed} />
+        </div>
+      )}
     </div>
   )
 }
@@ -1450,6 +1683,8 @@ export default function DeveloperSurface() {
   }))
 
   const developerNavItems: SidebarNavItem[] = [
+    { id: 'kanban', icon: 'calendar_view_week', label: 'Kanban', active: activeTab === 'kanban', onClick: () => setTabAndRoute('kanban') },
+    { id: 'tasks', icon: 'task_alt', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
     { id: 'repos', icon: 'folder_open', label: 'Repos', active: activeTab === 'repos', onClick: () => setTabAndRoute('repos') },
     { id: 'skills', icon: 'build', label: 'Skills', active: activeTab === 'skills', onClick: () => setTabAndRoute('skills') },
     { id: 'review', icon: 'visibility', label: 'Review', active: activeTab === 'review', onClick: () => setTabAndRoute('review') },
@@ -1565,6 +1800,8 @@ export default function DeveloperSurface() {
         )}
 
         <main className="usx-surface-main developer-surface-main">
+        {activeTab === 'kanban' && <KanbanPanel />}
+        {activeTab === 'tasks' && <ActiveTasksPanel />}
         {activeTab === 'repos' && <ReposPanel repos={repos} loading={reposLoading} onBrowseRepo={(repoName) => {
           setSelectedRepoId(repoName)
           setSidebarMode('filepicker')
