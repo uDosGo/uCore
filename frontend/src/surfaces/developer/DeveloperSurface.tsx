@@ -17,9 +17,10 @@ import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import { ModelsPanel } from './ModelsPanel'
 import { AgentsPanel } from './AgentsPanel'
 import { KanbanSurface } from './KanbanSurface'
+import { GridSmithTab } from './GridSmithTab'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings'
+type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings' | 'gridsmith'
 
 interface WorkflowRun {
   run_id: string
@@ -92,7 +93,7 @@ const SAMPLE_REPOS: RepoInfo[] = [
 ]
 
 const SNACKBAR_API = 'http://localhost:8484'
-const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'kanban', 'repos', 'review', 'settings']
+const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'kanban', 'gridsmith', 'repos', 'review', 'settings']
 
 // ─── Sample Review Entries ──────────────────────────────────────────
 const SAMPLE_REVIEWS: ReviewEntry[] = [
@@ -1037,6 +1038,7 @@ export default function DeveloperSurface() {
     { id: 'models', icon: 'database', label: 'Models', active: activeTab === 'models', onClick: () => setTabAndRoute('models') },
     { id: 'agents', icon: 'smart_toy', label: 'Agents', active: activeTab === 'agents', onClick: () => setTabAndRoute('agents') },
     { id: 'kanban', icon: 'calendar_view_week', label: 'Kanban', active: activeTab === 'kanban', onClick: () => setTabAndRoute('kanban') },
+    { id: 'gridsmith', icon: 'grid_view', label: 'GridSmith', active: activeTab === 'gridsmith', onClick: () => setTabAndRoute('gridsmith') },
     { id: 'repos', icon: 'folder_open', label: 'Repos', active: activeTab === 'repos', onClick: () => setTabAndRoute('repos') },
     { id: 'review', icon: 'visibility', label: 'Review', active: activeTab === 'review', onClick: () => setTabAndRoute('review') },
     { id: 'settings', icon: 'settings', label: 'Settings', active: activeTab === 'settings', onClick: () => setTabAndRoute('settings') },
@@ -1150,6 +1152,7 @@ export default function DeveloperSurface() {
         {activeTab === 'models' && <ModelsPanel />}
         {activeTab === 'agents' && <AgentsPanel />}
         {activeTab === 'kanban' && <KanbanSurface />}
+        {activeTab === 'gridsmith' && <GridSmithTab />}
         {activeTab === 'repos' && <ReposPanel repos={repos} loading={reposLoading} onBrowseRepo={(repoName) => {
           setSelectedRepoId(repoName)
           setSidebarMode('filepicker')

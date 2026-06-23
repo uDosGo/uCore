@@ -3,6 +3,7 @@
    ═══════════════════════════════════════════════════════════════════
    User-facing daily/workflow/mission/ucode surface.
    ISOLATED from dev tasks — uses .tasker/workflow/ directory.
+   Tabs: Dashboard (with activity widget), Missions, Tasks (user-only)
    Project Type: Operational (OP) | Autonomy Level: L3 (Collaborator)
    Binder: ⚡️ Operations/Workflow | Tags: #workflow #missions #daily
    ═══════════════════════════════════════════════════════════════════ */
@@ -17,7 +18,7 @@ import { renderMarkdown } from '../../utils/renderMarkdown'
 import '../../styles/surfaces/workflow.css'
 
 // ─── Types ──────────────────────────────────────────────────────
-type WorkflowTab = 'dashboard' | 'missions' | 'tasks' | 'gridsmith' | 'activity'
+type WorkflowTab = 'dashboard' | 'missions' | 'tasks'
 
 interface WorkflowTask {
   id: string
@@ -38,6 +39,9 @@ interface ActivityEntry {
 }
 
 const SNACKBAR_API = 'http://localhost:8484'
+
+export { type WorkflowTask }
+
 // ─── Detail Panel (right-split editor) ──────────────────────────
 function WorkflowDetailPanel({ task, onClose }: { task: WorkflowTask | null; onClose: () => void }) {
   if (!task) return null
@@ -87,12 +91,17 @@ const WORKFLOW_COLUMN_COLORS: Record<string, string> = {
 }
 
 const WORKFLOW_COLUMN_ORDER = ['todo', 'in-progress', 'review', 'blocked', 'completed']
-const WORKFLOW_COLUMN_ICONS: Record<string, string> = {
-  todo: 'schedule',
-  'in-progress': 'play_arrow',
-  review: 'visibility',
-  blocked: 'error',
-  completed: 'check_circle',
+
+// ─── User tag set — filters out dev/system tags ────────────────
+const USER_TAGS = new Set(['workflow', 'mission', 'daily', 'vault', 'activity', 'ucode', 'user'])
+
+function isUserTask(task: WorkflowTask): boolean {
+  const board = (task.board || '').toLowerCase()
+  const tags = (task.tags || []).map(t => t.toLowerCase())
+  // Exclude dev/system boards and tags
+  if (board.includes('gridsmith') || board.includes('developer') || board.includes('dev')) return false
+  // Include if board or any tag is in user tag set
+  return USER_TAGS.has(board) || tags.some(t => USER_TAGS.has(t))
 }
 
 // ─── Dashboard Tab ─────────────────────────────────────────────
@@ -253,9 +262,7 @@ function MissionsTab() {
             </div>
             <p className="workflow-card-desc">{m.description}</p>
             <div className="workflow-card-footer">
-              <span className="workflow-card-status workflow-card-status--{m.status}">
-                {m.status}
-              </span>
+              <span className="workflow-card-status">{m.status}</span>
             </div>
           </div>
         ))}
@@ -264,7 +271,7 @@ function MissionsTab() {
   )
 }
 
-// ─── Tasks Tab (Kanban) ────────────────────────────────────────
+// ─── Tasks Tab (Kanban — user tasks only) ──────────────────────
 function TasksTab({ tasks, loading, error }: {
   tasks: WorkflowTask[]
   loading: boolean
@@ -272,9 +279,9 @@ function TasksTab({ tasks, loading, error }: {
 }) {
   const [showCompleted, setShowCompleted] = useState(true)
 
-  const visibleTasks = showCompleted
-    ? tasks
-    : tasks.filter(t => t.status !== 'completed')
+  // Filter to user tasks only (no dev/system)
+  const userTasks = tasks.filter(isUserTask)
+  const visibleTasks = showCompleted ? userTasks : userTasks.filter(t => t.status !== 'completed')
 
   const boardColumns: KanbanColumn[] = WORKFLOW_COLUMN_ORDER
     .filter(status => visibleTasks.some(t => t.status === status))
@@ -293,15 +300,15 @@ function TasksTab({ tasks, loading, error }: {
     }))
 
   const handleItemClick = (item: KanbanItem) => {
-    console.log('Workflow task clicked:', item.id)
+    console.log('User task clicked:', item.id)
   }
 
   return (
     <div className="workflow-panel">
       <div className="workflow-panel-header">
-        <h3>Workflow Tasks</h3>
+        <h3>User Tasks</h3>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span className="workflow-panel-count">{tasks.length} tasks</span>
+          <span className="workflow-panel-count">{userTasks.length} tasks</span>
           <button
             className="workflow-toggle-btn"
             onClick={() => setShowCompleted(v => !v)}
@@ -318,11 +325,11 @@ function TasksTab({ tasks, loading, error }: {
         </div>
       )}
 
-      {loading && tasks.length === 0 && (
-        <div className="workflow-empty">Loading workflow tasks...</div>
+      {loading && userTasks.length === 0 && (
+        <div className="workflow-empty">Loading user tasks...</div>
       )}
 
-      {tasks.length > 0 ? (
+      {userTasks.length > 0 ? (
         <div className="workflow-kanban-wrap">
           <KanbanBoard
             columns={boardColumns}
@@ -332,120 +339,9 @@ function TasksTab({ tasks, loading, error }: {
         </div>
       ) : !loading ? (
         <div className="workflow-empty">
-          No workflow tasks found in .tasker/workflow/ directory.
+          No user tasks found. Add tasks tagged with "workflow", "mission", "daily", or "user" in .tasker/.
         </div>
       ) : null}
-    </div>
-  )
-}
-
-// ─── GridSmith Tab (Kanban for sandboxed uCode/gridsmith tasks) ─
-function GridSmithTab() {
-  const [tasks, setTasks] = useState<WorkflowTask[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [showCompleted, setShowCompleted] = useState(true)
-
-  useEffect(() => {
-    async function fetchGridSmithTasks() {
-      setLoading(true)
-      setError(null)
-      try {
-        const res = await fetch(`${SNACKBAR_API}/api/developer/tasker/tasks`, {
-          signal: AbortSignal.timeout(4000),
-        })
-        if (res.ok) {
-          const data = await res.json()
-          const gsTasks: WorkflowTask[] = (data.tasks || [])
-            .filter((t: WorkflowTask) => {
-              const board = (t.board || '').toLowerCase()
-              const tags = (t.tags || []).map((x: string) => x.toLowerCase())
-              return board.includes('gridsmith') || tags.includes('gridsmith')
-            })
-          setTasks(gsTasks)
-        } else {
-          setTasks([
-            { id: 'gs-1', title: 'Design grid workspace layout', status: 'in-progress', priority: 'high', board: 'gridsmith', tags: ['gridsmith', 'design'], description: 'Layout the grid workspace for uCode sandbox', file: '' },
-            { id: 'gs-2', title: 'Implement spool bridge adapter', status: 'todo', priority: 'high', board: 'gridsmith', tags: ['gridsmith', 'backend'], description: 'Build spool reader adapter for grid core', file: '' },
-            { id: 'gs-3', title: 'Write grid transform unit tests', status: 'completed', priority: 'medium', board: 'gridsmith', tags: ['gridsmith', 'test'], description: 'Unit tests for GridTransform algebra', file: '' },
-          ])
-        }
-      } catch {
-        setError('Failed to load GridSmith tasks')
-      } finally {
-        setLoading(false)
-      }
-    }
-    void fetchGridSmithTasks()
-  }, [])
-
-  const visibleTasks = showCompleted ? tasks : tasks.filter(t => t.status !== 'completed')
-  const boardColumns: KanbanColumn[] = WORKFLOW_COLUMN_ORDER
-    .filter(status => visibleTasks.some(t => t.status === status))
-    .map(status => ({
-      id: status,
-      title: status.charAt(0).toUpperCase() + status.slice(1),
-      color: WORKFLOW_COLUMN_COLORS[status] || '#8b949e',
-      items: visibleTasks.filter(t => t.status === status).map(t => ({
-        id: t.id,
-        title: t.title,
-        type: t.board || 'gridsmith',
-        date: t.tags?.join(', ') || '',
-      })),
-    }))
-
-  return (
-    <div className="workflow-panel">
-      <div className="workflow-panel-header">
-        <h3>GridSmith Workflow</h3>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span className="workflow-panel-count">{tasks.length} tasks</span>
-          <button className="workflow-toggle-btn" onClick={() => setShowCompleted(v => !v)}>
-            <Icon name="check_circle" size={14} />
-            {showCompleted ? 'Hide completed' : 'Show completed'}
-          </button>
-        </div>
-      </div>
-      {error && <div className="workflow-card" style={{ borderLeft: '3px solid #f85149' }}><p style={{ color: '#f85149', margin: 0 }}>{error}</p></div>}
-      {loading && tasks.length === 0 && <div className="workflow-empty">Loading GridSmith tasks...</div>}
-      {tasks.length > 0 ? (
-        <div className="workflow-kanban-wrap">
-          <KanbanBoard columns={boardColumns} onItemClick={(item) => console.log('GridSmith task:', item.id)} readOnly />
-        </div>
-      ) : !loading ? <div className="workflow-empty">No GridSmith tasks found.</div> : null}
-    </div>
-  )
-}
-
-// ─── Activity Tab ──────────────────────────────────────────────
-function ActivityTab() {
-  const [events, setEvents] = useState<ActivityEntry[]>([
-    { date: '2026-06-23 10:00', title: 'Mission "Surface Consolidation" status changed to active', icon: 'flag' },
-    { date: '2026-06-23 09:30', title: 'Vault sync completed — 142 files indexed', icon: 'sync' },
-    { date: '2026-06-22 16:00', title: 'Workflow "daily-docs-sync" completed', icon: 'check_circle' },
-    { date: '2026-06-22 14:00', title: 'New mission created: "Documentation Refresh"', icon: 'add_circle' },
-    { date: '2026-06-22 12:00', title: 'AppFlowy import: 24 documents synced', icon: 'download' },
-    { date: '2026-06-21 18:00', title: 'Pipeline "Vault Index" failed — manual retry needed', icon: 'error' },
-    { date: '2026-06-21 10:00', title: 'Workflow task "Review PR #42" completed', icon: 'check_circle' },
-  ])
-
-  return (
-    <div className="workflow-panel">
-      <div className="workflow-panel-header">
-        <h3>Activity Feed</h3>
-        <span className="workflow-panel-count">{events.length} events</span>
-      </div>
-      <div className="workflow-activity-feed">
-        {events.map((e, i) => (
-          <div key={i} className="workflow-activity-item">
-            {e.icon && <Icon name={e.icon} size={14} className="workflow-activity-icon" />}
-            <div className="workflow-activity-body">
-              <span className="workflow-activity-event">{e.title}</span>
-              <span className="workflow-activity-time">{e.date}</span>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
@@ -461,7 +357,7 @@ export default function WorkflowSurface() {
     const raw = (params.get('tab') || 'dashboard').toLowerCase()
     const candidate = raw as WorkflowTab
     return {
-      selectedTab: ['dashboard', 'missions', 'tasks', 'gridsmith', 'activity'].includes(candidate) ? candidate : 'dashboard',
+      selectedTab: ['dashboard', 'missions', 'tasks'].includes(candidate) ? candidate : 'dashboard',
     }
   }, [location.search])
 
@@ -479,33 +375,19 @@ export default function WorkflowSurface() {
     setLoading(true)
     setError(null)
     try {
-      // Fetch workflow tasks from .tasker/workflow/ directory
       const res = await fetch(`${SNACKBAR_API}/api/developer/tasker/tasks`, {
         signal: AbortSignal.timeout(4000),
       })
       if (res.ok) {
         const data = await res.json()
-        const allTasks: WorkflowTask[] = (data.tasks || [])
-          // Filter to workflow tasks only (board contains 'workflow' or tag includes 'workflow')
-          .filter((t: WorkflowTask) => {
-            const board = (t.board || '').toLowerCase()
-            const tags = (t.tags || []).map((x: string) => x.toLowerCase())
-            return board.includes('workflow') || tags.includes('workflow')
-          })
-        setTasks(allTasks)
+        setTasks(data.tasks || [])
         setSnackbarAvailable(true)
       } else {
-        // Fallback: use static workflow tasks
-        setTasks([
-          { id: 'wf-1', title: 'Daily vault sync', status: 'in-progress', priority: 'high', board: 'workflow', tags: ['workflow', 'vault'], description: 'Sync vault documents to AppFlowy', file: '' },
-          { id: 'wf-2', title: 'Mission status review', status: 'todo', priority: 'medium', board: 'workflow', tags: ['workflow', 'mission'], description: 'Review all active mission statuses', file: '' },
-          { id: 'wf-3', title: 'Process activity feed', status: 'completed', priority: 'low', board: 'workflow', tags: ['workflow', 'activity'], description: 'Process and archive feed items', file: '' },
-          { id: 'wf-4', title: 'Run uCode pipeline', status: 'todo', priority: 'high', board: 'workflow', tags: ['workflow', 'ucode'], description: 'Execute uCode pipeline step', file: '' },
-        ])
+        setTasks([])
         setSnackbarAvailable(true)
       }
     } catch {
-      setError('Failed to load workflow tasks')
+      setError('Failed to load tasks')
       setSnackbarAvailable(false)
       setTasks([])
     } finally {
@@ -526,16 +408,12 @@ export default function WorkflowSurface() {
     { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', active: activeTab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
     { id: 'missions', icon: 'flag', label: 'Missions', active: activeTab === 'missions', onClick: () => setTabAndRoute('missions') },
     { id: 'tasks', icon: 'checklist', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
-    { id: 'gridsmith', icon: 'grid_view', label: 'GridSmith', active: activeTab === 'gridsmith', onClick: () => setTabAndRoute('gridsmith') },
-    { id: 'activity', icon: 'history', label: 'Activity', active: activeTab === 'activity', onClick: () => setTabAndRoute('activity') },
   ]
 
   const toolbarTabs: ToolbarTab[] = [
     { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', active: activeTab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
     { id: 'missions', icon: 'flag', label: 'Missions', active: activeTab === 'missions', onClick: () => setTabAndRoute('missions') },
     { id: 'tasks', icon: 'checklist', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
-    { id: 'gridsmith', icon: 'grid_view', label: 'GridSmith', active: activeTab === 'gridsmith', onClick: () => setTabAndRoute('gridsmith') },
-    { id: 'activity', icon: 'history', label: 'Activity', active: activeTab === 'activity', onClick: () => setTabAndRoute('activity') },
   ]
 
   return (
@@ -570,8 +448,6 @@ export default function WorkflowSurface() {
           {activeTab === 'tasks' && (
             <TasksTab tasks={tasks} loading={loading} error={error} />
           )}
-          {activeTab === 'gridsmith' && <GridSmithTab />}
-          {activeTab === 'activity' && <ActivityTab />}
         </main>
       </div>
     </div>
