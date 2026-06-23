@@ -48,7 +48,7 @@ const FALLBACK_REGISTRY: SurfaceDef[] = [
   { id: 'server',    name: 'Server',         subtitle: 'Server Management',         description: 'Consolidated backend operations, ingest, workflows, agents, and logs.', port: 0, color: '#58a6ff', icon: 'layers',      status: 'stopped', cell: 'L100-AA10-0103-1', embedded: true, route: '/server' },
   { id: 'assistui',  name: 'AssistUI',       subtitle: 'Canonical AI Chat',         description: 'Full-page AI chat with streaming responses, model selection, conversation management, and multi-agent support. Absorbed FloatingChatPanel + ChatUISurface.', port: 0, color: '#a855f7', icon: 'smart_toy',   status: 'stopped', cell: 'L100-AA10-0104-1', embedded: true, route: '/assistui' },
   { id: 'documentation', name: 'Documentation', subtitle: 'Learning Hub',             description: 'Learning hub with tutorials, guides, courses, skill tracker, and educational resources.', port: 0, color: '#a371f7', icon: 'menu_book',   status: 'stopped', cell: 'L100-AA10-0105-1', embedded: true, route: '/documentation' },
-  { id: 'system-tools', name: 'System Tools',  subtitle: 'Admin & Settings',         description: 'System page browser, tool builders, workflows, modules, settings, and administrative controls for S100-S899.', port: 0, color: '#79c0ff', icon: 'build',       status: 'stopped', cell: 'L100-AA10-0108-1', embedded: true, route: '/system-tools' },
+  { id: 'system-tools', name: 'System',         subtitle: 'Admin & Settings',         description: 'System page browser, tool builders, workflows, modules, settings, and administrative controls for S100-S899.', port: 0, color: '#79c0ff', icon: 'build',       status: 'stopped', cell: 'L100-AA10-0108-1', embedded: true, route: '/system' },
   { id: 'browserui', name: 'Web Reader',     subtitle: 'Research Bookmarks',        description: 'Clean browser interface with centered search bar and research bookmarks.', port: 5179, color: '#f59e0b', icon: 'visibility',  status: 'stopped', cell: 'L100-AA10-0106-1', embedded: true, route: '/browserui' },
   { id: 'developer', name: 'Developer',      subtitle: 'Development Lane',          description: 'Developer development environment with dev-mode chat, repo browser, skill runner, and code review.', port: 0, color: '#f97583', icon: 'tune',       status: 'stopped', cell: 'L100-AA10-0109-1', embedded: true, route: '/developer' },
   { id: 'groovebox', name: 'Groovebox',      subtitle: 'Music Production',          description: 'Music production environment with MIDI sequencing, synthesis, and audio processing.', port: 8888, color: '#da3633', icon: 'play_arrow', status: 'stopped', cell: 'L100-AA10-0113-1' },
@@ -380,6 +380,12 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
   pendingActions: Record<string, { action: SurfaceAction; progress: ActionProgress }>
 }) {
   const [expandedCard, setExpandedCard] = useState<string | null>(null)
+  const [starredSurfaces, setStarredSurfaces] = useState<SurfaceDef[]>(() => {
+    try {
+      const raw = localStorage.getItem('hub-starred-surfaces')
+      return raw ? JSON.parse(raw) : []
+    } catch { return [] }
+  })
   const [cardOrder, setCardOrder] = useState<string[]>(() => {
     try {
       const raw = localStorage.getItem('hub-dashboard-order')
@@ -798,7 +804,7 @@ function ModulesPanel() {
 // ─── Settings Panel — REMOVED from UIHubManager ────────────────────
 // SettingsPanel + AIModelsStatus have been moved to
 // src/surfaces/system/SettingsPanel.tsx and are now served from
-// the consolidated server surface settings tab (/server?tab=settings).
+// the consolidated System Surface (/system?tab=settings).
 // The gear icon in GlobalToolbar navigates there from any surface.
 
 // ─── Install Panel ─────────────────────────────────────────────────
@@ -1196,14 +1202,22 @@ function DocsPanel() {
     }
   }, [])
 
-  const docSections = [
+  interface DocLink {
+    id: string
+    url: string
+    icon: string
+    name: string
+    subtitle: string
+  }
+
+  const docSections: { id: string; title: string; icon: string; color: string; desc: string; docs: DocLink[] }[] = [
     {
       id: 'guides',
       title: 'Guides',
       icon: 'auto_stories',
       color: '#58a6ff',
       desc: 'Development environment setup, workflow, surface architecture, configuration, and end-user guides.',
-      docs: [      ],
+      docs: [],
     },
     {
       id: 'references',
@@ -1211,7 +1225,7 @@ function DocsPanel() {
       icon: 'menu_book',
       color: '#22c55e',
       desc: 'System architecture, roadmap, changelog, narrator system, and skills pipeline reference.',
-      docs: [      ],
+      docs: [],
     },
     {
       id: 'system',
@@ -1219,7 +1233,7 @@ function DocsPanel() {
       icon: 'settings_suggest',
       color: '#f0883e',
       desc: 'Snackbar API, CLI tools, utility scripts, extension system, and module system documentation.',
-      docs: [      ],
+      docs: [],
     },
     {
       id: 'zen',
@@ -1227,7 +1241,7 @@ function DocsPanel() {
       icon: 'language',
       color: '#6c63ff',
       desc: 'Setup guide, uConnect mod, user.js configuration, chrome CSS, and workspace-to-vault mapping.',
-      docs: [      ],
+      docs: [],
     },
   ]
 

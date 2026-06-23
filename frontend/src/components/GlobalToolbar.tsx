@@ -167,14 +167,14 @@ export function GlobalToolbar({
           </button>
         )}
 
-        {/* Settings gear */}
+        {/* Settings gear → System Surface */}
         <button
           className="usx-header-btn"
           onClick={() => {
             if (onOpenSettings) onOpenSettings()
-            navigate('/server?tab=settings')
+            navigate('/system?tab=settings')
           }}
-          title="Settings"
+          title="System Settings"
         >
           <Icon name="settings" size={18} />
         </button>

@@ -1812,7 +1812,6 @@ export default function UServerSurface() {
     { id: 'budget', icon: 'monitoring', label: 'Budget', active: tab === 'budget', onClick: () => setTabAndRoute('budget') },
     { id: 'agents', icon: 'smart_toy', label: 'Agents', active: tab === 'agents', onClick: () => setTabAndRoute('agents') },
     { id: 'snacks', icon: 'fast_forward', label: 'Snacks', active: tab === 'snacks', onClick: () => setTabAndRoute('snacks') },
-    { id: '_admin', icon: 'settings', label: '⚙ Admin → /system', active: false, onClick: () => navigate('/system?tab=pages') },
   ]
 
   return (
