@@ -60,6 +60,7 @@ const DISPLAY_NAME_MAP: Record<string, string> = {
 // Keep this aligned with routed core surfaces so dashboard cards are always visible.
 const FALLBACK_REGISTRY: SurfaceDef[] = [
   { id: 'ucode', name: 'uCode', subtitle: 'GridCore Surface', description: 'Unified GridCore surface with Terminal, Teletext, and grid management toolset dashboard.', port: 0, color: '#39d2c0', icon: 'grid_view', status: 'running', embedded: true, route: '/ucode' },
+  { id: 'workflow', name: 'Workflow', subtitle: 'Daily Missions & Tasks', description: 'User-facing daily workflow management with missions, tasks, GridSmith sandbox, and activity feed.', port: 0, color: '#22c55e', icon: 'account_tree', status: 'running', embedded: true, route: '/workflow?tab=dashboard' },
   { id: 'server', name: 'Server', subtitle: 'Operations & System', description: 'Consolidated server, system tools, modules, logs, workflows, agents, and publishing', port: 0, color: '#f59e0b', icon: 'dns', status: 'running', embedded: true, route: '/server' },
   { id: 'assistui', name: 'AssistUI', subtitle: 'Canonical AI Chat', description: 'Full-page AI chat with streaming responses, model selection, conversation management, and multi-agent support.', port: 0, color: '#a855f7', icon: 'smart_toy', status: 'running', embedded: true, route: '/assistui' },
   { id: 'documentation', name: 'Documentation', subtitle: 'Learning Hub', description: 'Learning hub with tutorials, guides, courses, skill tracker, and API docs.', port: 0, color: '#a371f7', icon: 'menu_book', status: 'running', embedded: true, route: '/documentation' },
@@ -74,6 +75,7 @@ const MISSION_TABS: { id: MissionTab; icon: string; label: string }[] = [
 
 const QUICK_SURFACE_TABS: Array<{ id: string; icon: string; label: string; href: string }> = [
   { id: 'ucode', icon: 'grid_view', label: 'uCode', href: '/ucode' },
+  { id: 'workflow', icon: 'account_tree', label: 'Workflow', href: '/workflow?tab=dashboard' },
   { id: 'server', icon: 'dns', label: 'Server', href: '/server?tab=dashboard' },
 ]
 
