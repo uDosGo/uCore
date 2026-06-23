@@ -2,7 +2,7 @@
    ui-hub — React Entry Point
    ═══════════════════════════════════════════════════════════════════
    Canonical Surface Routes:
-     /              → MissionControlSurface (surface hub dashboard)
+     /              → DashboardSurface (surface hub dashboard)
      /[ps]\d{3}     → SystemPage (P: surface status, S: system pages)
      /ucode/*       → UCodeSurface (Terminal + Teletext + Grid)
      /browserui/*   → BrowserUISurface (web reader)
@@ -21,7 +21,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import MissionControlSurface from './surfaces/missioncontrol/MissionControlSurface'
+import DashboardSurface from './surfaces/dashboard/DashboardSurface'
 import { SystemPage, parseSystemRoute } from './SystemPage'
 import { SurfaceShellProvider } from './components/SurfaceShellContext'
 import UCodeSurface from './surfaces/ucode/UCodeSurface'
@@ -75,7 +75,7 @@ function App() {
     }
     return <SystemPage {...route} />
   }
-  return <MissionControlSurface />
+  return <DashboardSurface />
 }
 
 /** Dev route guard — reads from runtime context instead of build-time env */

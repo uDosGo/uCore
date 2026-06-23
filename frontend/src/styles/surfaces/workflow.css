@@ -1,177 +1,189 @@
 /* ═══════════════════════════════════════════════════════════════════
-   workflow.css — Workflow Surface Styles (USXv2/Pico CSS)
+   workflow.css — Workflow Surface Styles
    ═══════════════════════════════════════════════════════════════════
-   Uses Pico CSS variables for all colors and sizing.
-   Overrides Kanban board styles for USX-aligned cards.
+   Includes mission-control drop panel, binder compiler, and live stats
    ═══════════════════════════════════════════════════════════════════ */
-
-/* ─── Surface Container ──────────────────────────────────────────── */
+/* ─── Existing Workflow Styles ─────────────────────────────────── */
 .workflow-surface {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100%;
-  background: var(--pico-background-color, #0d1117);
-  color: var(--pico-color, #c9d1d9);
-  overflow: hidden;
+  background: var(--pico-background-color, #010409);
+  color: var(--pico-color, #e6edf3);
+  font-family: var(--pico-font-family, system-ui, sans-serif);
 }
 
 .workflow-surface-main {
-  flex: 1;
-  min-height: 0;
+  padding: 20px 24px;
   overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-  width: 100%;
+  min-height: 0;
 }
 
-/* ─── Dashboard ────────────────────────────────────────────────── */
-.workflow-dashboard {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
+/* ─── Sections ─────────────────────────────────────────────────── */
 .workflow-section {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-bottom: 20px;
 }
 
 .workflow-section-header {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
 }
 
 .workflow-section-header h3 {
   margin: 0;
+  font-size: var(--pico-font-size, 14px);
   font-weight: 600;
-  color: var(--pico-color);
+  color: var(--pico-color, #e6edf3);
 }
 
 .workflow-section-count {
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
   margin-left: auto;
-  color: var(--pico-muted-color);
-  background: var(--pico-card-background-color);
-  padding: 2px 8px;
-  border-radius: 10px;
 }
 
-/* ─── Stats Grid ──────────────────────────────────────────────── */
+/* ─── Stats Grid ───────────────────────────────────────────────── */
 .workflow-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
 }
 
 .workflow-stat-card {
-  background: var(--pico-card-background-color);
-  border: 1px solid var(--pico-border-color);
-  border-radius: 8px;
-  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--pico-card-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
 }
 
 .workflow-stat-label {
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--pico-muted-color);
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
 }
 
 .workflow-stat-value {
+  font-size: 22px;
   font-weight: 700;
-  color: var(--pico-color);
+  color: var(--pico-color, #e6edf3);
+  line-height: 1.2;
+}
+
+.workflow-stat-value--online {
+  color: #3fb950;
+}
+
+.workflow-stat-value--offline {
+  color: #f85149;
 }
 
 .workflow-stat-bar {
-  height: 4px;
-  background: var(--pico-card-sectioning-background-color);
+  height: 3px;
   border-radius: 2px;
+  background: var(--pico-card-sectioning-background-color, #161b22);
   overflow: hidden;
+  margin-top: 4px;
 }
 
 .workflow-stat-bar-fill {
   height: 100%;
   border-radius: 2px;
-  transition: width 0.3s ease;
+  transition: width 0.4s ease;
 }
 
-/* ─── Grid 2-col ──────────────────────────────────────────────── */
+/* ─── Grid 2-column ────────────────────────────────────────────── */
 .workflow-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+  margin-bottom: 20px;
 }
 
-/* ─── Activity List ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .workflow-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Activity ──────────────────────────────────────────────────── */
 .workflow-activity-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
 }
 
 .workflow-activity-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
-  background: var(--pico-card-background-color);
-  border: 1px solid var(--pico-border-color);
-  border-radius: 6px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: var(--pico-card-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
+  font-size: var(--pico-font-size-condensed, 12px);
 }
 
 .workflow-activity-date {
-  color: var(--pico-muted-color);
+  color: var(--pico-muted-color, #8b949e);
   flex-shrink: 0;
+  width: 70px;
 }
 
 .workflow-activity-title {
-  color: var(--pico-color);
+  color: var(--pico-color, #e6edf3);
+  flex: 1;
 }
 
-/* ─── Action Grid ─────────────────────────────────────────────── */
+/* ─── Action Grid ──────────────────────────────────────────────── */
 .workflow-action-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
 }
 
 .workflow-action-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 8px 12px;
-  border: 1px solid var(--pico-border-color);
-  border-radius: 8px;
-  background: var(--pico-card-background-color);
-  color: var(--pico-color);
+  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color, #0d1117);
+  color: var(--pico-color, #e6edf3);
+  border-radius: 6px;
   cursor: pointer;
+  font-size: var(--pico-font-size-condensed, 12px);
   font-family: inherit;
-  transition: border-color 0.15s ease;
+  transition: all 0.15s;
 }
 
 .workflow-action-btn:hover {
-  border-color: var(--wf-action-color, var(--pico-primary));
+  border-color: var(--pico-primary, #58a6ff);
+  background: rgba(88, 166, 255, 0.08);
 }
 
-/* ─── Daily Tasks ─────────────────────────────────────────────── */
+/* ─── Task list ─────────────────────────────────────────────────── */
 .workflow-task-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .workflow-task-row {
   display: flex;
   align-items: center;
+  gap: 8px;
   padding: 6px 10px;
-  background: var(--pico-card-background-color);
-  border: 1px solid var(--pico-border-color);
-  border-radius: 6px;
+  border-radius: 4px;
+  background: var(--pico-card-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
 }
 
 .workflow-task-label {
@@ -179,26 +191,27 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  flex: 1;
+  min-width: 0;
 }
 
 .workflow-task-label input[type="checkbox"] {
-  accent-color: var(--pico-primary);
+  accent-color: var(--pico-primary, #58a6ff);
+  flex-shrink: 0;
 }
 
 .workflow-task-text {
-  color: var(--pico-color);
+  font-size: var(--pico-font-size, 14px);
+  color: var(--pico-color, #e6edf3);
 }
 
 .workflow-task-text--done {
   text-decoration: line-through;
-  color: var(--pico-muted-color);
+  color: var(--pico-muted-color, #8b949e);
 }
 
-/* ─── Panel (Missions, Tasks tabs) ────────────────────────────── */
+/* ─── Panel ─────────────────────────────────────────────────────── */
 .workflow-panel {
-  padding: 16px;
-  height: 100%;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -208,214 +221,671 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .workflow-panel-header h3 {
   margin: 0;
+  font-size: var(--pico-font-size, 14px);
   font-weight: 600;
-  color: var(--pico-color);
 }
 
 .workflow-panel-count {
-  color: var(--pico-muted-color);
-  background: var(--pico-card-background-color);
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
   padding: 2px 8px;
   border-radius: 10px;
+  background: var(--pico-card-sectioning-background-color, #161b22);
 }
 
-.workflow-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border: 1px solid var(--pico-border-color);
-  border-radius: 6px;
-  background: var(--pico-card-sectioning-background-color);
-  color: var(--pico-color);
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.workflow-toggle-btn:hover {
-  border-color: var(--pico-primary);
-}
-
-/* ─── Cards ───────────────────────────────────────────────────── */
+/* ─── Cards ─────────────────────────────────────────────────────── */
 .workflow-card {
-  background: var(--pico-card-background-color);
-  border: 1px solid var(--pico-border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--pico-card-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 8px;
-  padding: 12px 16px;
 }
 
 .workflow-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  gap: 8px;
 }
 
 .workflow-card-title {
+  font-size: var(--pico-font-size, 14px);
   font-weight: 600;
-  color: var(--pico-color);
+  color: var(--pico-color, #e6edf3);
 }
 
 .workflow-card-badge {
+  font-size: var(--pico-font-size-condensed, 12px);
   padding: 2px 8px;
   border-radius: 10px;
   border: 1px solid;
-  font-weight: 500;
+  flex-shrink: 0;
 }
 
 .workflow-card-desc {
-  margin: 0 0 6px;
-  color: var(--pico-muted-color);
-  line-height: 1.4;
+  margin: 0;
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
 }
 
 .workflow-card-footer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
 .workflow-card-status {
-  color: var(--pico-muted-color);
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
 }
 
-/* ─── Missions List ───────────────────────────────────────────── */
+/* ─── Mission list ──────────────────────────────────────────────── */
 .workflow-mission-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* ─── Kanban Wrap ─────────────────────────────────────────────── */
-.workflow-kanban-wrap {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-}
-
-/* ─── USX-Aligned Kanban Overrides ────────────────────────────── */
-.workflow-tasks-main .kanban-board {
-  display: flex;
-  gap: 12px;
-  padding: 8px 0;
-  min-height: 100%;
-  align-items: flex-start;
-}
-
-.workflow-tasks-main .kanban-col {
-  flex: 1;
-  min-width: 220px;
-  max-width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: var(--pico-card-sectioning-background-color, #1c2128);
-  border-radius: 8px;
-  padding: 10px;
-}
-
-.workflow-tasks-main .kanban-col-header {
+/* ─── Toggle button ─────────────────────────────────────────────── */
+.workflow-toggle-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 4px 6px;
-  border-bottom: 1px solid var(--pico-border-color, #30363d);
-}
-
-.workflow-tasks-main .kanban-col-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.workflow-tasks-main .kanban-col-title {
-  font-weight: 600;
-  color: var(--pico-color, #c9d1d9);
-  font-size: var(--pico-font-size, 14px);
-}
-
-.workflow-tasks-main .kanban-col-count {
-  margin-left: auto;
-  color: var(--pico-muted-color, #8b949e);
-  background: var(--pico-background-color, #0d1117);
-  padding: 1px 6px;
-  border-radius: 8px;
-  font-size: var(--pico-font-size-condensed, 12px);
-}
-
-.workflow-tasks-main .kanban-card {
-  background: var(--pico-card-background-color, #161b22);
+  padding: 6px 12px;
   border: 1px solid var(--pico-border-color, #30363d);
-  border-radius: 8px;
-  padding: 10px 12px;
+  background: var(--pico-card-background-color, #0d1117);
+  color: var(--pico-color, #e6edf3);
+  border-radius: 6px;
   cursor: pointer;
-  transition: border-color 0.15s ease, transform 0.1s ease;
+  font-size: var(--pico-font-size-condensed, 12px);
+  font-family: inherit;
+  transition: all 0.15s;
 }
 
-.workflow-tasks-main .kanban-card:hover {
+.workflow-toggle-btn:hover {
   border-color: var(--pico-primary, #58a6ff);
-  transform: translateY(-1px);
 }
 
-.workflow-tasks-main .kanban-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.workflow-tasks-main .kanban-card-title {
-  font-weight: 500;
-  color: var(--pico-color, #c9d1d9);
-  font-size: var(--pico-font-size, 14px);
-  line-height: 1.35;
-  word-break: break-word;
-}
-
-.workflow-tasks-main .kanban-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.workflow-tasks-main .kanban-card-type {
-  font-size: var(--pico-font-size-condensed, 11px);
-  color: var(--pico-muted-color, #8b949e);
-  background: var(--pico-card-sectioning-background-color, #1c2128);
-  padding: 1px 6px;
-  border-radius: 4px;
-}
-
-.workflow-tasks-main .kanban-card-date {
-  font-size: var(--pico-font-size-condensed, 11px);
-  color: var(--pico-muted-color, #8b949e);
-}
-
+/* ─── Empty state ──────────────────────────────────────────────── */
 .workflow-empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
-  color: var(--pico-muted-color);
+  padding: 32px;
+  color: var(--pico-muted-color, #8b949e);
+  font-size: var(--pico-font-size-condensed, 12px);
 }
 
-/* ─── Responsive ──────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .workflow-grid-2 {
-    grid-template-columns: 1fr;
-  }
+/* ═══════════════════════════════════════════════════════════════════
+   MISSION CONTROL — Drop Panel, Stats, Binder Compiler
+   ═══════════════════════════════════════════════════════════════════ */
 
-  .workflow-stats-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+/* ─── Drop Panel ────────────────────────────────────────────────── */
+.mc-drop-panel {
+  border: 2px dashed var(--pico-border-color, #30363d);
+  border-radius: 12px;
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--pico-card-background-color, #0d1117);
+  position: relative;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
 
-  .workflow-action-grid {
+.mc-drop-panel:hover {
+  border-color: var(--pico-primary, #58a6ff);
+  background: rgba(88, 166, 255, 0.04);
+}
+
+.mc-drop-panel--dragging {
+  border-color: var(--pico-primary, #58a6ff);
+  background: rgba(88, 166, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+.mc-drop-panel--has-files {
+  border-style: solid;
+  border-color: var(--pico-ins-color, #3fb950);
+  background: rgba(63, 185, 80, 0.04);
+}
+
+.mc-drop-panel-icon {
+  font-size: 36px;
+  color: var(--pico-muted-color, #8b949e);
+  line-height: 1;
+}
+
+.mc-drop-panel--dragging .mc-drop-panel-icon {
+  color: var(--pico-primary, #58a6ff);
+}
+
+.mc-drop-panel-title {
+  font-size: var(--pico-font-size, 14px);
+  font-weight: 600;
+  color: var(--pico-color, #e6edf3);
+  margin: 0;
+}
+
+.mc-drop-panel-subtitle {
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+  margin: 0;
+}
+
+.mc-drop-panel-formats {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mc-drop-panel-format-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--pico-card-sectioning-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.mc-drop-panel-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* ─── Queued Files List ─────────────────────────────────────────── */
+.mc-queue {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mc-queue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.mc-queue-header h4 {
+  margin: 0;
+  font-size: var(--pico-font-size-condensed, 12px);
+  font-weight: 600;
+  color: var(--pico-muted-color, #8b949e);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mc-queue-clear {
+  font-size: var(--pico-font-size-condensed, 12px);
+  padding: 2px 8px;
+  border: 1px solid var(--pico-del-color, #f85149);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--pico-del-color, #f85149);
+  cursor: pointer;
+}
+
+.mc-queue-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--pico-card-sectioning-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  transition: border-color 0.15s;
+}
+
+.mc-queue-item:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.mc-queue-item-icon {
+  color: var(--pico-primary, #58a6ff);
+  flex-shrink: 0;
+}
+
+.mc-queue-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-queue-item-name {
+  font-size: var(--pico-font-size, 14px);
+  color: var(--pico-color, #e6edf3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mc-queue-item-meta {
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.mc-queue-item-size {
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+  flex-shrink: 0;
+}
+
+.mc-queue-item-remove {
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.mc-queue-item-remove:hover {
+  color: var(--pico-del-color, #f85149);
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.mc-queue-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.mc-queue-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color, #0d1117);
+  color: var(--pico-color, #e6edf3);
+  cursor: pointer;
+  font-size: var(--pico-font-size-condensed, 12px);
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.mc-queue-btn:hover {
+  border-color: var(--pico-primary, #58a6ff);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+.mc-queue-btn--primary {
+  background: var(--pico-primary, #58a6ff);
+  border-color: var(--pico-primary, #58a6ff);
+  color: #fff;
+}
+
+.mc-queue-btn--primary:hover {
+  background: var(--pico-primary-hover, #4c8fd6);
+  border-color: var(--pico-primary-hover, #4c8fd6);
+}
+
+/* ─── Live Stats Grid ──────────────────────────────────────────── */
+.mc-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.mc-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--pico-card-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+}
+
+.mc-stat-label {
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mc-stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--pico-color, #e6edf3);
+  line-height: 1.2;
+}
+
+.mc-stat-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--pico-card-sectioning-background-color, #161b22);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.mc-stat-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* ─── Binder Compiler ───────────────────────────────────────────── */
+.binder-compiler {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.binder-compiler-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.binder-compiler-header h3 {
+  margin: 0;
+  font-size: var(--pico-font-size, 14px);
+  font-weight: 600;
+  color: var(--pico-color, #e6edf3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.binder-compiler-stats {
+  display: flex;
+  gap: 8px;
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.binder-compiler-stats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.binder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.binder-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--pico-card-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+
+.binder-item:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.binder-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.binder-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.binder-item-name {
+  font-size: var(--pico-font-size, 14px);
+  font-weight: 600;
+  color: var(--pico-color, #e6edf3);
+}
+
+.binder-item-meta {
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+  display: flex;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.binder-item-status {
+  font-size: var(--pico-font-size-condensed, 12px);
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.binder-item-status--active {
+  border-color: var(--pico-ins-color, #3fb950);
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.binder-item-status--pending {
+  border-color: var(--pico-warning-color, #d29922);
+  color: var(--pico-warning-color, #d29922);
+}
+
+.binder-item-status--complete {
+  border-color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.binder-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px dashed var(--pico-border-color, #30363d);
+  border-radius: 12px;
+  background: var(--pico-card-background-color, #0d1117);
+}
+
+.binder-empty-icon {
+  font-size: 40px;
+  color: var(--pico-muted-color, #8b949e);
+  line-height: 1;
+}
+
+.binder-empty h4 {
+  margin: 0;
+  font-size: var(--pico-font-size, 14px);
+  font-weight: 600;
+  color: var(--pico-color, #e6edf3);
+}
+
+.binder-empty p {
+  margin: 0;
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+  max-width: 400px;
+}
+
+/* ─── Incoming Files Queue (Binder) ──────────────────────────────── */
+.binder-incoming {
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.binder-incoming-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--pico-card-sectioning-background-color, #161b22);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.binder-incoming-header h4 {
+  margin: 0;
+  font-size: var(--pico-font-size-condensed, 12px);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.binder-incoming-count {
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--pico-card-background-color, #0d1117);
+}
+
+.binder-incoming-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.binder-incoming-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  font-size: var(--pico-font-size-condensed, 12px);
+}
+
+.binder-incoming-item:last-child {
+  border-bottom: none;
+}
+
+.binder-incoming-item-icon {
+  flex-shrink: 0;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.binder-incoming-item-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.binder-incoming-item-status {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.binder-incoming-item-status--queued {
+  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-card-sectioning-background-color, #161b22);
+}
+
+.binder-incoming-item-status--processing {
+  color: var(--pico-primary, #58a6ff);
+  background: rgba(88, 166, 255, 0.12);
+}
+
+.binder-incoming-item-status--compiled {
+  color: var(--pico-ins-color, #3fb950);
+  background: rgba(63, 185, 80, 0.12);
+}
+
+.binder-incoming-item-status--error {
+  color: var(--pico-del-color, #f85149);
+  background: rgba(248, 81, 73, 0.12);
+}
+
+/* ─── Process All Button ────────────────────────────────────────── */
+.binder-process-all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: none;
+  background: var(--pico-primary, #58a6ff);
+  color: #fff;
+  cursor: pointer;
+  font-size: var(--pico-font-size, 14px);
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.binder-process-all:hover {
+  background: var(--pico-primary-hover, #4c8fd6);
+}
+
+.binder-process-all:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Shared section patterns ──────────────────────────────────── */
+.mc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mc-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.mc-section-header h3 {
+  margin: 0;
+  font-size: var(--pico-font-size, 14px);
+  font-weight: 600;
+  color: var(--pico-color, #e6edf3);
+}
+
+.mc-section-header span {
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Grid layouts ──────────────────────────────────────────────── */
+.mc-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .mc-grid-2 {
     grid-template-columns: 1fr;
   }
 }

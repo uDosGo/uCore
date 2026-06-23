@@ -1,12 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════════
    WorkflowSurface — USX Schema v3.1 Workflow Surface
    ═══════════════════════════════════════════════════════════════════
-   User-facing daily/workflow/mission/ucode surface.
-   Tabs: Dashboard (with activity widget), Missions (linked to tasks),
-         Tasks (kanban + list view, right-split detail editor)
+   Tabs: Mission Control (renamed from Dashboard) — Drop Panel + live stats,
+         Missions (linked to tasks),
+         Tasks (kanban + list view, right-split detail editor),
+         Binder — compiler that collates/processes dropped files
    Project Type: Operational (OP) | Autonomy Level: L3 (Collaborator)
    ═══════════════════════════════════════════════════════════════════ */
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { GlobalToolbar, type ToolbarTab } from '../../components/GlobalToolbar'
 import { Icon } from '../../components/Icon'
@@ -17,7 +18,7 @@ import { renderMarkdown } from '../../utils/renderMarkdown'
 import '../../styles/surfaces/workflow.css'
 
 // ─── Types ──────────────────────────────────────────────────────
-type WorkflowTab = 'dashboard' | 'missions' | 'tasks'
+type WorkflowTab = 'mission-control' | 'missions' | 'tasks' | 'binder'
 type ViewMode = 'kanban' | 'list'
 
 interface WorkflowTask {
@@ -47,6 +48,28 @@ interface ActivityEntry {
   icon?: string
 }
 
+/** A file queued for processing into a binder / mission */
+interface QueuedFile {
+  id: string
+  name: string
+  size: number
+  type: string
+  addedAt: Date
+}
+
+/** A compiled binder from processed files */
+interface Binder {
+  id: string
+  name: string
+  description: string
+  sourceCount: number
+  createdAt: Date
+  status: 'active' | 'pending' | 'complete'
+  color: string
+  icon: string
+  files: QueuedFile[]
+}
+
 const SNACKBAR_API = 'http://localhost:8484'
 
 const COLUMN_COLORS: Record<string, string> = {
@@ -59,6 +82,8 @@ const COLUMN_COLORS: Record<string, string> = {
 
 const COLUMN_ORDER = ['todo', 'in-progress', 'review', 'blocked', 'completed']
 
+const ACCEPTED_FORMATS = ['.md', '.txt', '.json', '.yaml', '.yml', '.csv', '.log', '.py', '.js', '.ts', '.jsx', '.tsx', '.css', '.html']
+
 // ─── User task filter — exclude explicit dev/system ────────────
 function isUserTask(task: WorkflowTask): boolean {
   const board = (task.board || '').toLowerCase()
@@ -66,6 +91,13 @@ function isUserTask(task: WorkflowTask): boolean {
   const devPatterns = ['developer', 'dev-task', 'dev/', 'gridsmith']
   return !devPatterns.some(p => board.includes(p)) &&
          !tags.some(t => devPatterns.some(p => t.includes(p)))
+}
+
+// ─── Helpers — format file size ─────────────────────────────────
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 // ─── Detail Panel (right-split editor) ─────────────────────────
@@ -228,79 +260,258 @@ function WorkflowDetailPanel({ task, onClose, onUpdate }: {
   )
 }
 
-// ─── Dashboard Tab ─────────────────────────────────────────────
-function DashboardTab({ tasks, snackbarAvailable }: {
+// ─── New Mission Drop Panel ──────────────────────────────────────
+function NewMissionDropPanel({ onFilesQueued }: {
+  onFilesQueued: (files: QueuedFile[]) => void
+}) {
+  const [dragging, setDragging] = useState(false)
+  const [queuedFiles, setQueuedFiles] = useState<QueuedFile[]>([])
+  const dragCounter = useRef(0)
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounter.current++
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setDragging(true)
+    }
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounter.current--
+    if (dragCounter.current === 0) {
+      setDragging(false)
+    }
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
+  const processFiles = useCallback((fileList: FileList) => {
+    const newFiles: QueuedFile[] = Array.from(fileList).map(f => ({
+      id: `qf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name: f.name,
+      size: f.size,
+      type: f.type || f.name.split('.').pop() || 'unknown',
+      addedAt: new Date(),
+    }))
+    setQueuedFiles(prev => [...prev, ...newFiles])
+    onFilesQueued(newFiles)
+  }, [onFilesQueued])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragging(false)
+    dragCounter.current = 0
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files)
+      e.dataTransfer.clearData()
+    }
+  }, [processFiles])
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processFiles(e.target.files)
+      e.target.value = ''
+    }
+  }, [processFiles])
+
+  const removeFile = useCallback((id: string) => {
+    setQueuedFiles(prev => prev.filter(f => f.id !== id))
+  }, [])
+
+  const clearAll = useCallback(() => {
+    setQueuedFiles([])
+  }, [])
+
+  const totalSize = queuedFiles.reduce((sum, f) => sum + f.size, 0)
+
+  return (
+    <div className="mc-section">
+      <div className="mc-section-header">
+        <Icon name="add" size={16} />
+        <h3>Launchpad</h3>
+        <span>Drop files to create a mission binder</span>
+      </div>
+
+      <div
+        className={`mc-drop-panel ${dragging ? 'mc-drop-panel--dragging' : ''} ${queuedFiles.length > 0 ? 'mc-drop-panel--has-files' : ''}`}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <div className="mc-drop-panel-icon">
+          <Icon name={dragging ? 'cloud_upload' : queuedFiles.length > 0 ? 'check_circle' : 'upload_file'} size={36} />
+        </div>
+        <p className="mc-drop-panel-title">
+          {dragging ? 'Drop files to queue them' : queuedFiles.length > 0 ? `${queuedFiles.length} file(s) queued` : 'Drag & drop files here'}
+        </p>
+        <p className="mc-drop-panel-subtitle">or click to browse</p>
+        <div className="mc-drop-panel-formats">
+          {ACCEPTED_FORMATS.map(fmt => (
+            <span key={fmt} className="mc-drop-panel-format-badge">{fmt}</span>
+          ))}
+        </div>
+        <input
+          type="file"
+          className="mc-drop-panel-input"
+          multiple
+          onChange={handleInputChange}
+          accept={ACCEPTED_FORMATS.join(',')}
+        />
+      </div>
+
+      {queuedFiles.length > 0 && (
+        <div className="mc-queue">
+          <div className="mc-queue-header">
+            <h4>Queued Files ({queuedFiles.length})</h4>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span className="mc-drop-panel-subtitle" style={{ fontSize: 11 }}>{formatSize(totalSize)} total</span>
+              <button className="mc-queue-clear" onClick={clearAll}>Clear all</button>
+            </div>
+          </div>
+          {queuedFiles.map(f => (
+            <div key={f.id} className="mc-queue-item">
+              <div className="mc-queue-item-icon">
+                <Icon name="description" size={16} />
+              </div>
+              <div className="mc-queue-item-info">
+                <div className="mc-queue-item-name">{f.name}</div>
+                <div className="mc-queue-item-meta">{f.type}</div>
+              </div>
+              <div className="mc-queue-item-size">{formatSize(f.size)}</div>
+              <button className="mc-queue-item-remove" onClick={() => removeFile(f.id)} title="Remove">
+                <Icon name="close" size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Live Mission / Workflow Stats ──────────────────────────────
+function LiveWorkflowStats({ tasks, snackbarAvailable }: {
+  tasks: { done: number; total: number } | null
+  snackbarAvailable: boolean
+}) {
+  const tasksDone = tasks ? tasks.done : 0
+  const tasksTotal = tasks ? tasks.total : 0
+  const tasksPct = tasksTotal > 0 ? Math.round((tasksDone / tasksTotal) * 100) : 0
+
+  const activeMissions = 4
+  const workflowsRunning = 2
+  const filesProcessed = 128
+
+  return (
+    <div className="mc-section">
+      <div className="mc-section-header">
+        <Icon name="monitor_heart" size={16} />
+        <h3>Mission Control</h3>
+        <span>Real-time system overview</span>
+      </div>
+
+      <div className="mc-stats-grid">
+        <div className="mc-stat-card">
+          <span className="mc-stat-label"><Icon name="flag" size={12} /> Active Missions</span>
+          <span className="mc-stat-value">{activeMissions}</span>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: '100%', background: '#58a6ff' }} /></div>
+        </div>
+        <div className="mc-stat-card">
+          <span className="mc-stat-label"><Icon name="account_tree" size={12} /> Workflows Running</span>
+          <span className="mc-stat-value">{workflowsRunning}</span>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: `${(workflowsRunning / 10) * 100}%`, background: '#3fb950' }} /></div>
+        </div>
+        <div className="mc-stat-card">
+          <span className="mc-stat-label"><Icon name="folder" size={12} /> Files Processed</span>
+          <span className="mc-stat-value">{filesProcessed}</span>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: '100%', background: '#d29922' }} /></div>
+        </div>
+        <div className="mc-stat-card">
+          <span className="mc-stat-label"><Icon name="checklist" size={12} /> Tasks</span>
+          <span className="mc-stat-value">{tasksDone}/{tasksTotal}</span>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: `${tasksPct}%`, background: '#a855f7' }} /></div>
+        </div>
+        <div className="mc-stat-card">
+          <span className="mc-stat-label"><Icon name="restaurant_menu" size={12} /> Snackbar</span>
+          <span className="mc-stat-value" style={{ color: snackbarAvailable ? '#3fb950' : '#f85149' }}>
+            {snackbarAvailable ? 'Online' : 'Offline'}
+          </span>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: '100%', background: snackbarAvailable ? '#3fb950' : '#f85149' }} /></div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Mission Control Tab (renamed from Dashboard) ─────────────
+function MissionControlTab({ tasks, snackbarAvailable }: {
   tasks: WorkflowTask[]
   snackbarAvailable: boolean
 }) {
-  const [taskItems, setTaskItems] = useState([
-    { id: 'w1', title: 'Review daily mission brief', done: false },
-    { id: 'w2', title: 'Sync workspace vault', done: false },
-    { id: 'w3', title: 'Run uCode pipeline', done: false },
-    { id: 'w4', title: 'Process activity feed', done: true },
-    { id: 'w5', title: 'Backup AppFlowy workspace', done: false },
-  ])
+  const [taskCounts, setTaskCounts] = useState<{ done: number; total: number } | null>(null)
 
-  const toggleTask = (id: string) => {
-    setTaskItems(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t))
-  }
+  useEffect(() => {
+    const total = tasks.length
+    const done = tasks.filter(t => t.status === 'completed').length
+    setTaskCounts({ total, done })
+  }, [tasks])
 
-  const runningTasks = tasks.filter(t => t.status === 'in-progress' || t.status === 'review').length
-  const totalUserTasks = taskItems.length
-  const doneUserTasks = taskItems.filter(t => t.done).length
+  const handleFilesQueued = useCallback((files: QueuedFile[]) => {
+    console.log(`Queued ${files.length} file(s) for mission processing`)
+  }, [])
+
+  const quickActions = [
+    { icon: 'add', label: 'New Mission', color: '#58a6ff' },
+    { icon: 'refresh', label: 'Sync Workflows', color: '#22c55e' },
+    { icon: 'search', label: 'Search Binders', color: '#f59e0b', route: '/workflow?tab=binder' },
+    { icon: 'help', label: 'Mission Docs', color: '#a855f7', route: '/s600' },
+  ]
 
   const activity: ActivityEntry[] = [
     { date: 'Today', title: 'Mission sync completed', icon: 'sync' },
     { date: 'Today', title: 'Vault indexed 42 documents', icon: 'folder' },
     { date: 'Yesterday', title: 'Workflow pipeline green', icon: 'check_circle' },
     { date: '2d ago', title: 'AppFlowy import completed', icon: 'download' },
-  ]
-
-  const prompts = [
-    { icon: 'sync', label: 'Sync workspaces', color: '#58a6ff' },
-    { icon: 'search', label: 'Search vault', color: '#22c55e' },
-    { icon: 'flag', label: 'Start new mission', color: '#f59e0b' },
-    { icon: 'history', label: 'View activity log', color: '#a855f7' },
+    { date: '3d ago', title: 'Binder compiled: Surface Audit', icon: 'auto_awesome' },
   ]
 
   return (
     <div className="workflow-dashboard">
-      <div className="workflow-section">
-        <div className="workflow-section-header">
-          <Icon name="monitor_heart" size={18} />
-          <h3>Workflow Overview</h3>
-        </div>
-        <div className="workflow-stats-grid">
-          <div className="workflow-stat-card">
-            <span className="workflow-stat-label">Tasks</span>
-            <span className="workflow-stat-value">{doneUserTasks}/{totalUserTasks}</span>
-            <div className="workflow-stat-bar">
-              <div className="workflow-stat-bar-fill" style={{ width: `${(doneUserTasks / Math.max(totalUserTasks, 1)) * 100}%`, background: '#3fb950' }} />
-            </div>
-          </div>
-          <div className="workflow-stat-card">
-            <span className="workflow-stat-label">Active</span>
-            <span className="workflow-stat-value">{runningTasks}</span>
-            <div className="workflow-stat-bar">
-              <div className="workflow-stat-bar-fill" style={{ width: '100%', background: '#58a6ff' }} />
-            </div>
-          </div>
-          <div className="workflow-stat-card">
-            <span className="workflow-stat-label">Snackbar</span>
-            <span className={`workflow-stat-value ${snackbarAvailable ? 'workflow-stat-value--online' : 'workflow-stat-value--offline'}`}>
-              {snackbarAvailable ? 'Online' : 'Offline'}
-            </span>
-            <div className="workflow-stat-bar">
-              <div className="workflow-stat-bar-fill" style={{ width: '100%', background: snackbarAvailable ? '#3fb950' : '#f85149' }} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <LiveWorkflowStats tasks={taskCounts} snackbarAvailable={snackbarAvailable} />
+      <NewMissionDropPanel onFilesQueued={handleFilesQueued} />
 
-      <div className="workflow-grid-2">
-        <div className="workflow-section">
-          <div className="workflow-section-header">
-            <Icon name="history" size={18} />
+      <div className="mc-grid-2">
+        <div className="mc-section">
+          <div className="mc-section-header">
+            <Icon name="bolt" size={16} />
+            <h3>Quick Actions</h3>
+          </div>
+          <div className="workflow-action-grid">
+            {quickActions.map(a => (
+              a.route ? (
+                <a key={a.label} href={a.route} className="workflow-action-btn" style={{ '--wf-action-color': a.color } as React.CSSProperties}>
+                  <Icon name={a.icon} size={16} /> {a.label}
+                </a>
+              ) : (
+                <button key={a.label} className="workflow-action-btn" style={{ '--wf-action-color': a.color } as React.CSSProperties}>
+                  <Icon name={a.icon} size={16} /> {a.label}
+                </button>
+              )
+            ))}
+          </div>
+        </div>
+
+        <div className="mc-section">
+          <div className="mc-section-header">
+            <Icon name="history" size={16} />
             <h3>Activity</h3>
           </div>
           <div className="workflow-activity-list">
@@ -312,38 +523,6 @@ function DashboardTab({ tasks, snackbarAvailable }: {
               </div>
             ))}
           </div>
-        </div>
-        <div className="workflow-section">
-          <div className="workflow-section-header">
-            <Icon name="bolt" size={18} />
-            <h3>Quick Actions</h3>
-          </div>
-          <div className="workflow-action-grid">
-            {prompts.map(p => (
-              <button key={p.label} className="workflow-action-btn" style={{ '--wf-action-color': p.color } as React.CSSProperties}>
-                <Icon name={p.icon} size={16} />
-                <span>{p.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="workflow-section">
-        <div className="workflow-section-header">
-          <Icon name="checklist" size={18} />
-          <h3>Daily Tasks</h3>
-          <span className="workflow-section-count">{doneUserTasks}/{totalUserTasks}</span>
-        </div>
-        <div className="workflow-task-list">
-          {taskItems.map(t => (
-            <div key={t.id} className="workflow-task-row">
-              <label className="workflow-task-label">
-                <input type="checkbox" checked={t.done} onChange={() => toggleTask(t.id)} />
-                <span className={`workflow-task-text ${t.done ? 'workflow-task-text--done' : ''}`}>{t.title}</span>
-              </label>
-            </div>
-          ))}
         </div>
       </div>
     </div>
@@ -362,7 +541,6 @@ function MissionsTab({ allTasks, onSelectMission }: {
     { id: 'm4', title: 'Vault Indexing Pipeline', status: 'active', priority: 'high', description: 'Run recurring vault sync and indexing.', taskIds: [] },
   ])
 
-  // Link missions to tasks by matching tags/board
   const linkedMissions = useMemo(() => {
     return missions.map(m => {
       const missionSlug = m.title.toLowerCase().replace(/\s+/g, '-')
@@ -403,13 +581,12 @@ function MissionsTab({ allTasks, onSelectMission }: {
                 <span className="workflow-panel-count">{m.linkedTasks.length} linked tasks</span>
               )}
             </div>
-    {/* Click card to view its tasks */}
-    <div style={{ marginTop: 8 }}>
-      <button className="workflow-toggle-btn" onClick={() => onSelectMission(m.title)}
-        style={{ width: '100%', justifyContent: 'center', padding: '6px 0' }}>
-        <Icon name="list" size={14} /> View {m.linkedTasks.length} tasks
-      </button>
-    </div>
+            <div style={{ marginTop: 8 }}>
+              <button className="workflow-toggle-btn" onClick={() => onSelectMission(m.title)}
+                style={{ width: '100%', justifyContent: 'center', padding: '6px 0' }}>
+                <Icon name="list" size={14} /> View {m.linkedTasks.length} tasks
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -479,7 +656,6 @@ function TasksTab({ tasks, loading, error }: {
       {loading && userTasks.length === 0 && <div className="workflow-empty">Loading user tasks...</div>}
 
       <div className="workflow-tasks-body" style={{ display: 'flex', flex: 1, minHeight: 0, gap: 12, overflow: 'hidden' }}>
-        {/* Main content */}
         <div className="workflow-tasks-main" style={{ flex: detailOpen ? '0 0 55%' : '1', minWidth: detailOpen ? 300 : 0, overflow: 'auto', transition: 'flex 0.3s ease' }}>
           {userTasks.length > 0 ? (
             viewMode === 'kanban' ? (
@@ -510,12 +686,192 @@ function TasksTab({ tasks, loading, error }: {
           ) : null}
         </div>
 
-        {/* Right detail panel */}
         {detailOpen && (
           <div className="workflow-detail-panel" style={{ flex: '0 0 45%', minWidth: 280, overflow: 'hidden', borderLeft: '1px solid var(--pico-border-color)', transition: 'flex 0.3s ease' }}>
             <WorkflowDetailPanel task={selectedTask} onClose={handleCloseDetail} />
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Binder Compiler Tab ────────────────────────────────────────
+function BinderCompilerTab() {
+  const [incomingFiles, setIncomingFiles] = useState<QueuedFile[]>([])
+  const [binders, setBinders] = useState<Binder[]>([
+    {
+      id: 'b1',
+      name: 'Surface Audit 2026',
+      description: 'Consolidated audit findings from surface restructuring',
+      sourceCount: 12,
+      createdAt: new Date('2026-06-20'),
+      status: 'active',
+      color: '#58a6ff',
+      icon: 'fact_check',
+      files: [],
+    },
+    {
+      id: 'b2',
+      name: 'USX Component Specs',
+      description: 'Component specifications and migration notes',
+      sourceCount: 8,
+      createdAt: new Date('2026-06-18'),
+      status: 'complete',
+      color: '#3fb950',
+      icon: 'component_exchange',
+      files: [],
+    },
+    {
+      id: 'b3',
+      name: 'Vault Index Pipeline',
+      description: 'Pipeline config and indexing rules for vault sync',
+      sourceCount: 4,
+      createdAt: new Date('2026-06-15'),
+      status: 'pending',
+      color: '#d29922',
+      icon: 'folder_sync',
+      files: [],
+    },
+  ])
+
+  const [processing, setProcessing] = useState(false)
+  const [processingFileId, setProcessingFileId] = useState<string | null>(null)
+
+  const handleFilesQueued = useCallback((files: QueuedFile[]) => {
+    setIncomingFiles(prev => [...prev, ...files])
+  }, [])
+
+  const processFiles = useCallback(async () => {
+    if (incomingFiles.length === 0 || processing) return
+    setProcessing(true)
+
+    for (const file of incomingFiles) {
+      setProcessingFileId(file.id)
+      await new Promise(resolve => setTimeout(resolve, 300))
+    }
+
+    const newBinder: Binder = {
+      id: `b-${Date.now()}`,
+      name: `Binder ${binders.length + 1} — ${new Date().toLocaleDateString()}`,
+      description: `Auto-compiled from ${incomingFiles.length} source files`,
+      sourceCount: incomingFiles.length,
+      createdAt: new Date(),
+      status: 'active',
+      color: '#a855f7',
+      icon: 'auto_awesome',
+      files: [...incomingFiles],
+    }
+
+    setBinders(prev => [newBinder, ...prev])
+    setIncomingFiles([])
+    setProcessingFileId(null)
+    setProcessing(false)
+  }, [incomingFiles, processing, binders.length])
+
+  const removeIncoming = useCallback((id: string) => {
+    setIncomingFiles(prev => prev.filter(f => f.id !== id))
+  }, [])
+
+  const statusLabel: Record<string, string> = { active: 'Active', pending: 'Pending', complete: 'Complete' }
+
+  return (
+    <div className="workflow-dashboard binder-compiler">
+      <div className="binder-compiler-header">
+        <h3><Icon name="folder_special" size={18} /> Binder Compiler</h3>
+        <div className="binder-compiler-stats">
+          <span><Icon name="folder" size={12} /> {binders.length} binders</span>
+          <span><Icon name="description" size={12} /> {binders.reduce((s, b) => s + b.sourceCount, 0)} sources</span>
+        </div>
+      </div>
+
+      <div className="mc-section">
+        <NewMissionDropPanel onFilesQueued={handleFilesQueued} />
+      </div>
+
+      {incomingFiles.length > 0 && (
+        <div className="binder-incoming">
+          <div className="binder-incoming-header">
+            <h4><Icon name="input" size={14} /> Incoming Files</h4>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span className="binder-incoming-count">{incomingFiles.length} file(s)</span>
+              <button className="binder-process-all" onClick={processFiles} disabled={processing}>
+                <Icon name={processing ? 'sync' : 'auto_awesome'} size={14} className={processing ? 'hub-spin' : ''} />
+                {processing ? 'Processing...' : 'Compile Binder'}
+              </button>
+            </div>
+          </div>
+          <div className="binder-incoming-list">
+            {incomingFiles.map(f => (
+              <div key={f.id} className="binder-incoming-item">
+                <div className="binder-incoming-item-icon"><Icon name="description" size={14} /></div>
+                <span className="binder-incoming-item-name">{f.name}</span>
+                <span className="binder-incoming-item-meta" style={{ fontSize: 10, color: 'var(--pico-muted-color)' }}>{formatSize(f.size)}</span>
+                <span className={`binder-incoming-item-status binder-incoming-item-status--${processingFileId === f.id ? 'processing' : 'queued'}`}>
+                  {processingFileId === f.id ? 'Processing...' : 'Queued'}
+                </span>
+                <button className="mc-queue-item-remove" onClick={() => removeIncoming(f.id)} title="Remove"><Icon name="close" size={12} /></button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="mc-section">
+        <div className="mc-section-header">
+          <Icon name="folder" size={16} />
+          <h3>Compiled Binders</h3>
+          <span>{binders.length} total</span>
+        </div>
+
+        {binders.length > 0 ? (
+          <div className="binder-list">
+            {binders.map(b => (
+              <div key={b.id} className="binder-item">
+                <div className="binder-item-icon" style={{ background: `${b.color}18`, color: b.color }}>
+                  <Icon name={b.icon} size={20} />
+                </div>
+                <div className="binder-item-info">
+                  <div className="binder-item-name">{b.name}</div>
+                  <div className="binder-item-meta">
+                    <span>{b.description}</span>
+                    <span>{b.sourceCount} source file(s)</span>
+                    <span>Created {b.createdAt.toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <span className={`binder-item-status binder-item-status--${b.status}`}>{statusLabel[b.status]}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="binder-empty">
+            <div className="binder-empty-icon"><Icon name="folder_open" size={40} /></div>
+            <h4>No binders yet</h4>
+            <p>Drop files above to create your first binder. Binders collate source files into organized mission or task groups.</p>
+          </div>
+        )}
+      </div>
+
+      <div className="mc-section">
+        <div className="mc-section-header">
+          <Icon name="info" size={16} />
+          <h3>How it works</h3>
+        </div>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          {[
+            { step: '1', title: 'Drop Files', desc: 'Drag & drop or browse to queue source files (.md, .json, .py, etc.)' },
+            { step: '2', title: 'Compile Binder', desc: 'Click "Compile Binder" to process and collate files into a named binder' },
+            { step: '3', title: 'Link to Mission', desc: 'Binders can be assigned to missions or task groups for structured work' },
+          ].map(s => (
+            <div key={s.step} style={{ flex: '1 1 200px', display: 'flex', gap: 10, alignItems: 'flex-start', padding: 12, background: 'var(--pico-card-background-color, #0d1117)', border: '1px solid var(--pico-border-color, #30363d)', borderRadius: 8 }}>
+              <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--pico-primary, #58a6ff)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{s.step}</span>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--pico-color, #e6edf3)' }}>{s.title}</div>
+                <div style={{ fontSize: 12, color: 'var(--pico-muted-color, #8b949e)' }}>{s.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -527,11 +883,13 @@ export default function WorkflowSurface() {
   const navigate = useNavigate()
   const { sidebarOpen, toggleSidebar } = useSurfaceShell()
 
+  const VALID_TABS: WorkflowTab[] = ['mission-control', 'missions', 'tasks', 'binder']
+
   const tabState = useMemo(() => {
     const params = new URLSearchParams(location.search)
-    const raw = (params.get('tab') || 'dashboard').toLowerCase()
+    const raw = (params.get('tab') || 'mission-control').toLowerCase()
     const candidate = raw as WorkflowTab
-    return { selectedTab: ['dashboard', 'missions', 'tasks'].includes(candidate) ? candidate : 'dashboard' }
+    return { selectedTab: VALID_TABS.includes(candidate) ? candidate : 'mission-control' as WorkflowTab }
   }, [location.search])
 
   const [activeTab, setActiveTab] = useState<WorkflowTab>(tabState.selectedTab)
@@ -566,15 +924,17 @@ export default function WorkflowSurface() {
   }
 
   const workflowNavItems: SidebarNavItem[] = [
-    { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', active: activeTab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
+    { id: 'mission-control', icon: 'rocket_launch', label: 'Mission Control', active: activeTab === 'mission-control', onClick: () => setTabAndRoute('mission-control') },
     { id: 'missions', icon: 'flag', label: 'Missions', active: activeTab === 'missions', onClick: () => setTabAndRoute('missions') },
     { id: 'tasks', icon: 'checklist', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
+    { id: 'binder', icon: 'folder_special', label: 'Binder', active: activeTab === 'binder', onClick: () => setTabAndRoute('binder') },
   ]
 
   const toolbarTabs: ToolbarTab[] = [
-    { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', active: activeTab === 'dashboard', onClick: () => setTabAndRoute('dashboard') },
+    { id: 'mission-control', icon: 'rocket_launch', label: 'Mission Control', active: activeTab === 'mission-control', onClick: () => setTabAndRoute('mission-control') },
     { id: 'missions', icon: 'flag', label: 'Missions', active: activeTab === 'missions', onClick: () => setTabAndRoute('missions') },
     { id: 'tasks', icon: 'checklist', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
+    { id: 'binder', icon: 'folder_special', label: 'Binder', active: activeTab === 'binder', onClick: () => setTabAndRoute('binder') },
   ]
 
   return (
@@ -584,9 +944,10 @@ export default function WorkflowSurface() {
       <div className="usx-surface-body" style={{ position: 'relative' }}>
         <VaultSidebar open={sidebarOpen} showModeTabs sidebarMode="server" serverNavItems={workflowNavItems} />
         <main className="usx-surface-main workflow-surface-main">
-          {activeTab === 'dashboard' && <DashboardTab tasks={tasks} snackbarAvailable={snackbarAvailable} />}
+          {activeTab === 'mission-control' && <MissionControlTab tasks={tasks} snackbarAvailable={snackbarAvailable} />}
           {activeTab === 'missions' && <MissionsTab allTasks={tasks} onSelectMission={handleSelectMission} />}
           {activeTab === 'tasks' && <TasksTab tasks={tasks} loading={loading} error={error} />}
+          {activeTab === 'binder' && <BinderCompilerTab />}
         </main>
       </div>
     </div>

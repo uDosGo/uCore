@@ -326,7 +326,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
 }
 
 // ─── Main Component ────────────────────────────────────────────────
-export default function MissionControlSurface() {
+export default function DashboardSurface() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<MissionTab>('dashboard')
   const [surfaces, setSurfaces] = useState<SurfaceDef[]>([])
