@@ -854,7 +854,7 @@ function CreativePanel() {
 }
 
 // ─── Agent Router URL ───────────────────────────────────────────────
-const AGENT_ROUTER_URL = 'http://localhost:8485'
+const AGENT_ROUTER_URL = 'http://localhost:8484'
 
 // ─── Agents Panel ───────────────────────────────────────────────────
 function AgentsPanel() {
@@ -868,8 +868,8 @@ function AgentsPanel() {
     async function fetchData() {
       try {
         const [agentsRes, statsRes] = await Promise.all([
-          fetch(`${AGENT_ROUTER_URL}/agents`, { signal: AbortSignal.timeout(3000) }),
-          fetch(`${AGENT_ROUTER_URL}/stats`, { signal: AbortSignal.timeout(3000) }),
+          fetch(`${AGENT_ROUTER_URL}/api/agents`, { signal: AbortSignal.timeout(3000) }),
+          fetch(`${AGENT_ROUTER_URL}/api/agents/stats`, { signal: AbortSignal.timeout(3000) }),
         ])
         if (agentsRes.ok) {
           const data = await agentsRes.json()
@@ -908,7 +908,7 @@ function AgentsPanel() {
           <span className="developer-panel-count">Offline</span>
         </div>
         <div style={{ padding: 24, textAlign: 'center', color: 'var(--pico-del-color, #f85149)' }}>
-          <p>⚠️ Agent Router unavailable — start agent-router on port 8485</p>
+          <p>⚠️ Agents API unavailable on port 8484</p>
           <p style={{ fontSize: 12, marginTop: 8, color: 'var(--pico-muted-color, #8b949e)' }}>
             {error || 'No agents registered'}
           </p>

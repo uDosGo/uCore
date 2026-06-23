@@ -9,13 +9,15 @@ import json
 import logging
 import os
 import secrets as pysecrets
-from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
+from datetime import datetime, timezone
 
 from app.core.settings import settings
 
+AESGCM: Any
 try:
-    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM as _AESGCM
+    AESGCM = _AESGCM
 except ImportError:
     AESGCM = None
 
@@ -25,14 +27,15 @@ SECRETS_DIR = settings.secrets_dir
 SECRETS_FILE = settings.secrets_file
 KEY_FILE = settings.secret_key_file
 DATA_DIR = settings.data_dir
+AUDIT_FILE = settings.secrets_dir / "secrets.audit.jsonl"
 
 
 def _derive_key(master_key: bytes) -> bytes:
     """Derive a 256-bit AES key using HKDF."""
     if len(master_key) == 32:
         return master_key
-    from cryptography.hazmat.primitives.hkdf import HKDF
-    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.hkdf import HKDF  # type: ignore
+    from cryptography.hazmat.primitives import hashes  # type: ignore
     hkdf = HKDF(
         algorithm=hashes.SHA256(),
         length=32,
@@ -65,6 +68,51 @@ class SecretStore:
         self._key = None
         self._secrets: dict[str, str] = {}
         self._dirty = False
+        self._audit_file = AUDIT_FILE
+
+    def _record_audit(
+        self,
+        action: str,
+        key: str,
+        actor: str = "system",
+        metadata: Optional[dict] = None,
+    ) -> None:
+        """Append a minimal audit event without persisting secret values."""
+        try:
+            self._audit_file.parent.mkdir(parents=True, exist_ok=True)
+            event = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "action": action,
+                "key": key,
+                "actor": actor,
+                "metadata": metadata or {},
+            }
+            with self._audit_file.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(event, ensure_ascii=True) + "\n")
+        except Exception as e:
+            log.debug("Failed to write secret audit event: %s", e)
+
+    def list_audit(self, limit: int = 100) -> list[dict]:
+        """Return most recent audit events (newest first)."""
+        if not self._audit_file.exists():
+            return []
+
+        try:
+            lines = self._audit_file.read_text(encoding="utf-8").splitlines()
+        except Exception:
+            return []
+
+        events: list[dict] = []
+        for line in reversed(lines[-max(limit * 2, 200):]):
+            if len(events) >= limit:
+                break
+            try:
+                parsed = json.loads(line)
+                if isinstance(parsed, dict):
+                    events.append(parsed)
+            except Exception:
+                continue
+        return events
 
     def load(self):
         """Load and decrypt secrets from disk."""
@@ -130,21 +178,40 @@ class SecretStore:
         path.chmod(0o600)
         self._dirty = False
 
-    def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
+    def get(
+        self,
+        key: str,
+        default: Optional[str] = None,
+        actor: str = "system",
+    ) -> Optional[str]:
         """Get a secret by key."""
-        return self._secrets.get(key, default)
+        value = self._secrets.get(key, default)
+        if actor != "system":
+            self._record_audit(
+                "read",
+                key,
+                actor,
+                {"found": value is not None},
+            )
+        return value
 
-    def set(self, key: str, value: str):
+    def set(self, key: str, value: str, actor: str = "system"):
         """Set a secret (marked dirty, saved on next save)."""
         self._secrets[key] = value
         self._dirty = True
+        if actor != "system":
+            self._record_audit("write", key, actor)
 
-    def delete(self, key: str) -> bool:
+    def delete(self, key: str, actor: str = "system") -> bool:
         """Delete a secret."""
         if key in self._secrets:
             del self._secrets[key]
             self._dirty = True
+            if actor != "system":
+                self._record_audit("delete", key, actor)
             return True
+        if actor != "system":
+            self._record_audit("delete-miss", key, actor)
         return False
 
     def list(self) -> list[dict]:
@@ -180,6 +247,7 @@ class SecretStore:
             val = os.environ.get(key)
             if val and key not in self._secrets:
                 self._secrets[key] = val
+                self._record_audit("import-env", key, "startup")
                 changed = True
                 log.info(f"Imported {key} from environment")
         if changed:

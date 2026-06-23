@@ -1,8 +1,11 @@
-"""Workflows API — Task management, board health, and markdown task operations."""
+"""Workflows API.
+
+Task management, board health, and markdown task operations.
+"""
 from __future__ import annotations
 
-import json
 import logging
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -18,6 +21,9 @@ log = logging.getLogger("ucore.api.workflows")
 _import_jobs: dict[str, dict[str, Any]] = {}
 
 TRACKED_FIELDS = {"status", "progress", "message", "timestamp", "task_id"}
+
+_workflows: dict[str, dict[str, Any]] = {}
+_workflow_logs: dict[str, list[dict[str, Any]]] = {}
 
 
 def record_import_job(
@@ -95,7 +101,7 @@ async def handle_index_coverage(request: web.Request) -> web.Response:
 
 
 def _find_task_file(task_id: str) -> Path | None:
-    """Search .tasker/ boards for a markdown file whose frontmatter/source_id matches task_id."""
+    """Search .tasker boards for a task by source_id or slugified filename."""
     tasker_dir = default_tasker_dir()
     if not tasker_dir.exists():
         return None
@@ -223,7 +229,10 @@ async def handle_get_task(request: web.Request) -> web.Response:
 async def handle_update_task(request: web.Request) -> web.Response:
     """PUT /api/workflows/task/{task_id} — update task metadata.
 
-    Body: TaskDetailData (id, title, status, priority, assignee, dueDate, description, tags)
+    Body: TaskDetailData-style payload.
+
+    Supports id, title, status, priority, assignee, dueDate,
+    description, and tags.
     Returns the updated task.
     """
     task_id = request.match_info.get("task_id", "")
@@ -270,7 +279,10 @@ async def handle_board_health(request: web.Request) -> web.Response:
             break
 
     if not board_data:
-        return web.json_response({"error": f"Board '{board_id}' not found"}, status=404)
+        return web.json_response(
+            {"error": f"Board '{board_id}' not found"},
+            status=404,
+        )
 
     board_path = Path(board_data["path"])
     issues: list[str] = []
@@ -282,7 +294,11 @@ async def handle_board_health(request: web.Request) -> web.Response:
             # Check for blocked tasks
             if "- status: blocked" in content:
                 title_line = next(
-                    (l for l in content.splitlines() if l.startswith("# ")),
+                    (
+                        line
+                        for line in content.splitlines()
+                        if line.startswith("# ")
+                    ),
                     item_file.stem,
                 )
                 issues.append(f"Blocked task: {title_line[2:]}")
@@ -301,3 +317,238 @@ async def handle_board_health(request: web.Request) -> web.Response:
     }
 
     return web.json_response(health)
+
+
+def _new_workflow_id(name: str) -> str:
+    base = slugify(name or "workflow")
+    return f"wf-{base}-{uuid.uuid4().hex[:8]}"
+
+
+def _normalize_step(step: Any) -> dict[str, Any] | None:
+    if not isinstance(step, dict):
+        return None
+
+    step_type = str(step.get("type", "")).strip().lower()
+    skill_id = str(step.get("skill_id") or step.get("target") or "").strip()
+    if step_type != "skill" or not skill_id:
+        return None
+
+    params = step.get("params")
+    if not isinstance(params, dict):
+        params = {}
+
+    return {
+        "type": "skill",
+        "skill_id": skill_id,
+        "params": params,
+    }
+
+
+def _append_workflow_log(workflow_id: str, event: dict[str, Any]) -> None:
+    row = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        **event,
+    }
+    _workflow_logs.setdefault(workflow_id, []).append(row)
+    if len(_workflow_logs[workflow_id]) > 500:
+        _workflow_logs[workflow_id] = _workflow_logs[workflow_id][-500:]
+
+
+async def handle_create_workflow(request: web.Request) -> web.Response:
+    """POST /api/workflows — create an in-memory workflow definition."""
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"error": "Invalid JSON body"}, status=400)
+
+    name = str(body.get("name", "")).strip()
+    if not name:
+        return web.json_response({"error": "name is required"}, status=400)
+
+    raw_steps = body.get("steps")
+    if not isinstance(raw_steps, list) or not raw_steps:
+        return web.json_response(
+            {"error": "steps must be a non-empty list"},
+            status=400,
+        )
+
+    steps: list[dict[str, Any]] = []
+    for step in raw_steps:
+        normalized = _normalize_step(step)
+        if not normalized:
+            return web.json_response(
+                {
+                    "error": (
+                        "each step must be type=skill with skill_id/target"
+                    )
+                },
+                status=400,
+            )
+        steps.append(normalized)
+
+    workflow_id = _new_workflow_id(name)
+    workflow = {
+        "id": workflow_id,
+        "name": name,
+        "description": str(body.get("description", "")).strip(),
+        "schedule": str(body.get("schedule", "manual")).strip() or "manual",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "steps": steps,
+        "step_count": len(steps),
+    }
+    _workflows[workflow_id] = workflow
+    _append_workflow_log(
+        workflow_id,
+        {
+            "level": "info",
+            "event": "workflow-created",
+            "message": f"Created workflow '{name}' with {len(steps)} steps",
+        },
+    )
+    return web.json_response(workflow, status=201)
+
+
+async def handle_list_workflows(request: web.Request) -> web.Response:
+    """GET /api/workflows — list in-memory workflow definitions."""
+    workflows = sorted(
+        _workflows.values(),
+        key=lambda w: str(w.get("created_at", "")),
+        reverse=True,
+    )
+    return web.json_response({"workflows": workflows, "count": len(workflows)})
+
+
+async def handle_run_workflow(request: web.Request) -> web.Response:
+    """POST /api/workflows/{id}/run — run workflow steps sequentially."""
+    from app.skills.registry import run_skill_by_id
+
+    workflow_id = request.match_info.get("workflow_id", "")
+    workflow = _workflows.get(workflow_id)
+    if not workflow:
+        return web.json_response({"error": "Workflow not found"}, status=404)
+
+    run_id = f"run-{uuid.uuid4().hex[:10]}"
+    run_started = datetime.now(timezone.utc).isoformat()
+    run_rows: list[dict[str, Any]] = []
+    failed = False
+
+    _append_workflow_log(
+        workflow_id,
+        {
+            "level": "info",
+            "event": "workflow-run-started",
+            "run_id": run_id,
+            "message": f"Run started ({len(workflow.get('steps', []))} steps)",
+        },
+    )
+
+    for idx, step in enumerate(workflow.get("steps", []), start=1):
+        skill_id = step.get("skill_id", "")
+        params = step.get("params") or {}
+        step_started = datetime.now(timezone.utc).isoformat()
+        try:
+            result = await run_skill_by_id(str(skill_id), **params)
+            success = bool(result.get("success", True))
+            row = {
+                "index": idx,
+                "type": "skill",
+                "skill_id": skill_id,
+                "started_at": step_started,
+                "finished_at": datetime.now(timezone.utc).isoformat(),
+                "success": success,
+                "result": result,
+            }
+            run_rows.append(row)
+            _append_workflow_log(
+                workflow_id,
+                {
+                    "level": "info" if success else "error",
+                    "event": "step-finished",
+                    "run_id": run_id,
+                    "step_index": idx,
+                    "skill_id": skill_id,
+                    "message": (
+                        f"Step {idx} {'succeeded' if success else 'failed'}: "
+                        f"{skill_id}"
+                    ),
+                },
+            )
+            if not success:
+                failed = True
+                break
+        except Exception as exc:
+            failed = True
+            row = {
+                "index": idx,
+                "type": "skill",
+                "skill_id": skill_id,
+                "started_at": step_started,
+                "finished_at": datetime.now(timezone.utc).isoformat(),
+                "success": False,
+                "error": str(exc),
+            }
+            run_rows.append(row)
+            _append_workflow_log(
+                workflow_id,
+                {
+                    "level": "error",
+                    "event": "step-exception",
+                    "run_id": run_id,
+                    "step_index": idx,
+                    "skill_id": skill_id,
+                    "message": f"Step {idx} crashed: {exc}",
+                },
+            )
+            break
+
+    status = "failed" if failed else "completed"
+    run_result = {
+        "run_id": run_id,
+        "workflow_id": workflow_id,
+        "workflow_name": workflow.get("name"),
+        "started_at": run_started,
+        "finished_at": datetime.now(timezone.utc).isoformat(),
+        "status": status,
+        "steps": run_rows,
+    }
+
+    _append_workflow_log(
+        workflow_id,
+        {
+            "level": "info" if not failed else "error",
+            "event": "workflow-run-finished",
+            "run_id": run_id,
+            "message": f"Run finished with status={status}",
+        },
+    )
+    history = _workflows[workflow_id].setdefault("runs", [])
+    history.append(run_result)
+    if len(history) > 50:
+        _workflows[workflow_id]["runs"] = history[-50:]
+
+    return web.json_response(run_result)
+
+
+async def handle_workflow_logs(request: web.Request) -> web.Response:
+    """GET /api/workflows/{id}/logs — return workflow log and run history."""
+    workflow_id = request.match_info.get("workflow_id", "")
+    workflow = _workflows.get(workflow_id)
+    if not workflow:
+        return web.json_response({"error": "Workflow not found"}, status=404)
+
+    try:
+        limit = max(1, min(int(request.query.get("limit", "100")), 500))
+    except ValueError:
+        limit = 100
+
+    logs = _workflow_logs.get(workflow_id, [])[-limit:]
+    runs = list(workflow.get("runs", []))[-limit:]
+    return web.json_response(
+        {
+            "workflow_id": workflow_id,
+            "logs": logs,
+            "run_history": runs,
+            "log_count": len(logs),
+            "run_count": len(runs),
+        }
+    )

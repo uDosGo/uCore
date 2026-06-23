@@ -19,15 +19,21 @@ def register_routes(app: web.Application) -> None:
     from .chat import handle_chat, handle_chat_prompts, handle_models
     from .skills import handle_run_skill, handle_run_named_skill, handle_list_skills
     from .tools import handle_list_tools, handle_tool_status
+    from .agents import handle_list_agents, handle_agents_stats
     from .mcp import (
         handle_mcp_discover, handle_mcp_call,
     )
     from .secret_store_api import (
         handle_list_secrets, handle_get_secret, handle_set_secret,
         handle_delete_secret, handle_list_env_vars, handle_import_from_env,
-        handle_export_to_env,
+        handle_export_to_env, handle_secret_audit, handle_sync_github,
     )
     from .config_api import handle_get_config
+    from .budget_api import (
+        handle_budget_status,
+        handle_budget_usage,
+        handle_budget_reload,
+    )
     from .developer_api import (
         handle_list_repos,
         handle_list_repo_files,
@@ -52,6 +58,10 @@ def register_routes(app: web.Application) -> None:
         handle_import_status, handle_index_coverage,
         handle_get_task, handle_update_task,
         handle_board_health,
+        handle_create_workflow,
+        handle_list_workflows,
+        handle_run_workflow,
+        handle_workflow_logs,
     )
 
     # Knowledge (AppFlowy bridge)
@@ -79,6 +89,10 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/workflows/task/{task_id}", handle_get_task)
     app.router.add_put("/api/workflows/task/{task_id}", handle_update_task)
     app.router.add_get("/api/workflows/board/{board_id}/health", handle_board_health)
+    app.router.add_get("/api/workflows", handle_list_workflows)
+    app.router.add_post("/api/workflows", handle_create_workflow)
+    app.router.add_post("/api/workflows/{workflow_id}/run", handle_run_workflow)
+    app.router.add_get("/api/workflows/{workflow_id}/logs", handle_workflow_logs)
 
     # MCP Integration
     app.router.add_get("/api/mcp/tools", handle_mcp_discover)
@@ -87,14 +101,19 @@ def register_routes(app: web.Application) -> None:
     # Secret Store
     app.router.add_get("/api/secrets", handle_list_secrets)
     app.router.add_get("/api/secrets/env", handle_list_env_vars)
+    app.router.add_get("/api/secrets/audit", handle_secret_audit)
     app.router.add_post("/api/secrets/import-env", handle_import_from_env)
     app.router.add_post("/api/secrets/export-env", handle_export_to_env)
+    app.router.add_post("/api/secrets/sync-github", handle_sync_github)
     app.router.add_get("/api/secrets/{name}", handle_get_secret)
     app.router.add_post("/api/secrets/{name}", handle_set_secret)
     app.router.add_delete("/api/secrets/{name}", handle_delete_secret)
 
     # Central config
     app.router.add_get("/api/config", handle_get_config)
+    app.router.add_get("/api/budget/status", handle_budget_status)
+    app.router.add_get("/api/budget/usage", handle_budget_usage)
+    app.router.add_post("/api/budget/reload", handle_budget_reload)
     app.router.add_get("/api/developer/repos", handle_list_repos)
     app.router.add_get("/api/developer/repos/{repo_name}/files", handle_list_repo_files)
     app.router.add_get("/api/developer/repos/{repo_name}/file-preview", handle_get_repo_file_preview)
@@ -108,6 +127,8 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/skills", handle_list_skills)
     app.router.add_get("/api/tools", handle_list_tools)
     app.router.add_get("/api/tools/{tool_id}/status", handle_tool_status)
+    app.router.add_get("/api/agents", handle_list_agents)
+    app.router.add_get("/api/agents/stats", handle_agents_stats)
     app.router.add_get("/api/system", system_info_handler)
     app.router.add_get("/api/system/maintenance", maintenance_status_handler)
     app.router.add_get("/api/system/workflow", workflow_status_handler)

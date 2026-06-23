@@ -61,6 +61,93 @@ async def cors_middleware(request: web.Request, handler):
     return response
 
 
+@web.middleware
+async def budget_middleware(request: web.Request, handler):
+    """Budget guard for costly API endpoints with usage logging."""
+    manager = request.app.get("budget_manager")
+    if manager is None:
+        return await handler(request)
+
+    path = request.path
+    if path not in manager.policy.guarded_endpoints:
+        return await handler(request)
+
+    estimated_cost = manager.estimate_for_path(path)
+
+    provider = request.headers.get("X-Provider", "").strip()
+    model = request.headers.get("X-Model", "").strip()
+    if not provider or not model:
+        payload = {}
+        if request.can_read_body:
+            with suppress(Exception):
+                payload = await request.json()
+        if isinstance(payload, dict):
+            if not provider:
+                provider = str(
+                    payload.get("provider")
+                    or payload.get("vendor")
+                    or payload.get("engine")
+                    or ""
+                ).strip()
+            if not model:
+                params = payload.get("params")
+                if isinstance(params, dict):
+                    model = str(
+                        params.get("model")
+                        or params.get("model_name")
+                        or ""
+                    ).strip()
+                if not model:
+                    model = str(
+                        payload.get("model")
+                        or payload.get("model_name")
+                        or ""
+                    ).strip()
+
+    allowed, reason, _usage = manager.check_budget(
+        estimated_cost,
+        model=model,
+        provider=provider,
+    )
+
+    if not allowed:
+        manager.record_usage(
+            endpoint=path,
+            estimated_cost=estimated_cost,
+            actual_cost=0.0,
+            status_code=429,
+            blocked=True,
+            provider=provider,
+            model=model,
+        )
+        return web.json_response(
+            {
+                "error": reason or "Budget limit reached",
+                "hint": "See /api/budget/status for current usage.",
+            },
+            status=429,
+        )
+
+    response = await handler(request)
+
+    actual_cost = estimated_cost
+    header_cost = response.headers.get("X-Usage-Cost", "").strip()
+    if header_cost:
+        with suppress(ValueError):
+            actual_cost = float(header_cost)
+
+    manager.record_usage(
+        endpoint=path,
+        estimated_cost=estimated_cost,
+        actual_cost=actual_cost,
+        status_code=response.status,
+        blocked=False,
+        provider=provider,
+        model=model,
+    )
+    return response
+
+
 # ─── Routes ───────────────────────────────────────────────────────
 
 
@@ -206,8 +293,18 @@ async def maintenance_scheduler_ctx(app: web.Application):
 
 def create_app() -> web.Application:
     """Build and return a configured aiohttp application."""
-    app = web.Application(middlewares=[cors_middleware])
+    app = web.Application(middlewares=[budget_middleware, cors_middleware])
     app.cleanup_ctx.append(maintenance_scheduler_ctx)
+
+    # Budget manager (usage logging + enforcement scaffold)
+    try:
+        from app.services.budget_manager import BudgetManager
+
+        app["budget_manager"] = BudgetManager()
+        log.debug("Budget manager initialized")
+    except Exception as e:
+        app["budget_manager"] = None
+        log.warning("Budget manager unavailable: %s", e)
 
     # Core routes (these are the canonical ones)
     app.router.add_get("/api/health", health_handler)

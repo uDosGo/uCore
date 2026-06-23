@@ -49,6 +49,7 @@ const SERVER_TABS = [
   'services',
   'logs',
   'workflows',
+  'budget',
   'agents',
   'snacks',
 ] as const
@@ -70,11 +71,66 @@ interface LogEntry {
   message: string
 }
 
+interface SnackEntry {
+  id: string
+  type: string
+  priority: string
+  status: string
+  source: string
+  timestamp: string
+  content?: Record<string, unknown>
+}
+
 interface Workflow {
   name: string
   status: 'running' | 'idle' | 'failed' | 'completed'
   lastRun: string
   schedule: string
+}
+
+interface WorkflowDefinition {
+  id: string
+  name: string
+  description: string
+  schedule: string
+  step_count: number
+}
+
+interface WorkflowRunResponse {
+  run_id: string
+  workflow_id: string
+  status: 'completed' | 'failed'
+  finished_at: string
+}
+
+interface BudgetStatusResponse {
+  usage: {
+    period_start: string
+    period_end: string
+    total_cost: number
+    total_calls: number
+    blocked_calls: number
+    monthly_limit: number
+    remaining_budget: number
+    over_limit: boolean
+  }
+  policy: {
+    monthly_usd_limit: number
+    default_estimated_cost: number
+    guarded_endpoints: string[]
+    per_model_limits: Record<string, number>
+  }
+}
+
+interface BudgetUsageEntry {
+  ts: string
+  endpoint: string
+  provider: string
+  model: string
+  estimated_cost: number
+  actual_cost: number
+  status_code: number
+  blocked: number
 }
 
 interface AgentInfo {
@@ -382,7 +438,17 @@ function ServicesTab({ services }: { services: ServiceStatus[] }) {
   )
 }
 
-function LogsTab({ logs }: { logs: LogEntry[] }) {
+function LogsTab({
+  logs,
+  loading,
+  error,
+  onRefresh,
+}: {
+  logs: LogEntry[]
+  loading: boolean
+  error: string | null
+  onRefresh: () => void
+}) {
   const [filter, setFilter] = useState('')
   const filtered = filter
     ? logs.filter(log =>
@@ -398,7 +464,19 @@ function LogsTab({ logs }: { logs: LogEntry[] }) {
         <div className="userver-toolbar-left">
           <h2 className="userver-heading">Logs</h2>
         </div>
+        <div className="userver-toolbar-actions" style={{ marginLeft: 'auto' }}>
+          <button className="userver-action-btn" onClick={onRefresh} disabled={loading}>
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
       </div>
+      {error && (
+        <div className="userver-card" style={{ margin: '0 16px 12px', borderLeft: '3px solid #f85149' }}>
+          <div className="userver-card-content">
+            <p className="userver-text" style={{ color: '#f85149' }}>{error}</p>
+          </div>
+        </div>
+      )}
       <div className="userver-log-filter">
         <input
           type="text"
@@ -436,13 +514,165 @@ function LogsTab({ logs }: { logs: LogEntry[] }) {
 }
 
 function WorkflowsTab({ workflows }: { workflows: Workflow[] }) {
+  const [definitions, setDefinitions] = useState<WorkflowDefinition[]>([])
+  const [selectedId, setSelectedId] = useState<string>('')
+  const [workflowName, setWorkflowName] = useState('')
+  const [skillId, setSkillId] = useState('tasker_sync')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<string>('')
+  const [logs, setLogs] = useState<string[]>([])
+
+  const loadDefinitions = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/workflows`, {
+        signal: AbortSignal.timeout(4000),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      const items = Array.isArray(data.workflows) ? data.workflows : []
+      setDefinitions(items)
+      if (!selectedId && items.length > 0) {
+        setSelectedId(String(items[0].id || ''))
+      }
+      setMessage('')
+    } catch (e: any) {
+      setMessage(e?.message || 'Failed to load workflow definitions')
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedId])
+
+  useEffect(() => {
+    void loadDefinitions()
+  }, [loadDefinitions])
+
+  const createWorkflow = async () => {
+    if (!workflowName.trim() || !skillId.trim()) {
+      setMessage('Name and Skill ID are required')
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/workflows`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: workflowName.trim(),
+          steps: [{ type: 'skill', skill_id: skillId.trim(), params: {} }],
+        }),
+        signal: AbortSignal.timeout(6000),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      setWorkflowName('')
+      setSelectedId(String(data.id || ''))
+      setMessage('Workflow created')
+      await loadDefinitions()
+    } catch (e: any) {
+      setMessage(e?.message || 'Failed to create workflow')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const runWorkflow = async () => {
+    if (!selectedId) {
+      setMessage('Select a workflow to run')
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/workflows/${encodeURIComponent(selectedId)}/run`, {
+        method: 'POST',
+        signal: AbortSignal.timeout(15000),
+      })
+      const data: WorkflowRunResponse | any = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      setMessage(`Run ${data.run_id} finished with status=${data.status}`)
+
+      const logsRes = await fetch(`${SNACKBAR_API}/api/workflows/${encodeURIComponent(selectedId)}/logs?limit=20`, {
+        signal: AbortSignal.timeout(6000),
+      })
+      if (logsRes.ok) {
+        const logsData = await logsRes.json()
+        const rows = Array.isArray(logsData.logs) ? logsData.logs : []
+        setLogs(rows.map((row: any) => `${row.timestamp || ''} · ${row.event || 'event'} · ${row.message || ''}`))
+      }
+    } catch (e: any) {
+      setMessage(e?.message || 'Failed to run workflow')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div>
       <div className="userver-toolbar">
         <div className="userver-toolbar-left">
           <h2 className="userver-heading">Workflows</h2>
         </div>
+        <div className="userver-toolbar-actions" style={{ marginLeft: 'auto' }}>
+          <button className="userver-action-btn" onClick={loadDefinitions} disabled={loading}>
+            {loading ? 'Working...' : 'Refresh'}
+          </button>
+        </div>
       </div>
+
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Runtime Controls</h3>
+        </div>
+        <div className="userver-card-content" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Workflow name"
+            value={workflowName}
+            onChange={e => setWorkflowName(e.target.value)}
+            style={{ minWidth: 220 }}
+          />
+          <input
+            type="text"
+            placeholder="Skill ID (e.g. tasker_sync)"
+            value={skillId}
+            onChange={e => setSkillId(e.target.value)}
+            style={{ minWidth: 220 }}
+          />
+          <button className="userver-action-btn" onClick={createWorkflow} disabled={loading}>
+            Create
+          </button>
+          <select value={selectedId} onChange={e => setSelectedId(e.target.value)} style={{ minWidth: 240 }}>
+            <option value="">Select workflow</option>
+            {definitions.map(def => (
+              <option key={def.id} value={def.id}>{def.name} ({def.step_count} steps)</option>
+            ))}
+          </select>
+          <button className="userver-action-btn" onClick={runWorkflow} disabled={loading || !selectedId}>
+            Run
+          </button>
+        </div>
+        {message && (
+          <div className="userver-card-content" style={{ paddingTop: 0 }}>
+            <p className="userver-text">{message}</p>
+          </div>
+        )}
+      </div>
+
+      {logs.length > 0 && (
+        <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+          <div className="userver-card-header">
+            <h3>Latest Run Logs</h3>
+          </div>
+          <div className="userver-card-content">
+            {logs.slice(0, 10).map((row, idx) => (
+              <div key={idx} className="userver-log-entry">
+                <span className="userver-log-message">{row}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="userver-grid">
         {workflows.map(wf => (
           <div key={wf.name} className="userver-card">
@@ -465,7 +695,157 @@ function WorkflowsTab({ workflows }: { workflows: Workflow[] }) {
   )
 }
 
-const AGENT_ROUTER_URL = 'http://localhost:8485'
+function BudgetTab() {
+  const [status, setStatus] = useState<BudgetStatusResponse | null>(null)
+  const [usage, setUsage] = useState<BudgetUsageEntry[]>([])
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<string>('')
+
+  const loadBudget = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [statusRes, usageRes] = await Promise.all([
+        fetch(`${SNACKBAR_API}/api/budget/status`, { signal: AbortSignal.timeout(4000) }),
+        fetch(`${SNACKBAR_API}/api/budget/usage?limit=20`, { signal: AbortSignal.timeout(4000) }),
+      ])
+
+      if (!statusRes.ok) throw new Error(`status HTTP ${statusRes.status}`)
+      const statusData = await statusRes.json()
+      setStatus(statusData)
+
+      if (usageRes.ok) {
+        const usageData = await usageRes.json()
+        setUsage(Array.isArray(usageData.entries) ? usageData.entries : [])
+      }
+
+      setMessage('')
+    } catch (e: any) {
+      setMessage(e?.message || 'Failed to load budget data')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadBudget()
+  }, [loadBudget])
+
+  const reloadPolicy = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/budget/reload`, {
+        method: 'POST',
+        signal: AbortSignal.timeout(4000),
+      })
+      if (!res.ok) throw new Error(`reload HTTP ${res.status}`)
+      setMessage('Budget policy reloaded')
+      await loadBudget()
+    } catch (e: any) {
+      setMessage(e?.message || 'Failed to reload budget policy')
+      setLoading(false)
+    }
+  }
+
+  const usageStats = status?.usage
+  const policy = status?.policy
+
+  return (
+    <div>
+      <div className="userver-toolbar">
+        <div className="userver-toolbar-left">
+          <h2 className="userver-heading">Budget</h2>
+          <span className="userver-card-subtitle">Usage logging and cost guardrails</span>
+        </div>
+        <div className="userver-toolbar-actions" style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+          <button className="userver-action-btn" onClick={loadBudget} disabled={loading}>
+            {loading ? 'Loading...' : 'Refresh'}
+          </button>
+          <button className="userver-action-btn" onClick={reloadPolicy} disabled={loading}>
+            Reload Policy
+          </button>
+        </div>
+      </div>
+
+      {message && (
+        <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+          <div className="userver-card-content">
+            <p className="userver-text">{message}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="userver-grid">
+        <div className="userver-card">
+          <div className="userver-card-header">
+            <h3>Current Period</h3>
+          </div>
+          <div className="userver-card-content">
+            <div className="userver-service-details" style={{ flexWrap: 'wrap', gap: 8 }}>
+              <span>Total Cost: <strong>${usageStats?.total_cost?.toFixed(4) || '0.0000'}</strong></span>
+              <span>Monthly Limit: <strong>${usageStats?.monthly_limit?.toFixed(2) || '0.00'}</strong></span>
+              <span>Remaining: <strong>${usageStats?.remaining_budget?.toFixed(4) || '0.0000'}</strong></span>
+              <span>Calls: <strong>{usageStats?.total_calls ?? 0}</strong></span>
+              <span>Blocked: <strong>{usageStats?.blocked_calls ?? 0}</strong></span>
+            </div>
+            {usageStats?.over_limit && (
+              <p className="userver-text" style={{ color: '#f85149', marginTop: 8 }}>
+                Budget limit currently exceeded.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="userver-card">
+          <div className="userver-card-header">
+            <h3>Policy</h3>
+          </div>
+          <div className="userver-card-content">
+            <div className="userver-service-details" style={{ flexWrap: 'wrap', gap: 8 }}>
+              <span>Default Cost: <strong>${policy?.default_estimated_cost?.toFixed(4) || '0.0000'}</strong></span>
+              <span>Guarded Endpoints: <strong>{policy?.guarded_endpoints?.length ?? 0}</strong></span>
+              <span>Per-Model Limits: <strong>{Object.keys(policy?.per_model_limits || {}).length}</strong></span>
+            </div>
+            <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {(policy?.guarded_endpoints || []).map(endpoint => (
+                <span key={endpoint} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 8, background: 'var(--pico-card-sectioning-background-color, #1c2128)' }}>
+                  {endpoint}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Recent Usage</h3>
+        </div>
+        <div className="userver-card-content">
+          {usage.length === 0 ? (
+            <p className="userver-text">No usage entries recorded yet.</p>
+          ) : (
+            usage.slice(0, 20).map((row, idx) => (
+              <div key={`${row.ts}-${idx}`} className="userver-log-entry">
+                <span className="userver-log-time">{row.ts?.slice(11, 19) || '--:--:--'}</span>
+                <span className="userver-log-service">{row.endpoint}</span>
+                <span className={`userver-log-level ${row.blocked ? 'error' : 'info'}`}>
+                  {row.blocked ? 'blocked' : `HTTP ${row.status_code}`}
+                </span>
+                <span className="userver-log-message">
+                  cost=${Number(row.actual_cost || 0).toFixed(4)}
+                  {row.model ? ` · model=${row.model}` : ''}
+                  {row.provider ? ` · provider=${row.provider}` : ''}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const AGENT_ROUTER_URL = 'http://localhost:8484'
 
 interface RouterAgent {
   id: string
@@ -497,8 +877,8 @@ function AgentsTab() {
     async function fetchData() {
       try {
         const [agentsRes, statsRes] = await Promise.all([
-          fetch(`${AGENT_ROUTER_URL}/agents`, { signal: AbortSignal.timeout(3000) }),
-          fetch(`${AGENT_ROUTER_URL}/stats`, { signal: AbortSignal.timeout(3000) }),
+          fetch(`${AGENT_ROUTER_URL}/api/agents`, { signal: AbortSignal.timeout(3000) }),
+          fetch(`${AGENT_ROUTER_URL}/api/agents/stats`, { signal: AbortSignal.timeout(3000) }),
         ])
         if (agentsRes.ok) {
           const data = await agentsRes.json()
@@ -539,7 +919,7 @@ function AgentsTab() {
         </div>
         <div className="userver-card" style={{ margin: 16, padding: 24, textAlign: 'center' }}>
           <p className="userver-text" style={{ color: 'var(--pico-del-color, #f85149)' }}>
-            ⚠️ Agent Router unavailable — start agent-router on port 8485
+            ⚠️ Agents API unavailable on port 8484
           </p>
           <p className="userver-text" style={{ marginTop: 8, fontSize: 12 }}>
             {error || 'No agents registered'}
@@ -1084,30 +1464,157 @@ function StoryLinksTab({ onNavigate }: { onNavigate: (path: string) => void }) {
 
 // ─── Snacks/Snackbar Tab (New Component) ───────────────────────────────
 function SnacksTab() {
+  const [queue, setQueue] = useState<SnackEntry[]>([])
+  const [history, setHistory] = useState<SnackEntry[]>([])
+  const [badges, setBadges] = useState<Record<string, unknown>>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const loadSnacks = useCallback(async () => {
+    try {
+      setError(null)
+      const [queueRes, historyRes, badgesRes] = await Promise.all([
+        fetch(`${SNACKBAR_API}/api/snacks`, { signal: AbortSignal.timeout(4000) }),
+        fetch(`${SNACKBAR_API}/api/snacks/history?limit=20`, { signal: AbortSignal.timeout(4000) }),
+        fetch(`${SNACKBAR_API}/api/snacks/system/badges`, { signal: AbortSignal.timeout(4000) }),
+      ])
+
+      if (queueRes.ok) {
+        const data = await queueRes.json()
+        setQueue(Array.isArray(data.snacks) ? data.snacks : [])
+      }
+
+      if (historyRes.ok) {
+        const data = await historyRes.json()
+        setHistory(Array.isArray(data.snacks) ? data.snacks : [])
+      }
+
+      if (badgesRes.ok) {
+        const data = await badgesRes.json()
+        setBadges(data.badges && typeof data.badges === 'object' ? data.badges : {})
+      }
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load snacks data')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      await loadSnacks()
+      if (cancelled) return
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [loadSnacks])
+
+  const handleClearQueue = async () => {
+    try {
+      await fetch(`${SNACKBAR_API}/api/snacks/queue`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(4000),
+      })
+      await loadSnacks()
+    } catch (e: any) {
+      setError(e?.message || 'Failed to clear queue')
+    }
+  }
+
   return (
     <div>
       <div className="userver-toolbar">
         <div className="userver-toolbar-left">
           <h2 className="userver-heading">Snacks & Snackbar</h2>
-          <span className="userver-card-subtitle">Manage and monitor snacks and snackbar services.</span>
+          <span className="userver-card-subtitle">
+            {loading ? 'Loading snacks…' : `${queue.length} queued · ${history.length} recent`}
+          </span>
+        </div>
+        <div className="userver-toolbar-actions" style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+          <button className="userver-action-btn" onClick={loadSnacks} disabled={loading}>
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
+          <button className="userver-action-btn" onClick={handleClearQueue} disabled={loading || queue.length === 0}>
+            Clear Queue
+          </button>
         </div>
       </div>
+
+      {error && (
+        <div className="userver-card" style={{ margin: '0 16px 16px', borderLeft: '3px solid #f85149' }}>
+          <div className="userver-card-content">
+            <p className="userver-text" style={{ color: '#f85149' }}>{error}</p>
+          </div>
+        </div>
+      )}
+
       <div className="userver-card" style={{ margin: '16px' }}>
         <div className="userver-card-header">
           <h3>Snackbar Service Status</h3>
         </div>
         <div className="userver-card-content">
-          <p className="userver-text">Snackbar service status will be displayed here.</p>
-          {/* Placeholder for Snackbar status */}
+          <div className="userver-service-details" style={{ flexWrap: 'wrap', gap: 12 }}>
+            <span>Queue: <strong>{queue.length}</strong></span>
+            <span>History: <strong>{history.length}</strong></span>
+            <span>Endpoint: <strong>{SNACKBAR_API}</strong></span>
+          </div>
+          {Object.keys(badges).length > 0 && (
+            <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {Object.entries(badges).map(([key, value]) => (
+                <span key={key} style={{
+                  fontSize: 11,
+                  padding: '2px 8px',
+                  borderRadius: 8,
+                  background: 'var(--pico-card-sectioning-background-color, #1c2128)',
+                }}>
+                  {key}: {String(value)}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <div className="userver-card" style={{ margin: '0 16px 16px' }}>
         <div className="userver-card-header">
-          <h3>Available Snacks</h3>
+          <h3>Pending Queue</h3>
         </div>
         <div className="userver-card-content">
-          <p className="userver-text">List of available snacks will be displayed here.</p>
-          {/* Placeholder for Snacks list */}
+          {queue.length === 0 ? (
+            <p className="userver-text">No snacks currently queued.</p>
+          ) : (
+            queue.slice(0, 25).map(snack => (
+              <div key={snack.id} className="userver-log-entry">
+                <span className="userver-log-time">{snack.timestamp?.slice(11, 19) || '--:--:--'}</span>
+                <span className="userver-log-service">{snack.type}</span>
+                <span className="userver-log-level info">{snack.priority}</span>
+                <span className="userver-log-message">{snack.status} · {snack.source}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Recent History</h3>
+        </div>
+        <div className="userver-card-content">
+          {history.length === 0 ? (
+            <p className="userver-text">No snack history yet.</p>
+          ) : (
+            history.slice(0, 25).map(snack => (
+              <div key={snack.id} className="userver-log-entry">
+                <span className="userver-log-time">{snack.timestamp?.slice(11, 19) || '--:--:--'}</span>
+                <span className="userver-log-service">{snack.type}</span>
+                <span className={`userver-log-level ${snack.status === 'failed' ? 'error' : 'info'}`}>
+                  {snack.status}
+                </span>
+                <span className="userver-log-message">{snack.source}</span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
@@ -1130,11 +1637,15 @@ export default function UServerSurface() {
     }
   }, [location.search])
   const [tab, setTab] = useState<UServerTab>(tabState.selectedTab)
-  const [services] = useState<ServiceStatus[]>(DEFAULT_SERVICES)
-  const [logs] = useState<LogEntry[]>(DEFAULT_LOGS)
+  const [services, setServices] = useState<ServiceStatus[]>(DEFAULT_SERVICES)
+  const [logs, setLogs] = useState<LogEntry[]>(DEFAULT_LOGS)
+  const [logsLoading, setLogsLoading] = useState(false)
+  const [logsError, setLogsError] = useState<string | null>(null)
   const [workflows] = useState<Workflow[]>(DEFAULT_WORKFLOWS)
   const [agents] = useState<AgentInfo[]>(DEFAULT_AGENTS)
   const [surfaces] = useState<SurfaceInfo[]>(DEFAULT_SURFACES)
+  const [budgetRemaining, setBudgetRemaining] = useState<number | null>(null)
+  const [budgetOverLimit, setBudgetOverLimit] = useState<boolean>(false)
   const [chatOpen, setChatOpen] = useState(false)
   const [sidebarMode, setSidebarMode] = useState<'server' | 'filepicker'>('server')
   const { sidebarOpen, setSidebarOpen, toggleSidebar } = useSurfaceShell()
@@ -1154,6 +1665,136 @@ export default function UServerSurface() {
     setSidebarOpen(true)
   }, [setSidebarOpen])
 
+  const refreshServices = useCallback(async () => {
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/system`, {
+        signal: AbortSignal.timeout(4000),
+      })
+      if (!res.ok) return
+
+      const data = await res.json()
+      const svc = data?.services || {}
+
+      const normalizeStatus = (value: unknown): ServiceStatus['status'] => {
+        const text = String(value || '').toLowerCase()
+        if (text === 'running' || text === 'up') return 'up'
+        if (text === 'stopped' || text === 'down' || text === 'unavailable') return 'down'
+        return 'degraded'
+      }
+
+      const liveServices: ServiceStatus[] = [
+        {
+          name: 'ucore',
+          status: normalizeStatus(svc.ucore || 'running'),
+          port: 8484,
+          uptime: 99.0,
+          type: 'system',
+          description: 'uCore backend API',
+        },
+        {
+          name: 'ollama',
+          status: normalizeStatus(svc.ollama),
+          port: 11434,
+          uptime: svc.ollama === 'running' ? 99.0 : 0,
+          type: 'system',
+          description: 'Local model runtime',
+        },
+        {
+          name: 'docker',
+          status: normalizeStatus(svc.docker),
+          port: 0,
+          uptime: svc.docker === 'running' ? 99.0 : 0,
+          type: 'system',
+          description: 'Container engine',
+        },
+        {
+          name: 'frontend-dev',
+          status: 'up',
+          port: 5173,
+          uptime: 99.0,
+          type: 'user',
+          description: 'Vite development server',
+        },
+        {
+          name: 'hivemind',
+          status: 'down',
+          port: 8485,
+          uptime: 0,
+          type: 'system',
+          description: 'Standalone Agent Router (not deployed)',
+        },
+      ]
+      setServices(liveServices)
+    } catch {
+      // Keep previous values for graceful fallback.
+    }
+  }, [])
+
+  const refreshLogs = useCallback(async () => {
+    setLogsLoading(true)
+    setLogsError(null)
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/spool/feed?max=50`, {
+        signal: AbortSignal.timeout(5000),
+      })
+      if (!res.ok) {
+        throw new Error(`Failed to load logs (${res.status})`)
+      }
+      const data = await res.json()
+      const entries = Array.isArray(data.entries) ? data.entries : []
+      const mapped: LogEntry[] = entries.map((entry: any) => {
+        const rawLevel = String(entry.level || 'INFO').toLowerCase()
+        let level: LogEntry['level'] = 'info'
+        if (rawLevel.includes('error') || rawLevel.includes('critical')) level = 'error'
+        else if (rawLevel.includes('warn')) level = 'warn'
+
+        return {
+          timestamp: String(entry.timestamp || ''),
+          service: String(entry.module || entry.source || 'unknown'),
+          level,
+          message: String(entry.message || ''),
+        }
+      })
+      setLogs(mapped)
+    } catch (e: any) {
+      setLogsError(e?.message || 'Failed to load logs')
+    } finally {
+      setLogsLoading(false)
+    }
+  }, [])
+
+  const refreshBudget = useCallback(async () => {
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/budget/status`, {
+        signal: AbortSignal.timeout(4000),
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      const usage = data?.usage || {}
+      const remaining = Number(usage.remaining_budget)
+      setBudgetRemaining(Number.isFinite(remaining) ? remaining : null)
+      setBudgetOverLimit(Boolean(usage.over_limit))
+    } catch {
+      // Keep existing badge value if fetch fails.
+    }
+  }, [])
+
+  useEffect(() => {
+    refreshServices()
+  }, [refreshServices])
+
+  useEffect(() => {
+    refreshLogs()
+    const interval = setInterval(refreshLogs, 30000)
+    return () => clearInterval(interval)
+  }, [refreshLogs])
+
+  useEffect(() => {
+    refreshBudget()
+    const interval = setInterval(refreshBudget, 30000)
+    return () => clearInterval(interval)
+  }, [refreshBudget])
+
   const setTabAndRoute = (nextTab: UServerTab) => {
     setTab(nextTab)
     navigate(`/server?tab=${nextTab}`)
@@ -1171,6 +1812,7 @@ export default function UServerSurface() {
     { id: 'services', icon: 'dns', label: 'Services', active: tab === 'services', onClick: () => setTabAndRoute('services') },
     { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTabAndRoute('logs') },
     { id: 'workflows', icon: 'layers', label: 'Workflows', active: tab === 'workflows', onClick: () => setTabAndRoute('workflows') },
+    { id: 'budget', icon: 'monitoring', label: 'Budget', active: tab === 'budget', onClick: () => setTabAndRoute('budget') },
     { id: 'agents', icon: 'smart_toy', label: 'Agents', active: tab === 'agents', onClick: () => setTabAndRoute('agents') },
     { id: 'snacks', icon: 'fast_forward', label: 'Snacks', active: tab === 'snacks', onClick: () => setTabAndRoute('snacks') },
   ]
@@ -1188,6 +1830,13 @@ export default function UServerSurface() {
             <span className="hub-status-badge">
               <span className={`hub-status-dot ${runningCount > 0 ? 'hub-status-dot--online' : ''}`} />
               {runningCount}/{surfaces.length} online
+            </span>
+            <span
+              className="hub-status-badge"
+              title="Monthly API budget remaining"
+              style={budgetOverLimit ? { borderColor: '#f85149', color: '#f85149' } : undefined}
+            >
+              Budget: {budgetRemaining === null ? 'n/a' : `$${budgetRemaining.toFixed(2)}`}
             </span>
             <span className="hub-status-badge" title="Developer surface visibility mode">
               Dev: {DEV_MODE_ENABLED ? 'on' : 'off'}
@@ -1230,8 +1879,9 @@ export default function UServerSurface() {
           {tab === 'secrets' && <SecretStorePanel />}
           {tab === 'settings' && <SettingsPanel />}
           {tab === 'services' && <ServicesTab services={services} />}
-          {tab === 'logs' && <LogsTab logs={logs} />}
+          {tab === 'logs' && <LogsTab logs={logs} loading={logsLoading} error={logsError} onRefresh={refreshLogs} />}
           {tab === 'workflows' && <WorkflowsTab workflows={workflows} />}
+          {tab === 'budget' && <BudgetTab />}
           {tab === 'agents' && <AgentsTab />}
           {tab === 'snacks' && <SnacksTab />}
         </main>

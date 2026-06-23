@@ -1,10 +1,13 @@
 """Secret Store API — Manage API keys and credentials through the UI."""
 from __future__ import annotations
 
+import json
 import logging
 import os
 from pathlib import Path
 import re
+import shutil
+import subprocess
 
 from aiohttp import web
 
@@ -54,6 +57,14 @@ def _mask(value: str) -> str:
     if len(value) > 8:
         return value[:4] + "****" + value[-4:]
     return "****"
+
+
+def _actor_from_request(request: web.Request) -> str:
+    header_actor = request.headers.get("X-Actor", "").strip()
+    if header_actor:
+        return header_actor
+    peer = request.remote or "unknown"
+    return f"api:{peer}"
 
 
 def _dotenv_candidates() -> list[Path]:
@@ -109,7 +120,11 @@ def _write_store_to_dotenv(
     only_missing: bool = True,
 ) -> tuple[int, int, list[str]]:
     target.parent.mkdir(parents=True, exist_ok=True)
-    existing_lines = target.read_text(encoding="utf-8").splitlines() if target.exists() else []
+    existing_lines = (
+        target.read_text(encoding="utf-8").splitlines()
+        if target.exists()
+        else []
+    )
     key_line_map: dict[str, int] = {}
     pattern = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=")
 
@@ -134,7 +149,9 @@ def _write_store_to_dotenv(
             if only_missing:
                 continue
             line_idx = key_line_map[key]
-            lines[line_idx] = f"{key}={_quote_dotenv_value(provider_store[key])}"
+            lines[line_idx] = (
+                f"{key}={_quote_dotenv_value(provider_store[key])}"
+            )
             updated += 1
             written_keys.append(key)
             continue
@@ -245,7 +262,7 @@ async def handle_get_secret(request: web.Request) -> web.Response:
     """GET /api/secrets/{name} — get a secret value."""
     name = request.match_info.get("name", "")
     store = get_store()
-    value = store.get(name)
+    value = store.get(name, actor=_actor_from_request(request))
     if value is None:
         return web.json_response(
             {"error": f"Secret '{name}' not found"},
@@ -276,7 +293,7 @@ async def handle_set_secret(request: web.Request) -> web.Response:
         return web.json_response({"error": "value is required"}, status=400)
 
     store = get_store()
-    store.set(name, value)
+    store.set(name, value, actor=_actor_from_request(request))
     store.save()
 
     return web.json_response({
@@ -290,7 +307,7 @@ async def handle_delete_secret(request: web.Request) -> web.Response:
     """DELETE /api/secrets/{name} — delete a secret."""
     name = request.match_info.get("name", "")
     store = get_store()
-    deleted = store.delete(name)
+    deleted = store.delete(name, actor=_actor_from_request(request))
     if not deleted:
         return web.json_response(
             {"error": f"Secret '{name}' not found"},
@@ -384,3 +401,120 @@ async def handle_export_to_env(request: web.Request) -> web.Response:
         "written_count": len(written_keys),
         "written_keys": written_keys,
     })
+
+
+async def handle_secret_audit(request: web.Request) -> web.Response:
+    """GET /api/secrets/audit — list recent secret audit events."""
+    raw_limit = request.query.get("limit", "100")
+    try:
+        limit = max(1, min(int(raw_limit), 1000))
+    except ValueError:
+        limit = 100
+
+    store = get_store()
+    events = store.list_audit(limit=limit)
+    return web.json_response({"events": events, "count": len(events)})
+
+
+async def handle_sync_github(request: web.Request) -> web.Response:
+    """POST /api/secrets/sync-github.
+
+    Sync GitHub secret *names* and populate values from payload/env/store where
+    available. GitHub does not expose secret plaintext values via CLI/API.
+    """
+    try:
+        body = await request.json() if request.body_exists else {}
+    except Exception:
+        body = {}
+
+    actor = _actor_from_request(request)
+    repository = str(body.get("repository", "")).strip()
+    supplied_values = body.get("secret_values")
+    if not isinstance(supplied_values, dict):
+        supplied_values = {}
+
+    gh_path = shutil.which("gh")
+    if not gh_path:
+        return web.json_response(
+            {"error": "gh CLI not found in PATH"},
+            status=400,
+        )
+
+    cmd = [gh_path, "secret", "list", "--json", "name"]
+    if repository:
+        cmd.extend(["--repo", repository])
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+    except Exception as exc:
+        return web.json_response(
+            {"error": f"gh execution failed: {exc}"},
+            status=500,
+        )
+
+    if result.returncode != 0:
+        return web.json_response(
+            {
+                "error": "gh secret list failed",
+                "exit_code": result.returncode,
+                "stderr": (result.stderr or "").strip(),
+            },
+            status=502,
+        )
+
+    try:
+        rows = json.loads(result.stdout or "[]")
+    except Exception as exc:
+        return web.json_response(
+            {"error": f"Invalid gh JSON output: {exc}"},
+            status=502,
+        )
+
+    names: list[str] = []
+    for row in rows:
+        if isinstance(row, dict) and row.get("name"):
+            names.append(str(row["name"]))
+
+    store = get_store()
+    imported: list[str] = []
+    already_present: list[str] = []
+    missing_values: list[str] = []
+
+    for name in sorted(set(names)):
+        if store.get(name, actor=actor):
+            already_present.append(name)
+            continue
+
+        value = supplied_values.get(name) or os.environ.get(name)
+        if value:
+            store.set(name, str(value), actor=f"{actor}:github-sync")
+            imported.append(name)
+        else:
+            missing_values.append(name)
+
+    if imported:
+        store.save()
+
+    return web.json_response(
+        {
+            "status": "ok",
+            "repository": repository or None,
+            "listed_count": len(names),
+            "imported_count": len(imported),
+            "already_present_count": len(already_present),
+            "missing_values_count": len(missing_values),
+            "imported": imported,
+            "already_present": already_present,
+            "missing_values": missing_values,
+            "note": (
+                "GitHub secret plaintext values are not retrievable; "
+                "import requires payload/env values."
+            ),
+        }
+    )
