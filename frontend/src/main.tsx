@@ -120,10 +120,9 @@ function Root() {
             <Route path="/developer/*" element={<DevRouteGuard><DeveloperSurface /></DevRouteGuard>} />
             <Route path="/server/*" element={<UServerSurface />} />
             <Route path="/userver/*" element={<UserverRouteRedirect />} />
-            <Route path="/system" element={<SystemRouteRedirect />} />
-            <Route path="/system/*" element={<SystemRouteRedirect />} />
-            <Route path="/system-legacy" element={<Navigate to="/server?tab=settings" replace />} />
-            <Route path="/system-legacy/*" element={<Navigate to="/server?tab=settings" replace />} />
+            <Route path="/system/*" element={<USystemSurface />} />
+            <Route path="/system-legacy" element={<Navigate to="/system?tab=pages" replace />} />
+            <Route path="/system-legacy/*" element={<Navigate to="/system?tab=pages" replace />} />
             <Route path="/gridcore/*" element={<Navigate to="/ucode?panel=terminal" replace />} />
             <Route path="/*" element={<App />} />
           </Routes>
@@ -133,40 +132,6 @@ function Root() {
       </SurfaceShellProvider>
     </BrowserRouter>
   )
-}
-
-function SystemRouteRedirect() {
-  const location = useLocation()
-  const params = new URLSearchParams(location.search)
-  const rawTab = params.get('tab') || 'install'
-  const legacyMap: Record<string, string> = {
-    install: 'settings',
-    modules: 'settings',
-    feeds: 'settings',
-    story: 'story',
-    'story-builder': 'story',
-    'user-setup-story': 'story',
-    'gtx-form': 'story',
-    'secret-store': 'secrets',
-    secrets: 'secrets',
-    pages: 'missions',
-    publishing: 'workflows',
-  }
-  const tab = legacyMap[rawTab] || rawTab
-  const validTabs = new Set([
-    'dashboard',
-    'ingest',
-    'missions',
-    'story',
-    'secrets',
-    'settings',
-    'services',
-    'logs',
-    'workflows',
-    'agents',
-  ])
-  const nextTab = validTabs.has(tab) ? tab : 'settings'
-  return <Navigate to={`/server?tab=${encodeURIComponent(nextTab)}`} replace />
 }
 
 function UserverRouteRedirect() {

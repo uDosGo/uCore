@@ -38,6 +38,45 @@ interface ActivityEntry {
 }
 
 const SNACKBAR_API = 'http://localhost:8484'
+// ─── Detail Panel (right-split editor) ──────────────────────────
+function WorkflowDetailPanel({ task, onClose }: { task: WorkflowTask | null; onClose: () => void }) {
+  if (!task) return null
+  return (
+    <div className="kanban-detail-panel" style={{ minWidth: 280, borderLeft: '1px solid var(--pico-border-color, #30363d)', overflow: 'auto' }}>
+      <div className="kanban-detail-header">
+        <div className="kanban-detail-header-tabs">
+          <span className="kanban-detail-tab active"><Icon name="info" size={14} /> Detail</span>
+        </div>
+        <button className="kanban-detail-close" onClick={onClose} title="Close panel">
+          <Icon name="close" size={16} />
+        </button>
+      </div>
+      <div className="kanban-detail-body" style={{ padding: 16 }}>
+        <h3 className="kanban-detail-title" style={{ margin: '0 0 8px', fontWeight: 600, fontSize: 15 }}>{task.title}</h3>
+        <div className="kanban-detail-meta" style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <span className="kanban-detail-badge" style={{ border: '1px solid #58a6ff', color: '#58a6ff', padding: '2px 8px', borderRadius: 10, fontSize: 11 }}>{task.status}</span>
+          <span className="kanban-detail-badge" style={{ border: '1px solid #d29922', color: '#d29922', padding: '2px 8px', borderRadius: 10, fontSize: 11 }}>{task.priority}</span>
+          <span style={{ fontSize: 11, color: 'var(--pico-muted-color)' }}>{task.board}</span>
+        </div>
+        {task.tags && task.tags.length > 0 && (
+          <div className="kanban-detail-tags" style={{ display: 'flex', gap: 4, marginBottom: 12, flexWrap: 'wrap' }}>
+            {task.tags.map(tag => (
+              <span key={tag} style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'var(--pico-card-sectioning-background-color, #1c2128)', color: 'var(--pico-primary)' }}>{tag}</span>
+            ))}
+          </div>
+        )}
+        {task.description && (
+          <div className="prose" style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--pico-color)' }}>
+            <p>{task.description}</p>
+          </div>
+        )}
+        <div style={{ marginTop: 16, fontSize: 11, color: 'var(--pico-muted-color)' }}>
+          <Icon name="description" size={14} /> {task.file || 'No file'}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const WORKFLOW_COLUMN_COLORS: Record<string, string> = {
   todo: '#8b949e',

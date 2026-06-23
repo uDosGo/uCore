@@ -231,8 +231,10 @@ def register_routes(app: web.Application) -> None:
 
     # ── Tasker API (backend data for Kanban) ─────────────────────────
     try:
-        from .tasker_api import register_tasker_routes
+        from .tasker_api import register_tasker_routes, handle_workflow_tasks
         register_tasker_routes(app)
-        log.debug("Tasker API routes registered")
+        # Workflow-specific filtered task endpoint
+        app.router.add_get("/api/workflow/tasks", handle_workflow_tasks)
+        log.debug("Tasker API routes registered (incl. /api/workflow/tasks)")
     except ImportError as e:
         log.debug("Tasker API routes not available: %s", e)

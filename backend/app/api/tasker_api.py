@@ -46,7 +46,9 @@ def _parse_markdown_task(path: Path) -> dict[str, Any]:
         if line.startswith("# ") and not task["title"]:
             task["title"] = line[2:].strip()
         elif line.startswith("- status:"):
-            task["status"] = line[len("- status:"):].strip()
+            val = line[len("- status:"):].strip()
+            # Normalize "done" to "completed" for Kanban compatibility
+            task["status"] = "completed" if val == "done" else val
         elif line.startswith("- source:"):
             task["source"] = line[len("- source:"):].strip()
             val = line[len("- source:"):].strip()
@@ -133,6 +135,40 @@ async def handle_all_tasks(request: web.Request) -> web.Response:
     return web.json_response({
         "tasker_dir": str(base),
         "count": len(tasks),
+        "tasks": tasks,
+    })
+
+
+async def handle_workflow_tasks(request: web.Request) -> web.Response:
+    """GET /api/workflow/tasks — tasks filtered by board/tag (for WorkflowSurface).
+    
+    Query params:
+      - board: filter by board name (substring match)
+      - tag: filter by tag (exact match)
+    """
+    base = default_tasker_dir()
+    board_filter = request.query.get("board", "").lower()
+    tag_filter = request.query.get("tag", "").lower()
+    tasks: list[dict[str, Any]] = []
+
+    if base.exists():
+        for board_dir in sorted(p for p in base.iterdir() if p.is_dir()):
+            if board_filter and board_filter not in board_dir.name.lower():
+                continue
+            for md_file in sorted(board_dir.glob("*.md")):
+                if md_file.name == "README.md":
+                    continue
+                task = _parse_markdown_task(md_file)
+                tags = [t.lower() for t in task.get("tags", [])]
+                if tag_filter and tag_filter not in tags:
+                    continue
+                tasks.append(task)
+
+    return web.json_response({
+        "tasker_dir": str(base),
+        "count": len(tasks),
+        "board_filter": board_filter or None,
+        "tag_filter": tag_filter or None,
         "tasks": tasks,
     })
 
