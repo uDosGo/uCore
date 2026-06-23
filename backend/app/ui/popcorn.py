@@ -23,8 +23,10 @@ import signal
 import subprocess
 import threading
 import logging
+from pathlib import Path
 import urllib.request
 import urllib.error
+import urllib.parse
 
 import objc
 from Foundation import NSObject, NSRunLoop, NSDate, NSURL
@@ -40,6 +42,7 @@ from PyObjCTools import AppHelper
 UCORE_URL = "http://127.0.0.1:8484"
 UI_HUB_URL = "http://localhost:5173"
 REFRESH_INTERVAL = 5.0  # seconds
+UCORE_BACKEND_DIR = str(Path(__file__).resolve().parents[2])
 
 log_dir = os.path.expanduser("~/.ucore/logs")
 os.makedirs(log_dir, exist_ok=True)
@@ -63,10 +66,137 @@ def api_get(path: str, timeout: float = 3.0):
         return None
 
 
+def api_post_json(path: str, payload: dict | None = None, timeout: float = 6.0):
+    """POST JSON to snackbar API and return parsed JSON, or None."""
+    try:
+        body = json.dumps(payload or {}).encode("utf-8")
+        req = urllib.request.Request(
+            f"{UCORE_URL}{path}",
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+
+
 def is_ucore_alive() -> bool:
     """Check if snackbar API is responding."""
     result = api_get("/api/health")
     return result is not None and result.get("status") == "ok"
+
+
+def is_uihub_alive() -> bool:
+    """Check if UI Hub frontend is reachable."""
+    try:
+        req = urllib.request.Request(UI_HUB_URL)
+        with urllib.request.urlopen(req, timeout=1.2) as resp:
+            return int(getattr(resp, "status", 200)) < 500
+    except Exception:
+        return False
+
+
+def _backend_python_cmd() -> list[str]:
+    """Build a backend launch command, preferring the repo virtualenv."""
+    venv_python = Path(UCORE_BACKEND_DIR) / ".venv" / "bin" / "python"
+    python_bin = str(venv_python) if venv_python.exists() else sys.executable
+    return [python_bin, "-m", "app", "--port", "8484", "--auto-start"]
+
+
+def ensure_ucore_running(timeout_s: float = 8.0) -> bool:
+    """Ensure backend is running; launch it if needed."""
+    if is_ucore_alive():
+        return True
+
+    try:
+        subprocess.Popen(
+            _backend_python_cmd(),
+            cwd=UCORE_BACKEND_DIR,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+    except Exception as e:
+        log.warning(f"Failed to start backend: {e}")
+        return False
+
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        if is_ucore_alive():
+            return True
+        time.sleep(0.25)
+    return False
+
+
+def ensure_uihub_running(timeout_s: float = 12.0) -> bool:
+    """Ensure UI Hub is running using surface runtime APIs."""
+    if is_uihub_alive():
+        return True
+    if not ensure_ucore_running():
+        return False
+
+    _ = api_post_json("/api/surfaces/ui-hub/start")
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        if is_uihub_alive():
+            return True
+        time.sleep(0.3)
+
+    _ = api_post_json("/api/surfaces/ui-hub/restart")
+    deadline = time.time() + 6.0
+    while time.time() < deadline:
+        if is_uihub_alive():
+            return True
+        time.sleep(0.3)
+    return False
+
+
+def open_s190_fallback(reason: str) -> None:
+    """Open a local S190-style fallback page when UI Hub is unreachable."""
+    fallback_path = Path.home() / ".ucore" / "s190-uihub-fallback.html"
+    fallback_path.parent.mkdir(parents=True, exist_ok=True)
+
+    safe_reason = reason.replace("<", "&lt;").replace(">", "&gt;")
+    retry_url = UI_HUB_URL
+    api_health_url = f"{UCORE_URL}/api/health"
+    fallback_s190 = f"{UI_HUB_URL}/s190?reason={urllib.parse.quote(reason)}"
+    html = f"""<!doctype html>
+<html>
+<head>
+  <meta charset=\"utf-8\" />
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  <title>S190 - UIHub Connectivity Fallback</title>
+  <style>
+    body {{ font-family: -apple-system, system-ui, sans-serif; margin: 0; background: #0f1115; color: #e6edf3; }}
+    main {{ max-width: 780px; margin: 64px auto; padding: 24px; }}
+    .card {{ border: 1px solid #30363d; border-radius: 12px; padding: 20px; background: #161b22; }}
+    h1 {{ margin: 0 0 8px 0; font-size: 1.5rem; }}
+    p {{ color: #9da7b3; line-height: 1.45; }}
+    .code {{ font-family: ui-monospace, Menlo, monospace; color: #f0883e; }}
+    .row {{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }}
+    a {{ color: #58a6ff; text-decoration: none; border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; }}
+  </style>
+</head>
+<body>
+  <main>
+    <div class=\"card\">
+      <h1>S190 - System Fallback</h1>
+      <p>UI Hub is not reachable yet. Popcorn attempted auto-start and health healing.</p>
+      <p>Reason: <span class=\"code\">{safe_reason}</span></p>
+      <div class=\"row\">
+        <a href=\"{retry_url}\">Retry UI Hub</a>
+        <a href=\"{fallback_s190}\">Open S190 in UI Hub</a>
+        <a href=\"{api_health_url}\">Open API Health</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
+"""
+    fallback_path.write_text(html, encoding="utf-8")
+    subprocess.Popen(["open", str(fallback_path)])
 
 
 def open_url(url: str):
@@ -243,6 +373,24 @@ class PopcornDelegate(NSObject):
         item.setTarget_(self)
         self._menu.addItem_(item)
 
+        item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "🩺 Health Check", "checkHealth:", "h"
+        )
+        item.setTarget_(self)
+        self._menu.addItem_(item)
+
+        item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "🛠 Heal UI Hub", "healUIHub:", "r"
+        )
+        item.setTarget_(self)
+        self._menu.addItem_(item)
+
+        item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "🧭 Open S190 Diagnostics", "openS190Diagnostics:", "d"
+        )
+        item.setTarget_(self)
+        self._menu.addItem_(item)
+
         self._menu.addItem_(NSMenuItem.separatorItem())
 
         # ── Ollama ─────────────────────────────────────────────
@@ -360,8 +508,62 @@ class PopcornDelegate(NSObject):
 
     def openUIHub_(self, sender):
         """Open UI Hub in browser."""
-        log.info("Opening UI Hub")
-        subprocess.Popen(["open", UI_HUB_URL])
+        log.info("Opening UI Hub (with auto-start)")
+        if ensure_uihub_running():
+            subprocess.Popen(["open", UI_HUB_URL])
+            return
+
+        open_s190_fallback("uihub-cant-connect")
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_("UIHub not reachable")
+        alert.setInformativeText_(
+            "Popcorn tried auto-start + heal, but localhost:5173 is still down."
+        )
+        alert.runModal()
+
+    def checkHealth_(self, sender):
+        """Run basic health checks and show a quick summary."""
+        backend_ok = ensure_ucore_running()
+        health = api_get("/api/health") if backend_ok else None
+        uihub_ok = is_uihub_alive()
+        debug = api_post_json("/api/surfaces/ui-hub/debug") if backend_ok else None
+
+        lines = [
+            f"Backend: {'ok' if backend_ok else 'down'}",
+            f"UI Hub: {'ok' if uihub_ok else 'down'}",
+        ]
+        if health:
+            lines.append(f"API status: {health.get('status', 'unknown')}")
+        if isinstance(debug, dict) and "healthy" in debug:
+            lines.append(f"ui-hub debug healthy: {debug.get('healthy')}")
+
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_("uCore Health Check")
+        alert.setInformativeText_("\n".join(lines))
+        alert.runModal()
+
+    def healUIHub_(self, sender):
+        """Try repair/restart/start flow for UI Hub and open it on success."""
+        if not ensure_ucore_running():
+            alert = NSAlert.alloc().init()
+            alert.setMessageText_("Heal failed")
+            alert.setInformativeText_("Backend could not be started.")
+            alert.runModal()
+            return
+
+        _ = api_post_json("/api/surfaces/ui-hub/repair")
+        _ = api_post_json("/api/surfaces/ui-hub/restart")
+        _ = api_post_json("/api/surfaces/ui-hub/start")
+
+        if ensure_uihub_running(timeout_s=8.0):
+            subprocess.Popen(["open", UI_HUB_URL])
+            return
+
+        open_s190_fallback("uihub-heal-failed")
+
+    def openS190Diagnostics_(self, sender):
+        """Open local S190 diagnostics fallback page immediately."""
+        open_s190_fallback("manual-s190-diagnostics")
 
     def openSurface_(self, sender):
         """Open a surface URL in the browser."""
