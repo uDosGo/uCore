@@ -1,7 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════
    workflow.css — Workflow Surface Styles (USXv2/Pico CSS)
+   ═══════════════════════════════════════════════════════════════════
+   Uses Pico CSS variables for all colors and sizing.
+   No hardcoded font sizes or colors — all inherit from theme.
    ═══════════════════════════════════════════════════════════════════ */
-@import '../prose-ui-standard.css';
 
 /* ─── Surface Container ──────────────────────────────────────────── */
 .workflow-surface {
@@ -46,15 +48,13 @@
 .workflow-section-header h3 {
   margin: 0;
   font-weight: 600;
-  font-size: 14px;
-  color: var(--pico-color, #c9d1d9);
+  color: var(--pico-color);
 }
 
 .workflow-section-count {
   margin-left: auto;
-  font-size: 11px;
-  color: var(--pico-muted-color, #8b949e);
-  background: var(--pico-card-background-color, #161b22);
+  color: var(--pico-muted-color);
+  background: var(--pico-card-background-color);
   padding: 2px 8px;
   border-radius: 10px;
 }
@@ -67,8 +67,8 @@
 }
 
 .workflow-stat-card {
-  background: var(--pico-card-background-color, #161b22);
-  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
   border-radius: 8px;
   padding: 14px;
   display: flex;
@@ -77,21 +77,19 @@
 }
 
 .workflow-stat-label {
-  font-size: 11px;
-  color: var(--pico-muted-color, #8b949e);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  color: var(--pico-muted-color);
 }
 
 .workflow-stat-value {
-  font-size: 20px;
   font-weight: 700;
-  color: var(--pico-color, #c9d1d9);
+  color: var(--pico-color);
 }
 
 .workflow-stat-bar {
   height: 4px;
-  background: var(--pico-card-sectioning-background-color, #1c2128);
+  background: var(--pico-card-sectioning-background-color);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -121,19 +119,18 @@
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  background: var(--pico-card-background-color, #161b22);
-  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
   border-radius: 6px;
-  font-size: 12px;
 }
 
 .workflow-activity-date {
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
   flex-shrink: 0;
 }
 
 .workflow-activity-title {
-  color: var(--pico-color, #c9d1d9);
+  color: var(--pico-color);
 }
 
 /* ─── Action Grid ─────────────────────────────────────────────── */
@@ -148,18 +145,17 @@
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  border: 1px solid var(--pico-border-color, #30363d);
+  border: 1px solid var(--pico-border-color);
   border-radius: 8px;
-  background: var(--pico-card-background-color, #161b22);
-  color: var(--pico-color, #c9d1d9);
+  background: var(--pico-card-background-color);
+  color: var(--pico-color);
   cursor: pointer;
   font-family: inherit;
-  font-size: 12px;
   transition: border-color 0.15s ease;
 }
 
 .workflow-action-btn:hover {
-  border-color: var(--wf-action-color, #58a6ff);
+  border-color: var(--wf-action-color, var(--pico-primary));
 }
 
 /* ─── Daily Tasks ─────────────────────────────────────────────── */
@@ -173,8 +169,8 @@
   display: flex;
   align-items: center;
   padding: 6px 10px;
-  background: var(--pico-card-background-color, #161b22);
-  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
   border-radius: 6px;
 }
 
@@ -186,20 +182,19 @@
 }
 
 .workflow-task-label input[type="checkbox"] {
-  accent-color: var(--pico-primary, #58a6ff);
+  accent-color: var(--pico-primary);
 }
 
 .workflow-task-text {
-  font-size: 13px;
-  color: var(--pico-color, #c9d1d9);
+  color: var(--pico-color);
 }
 
 .workflow-task-text--done {
   text-decoration: line-through;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
 }
 
-/* ─── Panel (Missions, Tasks, Activity tabs) ──────────────────── */
+/* ─── Panel (Missions, Tasks tabs) ────────────────────────────── */
 .workflow-panel {
   padding: 16px;
   height: 100%;
@@ -218,14 +213,12 @@
 .workflow-panel-header h3 {
   margin: 0;
   font-weight: 600;
-  font-size: 14px;
-  color: var(--pico-color, #c9d1d9);
+  color: var(--pico-color);
 }
 
 .workflow-panel-count {
-  font-size: 11px;
-  color: var(--pico-muted-color, #8b949e);
-  background: var(--pico-card-background-color, #161b22);
+  color: var(--pico-muted-color);
+  background: var(--pico-card-background-color);
   padding: 2px 8px;
   border-radius: 10px;
 }
@@ -235,23 +228,22 @@
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  border: 1px solid var(--pico-border-color, #30363d);
+  border: 1px solid var(--pico-border-color);
   border-radius: 6px;
-  background: var(--pico-card-sectioning-background-color, #1c2128);
-  color: var(--pico-color, #c9d1d9);
+  background: var(--pico-card-sectioning-background-color);
+  color: var(--pico-color);
   cursor: pointer;
   font-family: inherit;
-  font-size: 11px;
 }
 
 .workflow-toggle-btn:hover {
-  border-color: var(--pico-primary, #58a6ff);
+  border-color: var(--pico-primary);
 }
 
 /* ─── Cards ───────────────────────────────────────────────────── */
 .workflow-card {
-  background: var(--pico-card-background-color, #161b22);
-  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
   border-radius: 8px;
   padding: 12px 16px;
 }
@@ -265,22 +257,19 @@
 
 .workflow-card-title {
   font-weight: 600;
-  font-size: 13px;
-  color: var(--pico-color, #c9d1d9);
+  color: var(--pico-color);
 }
 
 .workflow-card-badge {
   padding: 2px 8px;
   border-radius: 10px;
   border: 1px solid;
-  font-size: 11px;
   font-weight: 500;
 }
 
 .workflow-card-desc {
   margin: 0 0 6px;
-  font-size: 12px;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
   line-height: 1.4;
 }
 
@@ -291,8 +280,7 @@
 }
 
 .workflow-card-status {
-  font-size: 11px;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
 }
 
 /* ─── Missions List ───────────────────────────────────────────── */
@@ -314,48 +302,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px;
-  color: var(--pico-muted-color, #8b949e);
-  font-size: 13px;
-}
-
-/* ─── Activity Feed Tab ───────────────────────────────────────── */
-.workflow-activity-feed {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.workflow-activity-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 14px;
-  background: var(--pico-card-background-color, #161b22);
-  border: 1px solid var(--pico-border-color, #30363d);
-  border-radius: 8px;
-}
-
-.workflow-activity-icon {
-  margin-top: 2px;
-  flex-shrink: 0;
-  color: var(--pico-muted-color, #8b949e);
-}
-
-.workflow-activity-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.workflow-activity-event {
-  font-size: 13px;
-  color: var(--pico-color, #c9d1d9);
-  line-height: 1.4;
-}
-
-.workflow-activity-time {
-  font-size: 11px;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
 }
 
 /* ─── Responsive ──────────────────────────────────────────────── */

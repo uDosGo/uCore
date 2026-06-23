@@ -92,16 +92,15 @@ const WORKFLOW_COLUMN_COLORS: Record<string, string> = {
 
 const WORKFLOW_COLUMN_ORDER = ['todo', 'in-progress', 'review', 'blocked', 'completed']
 
-// ─── User tag set — filters out dev/system tags ────────────────
-const USER_TAGS = new Set(['workflow', 'mission', 'daily', 'vault', 'activity', 'ucode', 'user'])
-
+// ─── User task filter — shows everything except dev/system tasks ─
 function isUserTask(task: WorkflowTask): boolean {
   const board = (task.board || '').toLowerCase()
   const tags = (task.tags || []).map(t => t.toLowerCase())
-  // Exclude dev/system boards and tags
-  if (board.includes('gridsmith') || board.includes('developer') || board.includes('dev')) return false
-  // Include if board or any tag is in user tag set
-  return USER_TAGS.has(board) || tags.some(t => USER_TAGS.has(t))
+  // Only exclude explicit dev/system boards and tags
+  const devPatterns = ['developer', 'dev-task', 'dev/', 'gridsmith']
+  const isDevBoard = devPatterns.some(p => board.includes(p))
+  const isDevTag = tags.some(t => devPatterns.some(p => t.includes(p)))
+  return !isDevBoard && !isDevTag
 }
 
 // ─── Dashboard Tab ─────────────────────────────────────────────
