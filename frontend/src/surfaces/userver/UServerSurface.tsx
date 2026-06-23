@@ -746,6 +746,29 @@ function BudgetTab() {
     }
   }
 
+  const runSample = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/skills/route_task/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          task: 'Write a simple hello world function in Python',
+          complexity: 'simple',
+          execute: false,
+        }),
+        signal: AbortSignal.timeout(8000),
+      })
+      if (!res.ok) throw new Error(`run sample HTTP ${res.status}`)
+      const data = await res.json()
+      setMessage(`Sample executed. Budget check: ${data.success ? 'ALLOWED' : 'BLOCKED'}`)
+      await loadBudget()
+    } catch (e: any) {
+      setMessage(e?.message || 'Failed to run sample')
+      setLoading(false)
+    }
+  }
+
   const usageStats = status?.usage
   const policy = status?.policy
 
@@ -757,6 +780,9 @@ function BudgetTab() {
           <span className="userver-card-subtitle">Usage logging and cost guardrails</span>
         </div>
         <div className="userver-toolbar-actions" style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+          <button className="userver-action-btn" onClick={runSample} disabled={loading} title="Execute a sample task to test budget enforcement">
+            {loading ? 'Running...' : 'Run Sample'}
+          </button>
           <button className="userver-action-btn" onClick={loadBudget} disabled={loading}>
             {loading ? 'Loading...' : 'Refresh'}
           </button>
