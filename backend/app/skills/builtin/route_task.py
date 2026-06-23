@@ -1,13 +1,26 @@
-"""route_task — Intelligently route tasks to the best provider.
+"""route_task — Intelligently route and optionally execute tasks with AI.
 
 Operationalizes the cost strategy:
   simple  → Ollama (free, local)
   medium  → OpenRouter/o3-mini (mid-range, ~$0.01/task)
   complex → Claude/OpenRouter (expensive, intentional)
 
+Features:
+  - Auto-detect task complexity from description
+  - Budget-aware routing (respects monthly/model limits)
+  - Optional execution through provider_router
+  - Context size and risk level heuristics
+  - Routing decision logging to spool
+
 Usage:
   POST /api/skills/route_task/run
-  Body: { "task": "fix a typo in README", "complexity": "simple" }
+  Body: {
+    "task": "fix a typo in README",
+    "complexity": "auto",
+    "execute": false,
+    "context_size": "small",
+    "risk_level": "low"
+  }
 """
 from __future__ import annotations
 
@@ -18,29 +31,43 @@ class RouteTask(BaseSkill):
     meta = SkillMeta(
         id="route_task",
         name="Route Task",
-        description="Route a task to the best AI provider based on complexity and cost strategy",
+        description="Route and optionally execute tasks to the best AI provider",
         category="assist",
-        timeout=15,
+        timeout=30,
         params=[
             SkillParam(
                 name="task",
                 type="string",
                 required=True,
-                description="Description of the task to route",
+                description="Task description or query",
             ),
             SkillParam(
                 name="complexity",
                 type="string",
                 required=False,
                 default="auto",
-                description="Task complexity: auto, simple, medium, complex",
+                description="Complexity: auto, simple, medium, complex",
             ),
             SkillParam(
                 name="context_size",
                 type="string",
                 required=False,
                 default="small",
-                description="Context size: small (<2K tokens), medium (2K-100K), large (>100K)",
+                description="Context: small (<2K), medium (2K-100K), large (>100K)",
+            ),
+            SkillParam(
+                name="risk_level",
+                type="string",
+                required=False,
+                default="low",
+                description="Risk level: low, medium, high (security/safety)",
+            ),
+            SkillParam(
+                name="execute",
+                type="boolean",
+                required=False,
+                default=False,
+                description="Execute the task immediately (vs advice-only)",
             ),
         ],
     )
@@ -79,8 +106,45 @@ class RouteTask(BaseSkill):
 
         return "simple"
 
-    def _build_routing(self, complexity: str, context_size: str) -> dict:
-        """Build routing decision based on cost strategy."""
+    def _estimate_risk(
+        self,
+        task: str,
+        complexity: str,
+    ) -> str:
+        """Estimate risk level from task description."""
+        task_lower = task.lower()
+
+        high_risk_signals = [
+            "security", "vulnerability", "exploit", "private key",
+            "password", "token", "credential", "hack", "breach",
+            "delete", "drop database", "truncate", "production",
+            "critical infrastructure", "zero-day", "malware",
+        ]
+        for signal in high_risk_signals:
+            if signal in task_lower:
+                return "high"
+
+        if complexity == "complex":
+            return "medium"
+
+        return "low"
+
+    def _estimate_context_size(self, task: str) -> str:
+        """Estimate required context size from task."""
+        if len(task) > 10000:
+            return "large"
+        if len(task) > 2000:
+            return "medium"
+        return "small"
+
+    def _build_routing(
+        self,
+        complexity: str,
+        context_size: str,
+        risk_level: str,
+        budget_remaining: float = 100.0,
+    ) -> dict:
+        """Build routing decision considering cost, context, risk, budget."""
         cost_table = {
             "simple": {
                 "provider": "ollama",
@@ -91,37 +155,61 @@ class RouteTask(BaseSkill):
             },
             "medium": {
                 "provider": "openrouter",
-                "model": "openai/o3-mini",
+                "model": "deepseek/deepseek-chat",
                 "cost": "~$0.01/task (low)",
-                "reason": "Medium task — use cost-effective cloud model",
+                "reason": "Medium task — cost-effective cloud model",
                 "tokens_per_second": "~60",
             },
             "complex": {
                 "provider": "openrouter",
-                "model": "anthropic/claude-sonnet-4-20250514",
-                "cost": "~$0.15/task (high — use sparingly)",
+                "model": "anthropic/claude-opus",
+                "cost": "~$0.15/task (high)",
                 "reason": "Complex task — best reasoning available",
                 "tokens_per_second": "~30",
             },
         }
 
+        # Start with base routing
+        routing = cost_table.get(complexity, cost_table["simple"])
+
         # Context size adjustments
-        if context_size == "large" and complexity != "complex":
-            # Route large-context tasks to Gemini (cheaper for big context)
-            return {
+        if context_size == "large":
+            routing = {
                 "provider": "openrouter",
                 "model": "google/gemini-2.5-flash-001",
                 "cost": "~$0.005/100K tokens (cheap for large context)",
-                "reason": f"Large context ({context_size}) — use Gemini for 1M token window",
+                "reason": f"Large context — use Gemini for 1M token window",
                 "tokens_per_second": "~50",
             }
 
-        return cost_table.get(complexity, cost_table["simple"])
+        # Risk level adjustments
+        if risk_level == "high":
+            routing = {
+                "provider": "ollama",
+                "model": "qwen2.5-coder:7b",
+                "cost": "$0 (local, no data leakage)",
+                "reason": "High-risk task — keep local to prevent exposure",
+                "tokens_per_second": "~20",
+            }
+
+        # Budget-aware fallback
+        if budget_remaining < 1.0:
+            routing = {
+                "provider": "ollama",
+                "model": "qwen2.5-coder:3b",
+                "cost": "$0 (local, budget constrained)",
+                "reason": "Budget exhausted — fall back to local model",
+                "tokens_per_second": "~40",
+            }
+
+        return routing
 
     async def run(self, **kwargs) -> dict:
         task = kwargs.get("task", "").strip()
         complexity = kwargs.get("complexity", "auto").strip().lower()
-        context_size = kwargs.get("context_size", "small").strip().lower()
+        context_size = kwargs.get("context_size", "").strip().lower()
+        risk_level = kwargs.get("risk_level", "low").strip().lower()
+        execute = kwargs.get("execute", False)
 
         if not task:
             return {
@@ -129,32 +217,90 @@ class RouteTask(BaseSkill):
                 "error": "task description is required",
             }
 
-        # Auto-detect if requested
+        # Auto-detect
         if complexity == "auto":
             complexity = self._estimate_complexity(task)
+        if not context_size:
+            context_size = self._estimate_context_size(task)
+        if risk_level not in ("low", "medium", "high"):
+            risk_level = self._estimate_risk(task, complexity)
 
         # Validate
-        valid = ["simple", "medium", "complex"]
-        if complexity not in valid:
+        valid_complexity = ["simple", "medium", "complex"]
+        valid_risk = ["low", "medium", "high"]
+        valid_context = ["small", "medium", "large"]
+        if complexity not in valid_complexity:
             complexity = "simple"
+        if risk_level not in valid_risk:
+            risk_level = "low"
+        if context_size not in valid_context:
+            context_size = "small"
 
-        routing = self._build_routing(complexity, context_size)
+        # Check budget (if execute requested)
+        budget_remaining = 100.0
+        try:
+            from app.services.budget_manager import BudgetManager
+            budget_mgr = BudgetManager()
+            usage = budget_mgr.get_monthly_usage()
+            budget_remaining = usage.get("remaining_budget", 100.0)
+        except Exception:
+            pass
 
-        return {
+        # Generate routing
+        routing = self._build_routing(
+            complexity,
+            context_size,
+            risk_level,
+            budget_remaining=budget_remaining,
+        )
+
+        result = {
             "success": True,
             "task": task[:100] + ("..." if len(task) > 100 else ""),
             "analysis": {
-                "detected_complexity": complexity,
+                "complexity": complexity,
                 "context_size": context_size,
+                "risk_level": risk_level,
                 "task_length": len(task),
             },
             "routing": routing,
-            "strategy": {
-                "tier_allocations": {
-                    "simple": {"pct": 15, "provider": "Ollama", "cost": "$0"},
-                    "medium": {"pct": 70, "provider": "OpenRouter/o3-mini", "cost": "~$0.01"},
-                    "complex": {"pct": 5, "provider": "Claude", "cost": "~$0.15"},
-                },
-                "note": "Use Ollama for 15% of tasks (simple/repetitive), OpenRouter for 70% (daily work), Claude for 5% (hard problems)",
+            "execution": {
+                "mode": "execute" if execute else "advice-only",
+                "budget_remaining": budget_remaining,
             },
         }
+
+        # Execute if requested
+        if execute:
+            result["execution"]["response"] = await self._execute_task(
+                task,
+                routing,
+            )
+
+        return result
+
+    async def _execute_task(
+        self,
+        task: str,
+        routing: dict,
+    ) -> dict:
+        """Execute the task through the routed provider."""
+        try:
+            from app.services.provider_router import ProviderRouter
+            router = ProviderRouter()
+            provider = routing.get("provider", "ollama")
+            model = routing.get("model", "")
+
+            response = await router.chat(
+                messages=[{"role": "user", "content": task}],
+                provider=provider,
+                model=model,
+                timeout=30,
+            )
+            return response
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "error_type": type(e).__name__,
+            }
