@@ -2,10 +2,9 @@
    WorkflowSurface — USX Schema v3.1 Workflow Surface
    ═══════════════════════════════════════════════════════════════════
    User-facing daily/workflow/mission/ucode surface.
-   ISOLATED from dev tasks — uses .tasker/workflow/ directory.
-   Tabs: Dashboard (with activity widget), Missions, Tasks (user-only)
+   Tabs: Dashboard (with activity widget), Missions (linked to tasks),
+         Tasks (kanban + list view, right-split detail editor)
    Project Type: Operational (OP) | Autonomy Level: L3 (Collaborator)
-   Binder: ⚡️ Operations/Workflow | Tags: #workflow #missions #daily
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -19,6 +18,7 @@ import '../../styles/surfaces/workflow.css'
 
 // ─── Types ──────────────────────────────────────────────────────
 type WorkflowTab = 'dashboard' | 'missions' | 'tasks'
+type ViewMode = 'kanban' | 'list'
 
 interface WorkflowTask {
   id: string
@@ -32,6 +32,15 @@ interface WorkflowTask {
   metadata?: Record<string, any>
 }
 
+interface Mission {
+  id: string
+  title: string
+  status: string
+  priority: string
+  description: string
+  taskIds: string[] // linked task IDs
+}
+
 interface ActivityEntry {
   date: string
   title: string
@@ -40,49 +49,7 @@ interface ActivityEntry {
 
 const SNACKBAR_API = 'http://localhost:8484'
 
-export { type WorkflowTask }
-
-// ─── Detail Panel (right-split editor) ──────────────────────────
-function WorkflowDetailPanel({ task, onClose }: { task: WorkflowTask | null; onClose: () => void }) {
-  if (!task) return null
-  return (
-    <div className="kanban-detail-panel" style={{ minWidth: 280, borderLeft: '1px solid var(--pico-border-color, #30363d)', overflow: 'auto' }}>
-      <div className="kanban-detail-header">
-        <div className="kanban-detail-header-tabs">
-          <span className="kanban-detail-tab active"><Icon name="info" size={14} /> Detail</span>
-        </div>
-        <button className="kanban-detail-close" onClick={onClose} title="Close panel">
-          <Icon name="close" size={16} />
-        </button>
-      </div>
-      <div className="kanban-detail-body" style={{ padding: 16 }}>
-        <h3 className="kanban-detail-title" style={{ margin: '0 0 8px', fontWeight: 600, fontSize: 15 }}>{task.title}</h3>
-        <div className="kanban-detail-meta" style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <span className="kanban-detail-badge" style={{ border: '1px solid #58a6ff', color: '#58a6ff', padding: '2px 8px', borderRadius: 10, fontSize: 11 }}>{task.status}</span>
-          <span className="kanban-detail-badge" style={{ border: '1px solid #d29922', color: '#d29922', padding: '2px 8px', borderRadius: 10, fontSize: 11 }}>{task.priority}</span>
-          <span style={{ fontSize: 11, color: 'var(--pico-muted-color)' }}>{task.board}</span>
-        </div>
-        {task.tags && task.tags.length > 0 && (
-          <div className="kanban-detail-tags" style={{ display: 'flex', gap: 4, marginBottom: 12, flexWrap: 'wrap' }}>
-            {task.tags.map(tag => (
-              <span key={tag} style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'var(--pico-card-sectioning-background-color, #1c2128)', color: 'var(--pico-primary)' }}>{tag}</span>
-            ))}
-          </div>
-        )}
-        {task.description && (
-          <div className="prose" style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--pico-color)' }}>
-            <p>{task.description}</p>
-          </div>
-        )}
-        <div style={{ marginTop: 16, fontSize: 11, color: 'var(--pico-muted-color)' }}>
-          <Icon name="description" size={14} /> {task.file || 'No file'}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-const WORKFLOW_COLUMN_COLORS: Record<string, string> = {
+const COLUMN_COLORS: Record<string, string> = {
   todo: '#8b949e',
   'in-progress': '#58a6ff',
   review: '#d29922',
@@ -90,17 +57,175 @@ const WORKFLOW_COLUMN_COLORS: Record<string, string> = {
   completed: '#3fb950',
 }
 
-const WORKFLOW_COLUMN_ORDER = ['todo', 'in-progress', 'review', 'blocked', 'completed']
+const COLUMN_ORDER = ['todo', 'in-progress', 'review', 'blocked', 'completed']
 
-// ─── User task filter — shows everything except dev/system tasks ─
+// ─── User task filter — exclude explicit dev/system ────────────
 function isUserTask(task: WorkflowTask): boolean {
   const board = (task.board || '').toLowerCase()
   const tags = (task.tags || []).map(t => t.toLowerCase())
-  // Only exclude explicit dev/system boards and tags
   const devPatterns = ['developer', 'dev-task', 'dev/', 'gridsmith']
-  const isDevBoard = devPatterns.some(p => board.includes(p))
-  const isDevTag = tags.some(t => devPatterns.some(p => t.includes(p)))
-  return !isDevBoard && !isDevTag
+  return !devPatterns.some(p => board.includes(p)) &&
+         !tags.some(t => devPatterns.some(p => t.includes(p)))
+}
+
+// ─── Detail Panel (right-split editor) ─────────────────────────
+function WorkflowDetailPanel({ task, onClose, onUpdate }: {
+  task: WorkflowTask | null
+  onClose: () => void
+  onUpdate?: (task: WorkflowTask) => Promise<void>
+}) {
+  const [editing, setEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDesc, setEditDesc] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [panelMode, setPanelMode] = useState<'detail' | 'prose' | 'editor'>('detail')
+
+  useEffect(() => {
+    if (task) {
+      setEditTitle(task.title)
+      setEditDesc(task.description || '')
+      setEditing(false)
+    }
+  }, [task])
+
+  const handleSave = useCallback(async () => {
+    if (!task) return
+    setSaving(true)
+    try {
+      const updated = { ...task, title: editTitle, description: editDesc }
+      if (onUpdate) {
+        await onUpdate(updated)
+      } else {
+        await fetch(`${SNACKBAR_API}/api/developer/tasker/tasks/${task.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updated),
+          signal: AbortSignal.timeout(5000),
+        })
+      }
+      setEditing(false)
+    } catch (err) {
+      console.error('Save error:', err)
+    } finally {
+      setSaving(false)
+    }
+  }, [task, editTitle, editDesc, onUpdate])
+
+  if (!task) return null
+
+  return (
+    <div className="kanban-detail-panel">
+      <div className="kanban-detail-header">
+        <div className="kanban-detail-header-tabs">
+          <button className={`kanban-detail-tab ${panelMode === 'detail' ? 'active' : ''}`} onClick={() => setPanelMode('detail')}>
+            <Icon name="info" size={14} /> Detail
+          </button>
+          <button className={`kanban-detail-tab ${panelMode === 'prose' ? 'active' : ''}`} onClick={() => setPanelMode('prose')}>
+            <Icon name="description" size={14} /> Prose
+          </button>
+          <button className={`kanban-detail-tab ${panelMode === 'editor' ? 'active' : ''}`} onClick={() => setPanelMode('editor')}>
+            <Icon name="edit" size={14} /> Editor
+          </button>
+        </div>
+        <button className="kanban-detail-close" onClick={onClose} title="Close panel">
+          <Icon name="close" size={16} />
+        </button>
+      </div>
+
+      <div className="kanban-detail-body">
+        {panelMode === 'detail' && (
+          <>
+            <div className="kanban-detail-section">
+              {editing ? (
+                <input className="kanban-detail-input" type="text" value={editTitle}
+                  onChange={e => setEditTitle(e.target.value)} placeholder="Task title" autoFocus />
+              ) : (
+                <h3 className="kanban-detail-title">{task.title}</h3>
+              )}
+              <div className="kanban-detail-meta">
+                <span className="kanban-detail-badge" style={{ borderColor: COLUMN_COLORS[task.status] || '#8b949e', color: COLUMN_COLORS[task.status] || '#8b949e' }}>
+                  {task.status}
+                </span>
+                <span className="kanban-detail-badge" style={{ borderColor: task.priority === 'high' ? '#f85149' : '#8b949e', color: task.priority === 'high' ? '#f85149' : '#8b949e' }}>
+                  {task.priority}
+                </span>
+                {task.board && <span className="kanban-detail-meta-text">{task.board}</span>}
+              </div>
+            </div>
+            {task.tags && task.tags.length > 0 && (
+              <div className="kanban-detail-section">
+                <div className="kanban-detail-tags">
+                  {task.tags.map(tag => <span key={tag} className="kanban-detail-tag">{tag}</span>)}
+                </div>
+              </div>
+            )}
+            {task.description && (
+              <div className="kanban-detail-section kanban-detail-section--prose">
+                <div className="prose" dangerouslySetInnerHTML={{ __html: renderMarkdown(task.description) }} />
+              </div>
+            )}
+            <div className="kanban-detail-section">
+              <div className="kanban-detail-file">
+                <Icon name="description" size={14} /> {task.file}
+              </div>
+            </div>
+            <div className="kanban-detail-actions">
+              {editing ? (
+                <>
+                  <button className="kanban-detail-btn primary" onClick={handleSave} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button className="kanban-detail-btn" onClick={() => { setEditing(false); setEditTitle(task.title); setEditDesc(task.description || '') }}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button className="kanban-detail-btn primary" onClick={() => setEditing(true)}>
+                  <Icon name="edit" size={14} /> Edit
+                </button>
+              )}
+            </div>
+          </>
+        )}
+
+        {panelMode === 'prose' && (
+          <div className="kanban-detail-section kanban-detail-section--prose">
+            <div className="prose" dangerouslySetInnerHTML={{ __html: renderMarkdown(task.description || task.title) }} />
+          </div>
+        )}
+
+        {panelMode === 'editor' && (
+          <div className="kanban-detail-editor-wrap">
+            {editing ? (
+              <>
+                <input className="kanban-detail-input" type="text" value={editTitle}
+                  onChange={e => setEditTitle(e.target.value)} placeholder="Task title" />
+                <textarea className="kanban-detail-editor" value={editDesc}
+                  onChange={e => setEditDesc(e.target.value)} placeholder="Markdown description..." spellCheck={false} />
+                <div className="kanban-detail-actions">
+                  <button className="kanban-detail-btn primary" onClick={handleSave} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button className="kanban-detail-btn" onClick={() => { setEditing(false); setEditTitle(task.title); setEditDesc(task.description || '') }}>
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="kanban-detail-editor-preview">
+                  <div className="prose" dangerouslySetInnerHTML={{ __html: renderMarkdown(task.description || task.title) }} />
+                </div>
+                <button className="kanban-detail-btn primary" onClick={() => setEditing(true)}>
+                  <Icon name="edit" size={14} /> Edit
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 // ─── Dashboard Tab ─────────────────────────────────────────────
@@ -140,7 +265,6 @@ function DashboardTab({ tasks, snackbarAvailable }: {
 
   return (
     <div className="workflow-dashboard">
-      {/* System Overview */}
       <div className="workflow-section">
         <div className="workflow-section-header">
           <Icon name="monitor_heart" size={18} />
@@ -163,7 +287,7 @@ function DashboardTab({ tasks, snackbarAvailable }: {
           </div>
           <div className="workflow-stat-card">
             <span className="workflow-stat-label">Snackbar</span>
-            <span className="workflow-stat-value" style={{ color: snackbarAvailable ? '#3fb950' : '#f85149' }}>
+            <span className={`workflow-stat-value ${snackbarAvailable ? 'workflow-stat-value--online' : 'workflow-stat-value--offline'}`}>
               {snackbarAvailable ? 'Online' : 'Offline'}
             </span>
             <div className="workflow-stat-bar">
@@ -173,7 +297,6 @@ function DashboardTab({ tasks, snackbarAvailable }: {
         </div>
       </div>
 
-      {/* 2-col: Activity + Quick Actions */}
       <div className="workflow-grid-2">
         <div className="workflow-section">
           <div className="workflow-section-header">
@@ -190,7 +313,6 @@ function DashboardTab({ tasks, snackbarAvailable }: {
             ))}
           </div>
         </div>
-
         <div className="workflow-section">
           <div className="workflow-section-header">
             <Icon name="bolt" size={18} />
@@ -207,7 +329,6 @@ function DashboardTab({ tasks, snackbarAvailable }: {
         </div>
       </div>
 
-      {/* Daily Tasks */}
       <div className="workflow-section">
         <div className="workflow-section-header">
           <Icon name="checklist" size={18} />
@@ -229,14 +350,30 @@ function DashboardTab({ tasks, snackbarAvailable }: {
   )
 }
 
-// ─── Missions Tab ──────────────────────────────────────────────
-function MissionsTab() {
-  const [missions, setMissions] = useState([
-    { id: 'm1', title: 'Surface Consolidation', status: 'active', priority: 'high', description: 'Consolidate surfaces into canonical lineup.' },
-    { id: 'm2', title: 'USX Component Audit', status: 'active', priority: 'medium', description: 'Audit and standardise USX components.' },
-    { id: 'm3', title: 'Documentation Refresh', status: 'planned', priority: 'low', description: 'Update documentation after UI/server consolidation.' },
-    { id: 'm4', title: 'Vault Indexing Pipeline', status: 'active', priority: 'high', description: 'Run recurring vault sync and indexing.' },
+// ─── Missions Tab (linked to tasks) ────────────────────────────
+function MissionsTab({ allTasks, onNavigateToTask }: {
+  allTasks: WorkflowTask[]
+  onNavigateToTask: (taskId: string) => void
+}) {
+  const [missions, setMissions] = useState<Mission[]>([
+    { id: 'm1', title: 'Surface Consolidation', status: 'active', priority: 'high', description: 'Consolidate surfaces into canonical lineup.', taskIds: [] },
+    { id: 'm2', title: 'USX Component Audit', status: 'active', priority: 'medium', description: 'Audit and standardise USX components.', taskIds: [] },
+    { id: 'm3', title: 'Documentation Refresh', status: 'planned', priority: 'low', description: 'Update documentation after UI/server consolidation.', taskIds: [] },
+    { id: 'm4', title: 'Vault Indexing Pipeline', status: 'active', priority: 'high', description: 'Run recurring vault sync and indexing.', taskIds: [] },
   ])
+
+  // Link missions to tasks by matching tags/board
+  const linkedMissions = useMemo(() => {
+    return missions.map(m => {
+      const missionSlug = m.title.toLowerCase().replace(/\s+/g, '-')
+      const linkedTasks = allTasks.filter(t => {
+        const board = (t.board || '').toLowerCase()
+        const tags = (t.tags || []).map(x => x.toLowerCase())
+        return board.includes(missionSlug) || tags.includes(missionSlug) || tags.includes(m.title.toLowerCase())
+      })
+      return { ...m, linkedTasks }
+    })
+  }, [missions, allTasks])
 
   const priorityColor: Record<string, string> = {
     high: '#f85149',
@@ -248,10 +385,10 @@ function MissionsTab() {
     <div className="workflow-panel">
       <div className="workflow-panel-header">
         <h3>Missions</h3>
-        <span className="workflow-panel-count">{missions.length} active</span>
+        <span className="workflow-panel-count">{missions.length}</span>
       </div>
       <div className="workflow-mission-list">
-        {missions.map(m => (
+        {linkedMissions.map(m => (
           <div key={m.id} className="workflow-card">
             <div className="workflow-card-header">
               <span className="workflow-card-title">{m.title}</span>
@@ -262,7 +399,26 @@ function MissionsTab() {
             <p className="workflow-card-desc">{m.description}</p>
             <div className="workflow-card-footer">
               <span className="workflow-card-status">{m.status}</span>
+              {m.linkedTasks.length > 0 && (
+                <span className="workflow-panel-count">{m.linkedTasks.length} linked tasks</span>
+              )}
             </div>
+            {m.linkedTasks.length > 0 && (
+              <div className="workflow-mission-tasks" style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {m.linkedTasks.slice(0, 5).map(t => (
+                  <div key={t.id} className="workflow-mission-task-row" onClick={() => onNavigateToTask(t.id)}
+                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', borderRadius: 4, background: 'var(--pico-card-sectioning-background-color)' }}>
+                    <span className="workflow-card-badge" style={{ borderColor: COLUMN_COLORS[t.status] || '#8b949e', color: COLUMN_COLORS[t.status] || '#8b949e', padding: '1px 6px', fontSize: 'var(--pico-font-size-condensed)' }}>
+                      {t.status}
+                    </span>
+                    <span className="workflow-card-title" style={{ fontWeight: 400, color: 'var(--pico-color)' }}>{t.title}</span>
+                  </div>
+                ))}
+                {m.linkedTasks.length > 5 && (
+                  <span className="workflow-panel-count" style={{ paddingLeft: 8 }}>+{m.linkedTasks.length - 5} more</span>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -270,77 +426,106 @@ function MissionsTab() {
   )
 }
 
-// ─── Tasks Tab (Kanban — user tasks only) ──────────────────────
+// ─── Tasks Tab (Kanban + List, right-split detail) ─────────────
 function TasksTab({ tasks, loading, error }: {
   tasks: WorkflowTask[]
   loading: boolean
   error: string | null
 }) {
+  const [viewMode, setViewMode] = useState<ViewMode>('kanban')
   const [showCompleted, setShowCompleted] = useState(true)
+  const [selectedTask, setSelectedTask] = useState<WorkflowTask | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
 
-  // Filter to user tasks only (no dev/system)
   const userTasks = tasks.filter(isUserTask)
   const visibleTasks = showCompleted ? userTasks : userTasks.filter(t => t.status !== 'completed')
 
-  const boardColumns: KanbanColumn[] = WORKFLOW_COLUMN_ORDER
+  const boardColumns: KanbanColumn[] = COLUMN_ORDER
     .filter(status => visibleTasks.some(t => t.status === status))
     .map(status => ({
       id: status,
       title: status.charAt(0).toUpperCase() + status.slice(1),
-      color: WORKFLOW_COLUMN_COLORS[status] || '#8b949e',
-      items: visibleTasks
-        .filter(t => t.status === status)
-        .map(t => ({
-          id: t.id,
-          title: t.title,
-          type: t.board || 'task',
-          date: t.tags?.join(', ') || '',
-        })),
+      color: COLUMN_COLORS[status] || '#8b949e',
+      items: visibleTasks.filter(t => t.status === status).map(t => ({
+        id: t.id,
+        title: t.title,
+        type: t.board || 'task',
+        date: t.tags?.join(', ') || '',
+      })),
     }))
 
   const handleItemClick = (item: KanbanItem) => {
-    console.log('User task clicked:', item.id)
+    const task = userTasks.find(t => t.id === item.id)
+    if (task) { setSelectedTask(task); setDetailOpen(true) }
   }
 
+  const handleCloseDetail = () => { setDetailOpen(false); setSelectedTask(null) }
+
   return (
-    <div className="workflow-panel">
+    <div className="workflow-panel" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div className="workflow-panel-header">
         <h3>User Tasks</h3>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <span className="workflow-panel-count">{userTasks.length} tasks</span>
-          <button
-            className="workflow-toggle-btn"
-            onClick={() => setShowCompleted(v => !v)}
-          >
+          <div className="workflow-view-toggle" style={{ display: 'flex', border: '1px solid var(--pico-border-color)', borderRadius: 6, overflow: 'hidden' }}>
+            <button className={`workflow-view-btn ${viewMode === 'kanban' ? 'active' : ''}`} onClick={() => setViewMode('kanban')}
+              style={{ padding: '4px 10px', border: 'none', background: viewMode === 'kanban' ? 'var(--pico-card-sectioning-background-color)' : 'transparent', color: 'var(--pico-color)', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <Icon name="grid_view" size={14} />
+            </button>
+            <button className={`workflow-view-btn ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}
+              style={{ padding: '4px 10px', border: 'none', background: viewMode === 'list' ? 'var(--pico-card-sectioning-background-color)' : 'transparent', color: 'var(--pico-color)', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <Icon name="list" size={14} />
+            </button>
+          </div>
+          <button className="workflow-toggle-btn" onClick={() => setShowCompleted(v => !v)}>
             <Icon name="check_circle" size={14} />
-            {showCompleted ? 'Hide completed' : 'Show completed'}
+            {showCompleted ? 'Hide' : 'Show'}
           </button>
         </div>
       </div>
 
-      {error && (
-        <div className="workflow-card" style={{ borderLeft: '3px solid #f85149' }}>
-          <p style={{ color: '#f85149', margin: 0 }}>{error}</p>
-        </div>
-      )}
+      {error && <div className="workflow-card" style={{ borderLeft: '3px solid #f85149' }}><p style={{ color: '#f85149', margin: 0 }}>{error}</p></div>}
+      {loading && userTasks.length === 0 && <div className="workflow-empty">Loading user tasks...</div>}
 
-      {loading && userTasks.length === 0 && (
-        <div className="workflow-empty">Loading user tasks...</div>
-      )}
+      <div className="workflow-tasks-body" style={{ display: 'flex', flex: 1, minHeight: 0, gap: 12, overflow: 'hidden' }}>
+        {/* Main content */}
+        <div className="workflow-tasks-main" style={{ flex: detailOpen ? '0 0 55%' : '1', minWidth: detailOpen ? 300 : 0, overflow: 'auto', transition: 'flex 0.3s ease' }}>
+          {userTasks.length > 0 ? (
+            viewMode === 'kanban' ? (
+              <KanbanBoard columns={boardColumns} onItemClick={handleItemClick} readOnly />
+            ) : (
+              <div className="workflow-task-list-view" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {visibleTasks.map(t => (
+                  <div key={t.id} className="workflow-task-list-item"
+                    onClick={() => { setSelectedTask(t); setDetailOpen(true) }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: 'var(--pico-card-background-color)', border: '1px solid var(--pico-border-color)', borderRadius: 6, cursor: 'pointer' }}>
+                    <span className="workflow-card-badge" style={{ borderColor: COLUMN_COLORS[t.status] || '#8b949e', color: COLUMN_COLORS[t.status] || '#8b949e', flexShrink: 0 }}>
+                      {t.status}
+                    </span>
+                    <span className="workflow-card-title" style={{ fontWeight: 400, flex: 1 }}>{t.title}</span>
+                    {t.priority === 'high' && <Icon name="priority_high" size={14} style={{ color: '#f85149', flexShrink: 0 }} />}
+                    {t.tags && t.tags.length > 0 && (
+                      <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                        {t.tags.slice(0, 2).map(tag => <span key={tag} className="kanban-detail-tag" style={{ fontSize: 'var(--pico-font-size-condensed)' }}>{tag}</span>)}
+                      </div>
+                    )}
+                    <span className="workflow-panel-count" style={{ flexShrink: 0 }}>{t.board}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          ) : !loading ? (
+            <div className="workflow-empty">No user tasks found in .tasker/.</div>
+          ) : null}
+        </div>
 
-      {userTasks.length > 0 ? (
-        <div className="workflow-kanban-wrap">
-          <KanbanBoard
-            columns={boardColumns}
-            onItemClick={handleItemClick}
-            readOnly
-          />
-        </div>
-      ) : !loading ? (
-        <div className="workflow-empty">
-          No user tasks found. Add tasks tagged with "workflow", "mission", "daily", or "user" in .tasker/.
-        </div>
-      ) : null}
+        {/* Right detail panel */}
+        {detailOpen && (
+          <div className="workflow-detail-panel" style={{ flex: '0 0 45%', minWidth: 280, overflow: 'hidden', borderLeft: '1px solid var(--pico-border-color)', transition: 'flex 0.3s ease' }}>
+            <WorkflowDetailPanel task={selectedTask} onClose={handleCloseDetail} />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -355,9 +540,7 @@ export default function WorkflowSurface() {
     const params = new URLSearchParams(location.search)
     const raw = (params.get('tab') || 'dashboard').toLowerCase()
     const candidate = raw as WorkflowTab
-    return {
-      selectedTab: ['dashboard', 'missions', 'tasks'].includes(candidate) ? candidate : 'dashboard',
-    }
+    return { selectedTab: ['dashboard', 'missions', 'tasks'].includes(candidate) ? candidate : 'dashboard' }
   }, [location.search])
 
   const [activeTab, setActiveTab] = useState<WorkflowTab>(tabState.selectedTab)
@@ -366,41 +549,27 @@ export default function WorkflowSurface() {
   const [error, setError] = useState<string | null>(null)
   const [snackbarAvailable, setSnackbarAvailable] = useState(false)
 
-  useEffect(() => {
-    setActiveTab(tabState.selectedTab)
-  }, [tabState.selectedTab])
+  useEffect(() => { setActiveTab(tabState.selectedTab) }, [tabState.selectedTab])
 
-  const fetchWorkflowTasks = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const fetchTasks = useCallback(async () => {
+    setLoading(true); setError(null)
     try {
-      const res = await fetch(`${SNACKBAR_API}/api/developer/tasker/tasks`, {
-        signal: AbortSignal.timeout(4000),
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setTasks(data.tasks || [])
-        setSnackbarAvailable(true)
-      } else {
-        setTasks([])
-        setSnackbarAvailable(true)
-      }
-    } catch {
-      setError('Failed to load tasks')
-      setSnackbarAvailable(false)
-      setTasks([])
-    } finally {
-      setLoading(false)
-    }
+      const res = await fetch(`${SNACKBAR_API}/api/developer/tasker/tasks`, { signal: AbortSignal.timeout(4000) })
+      if (res.ok) { const data = await res.json(); setTasks(data.tasks || []); setSnackbarAvailable(true) }
+      else { setTasks([]); setSnackbarAvailable(true) }
+    } catch { setError('Failed to load tasks'); setSnackbarAvailable(false); setTasks([]) }
+    finally { setLoading(false) }
   }, [])
 
-  useEffect(() => {
-    void fetchWorkflowTasks()
-  }, [fetchWorkflowTasks])
+  useEffect(() => { void fetchTasks() }, [fetchTasks])
 
   const setTabAndRoute = (nextTab: WorkflowTab) => {
     setActiveTab(nextTab)
     navigate(`/workflow?tab=${nextTab}`)
+  }
+
+  const handleNavigateToTask = (taskId: string) => {
+    setTabAndRoute('tasks')
   }
 
   const workflowNavItems: SidebarNavItem[] = [
@@ -417,36 +586,14 @@ export default function WorkflowSurface() {
 
   return (
     <div className="workflow-surface">
-      <GlobalToolbar
-        tabs={toolbarTabs}
-        onToggleSidebar={toggleSidebar}
-        sidebarOpen={sidebarOpen}
-        sidebarToggleLabel="Workflow sidebar"
-        rightExtra={
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span className="hub-status-badge">
-              Tasks: {tasks.length}
-            </span>
-          </div>
-        }
-      />
-
+      <GlobalToolbar tabs={toolbarTabs} onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} sidebarToggleLabel="Workflow sidebar"
+        rightExtra={<div style={{ display: 'flex', gap: 8, alignItems: 'center' }}><span className="hub-status-badge">Tasks: {tasks.length}</span></div>} />
       <div className="usx-surface-body" style={{ position: 'relative' }}>
-        <VaultSidebar
-          open={sidebarOpen}
-          showModeTabs
-          sidebarMode="server"
-          serverNavItems={workflowNavItems}
-        />
-
+        <VaultSidebar open={sidebarOpen} showModeTabs sidebarMode="server" serverNavItems={workflowNavItems} />
         <main className="usx-surface-main workflow-surface-main">
-          {activeTab === 'dashboard' && (
-            <DashboardTab tasks={tasks} snackbarAvailable={snackbarAvailable} />
-          )}
-          {activeTab === 'missions' && <MissionsTab />}
-          {activeTab === 'tasks' && (
-            <TasksTab tasks={tasks} loading={loading} error={error} />
-          )}
+          {activeTab === 'dashboard' && <DashboardTab tasks={tasks} snackbarAvailable={snackbarAvailable} />}
+          {activeTab === 'missions' && <MissionsTab allTasks={tasks} onNavigateToTask={handleNavigateToTask} />}
+          {activeTab === 'tasks' && <TasksTab tasks={tasks} loading={loading} error={error} />}
         </main>
       </div>
     </div>
