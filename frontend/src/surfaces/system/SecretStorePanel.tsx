@@ -28,6 +28,7 @@ export default function SecretStorePanel() {
   const [dotenvSources, setDotenvSources] = useState<string[]>([])
   const [dotenvCandidates, setDotenvCandidates] = useState<string[]>([])
   const [dotenvTarget, setDotenvTarget] = useState('')
+  const [dotenvOverwrite, setDotenvOverwrite] = useState(false)
   const [editingName, setEditingName] = useState('')
   const [editingValue, setEditingValue] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
@@ -155,13 +156,13 @@ export default function SecretStorePanel() {
       const res = await fetch(`${SNACKBAR_API}/api/secrets/export-env`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target: dotenvTarget, only_missing: true }),
+        body: JSON.stringify({ target: dotenvTarget, only_missing: !dotenvOverwrite }),
       })
       const data = await res.json()
       if (res.ok) {
         showStatus(
           'success',
-          `Wrote ${Number(data.written_count || 0)} key(s) to ${dotenvTarget}`,
+          `Wrote ${Number(data.written_count || 0)} key(s) to ${dotenvTarget} (${dotenvOverwrite ? 'overwrite enabled' : 'only missing'})`,
         )
         await loadAll()
       } else {
@@ -237,9 +238,17 @@ export default function SecretStorePanel() {
             <option key={path} value={path}>{path}</option>
           ))}
         </select>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--pico-muted-color)' }}>
+          <input
+            type="checkbox"
+            checked={dotenvOverwrite}
+            onChange={e => setDotenvOverwrite(e.target.checked)}
+          />
+          Overwrite existing keys
+        </label>
         <button className="btn btn-sm" onClick={handleExportToEnv} disabled={!dotenvTarget}>
           <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>upload</span>
-          Write New Store Keys To .env
+          {dotenvOverwrite ? 'Write Store Keys To .env (Overwrite)' : 'Write New Store Keys To .env'}
         </button>
       </div>
 
