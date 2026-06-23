@@ -539,6 +539,7 @@ export default function WorkflowSurface() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [snackbarAvailable, setSnackbarAvailable] = useState(false)
+  const [selectedMission, setSelectedMission] = useState<string | null>(null)
 
   useEffect(() => { setActiveTab(tabState.selectedTab) }, [tabState.selectedTab])
 
@@ -560,6 +561,7 @@ export default function WorkflowSurface() {
   }
 
   const handleSelectMission = (missionTitle: string) => {
+    setSelectedMission(missionTitle)
     setTabAndRoute('tasks')
   }
 

@@ -2,7 +2,7 @@
    KanbanBoard — Shared Kanban board component
    Extracted from ProseUISurfaceView and MissionControlSurface
    ═══════════════════════════════════════════════════════════════════ */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Icon } from './Icon'
 
 export interface KanbanItem {
@@ -37,6 +37,11 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
   readOnly = false,
 }) => {
   const [columns, setColumns] = useState<KanbanColumn[]>(initialColumns)
+
+  // Sync with prop changes
+  useEffect(() => {
+    setColumns(initialColumns)
+  }, [initialColumns])
   const [dragItem, setDragItem] = useState<{ item: KanbanItem; colId: string } | null>(null)
   const [showAddCard, setShowAddCard] = useState(false)
   const [addCardCol, setAddCardCol] = useState('')

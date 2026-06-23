@@ -74,7 +74,10 @@ export function AgentsPanel() {
   return (
     <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ marginBottom: 8 }}>🤖 Specialized Agents</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <Icon name="smart_toy" size={20} />
+          <h2 style={{ margin: 0 }}>Specialized Agents</h2>
+        </div>
         <p style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)', margin: 0 }}>
           Configured agents by specialization with model assignments
         </p>
@@ -229,7 +232,7 @@ export function AgentsPanel() {
           color: 'var(--pico-muted-color, #8b949e)',
         }}
       >
-        <p style={{ margin: '0 0 4px', fontWeight: 'bold' }}>💡 Task Routing</p>
+        <p style={{ margin: '0 0 4px', fontWeight: 'bold' }}>Task Routing</p>
         <p style={{ margin: 0 }}>
           Tasks are automatically routed to the most appropriate agent based on task type and complexity. Click an agent to view its
           full configuration.

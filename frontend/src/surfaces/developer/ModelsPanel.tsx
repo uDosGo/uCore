@@ -87,7 +87,10 @@ export function ModelsPanel() {
   return (
     <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ marginBottom: 8 }}>🦙 Ollama Model Manager</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <Icon name="memory" size={20} />
+          <h2 style={{ margin: 0 }}>Ollama Model Manager</h2>
+        </div>
         <p style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)', margin: 0 }}>
           Local model library management and performance monitoring
         </p>
