@@ -51,6 +51,7 @@ async def handle_get_config(request: web.Request) -> web.Response:
             _entry("Auth", "Required" if settings.require_auth else "Optional"),
             _entry("Ollama URL", settings.ollama_base_url),
             _entry("Ollama Model", settings.ollama_default_model),
+            _entry("Ollama Fallback Model", settings.ollama_fallback_model),
             _entry("Ollama Timeout", str(settings.ollama_timeout)),
             _entry("API Key", "Configured" if settings.api_key else "Unset", masked=True),
         ],

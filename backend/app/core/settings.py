@@ -88,7 +88,10 @@ class Settings:
         "UCORE_OLLAMA_URL", "http://localhost:11434"
     )
     ollama_default_model: str = os.environ.get(
-        "UCORE_OLLAMA_MODEL", "qwen2.5-coder:7b-instruct-q4_K_M"
+        "UCORE_OLLAMA_MODEL", "qwen2.5-coder:3b"
+    )
+    ollama_fallback_model: str = os.environ.get(
+        "UCORE_OLLAMA_FALLBACK_MODEL", "qwen2.5-coder:7b-instruct-q4_K_M"
     )
     ollama_timeout: int = int(os.environ.get("UCORE_OLLAMA_TIMEOUT", "60"))
 

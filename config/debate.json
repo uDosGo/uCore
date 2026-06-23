@@ -1,0 +1,24 @@
+{
+  "debateMode": "single-cli",
+  "actors": [
+    {
+      "cli": "claude",
+      "role": "proposer"
+    },
+    {
+      "cli": "claude",
+      "role": "critic"
+    },
+    {
+      "cli": "claude",
+      "role": "verifier"
+    }
+  ],
+  "leader": "claude",
+  "leaderModel": "claude-opus-4-6",
+  "limit": 5,
+  "humanInTheLoop": false,
+  "models": {
+    "claude": "claude-opus-4-6"
+  }
+}

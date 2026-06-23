@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-06-21T21:30:47Z
+Date: 2026-06-22T20:28:33Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -16,38 +16,44 @@ Status: Refreshed by brain_sync
 - **Consolidation Dashboard mirrors progress**: Checkbox-based checklist + metric tracking builds confidence. Visual progress bars (coverage %) are more compelling than raw numbers.
 
 ## Recent Change Scan
-- .tasker/UNIFIED_DEV_TASK_WORKFLOW.md
+- frontend/dist/assets/MaterialSymbolsOutlined-Db6aBbE4.ttf
+- frontend/dist/assets/Teletext50-B0FE1AIM.otf
+- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-BsBxhfAV.ttf
+- frontend/dist/assets/press-start-2p-CnAFzuvi.woff2
+- frontend/dist/assets/Bedstead-OSqLCfiS.otf
+- frontend/dist/assets/index-DjyVuFu2.js
+- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-CFnYgsZY.woff
+- frontend/dist/index.html
+- frontend/dist/assets/index-DRAibU9i.css
+- frontend/dist/assets/PetMe128-DUjnzmmV.ttf
 - backend/.pytest_cache/v/cache/nodeids
-- backend/app/skills/builtin/attach_context.py
-- backend/app/skills/builtin/brain_sync.py
-- backend/tests/test_skills_memory.py
-- backend/.pytest_cache/v/cache/lastfailed
-- docs/DOCLANG_BRIDGE_EXPORT_SPEC.md
-- scripts/export_doclang_context.py
-- backend/tests/test_doclang_bridge.py
-- backend/app/services/doclang_bridge.py
-- docs/APPFLOWY_BIDIRECTIONAL_SYNC.md
-- scripts/ai_stack_health_check.sh
-- backend/tests/test_provider_router.py
-- backend/tests/test_chat_cache.py
-- backend/tests/test_api_metadata.py
-- backend/app/services/chat_cache.py
-- backend/app/api/metadata.py
+- backend/app/api/secret_store_api.py
+- frontend/src/surfaces/system/SecretStorePanel.tsx
+- backend/app/api/config_api.py
+- backend/app/skills/builtin/route_task.py
 - backend/app/services/provider_router.py
 - backend/app/core/settings.py
-- .tasker/phases/todo-phase-7-mcp-tasker-d6e779f1.md
+- frontend/src/surfaces/userver/UServerSurface.tsx
+- docs/USER_SETUP_VAULT_MCP_WORKSPACES.md
+- .tasker/UNIFIED_DEV_TASK_WORKFLOW.md
 
 ## Memory Architecture
 - Short-term: active AI/chat session context.
 - Long-term: AppFlowy, vault, and canonical docs.
 - Episodic: wisdom.md, spool logs, and recent change summaries.
 
+## Synthesis Inputs
+- Window: last 24h
+- Spool summary: included
+- AppFlowy activity: not included
+- Test failures: 10 signals
+- Episodic log: not included
+
 ## Next Synthesis Targets
-- **Phase 8 complete** (UDW-020 to UDW-023): S320 enhanced, S330 created, S300 wired, TaskDetailDrawer built.
-- **Phase 9B complete**: Developer surface task query routing is wired via `?task={taskId}`, Phase 9 workflow endpoints have targeted tests, frontend build passes, and AI stack health is green.
-- **Backend endpoint status**: `/api/workflows/task/{id}` CRUD, `/api/workflows/board/{id}/health`, `/api/knowledge/import/status`, and `/api/knowledge/index/coverage` are implemented and covered by targeted tests.
-- **n8n template workflows**: Create example flows for AppFlowy → uCore → webhook pipelines.
-- **Zen + Firewatch integration**: Setup Cline + Firewatch MCP for automated UI testing and data extraction workflows.
+- Migration checklist status and canonical doc destinations.
+- Snackbar/system orchestration refinements and tray workflows.
+- UI view wiring across frontend surfaces and system pages.
+- DocLang-style structured export for AI-efficient document context.
 
 ## Spool Activity (last 24h)
 
@@ -56,37 +62,50 @@ Errors: 0
 Warnings: 0
 
 ### By Module
-- popcorn: 498 entries (0 errors)
-- stdout: 2 entries (0 errors)
+- stdout: 406 entries (0 errors)
+- popcorn: 94 entries (0 errors)
 
 ### Recent Activity
-- ℹ️ 2026-06-22T05:30:45  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T05:30:45  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T05:30:40  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T05:30:40  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T05:30:35  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T05:30:35  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T05:30:30  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T05:30:30  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T05:12:35  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T05:12:35  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:54:47  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:54:47  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:38:56  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:38:56  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:22:47  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:22:47  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:18:12  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:18:12  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:02:41  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:02:41  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:02:36  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:02:36  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:02:31  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:02:31  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ✅ 2026-06-22T04:02:29  stdout  [2026-06-22 04:02:29] INFO     ucore — Maintenance job ran: daily_backup success=True
-- ✅ 2026-06-22T04:02:29  stdout  [2026-06-22 04:02:29] INFO     ucore — Maintenance job ran: vault_sync success=True
-- ℹ️ 2026-06-22T04:02:25  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:02:25  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:02:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
-- ℹ️ 2026-06-22T04:02:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:7b-instruct-q4_K_M', 'nomic-embed-text:latest', 'qwe
+- ℹ️ 2026-06-23T04:28:31  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-23T04:28:31  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — ╔══════════════════════════════════════════╗
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — ║       uCore v4.0.0 — unified daemon        ║
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — ╚══════════════════════════════════════════╝
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Host: 0.0.0.0:8484
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Debug: True
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Auto-start surfaces: False
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Starting uCore snackbar on 0.0.0.0:8484
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Database migration: v1 (surfaces, snacks, containers tables)
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore.api.github — GitHub API routes registered
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — Spool activity feed routes registered
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — Identity routes registered
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — Ceefax Teletext surface registered
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — BBCSDL surface registered
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — Dashboard surface registered
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — API module routes registered
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Maintenance scheduler started with 6 jobs
+- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Maintenance scheduler stopped
+- ℹ️ 2026-06-23T04:28:26  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-23T04:28:26  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-23T04:28:21  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-23T04:28:21  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — ╔══════════════════════════════════════════╗
+- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — ║       uCore v4.0.0 — unified daemon        ║
+- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — ╚══════════════════════════════════════════╝
+- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — Host: 0.0.0.0:8484
+- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — Debug: True
+- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — Auto-start surfaces: False
+- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — Starting uCore snackbar on 0.0.0.0:8484
+
+## Test Failure Signals (last 24h)
+
+- pytest-cache: tests/test_api_containers.py::test_create_container
+- pytest-cache: tests/test_api_containers.py::test_create_container_no_name
+- pytest-cache: tests/test_api_containers.py::test_create_container_invalid_runtime
+- pytest-cache: tests/test_api_containers.py::test_list_containers
+- pytest-cache: tests/test_api_containers.py::test_list_containers_filter_status
+- pytest-cache: tests/test_api_containers.py::test_get_container
+- pytest-cache: tests/test_api_containers.py::test_get_container_not_found
+- pytest-cache: tests/test_api_containers.py::test_start_stop_container
+- pytest-cache: tests/test_api_containers.py::test_get_logs
+- pytest-cache: tests/test_api_containers.py::test_get_logs_tail

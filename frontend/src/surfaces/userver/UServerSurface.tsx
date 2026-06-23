@@ -24,20 +24,35 @@ const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
   String(import.meta.env.VITE_DEV_MODE || '').toLowerCase(),
 )
 
+// ─── Constants ───────────────────────────────────────────────────────
+const SNACKBAR_API = 'http://localhost:8484'
+
+// ─── Legacy Tab Mapping ──────────────────────────────────────────────
+const LEGACY_TAB_MAP: Record<string, string> = {
+  'overview': 'dashboard',
+  'secrets-store': 'secrets',
+  'service-status': 'services',
+  'workflow-status': 'workflows',
+  'agent-router': 'agents',
+}
+
 // ─── Types ──────────────────────────────────────────────────────────
-type UServerTab =
-  | 'dashboard'
-  | 'ingest'
-  | 'missions'
-  | 'story'
-  | 'pages'
-  | 'tools'
-  | 'secrets'
-  | 'settings'
-  | 'services'
-  | 'logs'
-  | 'workflows'
-  | 'agents'
+const SERVER_TABS = [
+  'dashboard',
+  'ingest',
+  'missions',
+  'story',
+  'pages',
+  'tools',
+  'secrets',
+  'settings',
+  'services',
+  'logs',
+  'workflows',
+  'agents',
+  'snacks',
+] as const
+type UServerTab = typeof SERVER_TABS[number]
 
 interface ServiceStatus {
   name: string
@@ -179,53 +194,7 @@ const DEFAULT_SURFACES: SurfaceInfo[] = [
   { name: 'browserui', label: 'Web Reader', description: 'Research Bookmarks', port: 5179, status: 'running', icon: 'visibility', color: '#f59e0b', url: 'http://localhost:5179' },
 ]
 
-const SERVER_TABS: UServerTab[] = [
-  'dashboard',
-  'ingest',
-  'missions',
-  'story',
-  'pages',
-  'tools',
-  'secrets',
-  'settings',
-  'services',
-  'logs',
-  'workflows',
-  'agents',
-]
-
-const LEGACY_TAB_MAP: Record<string, UServerTab> = {
-  install: 'settings',
-  modules: 'settings',
-  feeds: 'settings',
-  settings: 'settings',
-  story: 'story',
-  'story-builder': 'story',
-  'user-setup-story': 'story',
-  'gtx-form': 'story',
-  'secret-store': 'secrets',
-  secrets: 'secrets',
-  publishing: 'workflows',
-}
-
-// ─── API Base ───────────────────────────────────────────────────────
-const API_BASE = 'http://192.168.20.11:8484'
-const SNACKBAR_API = 'http://localhost:8484'
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      headers: { 'Content-Type': 'application/json' },
-      ...options,
-    })
-    if (!res.ok) return null
-    return await res.json() as T
-  } catch {
-    return null
-  }
-}
-
-// ─── Dashboard Tab ──────────────────────────────────────────────────
+// ─── Default Tab Components ───────────────────────────────────────────
 function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick }: {
   services: ServiceStatus[]
   workflows: Workflow[]
@@ -240,7 +209,6 @@ function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick 
 
   return (
     <div className="userver-grid">
-      {/* Welcome Card */}
       <div className="userver-card userver-welcome-card">
         <div className="userver-card-content">
           <h2 className="userver-heading">Server Operations</h2>
@@ -268,7 +236,6 @@ function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick 
         </div>
       </div>
 
-      {/* Secret Store Quick Access */}
       <div className="userver-card" style={{ borderLeft: '3px solid #f0883e', background: 'linear-gradient(135deg, rgba(240,136,62,0.08), rgba(240,136,62,0.02))' }}>
         <div className="userver-card-header">
           <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
@@ -292,7 +259,6 @@ function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick 
         </div>
       </div>
 
-      {/* Surfaces */}
       <div className="userver-card">
         <div className="userver-card-header">
           <h3>Surfaces</h3>
@@ -321,7 +287,6 @@ function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick 
         </div>
       </div>
 
-      {/* Service Status Summary */}
       <div className="userver-card">
         <div className="userver-card-header">
           <h3>Service Status</h3>
@@ -344,7 +309,6 @@ function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick 
         </div>
       </div>
 
-      {/* Recent Logs */}
       <div className="userver-card">
         <div className="userver-card-header">
           <h3>Recent Logs</h3>
@@ -352,7 +316,7 @@ function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick 
         <div className="userver-card-content">
           {logs.slice(0, 5).map((log, idx) => (
             <div key={idx} className="userver-log-entry">
-              <span className="userver-log-time">{log.timestamp.slice(11, 19)}</span>
+              <span className="userver-log-time">{log.timestamp}</span>
               <span className="userver-log-service">{log.service}</span>
               <span className={`userver-log-level ${log.level}`}>{log.level}</span>
               <span className="userver-log-message">{log.message}</span>
@@ -361,7 +325,6 @@ function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick 
         </div>
       </div>
 
-      {/* Workflow Status */}
       <div className="userver-card">
         <div className="userver-card-header">
           <h3>Workflows</h3>
@@ -387,7 +350,6 @@ function DashboardTab({ services, workflows, logs, surfaces, onSecretStoreClick 
   )
 }
 
-// ─── Services Tab ───────────────────────────────────────────────────
 function ServicesTab({ services }: { services: ServiceStatus[] }) {
   return (
     <div>
@@ -420,10 +382,8 @@ function ServicesTab({ services }: { services: ServiceStatus[] }) {
   )
 }
 
-// ─── Logs Tab ───────────────────────────────────────────────────────
 function LogsTab({ logs }: { logs: LogEntry[] }) {
   const [filter, setFilter] = useState('')
-
   const filtered = filter
     ? logs.filter(log =>
         log.service.toLowerCase().includes(filter.toLowerCase()) ||
@@ -475,7 +435,6 @@ function LogsTab({ logs }: { logs: LogEntry[] }) {
   )
 }
 
-// ─── Workflows Tab ──────────────────────────────────────────────────
 function WorkflowsTab({ workflows }: { workflows: Workflow[] }) {
   return (
     <div>
@@ -506,7 +465,6 @@ function WorkflowsTab({ workflows }: { workflows: Workflow[] }) {
   )
 }
 
-// ─── Agent Router API ───────────────────────────────────────────────
 const AGENT_ROUTER_URL = 'http://localhost:8486'
 
 interface RouterAgent {
@@ -528,7 +486,6 @@ interface RouterStats {
   recentRoutes: Array<{ task: string; agent: string; capability: string; timestamp: string }>
 }
 
-// ─── Agents Tab ─────────────────────────────────────────────────────
 function AgentsTab() {
   const [routerAgents, setRouterAgents] = useState<RouterAgent[]>([])
   const [routerStats, setRouterStats] = useState<RouterStats | null>(null)
@@ -630,7 +587,6 @@ function AgentsTab() {
                   <span>Success: <strong>{(agent.successRate * 100).toFixed(0)}%</strong></span>
                   <span>Tasks: <strong>{agentTasks}</strong></span>
                 </div>
-                {/* Load bar */}
                 <div style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--pico-muted-color, #8b949e)', marginBottom: 2 }}>
                     <span>Load</span>
@@ -640,7 +596,6 @@ function AgentsTab() {
                     <div style={{ width: `${loadPct}%`, height: '100%', background: isOnline ? 'var(--pico-ins-color, #3fb950)' : 'var(--pico-del-color, #f85149)', borderRadius: 2, transition: 'width 0.5s' }} />
                   </div>
                 </div>
-                {/* Capabilities */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {agent.capabilities.map(cap => (
                     <span key={cap} style={{
@@ -659,7 +614,6 @@ function AgentsTab() {
         })}
       </div>
 
-      {/* Recent Routes */}
       {routerStats?.recentRoutes && routerStats.recentRoutes.length > 0 && (
         <div className="userver-card" style={{ margin: '0 16px 16px' }}>
           <div className="userver-card-header">
@@ -1128,6 +1082,38 @@ function StoryLinksTab({ onNavigate }: { onNavigate: (path: string) => void }) {
   )
 }
 
+// ─── Snacks/Snackbar Tab (New Component) ───────────────────────────────
+function SnacksTab() {
+  return (
+    <div>
+      <div className="userver-toolbar">
+        <div className="userver-toolbar-left">
+          <h2 className="userver-heading">Snacks & Snackbar</h2>
+          <span className="userver-card-subtitle">Manage and monitor snacks and snackbar services.</span>
+        </div>
+      </div>
+      <div className="userver-card" style={{ margin: '16px' }}>
+        <div className="userver-card-header">
+          <h3>Snackbar Service Status</h3>
+        </div>
+        <div className="userver-card-content">
+          <p className="userver-text">Snackbar service status will be displayed here.</p>
+          {/* Placeholder for Snackbar status */}
+        </div>
+      </div>
+      <div className="userver-card" style={{ margin: '0 16px 16px' }}>
+        <div className="userver-card-header">
+          <h3>Available Snacks</h3>
+        </div>
+        <div className="userver-card-content">
+          <p className="userver-text">List of available snacks will be displayed here.</p>
+          {/* Placeholder for Snacks list */}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Surface ───────────────────────────────────────────────────
 export default function UServerSurface() {
   const location = useLocation()
@@ -1186,6 +1172,7 @@ export default function UServerSurface() {
     { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTabAndRoute('logs') },
     { id: 'workflows', icon: 'layers', label: 'Workflows', active: tab === 'workflows', onClick: () => setTabAndRoute('workflows') },
     { id: 'agents', icon: 'smart_toy', label: 'Agents', active: tab === 'agents', onClick: () => setTabAndRoute('agents') },
+    { id: 'snacks', icon: 'fast_forward', label: 'Snacks', active: tab === 'snacks', onClick: () => setTabAndRoute('snacks') },
   ]
 
   return (
@@ -1237,15 +1224,16 @@ export default function UServerSurface() {
           {tab === 'dashboard' && <DashboardTab services={services} workflows={workflows} logs={logs} surfaces={surfaces} onSecretStoreClick={() => setTabAndRoute('secrets')} />}
           {tab === 'ingest' && <IngestTab />}
           {tab === 'missions' && <MissionTaskBinderTab />}
-            {tab === 'story' && <StoryLinksTab onNavigate={path => navigate(path)} />}
+          {tab === 'story' && <StoryLinksTab onNavigate={path => navigate(path)} />}
           {tab === 'pages' && <SystemPagesPanel />}
           {tab === 'tools' && <ToolsPanel />}
-            {tab === 'secrets' && <SecretStorePanel />}
+          {tab === 'secrets' && <SecretStorePanel />}
           {tab === 'settings' && <SettingsPanel />}
           {tab === 'services' && <ServicesTab services={services} />}
           {tab === 'logs' && <LogsTab logs={logs} />}
           {tab === 'workflows' && <WorkflowsTab workflows={workflows} />}
           {tab === 'agents' && <AgentsTab />}
+          {tab === 'snacks' && <SnacksTab />}
         </main>
       </div>
     </div>

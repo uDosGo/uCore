@@ -149,7 +149,7 @@ class ProviderRouter:
         self.providers["ollama"] = ProviderConfig(
             name="ollama", type="ollama",
             base_url="http://localhost:11434",
-            default_model="qwen2.5-coder:7b-instruct-q4_K_M",
+            default_model="qwen2.5-coder:3b",
             priority=1,
         )
         self.providers["openrouter"] = ProviderConfig(
@@ -450,7 +450,10 @@ class ProviderRouter:
         if fallback is None or not fallback.enabled:
             return None
 
-        fallback_model = fallback.default_model
+        fallback_model = os.environ.get(
+            "UCORE_OLLAMA_FALLBACK_MODEL",
+            "qwen2.5-coder:7b-instruct-q4_K_M",
+        ) or fallback.default_model
         if not fallback_model:
             return None
 

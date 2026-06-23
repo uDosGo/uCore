@@ -14,11 +14,20 @@ interface SecretItem {
 interface EnvVarItem {
   name: string
   masked: string
+  present?: boolean
+  missing?: boolean
+  source?: 'store' | 'env' | 'dotenv' | 'missing'
+  in_store?: boolean
+  in_env?: boolean
+  in_dotenv?: boolean
 }
 
 export default function SecretStorePanel() {
   const [secrets, setSecrets] = useState<SecretItem[]>([])
   const [envVars, setEnvVars] = useState<EnvVarItem[]>([])
+  const [dotenvSources, setDotenvSources] = useState<string[]>([])
+  const [dotenvCandidates, setDotenvCandidates] = useState<string[]>([])
+  const [dotenvTarget, setDotenvTarget] = useState('')
   const [editingName, setEditingName] = useState('')
   const [editingValue, setEditingValue] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
@@ -49,6 +58,10 @@ export default function SecretStorePanel() {
       if (res.ok) {
         const data = await res.json()
         setEnvVars(data.env_vars || [])
+        setDotenvSources(data.dotenv_sources || [])
+        const candidates = data.dotenv_candidates || []
+        setDotenvCandidates(candidates)
+        setDotenvTarget(prev => (prev && candidates.includes(prev)) ? prev : (candidates[0] || ''))
       }
     } catch (e) {
       console.error('Failed to fetch env vars', e)
@@ -79,7 +92,7 @@ export default function SecretStorePanel() {
         setEditingName('')
         setEditingValue('')
         setShowAddForm(false)
-        await fetchSecrets()
+        await loadAll()
       } else {
         const data = await res.json()
         showStatus('error', data.error || 'Failed to save secret')
@@ -123,11 +136,39 @@ export default function SecretStorePanel() {
     try {
       const res = await fetch(`${SNACKBAR_API}/api/secrets/import-env`, { method: 'POST' })
       if (res.ok) {
-        showStatus('success', 'Imported secrets from environment')
+        const data = await res.json()
+        const importedCount = Number(data.imported_count || 0)
+        showStatus('success', `Merged provider vars from env/.env (${importedCount} imported)`)
         await loadAll()
       }
     } catch (e) {
       showStatus('error', 'Failed to import env vars')
+    }
+  }
+
+  const handleExportToEnv = async () => {
+    if (!dotenvTarget) {
+      showStatus('error', 'Choose a .env target first')
+      return
+    }
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/secrets/export-env`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: dotenvTarget, only_missing: true }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        showStatus(
+          'success',
+          `Wrote ${Number(data.written_count || 0)} key(s) to ${dotenvTarget}`,
+        )
+        await loadAll()
+      } else {
+        showStatus('error', data.error || 'Failed to export to .env')
+      }
+    } catch (e) {
+      showStatus('error', 'Failed to export to .env')
     }
   }
 
@@ -177,11 +218,28 @@ export default function SecretStorePanel() {
         </button>
         <button className="btn btn-sm" onClick={handleImportFromEnv}>
           <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>download</span>
-          Import from Env
+          Merge Env + .env
         </button>
         <button className="btn btn-sm" onClick={loadAll}>
           <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>refresh</span>
           Refresh
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <label style={{ fontSize: '12px', color: 'var(--pico-muted-color)' }}>Sync store to .env</label>
+        <select
+          value={dotenvTarget}
+          onChange={e => setDotenvTarget(e.target.value)}
+          style={{ minWidth: '260px', padding: '6px 8px', fontSize: '13px' }}
+        >
+          {dotenvCandidates.map(path => (
+            <option key={path} value={path}>{path}</option>
+          ))}
+        </select>
+        <button className="btn btn-sm" onClick={handleExportToEnv} disabled={!dotenvTarget}>
+          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>upload</span>
+          Write New Store Keys To .env
         </button>
       </div>
 
@@ -213,6 +271,14 @@ export default function SecretStorePanel() {
               <option value="DEEPSEEK_API_KEY" />
               <option value="GROQ_API_KEY" />
               <option value="GITHUB_TOKEN" />
+              <option value="GITHUB_OAUTH_CLIENT_ID" />
+              <option value="GITHUB_OAUTH_CLIENT_SECRET" />
+              <option value="GOOGLE_OAUTH_CLIENT_ID" />
+              <option value="GOOGLE_OAUTH_CLIENT_SECRET" />
+              <option value="SLACK_OAUTH_CLIENT_ID" />
+              <option value="SLACK_OAUTH_CLIENT_SECRET" />
+              <option value="NOTION_OAUTH_CLIENT_ID" />
+              <option value="NOTION_OAUTH_CLIENT_SECRET" />
             </datalist>
           </div>
           <div style={{ marginBottom: '8px' }}>
@@ -293,30 +359,37 @@ export default function SecretStorePanel() {
         </div>
       )}
 
-      {/* Environment Variables */}
+      {/* Provider Variables (.env + env + store) */}
       {envVars.length > 0 && (
         <>
           <h4 style={{ fontSize: '14px', margin: '16px 0 8px 0' }}>
-            Available Environment Variables
+            Provider Variables
             <span style={{ fontWeight: 'normal', fontSize: '12px', color: 'var(--pico-muted-color)', marginLeft: '8px' }}>
-              (not yet imported)
+              (missing keys can be added from here)
             </span>
           </h4>
+
+          {dotenvSources.length > 0 && (
+            <div style={{ marginBottom: '8px', fontSize: '12px', color: 'var(--pico-muted-color)' }}>
+              .env sources: {dotenvSources.join(', ')}
+            </div>
+          )}
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {envVars
-              .filter(ev => !secrets.find(s => s.name === ev.name))
+              .filter(ev => ev.missing || (!ev.in_store && (ev.in_env || ev.in_dotenv)))
               .map(ev => (
                 <div key={ev.name} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '6px 12px',
                   background: 'var(--pico-card-background-color, #1a1a2e)',
                   borderRadius: '6px', border: '1px solid var(--pico-border-color, #30363d)',
-                  opacity: 0.7,
+                  opacity: ev.missing ? 0.95 : 0.7,
                 }}>
                   <div>
                     <span style={{ fontFamily: 'monospace', fontSize: '13px' }}>{ev.name}</span>
                     <span style={{ fontSize: '12px', color: 'var(--pico-muted-color)', marginLeft: '8px' }}>
-                      {ev.masked}
+                      {ev.missing ? 'missing' : `${ev.source}: ${ev.masked}`}
                     </span>
                   </div>
                   <button
@@ -327,7 +400,7 @@ export default function SecretStorePanel() {
                     }}
                     style={{ fontSize: '11px', padding: '2px 6px' }}
                   >
-                    Import
+                    Add
                   </button>
                 </div>
               ))}

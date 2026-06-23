@@ -25,6 +25,7 @@ def register_routes(app: web.Application) -> None:
     from .secret_store_api import (
         handle_list_secrets, handle_get_secret, handle_set_secret,
         handle_delete_secret, handle_list_env_vars, handle_import_from_env,
+        handle_export_to_env,
     )
     from .config_api import handle_get_config
     from .developer_api import (
@@ -87,6 +88,7 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/secrets", handle_list_secrets)
     app.router.add_get("/api/secrets/env", handle_list_env_vars)
     app.router.add_post("/api/secrets/import-env", handle_import_from_env)
+    app.router.add_post("/api/secrets/export-env", handle_export_to_env)
     app.router.add_get("/api/secrets/{name}", handle_get_secret)
     app.router.add_post("/api/secrets/{name}", handle_set_secret)
     app.router.add_delete("/api/secrets/{name}", handle_delete_secret)

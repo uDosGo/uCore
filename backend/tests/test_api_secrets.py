@@ -1,7 +1,8 @@
 """Integration tests for Secret Store API endpoints."""
 from __future__ import annotations
 
-import os
+import tempfile
+from pathlib import Path
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
 
@@ -21,12 +22,14 @@ class SecretsAPITest(AioHTTPTestCase):
         from app.api.secret_store_api import (
             handle_list_secrets, handle_get_secret, handle_set_secret,
             handle_delete_secret, handle_list_env_vars, handle_import_from_env,
+            handle_export_to_env,
         )
 
         app = web.Application()
         app.router.add_get("/api/secrets", handle_list_secrets)
         app.router.add_get("/api/secrets/env", handle_list_env_vars)
         app.router.add_post("/api/secrets/import-env", handle_import_from_env)
+        app.router.add_post("/api/secrets/export-env", handle_export_to_env)
         app.router.add_get("/api/secrets/{name}", handle_get_secret)
         app.router.add_post("/api/secrets/{name}", handle_set_secret)
         app.router.add_delete("/api/secrets/{name}", handle_delete_secret)
@@ -111,3 +114,65 @@ class SecretsAPITest(AioHTTPTestCase):
         names = [s["name"] for s in data["secrets"]]
         assert "KEY_A" in names
         assert "KEY_B" in names
+
+    async def test_export_to_env_requires_allowed_target(self):
+        resp = await self.client.post(
+            "/api/secrets/export-env",
+            json={"target": "/tmp/not-allowed.env"},
+        )
+        assert resp.status == 400
+        data = await resp.json()
+        assert "dotenv_candidates" in data
+
+    async def test_export_to_env_writes_store_keys(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            import app.api.secret_store_api as mod
+            original_config_dir = mod.settings.config_dir
+            mod.settings.config_dir = Path(tmpdir)
+            target = Path(tmpdir) / ".env"
+
+            await self.client.post(
+                "/api/secrets/OPENAI_API_KEY",
+                json={"value": "sk-test-openai"},
+            )
+            await self.client.post(
+                "/api/secrets/GITHUB_OAUTH_CLIENT_ID",
+                json={"value": "gh-client-id"},
+            )
+
+            resp = await self.client.post(
+                "/api/secrets/export-env",
+                json={"target": str(target), "only_missing": True},
+            )
+            assert resp.status == 200
+            data = await resp.json()
+            assert data["status"] == "exported"
+            assert data["added_count"] >= 2
+
+            content = target.read_text(encoding="utf-8")
+            assert "OPENAI_API_KEY=\"sk-test-openai\"" in content
+            assert "GITHUB_OAUTH_CLIENT_ID=\"gh-client-id\"" in content
+            mod.settings.config_dir = original_config_dir
+
+    async def test_export_to_env_only_missing_does_not_overwrite(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            import app.api.secret_store_api as mod
+            original_config_dir = mod.settings.config_dir
+            mod.settings.config_dir = Path(tmpdir)
+            target = Path(tmpdir) / ".env"
+            target.write_text("OPENAI_API_KEY=\"existing\"\n", encoding="utf-8")
+
+            await self.client.post(
+                "/api/secrets/OPENAI_API_KEY",
+                json={"value": "sk-test-openai"},
+            )
+
+            resp = await self.client.post(
+                "/api/secrets/export-env",
+                json={"target": str(target), "only_missing": True},
+            )
+            assert resp.status == 200
+
+            content = target.read_text(encoding="utf-8")
+            assert "OPENAI_API_KEY=\"existing\"" in content
+            mod.settings.config_dir = original_config_dir

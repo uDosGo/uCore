@@ -84,7 +84,7 @@ class RouteTask(BaseSkill):
         cost_table = {
             "simple": {
                 "provider": "ollama",
-                "model": "qwen2.5-coder:7b-instruct-q4_K_M",
+                "model": "qwen2.5-coder:3b",
                 "cost": "$0 (local)",
                 "reason": "Simple task — use local free model",
                 "tokens_per_second": "~40",
