@@ -63,6 +63,15 @@ class MCPAPITest(AioHTTPTestCase):
         assert "tasker_write_task" in names
         assert "tasker_sync_export" in names
 
+    async def test_mcp_discover_has_gridsmith_tools(self):
+        resp = await self.client.get("/api/mcp/tools")
+        data = await resp.json()
+        tools = data["result"]["tools"]
+        names = {tool["name"] for tool in tools}
+        assert "gridsmith_tools_list" in names
+        assert "gridsmith_create_grid" in names
+        assert "gridsmith_import_basic_program" in names
+
     async def test_mcp_call_unknown_tool(self):
         resp = await self.client.post("/api/mcp/call", json={
             "name": "nonexistent_tool",

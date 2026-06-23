@@ -9,6 +9,24 @@ export interface GridToolView {
 
 export const GRID_TOOL_VIEWS: GridToolView[] = [
   {
+    id: 'gridsmith',
+    name: 'GridSmith Workspace',
+    subtitle: 'Contained world-building agent and import workflow',
+    summary: 'Bridge GridCore packages, BASIC/AMOS import, and spatial world-building through the live GridSmith workspace.',
+    apis: [
+      'GET /api/gridsmith/status',
+      'GET /api/gridsmith/tools',
+      'POST /api/gridsmith/grid/create',
+      'POST /api/gridsmith/world/import-basic',
+      'POST /api/gridsmith/location/latlon-to-ucode',
+    ],
+    upgrade: [
+      'Add AMOS importer and world manifest evolution',
+      'Wire outputs into GridUI rendering and uCode asset flows',
+      'Expose GridSmith tools through detached chat and MCP-driven workflows',
+    ],
+  },
+  {
     id: 'grid-editor',
     name: 'Grid Editor',
     subtitle: 'Cell-level editing and history',

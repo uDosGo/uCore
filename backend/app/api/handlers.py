@@ -1,7 +1,6 @@
 """Ollama and Specialized Agents aiohttp handlers."""
 from __future__ import annotations
 
-import json
 import logging
 from aiohttp import web
 
@@ -74,7 +73,10 @@ async def handle_agents_spec_get(request: web.Request) -> web.Response:
     try:
         agent_id = request.match_info.get("agent_id", "")
         if not agent_id:
-            return web.json_response({"error": "agent_id required"}, status=400)
+            return web.json_response(
+                {"error": "agent_id required"},
+                status=400,
+            )
 
         from app.services.agent_specialization import SpecializedAgentRegistry
         registry = SpecializedAgentRegistry()
@@ -114,48 +116,107 @@ async def handle_agents_spec_route(request: web.Request) -> web.Response:
         task_type = body.get("task_type", "implement")
         complexity = body.get("complexity", "medium")
         messages = body.get("messages", [])
+        task = body.get("task", "")
+        workflow_stage = body.get("workflow_stage")
+        plan_only = bool(body.get("plan_only", False))
 
         from app.services.agent_specialization import SpecializedAgentRegistry
         from app.services.provider_router import get_router
 
         registry = SpecializedAgentRegistry()
-        agent = registry.get_best_agent_for_task(task_type, complexity)
+        workflow = registry.plan_workflow(
+            task_type=task_type,
+            complexity=complexity,
+            task_summary=task,
+            requested_stage=workflow_stage,
+        )
+        active_agent = registry.get_agent(
+            workflow["active_stage"]["agent"]["id"]
+        )
+        if active_agent is None:
+            active_agent = registry.get_best_agent_for_task(
+                task_type,
+                complexity,
+            )
+
+        if plan_only:
+            return web.json_response({
+                "success": True,
+                "workflow": workflow,
+            })
 
         log.info(
             f"Routing task (type={task_type}, complexity={complexity}) "
-            f"to agent {agent.id}"
+            f"to agent {active_agent.id}"
         )
 
         router = get_router()
         response = await router.chat(
             messages=messages,
-            provider=agent.provider,
-            model=agent.model,
-            timeout=agent.timeout,
+            provider=active_agent.provider,
+            model=active_agent.model,
+            timeout=active_agent.timeout,
         )
 
         return web.json_response({
             "success": True,
             "agent": {
-                "id": agent.id,
-                "name": agent.name,
-                "model": agent.model,
-                "provider": agent.provider,
+                "id": active_agent.id,
+                "name": active_agent.name,
+                "model": active_agent.model,
+                "provider": active_agent.provider,
             },
             "routing": {
                 "task_type": task_type,
                 "complexity": complexity,
             },
+            "workflow": workflow,
             "response": response,
-            "cost": agent.cost_per_task,
+            "cost": active_agent.cost_per_task,
         })
     except Exception as e:
         log.error(f"Failed to route task: {e}")
         return web.json_response({"error": str(e)}, status=500)
 
 
+async def handle_agents_spec_plan(request: web.Request) -> web.Response:
+    """POST /api/agents/spec/plan — Build a workflow plan only."""
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"error": "Invalid JSON"}, status=400)
+
+    try:
+        task_type = body.get("task_type", "implement")
+        complexity = body.get("complexity", "medium")
+        task = body.get("task", "")
+        workflow_stage = body.get("workflow_stage")
+
+        from app.services.agent_specialization import SpecializedAgentRegistry
+
+        registry = SpecializedAgentRegistry()
+        workflow = registry.plan_workflow(
+            task_type=task_type,
+            complexity=complexity,
+            task_summary=task,
+            requested_stage=workflow_stage,
+        )
+
+        return web.json_response({
+            "success": True,
+            "workflow": workflow,
+            "surface_taxonomy": registry.get_surface_taxonomy(),
+        })
+    except Exception as e:
+        log.error(f"Failed to plan workflow: {e}")
+        return web.json_response({"error": str(e)}, status=500)
+
+
 async def handle_agents_spec_capability(request: web.Request) -> web.Response:
-    """GET /api/agents/spec/capability/{capability} — Agents with capability."""
+    """GET /api/agents/spec/capability/{capability}.
+
+    Return agents matching the requested capability.
+    """
     try:
         capability = request.match_info.get("capability", "")
         if not capability:

@@ -394,6 +394,28 @@ class PopcornDelegate(NSObject):
 
         self._menu.addItem_(NSMenuItem.separatorItem())
 
+        # ── Backend Daemon ───────────────────────────────────────
+        backend_alive = is_ucore_alive()
+        backend_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            f"{'🟢' if backend_alive else '🔴'} Backend (uCore on :8484)", None, ""
+        )
+        backend_item.setEnabled_(False)
+        self._menu.addItem_(backend_item)
+
+        item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "⟳ Restart Backend", "restartBackend:", ""
+        )
+        item.setTarget_(self)
+        self._menu.addItem_(item)
+
+        item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "⟳ Restart UI Hub", "restartUIHub:", ""
+        )
+        item.setTarget_(self)
+        self._menu.addItem_(item)
+
+        self._menu.addItem_(NSMenuItem.separatorItem())
+
         # ── Ollama ─────────────────────────────────────────────
         ollama_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
             "Ollama", None, ""
@@ -501,7 +523,8 @@ class PopcornDelegate(NSObject):
 
     def updateUI_(self, sender):
         """Called on main thread to update icon and menu."""
-        icon = _make_status_icon(False)
+        self._connected = is_ucore_alive()
+        icon = _make_status_icon(self._connected)
         self._status_item.setImage_(icon)
         self._rebuild_menu()
 
@@ -542,6 +565,53 @@ class PopcornDelegate(NSObject):
         alert.setMessageText_("uCore Health Check")
         alert.setInformativeText_("\n".join(lines))
         alert.runModal()
+
+    def restartBackend_(self, sender):
+        """Restart the uCore backend daemon."""
+        log.info("Restarting backend daemon from popcorn menu...")
+        try:
+            result = subprocess.run(
+                ["pgrep", "-f", "python -m app"],
+                capture_output=True, text=True, timeout=5
+            )
+            pids = []
+            for pid_str in result.stdout.strip().splitlines():
+                pid = pid_str.strip()
+                if pid and int(pid) != os.getpid():
+                    pids.append(int(pid))
+            if pids:
+                for pid in pids:
+                    try:
+                        os.kill(pid, signal.SIGTERM)
+                    except (ProcessLookupError, OSError):
+                        pass
+                log.info(f"Killed backend PIDs: {pids}")
+                time.sleep(1)
+
+            # Restart via ensure_ucore_running
+            if ensure_ucore_running(timeout_s=10.0):
+                log.info("Backend restarted successfully")
+            else:
+                log.warning("Backend failed to restart")
+                alert = NSAlert.alloc().init()
+                alert.setMessageText_("Backend restart failed")
+                alert.setInformativeText_("Could not restart uCore backend on :8484")
+                alert.runModal()
+        except Exception as e:
+            log.error(f"Backend restart error: {e}")
+
+    def restartUIHub_(self, sender):
+        """Restart the UI Hub frontend."""
+        log.info("Restarting UI Hub from popcorn menu...")
+        if not ensure_ucore_running():
+            alert = NSAlert.alloc().init()
+            alert.setMessageText_("UI Hub restart failed")
+            alert.setInformativeText_("Backend is not running. Start it first.")
+            alert.runModal()
+            return
+
+        _ = api_post_json("/api/surfaces/ui-hub/restart")
+        log.info("UI Hub restart requested")
 
     def healUIHub_(self, sender):
         """Try repair/restart/start flow for UI Hub and open it on success."""

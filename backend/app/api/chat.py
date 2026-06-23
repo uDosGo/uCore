@@ -44,12 +44,23 @@ async def handle_chat(request: web.Request) -> web.Response:
     agent = body.get("agent", "assist")
     model = body.get("model")
 
-    log.info("Chat request: agent=%s, message=%s...", agent, message[:80])
+    # Accept optional history/messages array for conversation continuity
+    history = body.get("history") or body.get("messages")
+    if not isinstance(history, list):
+        history = []
+
+    log.info(
+        "Chat request: agent=%s, history_len=%d, message=%s...",
+        agent, len(history), message[:80],
+    )
 
     try:
         router = get_router()
+        # Build messages array: history first, then new user message
+        chat_messages = list(history)
+        chat_messages.append({"role": "user", "content": message})
         response = await router.chat(
-            messages=[{"role": "user", "content": message}],
+            messages=chat_messages,
             model=model,
         )
         return web.json_response({

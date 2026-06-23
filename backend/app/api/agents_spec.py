@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import logging
 from typing import Optional
-from fastapi import APIRouter, HTTPException
-
-log = logging.getLogger(__name__)
+from fastapi import APIRouter, HTTPException  # type: ignore[import-not-found]
 
 from app.services.agent_specialization import SpecializedAgentRegistry
 from app.services.provider_router import ProviderRouter
+
+log = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/agents/spec", tags=["agents-specialized"])
 
@@ -49,7 +49,10 @@ async def get_agent(agent_id: str):
         agent = registry.get_agent(agent_id)
 
         if not agent:
-            raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Agent {agent_id} not found",
+            )
 
         return {
             "id": agent.id,
@@ -74,7 +77,10 @@ async def get_agent(agent_id: str):
 async def route_to_specialized_agent(
     task_type: str,
     complexity: str = "medium",
-    messages: list[dict] = None,
+    messages: Optional[list[dict]] = None,
+    task: str = "",
+    workflow_stage: Optional[str] = None,
+    plan_only: bool = False,
 ):
     """
     Route a task to the best specialized agent and execute it.
@@ -92,13 +98,30 @@ async def route_to_specialized_agent(
             messages = []
 
         registry = SpecializedAgentRegistry()
-        agent = registry.get_best_agent_for_task(task_type, complexity)
+        workflow = registry.plan_workflow(
+            task_type=task_type,
+            complexity=complexity,
+            task_summary=task,
+            requested_stage=workflow_stage,
+        )
+        agent = registry.get_agent(workflow["active_stage"]["agent"]["id"])
+        if agent is None:
+            agent = registry.get_best_agent_for_task(task_type, complexity)
 
         log.info(
-            f"Routing task (type={task_type}, complexity={complexity}) to agent {agent.id}"
+            "Routing task (type=%s, complexity=%s) to agent %s",
+            task_type,
+            complexity,
+            agent.id,
         )
 
-        # Use provider router to execute through the agent's configured provider/model
+        if plan_only:
+            return {
+                "success": True,
+                "workflow": workflow,
+            }
+
+        # Execute through the provider configured for the selected agent.
         provider_router = ProviderRouter()
         response = await provider_router.chat(
             messages=messages,
@@ -119,11 +142,38 @@ async def route_to_specialized_agent(
                 "task_type": task_type,
                 "complexity": complexity,
             },
+            "workflow": workflow,
             "response": response,
             "cost": agent.cost_per_task,
         }
     except Exception as e:
         log.error(f"Failed to route task: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/plan")
+async def plan_specialized_workflow(
+    task_type: str,
+    complexity: str = "medium",
+    task: str = "",
+    workflow_stage: Optional[str] = None,
+):
+    """Build a workflow plan without executing any provider call."""
+    try:
+        registry = SpecializedAgentRegistry()
+        workflow = registry.plan_workflow(
+            task_type=task_type,
+            complexity=complexity,
+            task_summary=task,
+            requested_stage=workflow_stage,
+        )
+        return {
+            "success": True,
+            "workflow": workflow,
+            "surface_taxonomy": registry.get_surface_taxonomy(),
+        }
+    except Exception as e:
+        log.error(f"Failed to plan workflow: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

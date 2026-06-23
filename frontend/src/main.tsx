@@ -166,6 +166,8 @@ function FloatingChatWrapper() {
   const location = useLocation()
   if (location.pathname.startsWith('/assistui')) return null
   if (location.pathname.startsWith('/developer')) return null
+  if (location.pathname.startsWith('/ucode')) return null
+  if (location.pathname.startsWith('/gridcore')) return null
   return <AssistUISurface floating />
 }
 

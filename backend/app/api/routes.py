@@ -62,6 +62,7 @@ def register_routes(app: web.Application) -> None:
         handle_list_workflows,
         handle_run_workflow,
         handle_workflow_logs,
+        handle_workflow_runs,
     )
     from .handlers import (
         handle_ollama_status,
@@ -69,8 +70,17 @@ def register_routes(app: web.Application) -> None:
         handle_ollama_performance,
         handle_agents_spec_list,
         handle_agents_spec_get,
+        handle_agents_spec_plan,
         handle_agents_spec_route,
         handle_agents_spec_capability,
+    )
+    from .gridsmith_api import (
+        handle_gridsmith_status,
+        handle_gridsmith_tools,
+        handle_gridsmith_grid_create,
+        handle_gridsmith_latlon_to_ucode,
+        handle_gridsmith_ucode_to_latlon,
+        handle_gridsmith_import_basic,
     )
 
     # Knowledge (AppFlowy bridge)
@@ -99,6 +109,7 @@ def register_routes(app: web.Application) -> None:
     app.router.add_put("/api/workflows/task/{task_id}", handle_update_task)
     app.router.add_get("/api/workflows/board/{board_id}/health", handle_board_health)
     app.router.add_get("/api/workflows", handle_list_workflows)
+    app.router.add_get("/api/workflows/runs", handle_workflow_runs)
     app.router.add_post("/api/workflows", handle_create_workflow)
     app.router.add_post("/api/workflows/{workflow_id}/run", handle_run_workflow)
     app.router.add_get("/api/workflows/{workflow_id}/logs", handle_workflow_logs)
@@ -147,8 +158,15 @@ def register_routes(app: web.Application) -> None:
     # Specialized Agents
     app.router.add_get("/api/agents/spec/list", handle_agents_spec_list)
     app.router.add_get("/api/agents/spec/get/{agent_id}", handle_agents_spec_get)
+    app.router.add_post("/api/agents/spec/plan", handle_agents_spec_plan)
     app.router.add_post("/api/agents/spec/route", handle_agents_spec_route)
     app.router.add_get("/api/agents/spec/capability/{capability}", handle_agents_spec_capability)
+    app.router.add_get("/api/gridsmith/status", handle_gridsmith_status)
+    app.router.add_get("/api/gridsmith/tools", handle_gridsmith_tools)
+    app.router.add_post("/api/gridsmith/grid/create", handle_gridsmith_grid_create)
+    app.router.add_post("/api/gridsmith/world/import-basic", handle_gridsmith_import_basic)
+    app.router.add_post("/api/gridsmith/location/latlon-to-ucode", handle_gridsmith_latlon_to_ucode)
+    app.router.add_post("/api/gridsmith/location/ucode-to-latlon", handle_gridsmith_ucode_to_latlon)
     app.router.add_get("/api/system", system_info_handler)
     app.router.add_get("/api/system/maintenance", maintenance_status_handler)
     app.router.add_get("/api/system/workflow", workflow_status_handler)
@@ -210,3 +228,11 @@ def register_routes(app: web.Application) -> None:
         log.debug("Dashboard surface registered")
     except ImportError as e:
         log.debug("Dashboard not available: %s", e)
+
+    # ── Tasker API (backend data for Kanban) ─────────────────────────
+    try:
+        from .tasker_api import register_tasker_routes
+        register_tasker_routes(app)
+        log.debug("Tasker API routes registered")
+    except ImportError as e:
+        log.debug("Tasker API routes not available: %s", e)

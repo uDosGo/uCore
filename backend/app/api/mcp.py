@@ -27,6 +27,7 @@ from app.services.tasker_ops import (
     read_task_markdown,
     write_task_markdown,
 )
+from app.services.gridsmith_bridge import get_gridsmith_bridge
 
 log = logging.getLogger("ucore.api.mcp")
 
@@ -260,6 +261,59 @@ async def handle_mcp_discover(request: web.Request) -> web.Response:
                     "description": "Preview exports without writing files",
                 },
             },
+        },
+    })
+
+    tools.append({
+        "name": "gridsmith_tools_list",
+        "description": "List GridSmith world-building tool contracts",
+        "input_schema": {"type": "object", "properties": {}},
+    })
+    tools.append({
+        "name": "gridsmith_create_grid",
+        "description": "Create a GridSmith grid scaffold",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "cols": {"type": "number", "description": "Grid columns"},
+                "rows": {"type": "number", "description": "Grid rows"},
+            },
+        },
+    })
+    tools.append({
+        "name": "gridsmith_latlon_to_ucode",
+        "description": "Convert lat/lon into a uCode coordinate",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "lat": {"type": "number", "description": "Latitude"},
+                "lon": {"type": "number", "description": "Longitude"},
+                "level": {"type": "number", "description": "uCode level"},
+            },
+            "required": ["lat", "lon"],
+        },
+    })
+    tools.append({
+        "name": "gridsmith_ucode_to_latlon",
+        "description": "Convert a uCode coordinate into lat/lon",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "coord": {"type": "string", "description": "uCode coordinate"},
+            },
+            "required": ["coord"],
+        },
+    })
+    tools.append({
+        "name": "gridsmith_import_basic_program",
+        "description": "Import a BASIC program into the live GridSmith workspace",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "program": {"type": "string", "description": "Inline BASIC source or file path"},
+                "world_name": {"type": "string", "description": "Generated world name"},
+            },
+            "required": ["program", "world_name"],
         },
     })
 
@@ -517,6 +571,115 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
                 "id": body.get("id"),
             }, status=404)
 
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "result": {
+                "content": [
+                    {"type": "text", "text": json.dumps(payload, indent=2)}
+                ]
+            },
+            "id": body.get("id"),
+        })
+
+    if tool_name == "gridsmith_tools_list":
+        payload = await get_gridsmith_bridge().run("tools", "list")
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "result": {
+                "content": [
+                    {"type": "text", "text": json.dumps(payload, indent=2)}
+                ]
+            },
+            "id": body.get("id"),
+        })
+
+    if tool_name == "gridsmith_create_grid":
+        payload = await get_gridsmith_bridge().run(
+            "grid",
+            "create",
+            "--cols",
+            str(int(arguments.get("cols", 80))),
+            "--rows",
+            str(int(arguments.get("rows", 24))),
+        )
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "result": {
+                "content": [
+                    {"type": "text", "text": json.dumps(payload, indent=2)}
+                ]
+            },
+            "id": body.get("id"),
+        })
+
+    if tool_name == "gridsmith_latlon_to_ucode":
+        if arguments.get("lat") is None or arguments.get("lon") is None:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {"code": -32602, "message": "lat and lon are required"},
+                "id": body.get("id"),
+            }, status=400)
+        payload = await get_gridsmith_bridge().run(
+            "location",
+            "latlon-to-ucode",
+            "--lat",
+            str(arguments.get("lat")),
+            "--lon",
+            str(arguments.get("lon")),
+            "--level",
+            str(int(arguments.get("level", 340))),
+        )
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "result": {
+                "content": [
+                    {"type": "text", "text": json.dumps(payload, indent=2)}
+                ]
+            },
+            "id": body.get("id"),
+        })
+
+    if tool_name == "gridsmith_ucode_to_latlon":
+        coord = str(arguments.get("coord", "")).strip()
+        if not coord:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {"code": -32602, "message": "coord is required"},
+                "id": body.get("id"),
+            }, status=400)
+        payload = await get_gridsmith_bridge().run(
+            "location",
+            "ucode-to-latlon",
+            "--coord",
+            coord,
+        )
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "result": {
+                "content": [
+                    {"type": "text", "text": json.dumps(payload, indent=2)}
+                ]
+            },
+            "id": body.get("id"),
+        })
+
+    if tool_name == "gridsmith_import_basic_program":
+        program = str(arguments.get("program", "")).strip()
+        world_name = str(arguments.get("world_name", "")).strip()
+        if not program or not world_name:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {"code": -32602, "message": "program and world_name are required"},
+                "id": body.get("id"),
+            }, status=400)
+        payload = await get_gridsmith_bridge().run(
+            "world",
+            "import-basic",
+            "--program",
+            program,
+            "--world-name",
+            world_name,
+        )
         return web.json_response({
             "jsonrpc": "2.0",
             "result": {

@@ -332,3 +332,37 @@ class WorkflowManager:
                 }
             )
         return runs
+
+    def get_all_runs(
+        self,
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        """Fetch recent runs across all workflows."""
+        safe_limit = max(1, min(limit, 500))
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT run_id, workflow_id, workflow_name, started_at,
+                       finished_at, status, steps
+                FROM workflow_runs
+                ORDER BY started_at DESC
+                LIMIT ?
+                """,
+                (safe_limit,),
+            ).fetchall()
+
+        runs = []
+        for row in rows:
+            steps = json.loads(row["steps"] or "[]")
+            runs.append(
+                {
+                    "run_id": row["run_id"],
+                    "workflow_id": row["workflow_id"],
+                    "workflow_name": row["workflow_name"],
+                    "started_at": row["started_at"],
+                    "finished_at": row["finished_at"],
+                    "status": row["status"],
+                    "steps": steps,
+                }
+            )
+        return runs

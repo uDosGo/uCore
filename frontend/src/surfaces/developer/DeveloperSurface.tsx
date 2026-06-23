@@ -16,9 +16,10 @@ import VaultSidebar, { Binder, SidebarNavItem, VaultFile } from '../../component
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import { ModelsPanel } from './ModelsPanel'
 import { AgentsPanel } from './AgentsPanel'
+import { KanbanSurface } from './KanbanSurface'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type DeveloperTab = 'models' | 'agents' | 'kanban' | 'tasks' | 'repos' | 'skills' | 'review' | 'workflows' | 'benchbench' | 'creative' | 'agents-old' | 'settings'
+type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings'
 
 interface WorkflowRun {
   run_id: string
@@ -58,13 +59,6 @@ interface RepoInfo {
   changes: number
   remote: string
   fileCount?: number
-}
-
-interface SkillInfo {
-  id: string
-  name: string
-  description: string
-  path: string
 }
 
 interface ReviewEntry {
@@ -118,19 +112,7 @@ const SAMPLE_REPOS: RepoInfo[] = [
 ]
 
 const SNACKBAR_API = 'http://localhost:8484'
-const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'kanban', 'tasks', 'repos', 'skills', 'review', 'workflows', 'benchbench', 'creative', 'agents-old', 'settings']
-
-// ─── Sample Skills ──────────────────────────────────────────────────
-const SAMPLE_SKILLS: SkillInfo[] = [
-  { id: 'surface-repair', name: 'Surface Repair', description: 'Diagnose and repair surface configuration issues', path: 'skills/surface-repair' },
-  { id: 'dep-audit', name: 'Dependency Audit', description: 'Audit project dependencies for vulnerabilities', path: 'skills/dep-audit' },
-  { id: 'circular-deps', name: 'Circular Dependencies', description: 'Detect circular dependency chains', path: 'skills/circular-deps' },
-  { id: 'comment-audit', name: 'Comment Audit', description: 'Audit code comments for quality and consistency', path: 'skills/comment-audit' },
-  { id: 'coupling-analyzer', name: 'Coupling Analyzer', description: 'Analyze module coupling and cohesion', path: 'skills/coupling-analyzer' },
-  { id: 'dead-path-detector', name: 'Dead Path Detector', description: 'Detect dead code paths and unreachable branches', path: 'skills/dead-path-detector' },
-  { id: 'bundle-analyze', name: 'Bundle Analyzer', description: 'Analyze JavaScript bundle sizes', path: 'skills/bundle-analyze' },
-  { id: 'changelog-check', name: 'Changelog Check', description: 'Verify changelog entries match commits', path: 'skills/changelog-check' },
-]
+const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'kanban', 'repos', 'review', 'settings']
 
 // ─── Sample Review Entries ──────────────────────────────────────────
 const SAMPLE_REVIEWS: ReviewEntry[] = [
@@ -140,23 +122,6 @@ const SAMPLE_REVIEWS: ReviewEntry[] = [
   { file: 'snackbar/server.py', status: 'modified', lines: 45, summary: 'Added /api/chat/prompts endpoint for dynamic prompt cards' },
   { file: 'CHANGELOG.md', status: 'modified', lines: 12, summary: 'Updated with latest changes' },
 ]
-
-// ─── Syntax Highlighter ────────────────────────────────────────────
-function highlightSyntax(code: string, language: string): React.ReactNode {
-  // Simple syntax highlighting for common languages
-  if (language === 'diff') {
-    return code.split('\n').map((line, i) => {
-      const color = line.startsWith('+') ? '#3fb950' : line.startsWith('-') ? '#f85149' : line.startsWith('@@') ? '#79c0ff' : 'inherit'
-      return (
-        <div key={i} style={{ color, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-          {line}
-        </div>
-      )
-    })
-  }
-  // Default: no highlighting
-  return code
-}
 
 // ─── Prose Markdown Renderer ────────────────────────────────────────
 function renderProseMarkdown(text: string): string {
@@ -233,10 +198,7 @@ function renderProseMarkdown(text: string): string {
 }
 
 // ─── Chat Panel ─────────────────────────────────────────────────────
-function ChatPanel() {
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>([
-    { role: 'assistant', content: '**Developer Assistant** ready. I can help with code review, debugging, refactoring, and deployment. What would you like to work on?' },
-  ])
+function ChatPanel({ messages, onMessagesChange }: { messages: { role: string; content: string }[]; onMessagesChange: (msgs: { role: string; content: string }[]) => void }) {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -256,7 +218,7 @@ function ChatPanel() {
     const msg = (text || input).trim()
     if (!msg || loading) return
     setInput('')
-    setMessages(prev => [...prev, { role: 'user', content: msg }])
+    onMessagesChange([...messages, { role: 'user', content: msg }])
     setLoading(true)
 
     try {
@@ -267,10 +229,10 @@ function ChatPanel() {
         signal: AbortSignal.timeout(10000),
       })
       const data = await res.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response || 'No response' }])
+      onMessagesChange([...messages, { role: 'assistant', content: data.response || 'No response' }])
     } catch {
       // Offline fallback — echo with dev context
-      setMessages(prev => [...prev, {
+      onMessagesChange([...messages, {
         role: 'assistant',
         content: `🤖 **Developer Mode** — Snackbar offline.\n\n> Received: "${msg}"\n\nRunning in offline echo mode. Start the snackbar server for AI-powered responses.\n\n**Quick commands:**\n- \`/review\` — Code review\n- \`/status\` — Repo status\n- \`/skills\` — List skills\n- \`/deploy\` — Deploy service`,
       }])
@@ -403,73 +365,6 @@ function ReposPanel({ repos, loading, onBrowseRepo }: { repos: RepoInfo[]; loadi
           </div>
         ))}
       </div>
-    </div>
-  )
-}
-
-// ─── Skills Panel ───────────────────────────────────────────────────
-function SkillsPanel() {
-  const [skills] = useState<SkillInfo[]>(SAMPLE_SKILLS)
-  const [running, setRunning] = useState<string | null>(null)
-  const [output, setOutput] = useState<string | null>(null)
-
-  const handleRun = async (skillId: string) => {
-    setRunning(skillId)
-    setOutput(null)
-    try {
-      const res = await fetch(`http://localhost:8484/api/skills/${skillId}/run`, {
-        method: 'POST',
-        signal: AbortSignal.timeout(30000),
-      })
-      const data = await res.json()
-      const result = data.result || data
-      setOutput(
-        result.status === 'completed'
-          ? `✅ Completed (exit code: ${result.returncode})\n\n${result.stdout || ''}`
-          : `❌ Failed (exit code: ${result.returncode})\n\n${result.stderr || result.error || ''}`
-      )
-    } catch (e: any) {
-      setOutput(`⚠️ Error: ${e.message || 'Could not reach snackbar'}`)
-    }
-    setRunning(null)
-  }
-
-  return (
-    <div className="developer-panel">
-      <div className="developer-panel-header">
-        <h3 className="developer-panel-title">Developer Skills</h3>
-        <span className="developer-panel-count">{skills.length} skills</span>
-      </div>
-
-      <div className="developer-skills-grid">
-        {skills.map(skill => (
-          <div key={skill.id} className="developer-skill-card">
-            <div className="developer-skill-card-header">
-              <span className="developer-skill-name">{skill.name}</span>
-              <span className="developer-skill-id">{skill.id}</span>
-            </div>
-            <p className="developer-skill-desc">{skill.description}</p>
-            <div className="developer-skill-path">{skill.path}</div>
-            <button
-              className="developer-skill-run-btn"
-              onClick={() => handleRun(skill.id)}
-              disabled={running === skill.id}
-            >
-              {running === skill.id ? 'Running...' : '▶ Run'}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {output && (
-        <div className="developer-skill-output">
-          <div className="developer-skill-output-header">
-            <span>Output</span>
-            <button className="developer-skill-output-close" onClick={() => setOutput(null)}><Icon name="close" /></button>
-          </div>
-          <pre className="developer-skill-output-text">{output}</pre>
-        </div>
-      )}
     </div>
   )
 }
@@ -641,610 +536,8 @@ function FilePreviewPanel({
     </div>
   )
 }
-
-// ─── Workflows Panel ────────────────────────────────────────────────
-
-function ActiveTasksPanel() {
-  const [tasks, setTasks] = useState<WorkflowRun[]>([])
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    const fetchTasks = async () => {
-      setLoading(true)
-      try {
-        const res = await fetch(`${SNACKBAR_API}/api/workflows/runs?limit=50`, {
-          signal: AbortSignal.timeout(4000),
-        })
-        if (!res.ok) throw new Error('Failed to load tasks')
-        const data = await res.json()
-        const sorted = (data.runs || []).sort((a: WorkflowRun, b: WorkflowRun) => {
-          const aTime = new Date(a.started_at).getTime()
-          const bTime = new Date(b.started_at).getTime()
-          return bTime - aTime
-        })
-        setTasks(sorted)
-      } catch {
-        setTasks([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    void fetchTasks()
-  }, [])
-
-  const statusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'completed':
-        return '#3fb950'
-      case 'failed':
-        return '#f85149'
-      case 'running':
-        return '#58a6ff'
-      default:
-        return '#8b949e'
-    }
-  }
-
-  return (
-    <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
-      <div style={{ marginBottom: 16 }}>
-        <h2 style={{ marginBottom: 8 }}>Active Dev Flow Tasks</h2>
-        <p style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)' }}>
-          Real-time workflow execution tracking
-        </p>
-      </div>
-
-      {loading ? (
-        <p style={{ color: 'var(--pico-muted-color, #8b949e)' }}>Loading...</p>
-      ) : tasks.length === 0 ? (
-        <p style={{ color: 'var(--pico-muted-color, #8b949e)' }}>No active tasks.</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {tasks.map(task => (
-            <div
-              key={task.run_id}
-              style={{
-                padding: 12,
-                borderRadius: 6,
-                border: '1px solid var(--pico-form-element-border-color, #30363d)',
-                background: 'var(--pico-card-sectioning-background-color, #1c2128)',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 8 }}>
-                <div>
-                  <h4 style={{ margin: '0 0 4px' }}>{task.workflow_name}</h4>
-                  <p style={{ margin: 0, fontSize: '11px', color: 'var(--pico-muted-color, #8b949e)' }}>
-                    {new Date(task.started_at).toLocaleTimeString()}
-                  </p>
-                </div>
-                <span
-                  style={{
-                    fontSize: '10px',
-                    padding: '2px 8px',
-                    borderRadius: 999,
-                    background: 'rgba(0,0,0,0.2)',
-                    color: statusColor(task.status),
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {task.status?.toUpperCase() || 'UNKNOWN'}
-                </span>
-              </div>
-              {task.steps && task.steps.length > 0 && (
-                <div style={{ fontSize: '11px' }}>
-                  <p style={{ margin: '4px 0', color: 'var(--pico-muted-color, #8b949e)' }}>
-                    Steps: {task.steps.filter(s => s.status === 'completed').length} / {task.steps.length}
-                  </p>
-                  <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
-                    {task.steps.map(step => (
-                      <div
-                        key={`${task.run_id}-${step.step_index}`}
-                        title={step.step_name}
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: '50%',
-                          background:
-                            step.status === 'completed'
-                              ? '#3fb950'
-                              : step.status === 'failed'
-                                ? '#f85149'
-                                : step.status === 'running'
-                                  ? '#58a6ff'
-                                  : '#8b949e',
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Kanban Panel ──────────────────────────────────────────────────
-
-function KanbanPanel() {
-  const [tasks, setTasks] = useState<WorkflowRun[]>([])
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    const fetchTasks = async () => {
-      setLoading(true)
-      try {
-        const res = await fetch(`${SNACKBAR_API}/api/workflows/runs?limit=100`, {
-          signal: AbortSignal.timeout(4000),
-        })
-        if (!res.ok) throw new Error('Failed to load tasks')
-        const data = await res.json()
-        setTasks(data.runs || [])
-      } catch {
-        setTasks([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    void fetchTasks()
-  }, [])
-
-  const columns = {
-    pending: tasks.filter(t => t.status?.toLowerCase() === 'pending'),
-    running: tasks.filter(t => t.status?.toLowerCase() === 'running'),
-    completed: tasks.filter(t => t.status?.toLowerCase() === 'completed'),
-    failed: tasks.filter(t => t.status?.toLowerCase() === 'failed'),
-  }
-
-  const KanbanColumn = ({ title, color, items }: { title: string; color: string; items: WorkflowRun[] }) => (
-    <div
-      style={{
-        flex: '0 0 calc(25% - 9px)',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'var(--pico-card-sectioning-background-color, #1c2128)',
-        borderRadius: 8,
-        border: `2px solid ${color}`,
-        padding: 12,
-        minHeight: 200,
-      }}
-    >
-      <h4 style={{ margin: '0 0 12px', color, fontSize: '12px', fontWeight: 'bold' }}>
-        {title} ({items.length})
-      </h4>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-        {items.length === 0 ? (
-          <p style={{ fontSize: '11px', color: 'var(--pico-muted-color, #8b949e)', margin: 0 }}>No tasks</p>
-        ) : (
-          items.slice(0, 5).map(task => (
-            <div
-              key={task.run_id}
-              style={{
-                padding: 8,
-                borderRadius: 4,
-                background: 'rgba(0,0,0,0.2)',
-                borderLeft: `3px solid ${color}`,
-                overflow: 'hidden',
-              }}
-            >
-              <p style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: 500, whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                {task.workflow_name}
-              </p>
-              <p style={{ margin: 0, fontSize: '10px', color: 'var(--pico-muted-color, #8b949e)' }}>
-                {new Date(task.started_at).toLocaleTimeString()}
-              </p>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  )
-
-  return (
-    <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
-      <div style={{ marginBottom: 16 }}>
-        <h2 style={{ marginBottom: 8 }}>Cline Kanban Board</h2>
-        <p style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)', margin: 0 }}>
-          Workflow task flow visualization · Drag to reorder
-        </p>
-      </div>
-
-      {loading ? (
-        <p style={{ color: 'var(--pico-muted-color, #8b949e)' }}>Loading...</p>
-      ) : (
-        <div style={{ display: 'flex', gap: 12, overflow: 'auto', paddingBottom: 8 }}>
-          <KanbanColumn title="Pending" color="#8b949e" items={columns.pending} />
-          <KanbanColumn title="Running" color="#58a6ff" items={columns.running} />
-          <KanbanColumn title="Completed" color="#3fb950" items={columns.completed} />
-          <KanbanColumn title="Failed" color="#f85149" items={columns.failed} />
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Workflows Panel ────────────────────────────────────────────────
-
-function WorkflowsPanel() {
-  const [workflows] = useState([
-    { id: 'build-deploy', name: 'Build & Deploy', status: 'idle', lastRun: '2h ago', steps: 4 },
-    { id: 'test-suite', name: 'Test Suite', status: 'running', lastRun: 'now', steps: 12 },
-    { id: 'docs-publish', name: 'Docs Publish', status: 'completed', lastRun: '30m ago', steps: 3 },
-    { id: 'archive-cleanup', name: 'Archive Cleanup', status: 'failed', lastRun: '1h ago', steps: 2 },
-    { id: 'skill-audit', name: 'Skill Audit', status: 'idle', lastRun: '1d ago', steps: 6 },
-  ])
-  const [selectedTask, setSelectedTask] = useState<TaskDetailData | null>(null)
-
-  const statusColor: Record<string, string> = {
-    idle: 'var(--pico-muted-color, #8b949e)',
-    running: 'var(--pico-primary, #58a6ff)',
-    completed: 'var(--pico-ins-color, #3fb950)',
-    failed: 'var(--pico-del-color, #f85149)',
-  }
-
-  const handleTaskUpdate = async (task: TaskDetailData) => {
-    const res = await fetch(`http://localhost:8484/api/workflows/task/${task.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(task),
-      signal: AbortSignal.timeout(5000),
-    })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    setSelectedTask(task)
-  }
-
-  const loadTaskDetails = async (taskId: string) => {
-    try {
-      const res = await fetch(`http://localhost:8484/api/workflows/task/${taskId}`, {
-        signal: AbortSignal.timeout(5000),
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setSelectedTask(data)
-      } else {
-        alert(`Task not found: ${taskId}`)
-      }
-    } catch (e) {
-      alert(`Error fetching task: ${e}`)
-    }
-  }
-
-  return (
-    <div className="developer-panel" style={{ position: 'relative' }}>
-      <div className="developer-panel-header">
-        <h3 className="developer-panel-title">Workflow Pipelines</h3>
-        <span className="developer-panel-count">{workflows.length} pipelines</span>
-      </div>
-
-      <div className="developer-workflows-list">
-        {workflows.map(wf => (
-          <div key={wf.id} className="developer-workflow-card">
-            <div className="developer-workflow-header">
-              <div
-                style={{ cursor: 'pointer', flex: 1 }}
-                onClick={() => loadTaskDetails(wf.id)}
-              >
-                <span className="developer-workflow-name">{wf.name}</span>
-              </div>
-              <span className="developer-workflow-status" style={{ color: statusColor[wf.status] }}>
-                ● {wf.status}
-              </span>
-            </div>
-            <div className="developer-workflow-meta">
-              <span className="developer-workflow-steps">{wf.steps} steps</span>
-              <span className="developer-workflow-time">Last: {wf.lastRun}</span>
-            </div>
-            <div className="developer-workflow-progress">
-              <div className="developer-workflow-progress-bar">
-                <div
-                  className="developer-workflow-progress-fill"
-                  style={{
-                    width: wf.status === 'completed' ? '100%' : wf.status === 'running' ? '60%' : '0%',
-                    background: statusColor[wf.status],
-                  }}
-                />
-              </div>
-            </div>
-            <div className="developer-workflow-actions">
-              <button className="developer-repo-btn" disabled={wf.status === 'running'}>
-                {wf.status === 'running' ? 'Running...' : '▶ Run'}
-              </button>
-              <button className="developer-repo-btn" onClick={() => loadTaskDetails(wf.id)}>
-                Details
-              </button>
-              <button className="developer-repo-btn">Configure</button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {selectedTask && (
-        <TaskDetailDrawer
-          task={selectedTask}
-          onClose={() => setSelectedTask(null)}
-          onUpdate={handleTaskUpdate}
-        />
-      )}
-    </div>
-  )
-}
-
-// ─── BenchBench Panel ───────────────────────────────────────────────
-function BenchBenchPanel() {
-  const [benchmarks] = useState([
-    { id: 'cpu-ai', name: 'CPU AI Inference', score: 1423, unit: 'ms', trend: 'up', change: '+12%' },
-    { id: 'gpu-llm', name: 'GPU LLM Tokens/s', score: 48.2, unit: 't/s', trend: 'up', change: '+5%' },
-    { id: 'disk-io', name: 'Disk I/O (seq)', score: 2850, unit: 'MB/s', trend: 'down', change: '-3%' },
-    { id: 'network-latency', name: 'Network Latency', score: 12, unit: 'ms', trend: 'stable', change: '0%' },
-    { id: 'memory-bw', name: 'Memory Bandwidth', score: 42.1, unit: 'GB/s', trend: 'up', change: '+8%' },
-  ])
-
-  const trendIcon: Record<string, string> = { up: 'trending_up', down: 'trending_down', stable: 'trending_flat' }
-  const trendColor: Record<string, string> = {
-    up: 'var(--pico-ins-color, #3fb950)',
-    down: 'var(--pico-del-color, #f85149)',
-    stable: 'var(--pico-muted-color, #8b949e)',
-  }
-
-  return (
-    <div className="developer-panel">
-      <div className="developer-panel-header">
-        <h3 className="developer-panel-title">BenchBench — Performance</h3>
-        <span className="developer-panel-count">{benchmarks.length} metrics</span>
-      </div>
-
-      <div className="developer-bench-grid">
-        {benchmarks.map(b => (
-          <div key={b.id} className="developer-bench-card">
-            <div className="developer-bench-name">{b.name}</div>
-            <div className="developer-bench-value">
-              <span className="developer-bench-score">{b.score}</span>
-              <span className="developer-bench-unit">{b.unit}</span>
-            </div>
-            <div className="developer-bench-trend" style={{ color: trendColor[b.trend] }}>
-              <Icon name={trendIcon[b.trend]} /> {b.change}
-            </div>
-            <button className="developer-repo-btn">Run Benchmark</button>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ─── Creative Panel ─────────────────────────────────────────────────
-function CreativePanel() {
-  const [prompt, setPrompt] = useState('')
-  const [generating, setGenerating] = useState(false)
-  const [result, setResult] = useState<string | null>(null)
-
-  const handleGenerate = async () => {
-    if (!prompt.trim() || generating) return
-    setGenerating(true)
-    setResult(null)
-    try {
-      const res = await fetch('http://localhost:8484/api/lance/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt.trim(), style: 'teletext' }),
-        signal: AbortSignal.timeout(15000),
-      })
-      const data = await res.json()
-      setResult(data.svg || data.image || 'Generated successfully')
-    } catch {
-      setResult(`🎨 **Lance SVG Generator** — Snackbar offline.\n\nPrompt: "${prompt}"\n\nStart the snackbar server for AI-powered SVG generation via uVector.`)
-    }
-    setGenerating(false)
-  }
-
-  return (
-    <div className="developer-panel">
-      <div className="developer-panel-header">
-        <h3 className="developer-panel-title">Creative AI — Lance</h3>
-        <span className="developer-panel-count">SVG Generation</span>
-      </div>
-
-      <div className="developer-creative-input-row">
-        <input
-          className="developer-search-input"
-          type="text"
-          placeholder="Describe an image to generate..."
-          value={prompt}
-          onChange={e => setPrompt(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleGenerate()}
-          disabled={generating}
-        />
-        <button
-          className="developer-chat-send-btn"
-          onClick={handleGenerate}
-          disabled={generating || !prompt.trim()}
-          style={{ flexShrink: 0 }}
-        >
-          {generating ? 'Generating...' : 'Generate'}
-        </button>
-      </div>
-
-      <div className="developer-creative-presets">
-        <span className="developer-creative-preset-label">Styles:</span>
-        {['teletext', 'pixel_art', 'mono_chrome', 'full_color', 'line_art'].map(style => (
-          <button key={style} className="developer-repo-btn" onClick={() => setPrompt(`Create a ${style.replace('_', ' ')} image of...`)}>
-            {style.replace('_', ' ')}
-          </button>
-        ))}
-      </div>
-
-      {result && (
-        <div className="developer-skill-output" style={{ marginTop: 16 }}>
-          <div className="developer-skill-output-header">
-            <span>Generated Result</span>
-            <button className="developer-skill-output-close" onClick={() => setResult(null)}><Icon name="close" /></button>
-          </div>
-          <pre className="developer-skill-output-text">{result}</pre>
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Agent Router URL ───────────────────────────────────────────────
 const AGENT_ROUTER_URL = 'http://localhost:8484'
-
-// ─── Agents Panel ───────────────────────────────────────────────────
-function RouterAgentsPanel() {
-  const [routerAgents, setRouterAgents] = useState<RouterAgent[]>([])
-  const [routerStats, setRouterStats] = useState<RouterStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    async function fetchData() {
-      try {
-        const [agentsRes, statsRes] = await Promise.all([
-          fetch(`${AGENT_ROUTER_URL}/api/agents`, { signal: AbortSignal.timeout(3000) }),
-          fetch(`${AGENT_ROUTER_URL}/api/agents/stats`, { signal: AbortSignal.timeout(3000) }),
-        ])
-        if (agentsRes.ok) {
-          const data = await agentsRes.json()
-          if (!cancelled) setRouterAgents(data.agents || [])
-        }
-        if (statsRes.ok) {
-          const data = await statsRes.json()
-          if (!cancelled) setRouterStats(data)
-        }
-      } catch (e: any) {
-        if (!cancelled) setError(e.message || 'Agent Router unreachable')
-      }
-      if (!cancelled) setLoading(false)
-    }
-    fetchData()
-    const interval = setInterval(fetchData, 10000)
-    return () => { cancelled = true; clearInterval(interval) }
-  }, [])
-
-  if (loading) {
-    return (
-      <div className="developer-panel">
-        <div className="developer-panel-header">
-          <h3 className="developer-panel-title">Agent Router</h3>
-          <span className="developer-panel-count">Loading...</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (error || routerAgents.length === 0) {
-    return (
-      <div className="developer-panel">
-        <div className="developer-panel-header">
-          <h3 className="developer-panel-title">Agent Router</h3>
-          <span className="developer-panel-count">Offline</span>
-        </div>
-        <div style={{ padding: 24, textAlign: 'center', color: 'var(--pico-del-color, #f85149)' }}>
-          <p>⚠️ Agents API unavailable on port 8484</p>
-          <p style={{ fontSize: 12, marginTop: 8, color: 'var(--pico-muted-color, #8b949e)' }}>
-            {error || 'No agents registered'}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  const onlineCount = routerAgents.filter(a => a.status === 'online').length
-  const totalRouted = routerStats?.totalRouted || 0
-  const totalErrors = routerStats?.totalErrors || 0
-
-  return (
-    <div className="developer-panel">
-      <div className="developer-panel-header">
-        <h3 className="developer-panel-title">Agent Router</h3>
-        <span className="developer-panel-count">
-          {onlineCount}/{routerAgents.length} online · {totalRouted} routed
-        </span>
-      </div>
-
-      {/* Summary stats */}
-      <div style={{ display: 'flex', gap: 16, padding: '0 16px 12px', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--pico-muted-color, #8b949e)' }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--pico-ins-color, #3fb950)' }} />
-          {onlineCount} Online
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--pico-muted-color, #8b949e)' }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--pico-del-color, #f85149)' }} />
-          {routerAgents.length - onlineCount} Offline
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--pico-muted-color, #8b949e)' }}>
-          Errors: {totalErrors}
-        </div>
-      </div>
-
-      {/* Agent cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 8, padding: '0 16px 16px' }}>
-        {routerAgents.map(agent => {
-          const loadMatch = agent.load.match(/(\d+)\/(\d+)/)
-          const currentLoad = loadMatch ? parseInt(loadMatch[1]) : 0
-          const maxLoad = loadMatch ? parseInt(loadMatch[2]) : 1
-          const loadPct = Math.round((currentLoad / maxLoad) * 100)
-          const isOnline = agent.status === 'online'
-          const agentTasks = routerStats?.byAgent?.[agent.id] || 0
-
-          return (
-            <div key={agent.id} className="developer-skill-card" style={{ borderLeft: `3px solid ${isOnline ? 'var(--pico-ins-color, #3fb950)' : 'var(--pico-del-color, #f85149)'}` }}>
-              <div className="developer-skill-card-header">
-                <span className="developer-skill-name">{agent.name}</span>
-                <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 3, background: isOnline ? 'rgba(63,185,80,0.15)' : 'rgba(248,81,73,0.15)', color: isOnline ? 'var(--pico-ins-color, #3fb950)' : 'var(--pico-del-color, #f85149)' }}>
-                  {isOnline ? 'Online' : 'Offline'}
-                </span>
-              </div>
-              <div style={{ display: 'flex', gap: 8, fontSize: 11, color: 'var(--pico-muted-color, #8b949e)', marginBottom: 6, flexWrap: 'wrap' }}>
-                <span>Cost: <strong>${agent.costPerTask.toFixed(4)}</strong></span>
-                <span>Latency: <strong>{agent.avgLatencyMs}ms</strong></span>
-                <span>Success: <strong>{(agent.successRate * 100).toFixed(0)}%</strong></span>
-                <span>Tasks: <strong>{agentTasks}</strong></span>
-              </div>
-              {/* Load bar */}
-              <div style={{ marginBottom: 6 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--pico-muted-color, #8b949e)', marginBottom: 2 }}>
-                  <span>Load</span>
-                  <span>{agent.load}</span>
-                </div>
-                <div style={{ height: 3, background: 'var(--pico-border-color, #30363d)', borderRadius: 2, overflow: 'hidden' }}>
-                  <div style={{ width: `${loadPct}%`, height: '100%', background: isOnline ? 'var(--pico-ins-color, #3fb950)' : 'var(--pico-del-color, #f85149)', borderRadius: 2, transition: 'width 0.5s' }} />
-                </div>
-              </div>
-              {/* Capabilities */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                {agent.capabilities.map(cap => (
-                  <span key={cap} style={{ fontSize: 9, padding: '1px 4px', borderRadius: 2, background: 'var(--pico-card-sectioning-background-color, #1c2128)', color: 'var(--pico-primary, #58a6ff)', fontFamily: 'monospace' }}>
-                    {cap}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Recent Routes */}
-      {routerStats?.recentRoutes && routerStats.recentRoutes.length > 0 && (
-        <div style={{ padding: '0 16px 16px' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--pico-muted-color, #8b949e)', marginBottom: 6 }}>Recent Routes</div>
-          {routerStats.recentRoutes.slice(-5).reverse().map((route, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', fontSize: 11, fontFamily: 'monospace', borderBottom: '1px solid var(--pico-border-color, #30363d)' }}>
-              <span style={{ color: 'var(--pico-muted-color, #8b949e)', width: 60 }}>{route.timestamp?.slice(11, 19) || '--:--:--'}</span>
-              <span style={{ color: 'var(--pico-primary, #58a6ff)' }}>{route.agent}</span>
-              <span style={{ padding: '1px 4px', borderRadius: 2, background: 'var(--pico-card-sectioning-background-color, #1c2128)', color: 'var(--pico-primary, #58a6ff)', fontSize: 9 }}>{route.capability}</span>
-              <span style={{ color: 'var(--pico-color, #c9d1d9)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{route.task}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Settings Panel ─────────────────────────────────────────────────
 
 function SettingsPanel() {
@@ -1353,6 +646,9 @@ export default function DeveloperSurface() {
   }, [location.search])
   const [activeTab, setActiveTab] = useState<DeveloperTab>(tabState.selectedTab)
   const [chatOpen, setChatOpen] = useState(false)
+  const [chatMessages, setChatMessages] = useState<{ role: string; content: string }[]>([
+    { role: 'assistant', content: '**Developer Assistant** ready. I can help with code review, debugging, refactoring, and deployment. What would you like to work on?' },
+  ])
   const [sidebarMode, setSidebarMode] = useState<'server' | 'filepicker'>('server')
   const [repos, setRepos] = useState<RepoInfo[]>([])
   const [reposLoading, setReposLoading] = useState(true)
@@ -1688,14 +984,8 @@ export default function DeveloperSurface() {
     { id: 'models', icon: 'database', label: 'Models', active: activeTab === 'models', onClick: () => setTabAndRoute('models') },
     { id: 'agents', icon: 'smart_toy', label: 'Agents', active: activeTab === 'agents', onClick: () => setTabAndRoute('agents') },
     { id: 'kanban', icon: 'calendar_view_week', label: 'Kanban', active: activeTab === 'kanban', onClick: () => setTabAndRoute('kanban') },
-    { id: 'tasks', icon: 'task_alt', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
     { id: 'repos', icon: 'folder_open', label: 'Repos', active: activeTab === 'repos', onClick: () => setTabAndRoute('repos') },
-    { id: 'skills', icon: 'build', label: 'Skills', active: activeTab === 'skills', onClick: () => setTabAndRoute('skills') },
     { id: 'review', icon: 'visibility', label: 'Review', active: activeTab === 'review', onClick: () => setTabAndRoute('review') },
-    { id: 'workflows', icon: 'play_circle', label: 'Workflows', active: activeTab === 'workflows', onClick: () => setTabAndRoute('workflows') },
-    { id: 'benchbench', icon: 'bar_chart', label: 'Bench', active: activeTab === 'benchbench', onClick: () => setTabAndRoute('benchbench') },
-    { id: 'creative', icon: 'palette', label: 'Creative', active: activeTab === 'creative', onClick: () => setTabAndRoute('creative') },
-    { id: 'agents-old', icon: 'power', label: 'Old Agents', active: activeTab === 'agents-old', onClick: () => setTabAndRoute('agents-old') },
     { id: 'settings', icon: 'settings', label: 'Settings', active: activeTab === 'settings', onClick: () => setTabAndRoute('settings') },
   ]
 
@@ -1798,7 +1088,7 @@ export default function DeveloperSurface() {
               </button>
             </div>
             <div className="developer-chat-float-body">
-              <ChatPanel />
+              <ChatPanel messages={chatMessages} onMessagesChange={setChatMessages} />
             </div>
           </div>
         )}
@@ -1806,8 +1096,7 @@ export default function DeveloperSurface() {
         <main className="usx-surface-main developer-surface-main">
         {activeTab === 'models' && <ModelsPanel />}
         {activeTab === 'agents' && <AgentsPanel />}
-        {activeTab === 'kanban' && <KanbanPanel />}
-        {activeTab === 'tasks' && <ActiveTasksPanel />}
+        {activeTab === 'kanban' && <KanbanSurface />}
         {activeTab === 'repos' && <ReposPanel repos={repos} loading={reposLoading} onBrowseRepo={(repoName) => {
           setSelectedRepoId(repoName)
           setSidebarMode('filepicker')
@@ -1815,9 +1104,7 @@ export default function DeveloperSurface() {
           setFilePreview(null)
           setFileDiff(null)
           setSaveNotice(null)
-        }} />}
-        {activeTab === 'skills' && <SkillsPanel />}
-        {activeTab === 'review' && <ReviewPanel reviews={reviewEntries} loading={reviewLoading} repoName={selectedRepoId} onPreviewFile={(filePath) => {
+        }} />}        {activeTab === 'review' && <ReviewPanel reviews={reviewEntries} loading={reviewLoading} repoName={selectedRepoId} onPreviewFile={(filePath) => {
           setSidebarMode('filepicker')
           setPreviewMode('file')
           setSaveNotice(null)
@@ -1852,12 +1139,7 @@ export default function DeveloperSurface() {
             })
           }
           fetchFileDiff(selectedRepoId, filePath)
-        }} onStageFile={handleStageFile} onUnstageFile={handleUnstageFile} stagedFiles={stagedFiles} />}
-        {activeTab === 'workflows' && <WorkflowsPanel />}
-        {activeTab === 'benchbench' && <BenchBenchPanel />}
-        {activeTab === 'creative' && <CreativePanel />}
-        {activeTab === 'agents-old' && <RouterAgentsPanel />}
-        {activeTab === 'settings' && <SettingsPanel />}
+        }} onStageFile={handleStageFile} onUnstageFile={handleUnstageFile} stagedFiles={stagedFiles} />}        {activeTab === 'settings' && <SettingsPanel />}
         </main>
 
         <button

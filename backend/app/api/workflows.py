@@ -556,3 +556,21 @@ async def handle_workflow_logs(request: web.Request) -> web.Response:
             "run_count": len(runs),
         }
     )
+
+
+async def handle_workflow_runs(request: web.Request) -> web.Response:
+    """GET /api/workflows/runs — fetch recent workflow runs across all workflows."""
+    manager = get_workflow_manager()
+
+    try:
+        limit = max(1, min(int(request.query.get("limit", "100")), 500))
+    except ValueError:
+        limit = 100
+
+    runs = manager.get_all_runs(limit=limit)
+    return web.json_response(
+        {
+            "runs": runs,
+            "count": len(runs),
+        }
+    )
