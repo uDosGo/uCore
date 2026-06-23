@@ -2,7 +2,7 @@
    workflow.css — Workflow Surface Styles (USXv2/Pico CSS)
    ═══════════════════════════════════════════════════════════════════
    Uses Pico CSS variables for all colors and sizing.
-   No hardcoded font sizes or colors — all inherit from theme.
+   Overrides Kanban board styles for USX-aligned cards.
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ─── Surface Container ──────────────────────────────────────────── */
@@ -295,6 +295,106 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
+}
+
+/* ─── USX-Aligned Kanban Overrides ────────────────────────────── */
+.workflow-tasks-main .kanban-board {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  min-height: 100%;
+  align-items: flex-start;
+}
+
+.workflow-tasks-main .kanban-col {
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.workflow-tasks-main .kanban-col-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px 6px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.workflow-tasks-main .kanban-col-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.workflow-tasks-main .kanban-col-title {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  font-size: var(--pico-font-size, 14px);
+}
+
+.workflow-tasks-main .kanban-col-count {
+  margin-left: auto;
+  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-background-color, #0d1117);
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: var(--pico-font-size-condensed, 12px);
+}
+
+.workflow-tasks-main .kanban-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.workflow-tasks-main .kanban-card:hover {
+  border-color: var(--pico-primary, #58a6ff);
+  transform: translateY(-1px);
+}
+
+.workflow-tasks-main .kanban-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.workflow-tasks-main .kanban-card-title {
+  font-weight: 500;
+  color: var(--pico-color, #c9d1d9);
+  font-size: var(--pico-font-size, 14px);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.workflow-tasks-main .kanban-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.workflow-tasks-main .kanban-card-type {
+  font-size: var(--pico-font-size-condensed, 11px);
+  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.workflow-tasks-main .kanban-card-date {
+  font-size: var(--pico-font-size-condensed, 11px);
+  color: var(--pico-muted-color, #8b949e);
 }
 
 .workflow-empty {
