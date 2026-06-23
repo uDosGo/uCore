@@ -465,7 +465,7 @@ function WorkflowsTab({ workflows }: { workflows: Workflow[] }) {
   )
 }
 
-const AGENT_ROUTER_URL = 'http://localhost:8486'
+const AGENT_ROUTER_URL = 'http://localhost:8485'
 
 interface RouterAgent {
   id: string
@@ -539,7 +539,7 @@ function AgentsTab() {
         </div>
         <div className="userver-card" style={{ margin: 16, padding: 24, textAlign: 'center' }}>
           <p className="userver-text" style={{ color: 'var(--pico-del-color, #f85149)' }}>
-            ⚠️ Agent Router unavailable — start agent-router on port 8486
+            ⚠️ Agent Router unavailable — start agent-router on port 8485
           </p>
           <p className="userver-text" style={{ marginTop: 8, fontSize: 12 }}>
             {error || 'No agents registered'}

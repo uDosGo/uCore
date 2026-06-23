@@ -51,6 +51,7 @@ Canonical docs live in **[uDocs](https://github.com/uDosGo/uDocs)**:
 | [Runbooks](https://github.com/uDosGo/uDocs/blob/main/runbooks/development.md) | Setup, deploy, backup, troubleshooting |
 | [Surfaces](https://github.com/uDosGo/uDocs/tree/main/surfaces) | AssistUI, Ceefax, GridUI, System, more |
 | [Cline Guide](https://github.com/uDosGo/uDocs/blob/main/guides/cline-roundtable-setup.md) | Cline + Roundtable orchestration |
+| [Consolidation Plan](docs/CONSOLIDATION_PLAN.md) | Current docs consolidation status |
 
 ## Dev Plan
 
@@ -97,6 +98,14 @@ bash scripts/install_appflowy_import_launchd.sh --interval-seconds 1800
 - **15 built-in skills** — auto-discovered
 - **4 AI providers** — Ollama, OpenRouter, Claude, Gemini
 - **7 surfaces** — AssistUI, GridUI, BrowserUI, System, UServer, Mission Control, Developer
+
+## Configuration
+
+Unified configuration lives in:
+- `frontend/src/config/merged-config.ts`
+- `backend/app/core/config.py`
+
+See `docs/CONSOLIDATION_PLAN.md` for current consolidation status.
 
 ## License
 

@@ -854,7 +854,7 @@ function CreativePanel() {
 }
 
 // ─── Agent Router URL ───────────────────────────────────────────────
-const AGENT_ROUTER_URL = 'http://localhost:8486'
+const AGENT_ROUTER_URL = 'http://localhost:8485'
 
 // ─── Agents Panel ───────────────────────────────────────────────────
 function AgentsPanel() {
@@ -908,7 +908,7 @@ function AgentsPanel() {
           <span className="developer-panel-count">Offline</span>
         </div>
         <div style={{ padding: 24, textAlign: 'center', color: 'var(--pico-del-color, #f85149)' }}>
-          <p>⚠️ Agent Router unavailable — start agent-router on port 8486</p>
+          <p>⚠️ Agent Router unavailable — start agent-router on port 8485</p>
           <p style={{ fontSize: 12, marginTop: 8, color: 'var(--pico-muted-color, #8b949e)' }}>
             {error || 'No agents registered'}
           </p>

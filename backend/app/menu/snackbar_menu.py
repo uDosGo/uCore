@@ -559,12 +559,26 @@ class SnackbarMenuDelegate(NSObject):
 
         self._menu.addItem_(NSMenuItem.separatorItem())
 
-        # ── Restart uCore ───────────────────────────────────
+        # ── Services ────────────────────────────────────────
+        services_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "⚙️ Services", None, ""
+        )
+        services_title.setEnabled_(False)
+        self._menu.addItem_(services_title)
+
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "❄️ Restart uCore", "restartUcore:", ""
+            "↻ Restart uCore", "restartUcore:", ""
         )
         item.setTarget_(self)
         self._menu.addItem_(item)
+
+        item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            "🌐 Restart Frontend Dev Server", "restartFrontendDevServer:", ""
+        )
+        item.setTarget_(self)
+        self._menu.addItem_(item)
+
+        self._menu.addItem_(NSMenuItem.separatorItem())
 
         # ── Quit ───────────────────────────────────────────────
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
@@ -1027,6 +1041,23 @@ class SnackbarMenuDelegate(NSObject):
         time.sleep(2)
         self._refresh()
 
+    def restartFrontendDevServer_(self, sender):
+        """Restart the frontend dev server (npm run dev)."""
+        log.info("Restarting frontend dev server...")
+        try:
+            frontend_dir = os.path.join(UCORE_BACKEND_DIR, "..", "frontend")
+            subprocess.Popen(
+                ["npm", "run", "dev", "--", "--host"],
+                cwd=frontend_dir,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True,
+            )
+            log.info("Frontend dev server restart triggered")
+        except Exception as e:
+            log.warning(f"Failed to restart frontend dev server: {e}")
+        self._refresh()
+
     def quitApp_(self, sender):
         """Quit the snackbar menu app."""
         log.info("Quitting ucore-menu")
@@ -1088,6 +1119,8 @@ def release_lock():
             if stored_pid == os.getpid():
                 os.remove(LOCKFILE)
                 log.info("Lockfile released")
+        except (OSError, ValueError):
+            pass
     except (ValueError, OSError):
         pass
 

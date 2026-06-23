@@ -57,6 +57,10 @@ Archive or deprecate in-place:
 2. uDocs CONTEXT.md drafted.
 3. ADR-001 and ADR-002 drafted.
 4. Source inventory and decisions documented in /Users/fredbook/Code/uDocs/migration-source-inventory.md.
+5. Configuration consolidation:
+   - `frontend/src/config/merged-config.ts`
+   - `backend/app/core/config.py`
+   - `backend/tests/test_core_config.py` added and passing.
 
 ## Next Milestone A Actions
 
@@ -98,6 +102,7 @@ Archive or deprecate in-place:
 - Every repo README links to uDocs canonical sections.
 - Duplicate detailed docs outside uDocs are archived or replaced with pointers.
 - AI context files reference uDocs as source of truth.
+- Unified configuration files added and validated on both frontend and backend.
 
 ## 2026-06-22 Progress Update
 
