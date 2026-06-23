@@ -5,13 +5,13 @@
    Middle: Surface-specific tab links (optional, passed via props)
    Right:  Dev Mode + Settings + extra
    ═══════════════════════════════════════════════════════════════════
-   Chat toggle removed from toolbar — now a floating Intercom-style
-   launcher button in ProseSurfaceManager (bottom-right, fixed).
-  Feeds (rss_feed) removed — now consolidated under /server tabs.
+   Dev Mode toggle shown only when dev server is detected running.
+   Clicking OFF stops dev server and hides the toggle.
    ═══════════════════════════════════════════════════════════════════ */
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon } from './Icon'
+import { useDevMode } from '../hooks/useDevMode'
 
 export interface ToolbarTab {
   id: string
@@ -56,8 +56,6 @@ interface GlobalToolbarProps {
   feedsOpen?: boolean
 }
 
-
-
 export function GlobalToolbar({
   tabs,
   chatMode,
@@ -75,10 +73,9 @@ export function GlobalToolbar({
   onToggleFeeds,
   feedsOpen,
 }: GlobalToolbarProps) {
-
-
   const navigate = useNavigate()
   const resolvedSidebarLabel = sidebarToggleLabel || 'Filepicker sidebar'
+  const { devServerRunning, loading, toggleDevMode } = useDevMode()
 
   const handleHome = () => {
     navigate('/?tab=surfaces')
@@ -118,7 +115,6 @@ export function GlobalToolbar({
             <Icon name="folder" size={18} />
           </button>
         )}
-        {/* ─── Web Reader (Globe) — always shows globe icon ─── */}
         {!hideGlobe && (
           <button
             className="usx-header-btn"
@@ -129,20 +125,6 @@ export function GlobalToolbar({
             <Icon name="map" size={18} />
           </button>
         )}
-        {/* ─── Feeds (rss_feed) — REMOVED from global bar ─── */}
-        {/* Feeds now routes through the consolidated server surface. If you need it back,
-            uncomment the block below and pass hideFeeds={false} from callers.
-        {!hideFeeds && (
-          <button
-            className={`usx-header-btn ${feedsOpen ? 'active' : ''}`}
-            onClick={handleFeeds}
-            title="Feeds Panel"
-            aria-label="Feeds"
-          >
-            <Icon name="rss_feed" size={18} />
-          </button>
-        )} */}
-        {/* ─── AssistUI (bolt) — highlighted when on AssistUI surface ─── */}
         {!hideAssistUI && (
           <button
             className={`usx-header-btn ${assistUIActive ? 'active' : ''}`}
@@ -153,7 +135,6 @@ export function GlobalToolbar({
           </button>
         )}
       </div>
-
 
       {/* ─── Middle: Surface-specific tabs (zen mode if empty) ─── */}
       {tabs && tabs.length > 0 && (
@@ -172,10 +153,29 @@ export function GlobalToolbar({
         </nav>
       )}
 
-      {/* ─── Right: Settings + extra ─── */}
+      {/* ─── Right: Dev Mode + Settings + extra ─── */}
       <div className="usx-header-right">
         {rightExtra}
-        {/* ─── Settings gear — always visible, navigates to System Tools settings ─── */}
+
+        {/* Dev Mode toggle — only appears when dev server is running */}
+        {devServerRunning && (
+          <button
+            className="usx-header-btn usx-header-btn--dev"
+            onClick={toggleDevMode}
+            disabled={loading}
+            title="Dev Mode active — click to stop dev server"
+            style={{
+              color: '#f97583',
+              borderColor: 'rgba(249, 117, 131, 0.3)',
+              background: 'rgba(249, 117, 131, 0.08)',
+            }}
+          >
+            <Icon name="tune" size={16} />
+            <span style={{ fontSize: 11, marginLeft: 4 }}>Dev</span>
+          </button>
+        )}
+
+        {/* Settings gear */}
         <button
           className="usx-header-btn"
           onClick={() => {
@@ -186,7 +186,6 @@ export function GlobalToolbar({
         >
           <Icon name="settings" size={18} />
         </button>
-        {/* ─── Chat panel toggle — REMOVED: now a floating launcher in ProseSurfaceManager ─── */}
       </div>
     </header>
   )

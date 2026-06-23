@@ -18,11 +18,8 @@ import AssistUISurface from '../assistui/AssistUISurface'
 import SystemToolsSurface, { ToolsPanel, SystemPagesPanel } from '../systemtools/SystemToolsSurface'
 import { SettingsPanel } from '../system/SettingsPanel'
 import SecretStorePanel from '../system/SecretStorePanel'
+import type { RouterAgent, RouterStats } from '../../shared/types/agent-router'
 import '../../styles/userver.css'
-
-const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
-  String(import.meta.env.VITE_DEV_MODE || '').toLowerCase(),
-)
 
 // ─── Constants ───────────────────────────────────────────────────────
 const SNACKBAR_API = 'http://localhost:8484'
@@ -872,25 +869,6 @@ function BudgetTab() {
 }
 
 const AGENT_ROUTER_URL = 'http://localhost:8484'
-
-interface RouterAgent {
-  id: string
-  name: string
-  capabilities: string[]
-  status: string
-  load: string
-  costPerTask: number
-  avgLatencyMs: number
-  successRate: number
-}
-
-interface RouterStats {
-  totalRouted: number
-  totalErrors: number
-  byAgent: Record<string, number>
-  byCapability: Record<string, number>
-  recentRoutes: Array<{ task: string; agent: string; capability: string; timestamp: string }>
-}
 
 function AgentsTab() {
   const [routerAgents, setRouterAgents] = useState<RouterAgent[]>([])
@@ -1863,9 +1841,6 @@ export default function UServerSurface() {
               style={budgetOverLimit ? { borderColor: '#f85149', color: '#f85149' } : undefined}
             >
               Budget: {budgetRemaining === null ? 'n/a' : `$${budgetRemaining.toFixed(2)}`}
-            </span>
-            <span className="hub-status-badge" title="Developer surface visibility mode">
-              Dev: {DEV_MODE_ENABLED ? 'on' : 'off'}
             </span>
           </div>
         }

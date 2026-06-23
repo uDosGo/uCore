@@ -31,26 +31,6 @@ interface WorkflowRun {
   steps?: Array<{ step_index: number; step_name: string; status: string }>
 }
 
-// ─── Agent Router Types ─────────────────────────────────────────────
-interface RouterAgent {
-  id: string
-  name: string
-  capabilities: string[]
-  status: string
-  load: string
-  costPerTask: number
-  avgLatencyMs: number
-  successRate: number
-}
-
-interface RouterStats {
-  totalRouted: number
-  totalErrors: number
-  byAgent: Record<string, number>
-  byCapability: Record<string, number>
-  recentRoutes: Array<{ task: string; agent: string; capability: string; timestamp: string }>
-}
-
 interface RepoInfo {
   name: string
   path: string
@@ -122,6 +102,83 @@ const SAMPLE_REVIEWS: ReviewEntry[] = [
   { file: 'snackbar/server.py', status: 'modified', lines: 45, summary: 'Added /api/chat/prompts endpoint for dynamic prompt cards' },
   { file: 'CHANGELOG.md', status: 'modified', lines: 12, summary: 'Updated with latest changes' },
 ]
+
+// ─── Simple Diff Viewer ─────────────────────────────────────────────
+function parseSimpleDiff(diffText: string): Array<{ type: 'add' | 'del' | 'ctx'; lineNumOld: string; lineNumNew: string; content: string }> {
+  const lines = diffText.split('\n')
+  const result: Array<{ type: 'add' | 'del' | 'ctx'; lineNumOld: string; lineNumNew: string; content: string }> = []
+  let oldLine = 0
+  let newLine = 0
+
+  for (const line of lines) {
+    if (line.startsWith('@@')) {
+      const match = line.match(/@@ -(\d+),?\d* \+(\d+),?\d* @@/)
+      if (match) {
+        oldLine = parseInt(match[1], 10) - 1
+        newLine = parseInt(match[2], 10) - 1
+      }
+      result.push({ type: 'ctx', lineNumOld: '…', lineNumNew: '…', content: line })
+      continue
+    }
+    if (line.startsWith('+')) {
+      newLine++
+      result.push({ type: 'add', lineNumOld: '', lineNumNew: String(newLine), content: line.slice(1) })
+    } else if (line.startsWith('-')) {
+      oldLine++
+      result.push({ type: 'del', lineNumOld: String(oldLine), lineNumNew: '', content: line.slice(1) })
+    } else if (line.startsWith(' ')) {
+      oldLine++
+      newLine++
+      result.push({ type: 'ctx', lineNumOld: String(oldLine), lineNumNew: String(newLine), content: line.slice(1) })
+    } else {
+      // header or metadata line
+      result.push({ type: 'ctx', lineNumOld: '', lineNumNew: '', content: line })
+    }
+  }
+  return result
+}
+
+function SimpleDiffViewer({ diff }: { diff: FileDiff | null }) {
+  if (!diff || !diff.hasDiff || !diff.diff) {
+    return <div className="developer-preview-empty">No diff available for this file.</div>
+  }
+
+  const parsed = parseSimpleDiff(diff.diff)
+  const added = parsed.filter(l => l.type === 'add').length
+  const removed = parsed.filter(l => l.type === 'del').length
+
+  return (
+    <div className="diff-editor-simple">
+      <div className="diff-editor-simple-toolbar">
+        <span className="diff-editor-simple-label">{diff.repo}</span>
+        <div className="diff-editor-simple-actions">
+          <span style={{ color: '#3fb950', fontSize: 11 }}>+{added}</span>
+          <span style={{ color: '#f85149', fontSize: 11 }}>-{removed}</span>
+        </div>
+      </div>
+      <div className="diff-editor-simple-body">
+        <div className="diff-editor-simple-unified">
+          {parsed.map((line, i) => (
+            <div key={i} className={`diff-editor-simple-unified-line`}
+                 style={{ background: line.type === 'add' ? 'rgba(63,185,80,0.12)' : line.type === 'del' ? 'rgba(248,81,73,0.12)' : 'transparent' }}>
+              <span className="diff-editor-simple-unified-nums">
+                {line.lineNumOld}{line.lineNumOld && line.lineNumNew ? ',' : ''}{line.lineNumNew}
+              </span>
+              <span className="diff-editor-simple-unified-marker"
+                    style={{ color: line.type === 'add' ? '#3fb950' : line.type === 'del' ? '#f85149' : '#8b949e' }}>
+                {line.type === 'add' ? '+' : line.type === 'del' ? '-' : ' '}
+              </span>
+              <span className="diff-editor-simple-unified-content"
+                    style={{ color: line.type === 'add' ? '#3fb950' : line.type === 'del' ? '#f85149' : 'var(--pico-color, #c9d1d9)' }}>
+                {line.content}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ─── Prose Markdown Renderer ────────────────────────────────────────
 function renderProseMarkdown(text: string): string {
@@ -518,11 +575,7 @@ function FilePreviewPanel({
             />
           </div>
         ) : mode === 'diff' ? (
-          diff?.hasDiff ? (
-            <pre className="developer-preview-code developer-preview-code--diff"><code>{diff.diff}</code></pre>
-          ) : (
-            <div className="developer-preview-empty">No diff available for this file.</div>
-          )
+          <SimpleDiffViewer diff={diff} />
         ) : (
           <>
             <pre className="developer-preview-code"><code>{preview.content}</code></pre>

@@ -572,9 +572,6 @@ export default function MissionControlSurface() {
               <span className={`hub-status-dot ${runningCount > 0 ? 'hub-status-dot--online' : ''}`} />
               {runningCount}/{surfaces.length} online
             </span>
-            <span className="hub-status-badge" title="Developer surface visibility mode">
-              Dev: {DEV_MODE_ENABLED ? 'on' : 'off'}
-            </span>
           </div>
         }
       />

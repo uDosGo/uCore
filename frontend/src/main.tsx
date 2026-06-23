@@ -11,16 +11,11 @@
      /proseui/*     → Redirects to / (absorbed into MissionControl)
      /browserui/*   → BrowserUISurface (kept)
      /server/*      → UServerSurface (kept)
-     /developer/**  → DeveloperSurface (kept)
+     /workflow/*    → WorkflowSurface (daily missions, tasks, activity)
+     /developer/**  → DeveloperSurface (gated by Dev Mode)
     /system/*      → Redirect to /server?tab=... (legacy compatibility)
    Removed: HomeNestSurface, WorldMapSurface, Code3UISurface, VibeSurface, GridUISurface (dead)
    Absorbed: ChatUISurface → AssistUI, FloatingChatPanel → AssistUI, USystemRouter → UIHubManager
-   ═══════════════════════════════════════════════════════════════════
-   NOTE: @usx/styles symlinks to packages/usx/ which is currently
-   empty. The CSS imports below are kept for type declarations but
-   the actual CSS files need to be rebuilt. For now, the snackbar
-   CSS import has been removed from proseui-theme.css (snackbar is
-   a runtime, not a style).
    ═══════════════════════════════════════════════════════════════════ */
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -34,10 +29,8 @@ import AssistUISurface from './surfaces/assistui/AssistUISurface'
 import DeveloperSurface from './surfaces/developer/DeveloperSurface'
 import DocumentationSurface from './surfaces/documentation/DocumentationSurface'
 import UServerSurface from './surfaces/userver/UServerSurface'
-
-const DEV_MODE_ENABLED = ['1', 'true', 'yes', 'on'].includes(
-  String(import.meta.env.VITE_DEV_MODE || 'true').toLowerCase(),
-)
+import WorkflowSurface from './surfaces/workflow/WorkflowSurface'
+import { DevModeProvider, useDevMode } from './hooks/useDevMode'
 
 // S-pages (system pages)
 import S100ToolBuilder from './pages/S100ToolBuilder'
@@ -87,35 +80,55 @@ function App() {
   return <MissionControlSurface />
 }
 
+/** Dev route guard — reads from runtime context instead of build-time env */
+function DevRouteGuard({ children }: { children: React.ReactNode }) {
+  const { devServerRunning, probing } = useDevMode()
+  // Show loading spinner while still probing (avoids premature redirect)
+  if (probing) {
+    return (
+      <div style={{ padding: 40, textAlign: 'center', color: 'var(--pico-muted-color)', fontSize: 14 }}>
+        Checking dev server status...
+      </div>
+    )
+  }
+  if (!devServerRunning) {
+    return <Navigate to="/" replace />
+  }
+  return <>{children}</>
+}
+
 function Root() {
   return (
     <BrowserRouter>
       <SurfaceShellProvider>
-        <Routes>
-          <Route path="/proseui/*" element={<Navigate to="/" replace />} />
-          <Route path="/gridui/*" element={<Navigate to="/ucode" replace />} />
-          <Route path="/story-builder" element={<Navigate to="/s101" replace />} />
-          <Route path="/user-setup-story" element={<Navigate to="/s101" replace />} />
-          <Route path="/story/gtx-form" element={<Navigate to="/s101" replace />} />
-          <Route path="/ucode/*" element={<UCodeSurface />} />
-          <Route path="/browserui/*" element={<BrowserUISurface />} />
-          <Route path="/assistui/*" element={<AssistUISurface />} />
-          <Route path="/documentation/*" element={<DocumentationSurface />} />
-          <Route path="/devstudio" element={<Navigate to="/developer" replace />} />
-          <Route path="/devstudio/*" element={<Navigate to="/developer" replace />} />
-          <Route path="/developer" element={DEV_MODE_ENABLED ? <DeveloperSurface /> : <Navigate to="/" replace />} />
-          <Route path="/developer/*" element={DEV_MODE_ENABLED ? <DeveloperSurface /> : <Navigate to="/" replace />} />
-          <Route path="/server/*" element={<UServerSurface />} />
-          <Route path="/userver/*" element={<UserverRouteRedirect />} />
-          <Route path="/system" element={<SystemRouteRedirect />} />
-          <Route path="/system/*" element={<SystemRouteRedirect />} />
-          <Route path="/system-legacy" element={<Navigate to="/server?tab=settings" replace />} />
-          <Route path="/system-legacy/*" element={<Navigate to="/server?tab=settings" replace />} />
-          <Route path="/gridcore/*" element={<Navigate to="/ucode?panel=terminal" replace />} />
-          <Route path="/*" element={<App />} />
-        </Routes>
-        {/* Floating chat bubble + panel — hidden on /assistui since full-page AssistUI is shown */}
-        <FloatingChatWrapper />
+        <DevModeProvider>
+          <Routes>
+            <Route path="/proseui/*" element={<Navigate to="/" replace />} />
+            <Route path="/gridui/*" element={<Navigate to="/ucode" replace />} />
+            <Route path="/story-builder" element={<Navigate to="/s101" replace />} />
+            <Route path="/user-setup-story" element={<Navigate to="/s101" replace />} />
+            <Route path="/story/gtx-form" element={<Navigate to="/s101" replace />} />
+            <Route path="/workflow/*" element={<WorkflowSurface />} />
+            <Route path="/ucode/*" element={<UCodeSurface />} />
+            <Route path="/browserui/*" element={<BrowserUISurface />} />
+            <Route path="/assistui/*" element={<AssistUISurface />} />
+            <Route path="/documentation/*" element={<DocumentationSurface />} />
+            <Route path="/devstudio" element={<Navigate to="/developer" replace />} />
+            <Route path="/devstudio/*" element={<Navigate to="/developer" replace />} />
+            <Route path="/developer" element={<DevRouteGuard><DeveloperSurface /></DevRouteGuard>} />
+            <Route path="/developer/*" element={<DevRouteGuard><DeveloperSurface /></DevRouteGuard>} />
+            <Route path="/server/*" element={<UServerSurface />} />
+            <Route path="/userver/*" element={<UserverRouteRedirect />} />
+            <Route path="/system" element={<SystemRouteRedirect />} />
+            <Route path="/system/*" element={<SystemRouteRedirect />} />
+            <Route path="/system-legacy" element={<Navigate to="/server?tab=settings" replace />} />
+            <Route path="/system-legacy/*" element={<Navigate to="/server?tab=settings" replace />} />
+            <Route path="/gridcore/*" element={<Navigate to="/ucode?panel=terminal" replace />} />
+            <Route path="/*" element={<App />} />
+          </Routes>
+          {/* Floating chat bubble + panel — hidden on /assistui since full-page AssistUI is shown */}
+          <FloatingChatWrapper />
+        </DevModeProvider>
       </SurfaceShellProvider>
     </BrowserRouter>
   )
