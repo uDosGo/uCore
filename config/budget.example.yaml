@@ -1,0 +1,15 @@
+# uCore budget policy example
+# Place an active policy at ~/.ucore/config/budget.yaml
+
+monthly_usd_limit: 25.0
+default_estimated_cost: 0.01
+
+guarded_endpoints:
+  - /api/chat
+  - /api/mcp/chat
+
+per_model_limits:
+  gpt-4o-mini: 8.0
+  gpt-4o: 12.0
+  claude-3-haiku: 5.0
+  deepseek-chat: 4.0

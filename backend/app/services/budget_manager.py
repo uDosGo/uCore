@@ -4,7 +4,6 @@ from __future__ import annotations
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 from app.core.settings import settings
@@ -136,7 +135,10 @@ class BudgetManager:
                 SELECT
                     COALESCE(SUM(actual_cost), 0) AS total_cost,
                     COUNT(*) AS total_calls,
-                    COALESCE(SUM(CASE WHEN blocked = 1 THEN 1 ELSE 0 END), 0) AS blocked_calls
+                    COALESCE(
+                        SUM(CASE WHEN blocked = 1 THEN 1 ELSE 0 END),
+                        0
+                    ) AS blocked_calls
                 FROM usage_logs
                 WHERE ts >= ? AND ts < ?
                 """,
@@ -153,7 +155,10 @@ class BudgetManager:
             "total_calls": total_calls,
             "blocked_calls": blocked_calls,
             "monthly_limit": self._policy.monthly_usd_limit,
-            "remaining_budget": max(self._policy.monthly_usd_limit - total_cost, 0.0),
+            "remaining_budget": max(
+                self._policy.monthly_usd_limit - total_cost,
+                0.0,
+            ),
             "over_limit": total_cost >= self._policy.monthly_usd_limit,
         }
 
@@ -165,13 +170,14 @@ class BudgetManager:
     ) -> tuple[bool, str | None, dict[str, Any]]:
         usage = self.get_monthly_usage()
 
-        if usage["total_cost"] + estimated_cost > self._policy.monthly_usd_limit:
+        monthly_limit = self._policy.monthly_usd_limit
+        if usage["total_cost"] + estimated_cost >= monthly_limit:
             return (False, "Monthly budget limit reached", usage)
 
         if model and model in self._policy.per_model_limits:
             model_limit = self._policy.per_model_limits[model]
             model_usage = self.get_model_monthly_usage(model)
-            if model_usage + estimated_cost > model_limit:
+            if model_usage + estimated_cost >= model_limit:
                 return (
                     False,
                     f"Model budget reached for {model}",
