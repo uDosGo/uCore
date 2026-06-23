@@ -14,9 +14,11 @@ import { Icon } from '../../components/Icon'
 import TaskDetailDrawer, { TaskDetailData } from '../../components/TaskDetailDrawer'
 import VaultSidebar, { Binder, SidebarNavItem, VaultFile } from '../../components/VaultSidebar'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
+import { ModelsPanel } from './ModelsPanel'
+import { AgentsPanel } from './AgentsPanel'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type DeveloperTab = 'kanban' | 'tasks' | 'repos' | 'skills' | 'review' | 'workflows' | 'benchbench' | 'creative' | 'agents' | 'settings'
+type DeveloperTab = 'models' | 'agents' | 'kanban' | 'tasks' | 'repos' | 'skills' | 'review' | 'workflows' | 'benchbench' | 'creative' | 'agents-old' | 'settings'
 
 interface WorkflowRun {
   run_id: string
@@ -116,7 +118,7 @@ const SAMPLE_REPOS: RepoInfo[] = [
 ]
 
 const SNACKBAR_API = 'http://localhost:8484'
-const DEVELOPER_TABS: DeveloperTab[] = ['kanban', 'tasks', 'repos', 'skills', 'review', 'workflows', 'benchbench', 'creative', 'agents', 'settings']
+const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'kanban', 'tasks', 'repos', 'skills', 'review', 'workflows', 'benchbench', 'creative', 'agents-old', 'settings']
 
 // ─── Sample Skills ──────────────────────────────────────────────────
 const SAMPLE_SKILLS: SkillInfo[] = [
@@ -1090,7 +1092,7 @@ function CreativePanel() {
 const AGENT_ROUTER_URL = 'http://localhost:8484'
 
 // ─── Agents Panel ───────────────────────────────────────────────────
-function AgentsPanel() {
+function RouterAgentsPanel() {
   const [routerAgents, setRouterAgents] = useState<RouterAgent[]>([])
   const [routerStats, setRouterStats] = useState<RouterStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -1683,6 +1685,8 @@ export default function DeveloperSurface() {
   }))
 
   const developerNavItems: SidebarNavItem[] = [
+    { id: 'models', icon: 'database', label: 'Models', active: activeTab === 'models', onClick: () => setTabAndRoute('models') },
+    { id: 'agents', icon: 'smart_toy', label: 'Agents', active: activeTab === 'agents', onClick: () => setTabAndRoute('agents') },
     { id: 'kanban', icon: 'calendar_view_week', label: 'Kanban', active: activeTab === 'kanban', onClick: () => setTabAndRoute('kanban') },
     { id: 'tasks', icon: 'task_alt', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
     { id: 'repos', icon: 'folder_open', label: 'Repos', active: activeTab === 'repos', onClick: () => setTabAndRoute('repos') },
@@ -1691,7 +1695,7 @@ export default function DeveloperSurface() {
     { id: 'workflows', icon: 'play_circle', label: 'Workflows', active: activeTab === 'workflows', onClick: () => setTabAndRoute('workflows') },
     { id: 'benchbench', icon: 'bar_chart', label: 'Bench', active: activeTab === 'benchbench', onClick: () => setTabAndRoute('benchbench') },
     { id: 'creative', icon: 'palette', label: 'Creative', active: activeTab === 'creative', onClick: () => setTabAndRoute('creative') },
-    { id: 'agents', icon: 'smart_toy', label: 'Agents', active: activeTab === 'agents', onClick: () => setTabAndRoute('agents') },
+    { id: 'agents-old', icon: 'power', label: 'Old Agents', active: activeTab === 'agents-old', onClick: () => setTabAndRoute('agents-old') },
     { id: 'settings', icon: 'settings', label: 'Settings', active: activeTab === 'settings', onClick: () => setTabAndRoute('settings') },
   ]
 
@@ -1800,6 +1804,8 @@ export default function DeveloperSurface() {
         )}
 
         <main className="usx-surface-main developer-surface-main">
+        {activeTab === 'models' && <ModelsPanel />}
+        {activeTab === 'agents' && <AgentsPanel />}
         {activeTab === 'kanban' && <KanbanPanel />}
         {activeTab === 'tasks' && <ActiveTasksPanel />}
         {activeTab === 'repos' && <ReposPanel repos={repos} loading={reposLoading} onBrowseRepo={(repoName) => {
@@ -1850,7 +1856,7 @@ export default function DeveloperSurface() {
         {activeTab === 'workflows' && <WorkflowsPanel />}
         {activeTab === 'benchbench' && <BenchBenchPanel />}
         {activeTab === 'creative' && <CreativePanel />}
-        {activeTab === 'agents' && <AgentsPanel />}
+        {activeTab === 'agents-old' && <RouterAgentsPanel />}
         {activeTab === 'settings' && <SettingsPanel />}
         </main>
 

@@ -63,6 +63,15 @@ def register_routes(app: web.Application) -> None:
         handle_run_workflow,
         handle_workflow_logs,
     )
+    from .handlers import (
+        handle_ollama_status,
+        handle_ollama_models_available,
+        handle_ollama_performance,
+        handle_agents_spec_list,
+        handle_agents_spec_get,
+        handle_agents_spec_route,
+        handle_agents_spec_capability,
+    )
 
     # Knowledge (AppFlowy bridge)
     app.router.add_get("/api/knowledge/workspaces", handle_list_workspaces)
@@ -129,6 +138,17 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/tools/{tool_id}/status", handle_tool_status)
     app.router.add_get("/api/agents", handle_list_agents)
     app.router.add_get("/api/agents/stats", handle_agents_stats)
+
+    # Ollama Model Management
+    app.router.add_get("/api/ollama/status", handle_ollama_status)
+    app.router.add_get("/api/ollama/models/available", handle_ollama_models_available)
+    app.router.add_get("/api/ollama/performance", handle_ollama_performance)
+
+    # Specialized Agents
+    app.router.add_get("/api/agents/spec/list", handle_agents_spec_list)
+    app.router.add_get("/api/agents/spec/get/{agent_id}", handle_agents_spec_get)
+    app.router.add_post("/api/agents/spec/route", handle_agents_spec_route)
+    app.router.add_get("/api/agents/spec/capability/{capability}", handle_agents_spec_capability)
     app.router.add_get("/api/system", system_info_handler)
     app.router.add_get("/api/system/maintenance", maintenance_status_handler)
     app.router.add_get("/api/system/workflow", workflow_status_handler)
