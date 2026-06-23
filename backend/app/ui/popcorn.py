@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 uDos Popcorn — macOS menu bar app for Ollama Management v3.0.
 
