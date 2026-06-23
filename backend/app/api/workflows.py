@@ -22,8 +22,16 @@ _import_jobs: dict[str, dict[str, Any]] = {}
 
 TRACKED_FIELDS = {"status", "progress", "message", "timestamp", "task_id"}
 
-_workflows: dict[str, dict[str, Any]] = {}
-_workflow_logs: dict[str, list[dict[str, Any]]] = {}
+# Workflow manager singleton for persistent storage
+_manager: Any = None
+
+
+def get_workflow_manager():
+    global _manager
+    if _manager is None:
+        from app.services.workflow_manager import WorkflowManager
+        _manager = WorkflowManager()
+    return _manager
 
 
 def record_import_job(
@@ -345,17 +353,20 @@ def _normalize_step(step: Any) -> dict[str, Any] | None:
 
 
 def _append_workflow_log(workflow_id: str, event: dict[str, Any]) -> None:
-    row = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        **event,
-    }
-    _workflow_logs.setdefault(workflow_id, []).append(row)
-    if len(_workflow_logs[workflow_id]) > 500:
-        _workflow_logs[workflow_id] = _workflow_logs[workflow_id][-500:]
+    manager = get_workflow_manager()
+    manager.record_log(
+        workflow_id=workflow_id,
+        event=event.get("event", ""),
+        message=event.get("message", ""),
+        level=event.get("level", "info"),
+        run_id=event.get("run_id", ""),
+        step_index=event.get("step_index", 0),
+        skill_id=event.get("skill_id", ""),
+    )
 
 
 async def handle_create_workflow(request: web.Request) -> web.Response:
-    """POST /api/workflows — create an in-memory workflow definition."""
+    """POST /api/workflows — create a persistent workflow definition."""
     try:
         body = await request.json()
     except Exception:
@@ -387,16 +398,14 @@ async def handle_create_workflow(request: web.Request) -> web.Response:
         steps.append(normalized)
 
     workflow_id = _new_workflow_id(name)
-    workflow = {
-        "id": workflow_id,
-        "name": name,
-        "description": str(body.get("description", "")).strip(),
-        "schedule": str(body.get("schedule", "manual")).strip() or "manual",
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "steps": steps,
-        "step_count": len(steps),
-    }
-    _workflows[workflow_id] = workflow
+    manager = get_workflow_manager()
+    workflow = manager.create_workflow(
+        workflow_id=workflow_id,
+        name=name,
+        steps=steps,
+        description=str(body.get("description", "")).strip(),
+        schedule=str(body.get("schedule", "manual")).strip() or "manual",
+    )
     _append_workflow_log(
         workflow_id,
         {
@@ -409,12 +418,9 @@ async def handle_create_workflow(request: web.Request) -> web.Response:
 
 
 async def handle_list_workflows(request: web.Request) -> web.Response:
-    """GET /api/workflows — list in-memory workflow definitions."""
-    workflows = sorted(
-        _workflows.values(),
-        key=lambda w: str(w.get("created_at", "")),
-        reverse=True,
-    )
+    """GET /api/workflows — list persistent workflow definitions."""
+    manager = get_workflow_manager()
+    workflows = manager.list_workflows()
     return web.json_response({"workflows": workflows, "count": len(workflows)})
 
 
@@ -423,7 +429,8 @@ async def handle_run_workflow(request: web.Request) -> web.Response:
     from app.skills.registry import run_skill_by_id
 
     workflow_id = request.match_info.get("workflow_id", "")
-    workflow = _workflows.get(workflow_id)
+    manager = get_workflow_manager()
+    workflow = manager.get_workflow(workflow_id)
     if not workflow:
         return web.json_response({"error": "Workflow not found"}, status=404)
 
@@ -502,15 +509,15 @@ async def handle_run_workflow(request: web.Request) -> web.Response:
             break
 
     status = "failed" if failed else "completed"
-    run_result = {
-        "run_id": run_id,
-        "workflow_id": workflow_id,
-        "workflow_name": workflow.get("name"),
-        "started_at": run_started,
-        "finished_at": datetime.now(timezone.utc).isoformat(),
-        "status": status,
-        "steps": run_rows,
-    }
+    run_result = manager.save_run(
+        run_id=run_id,
+        workflow_id=workflow_id,
+        workflow_name=workflow.get("name", ""),
+        started_at=run_started,
+        finished_at=datetime.now(timezone.utc).isoformat(),
+        status=status,
+        steps=run_rows,
+    )
 
     _append_workflow_log(
         workflow_id,
@@ -521,18 +528,15 @@ async def handle_run_workflow(request: web.Request) -> web.Response:
             "message": f"Run finished with status={status}",
         },
     )
-    history = _workflows[workflow_id].setdefault("runs", [])
-    history.append(run_result)
-    if len(history) > 50:
-        _workflows[workflow_id]["runs"] = history[-50:]
 
     return web.json_response(run_result)
 
 
 async def handle_workflow_logs(request: web.Request) -> web.Response:
-    """GET /api/workflows/{id}/logs — return workflow log and run history."""
+    """GET /api/workflows/{id}/logs — persistent logs and run history."""
     workflow_id = request.match_info.get("workflow_id", "")
-    workflow = _workflows.get(workflow_id)
+    manager = get_workflow_manager()
+    workflow = manager.get_workflow(workflow_id)
     if not workflow:
         return web.json_response({"error": "Workflow not found"}, status=404)
 
@@ -541,8 +545,8 @@ async def handle_workflow_logs(request: web.Request) -> web.Response:
     except ValueError:
         limit = 100
 
-    logs = _workflow_logs.get(workflow_id, [])[-limit:]
-    runs = list(workflow.get("runs", []))[-limit:]
+    logs = manager.get_logs(workflow_id, limit=limit)
+    runs = manager.get_run_history(workflow_id, limit=limit)
     return web.json_response(
         {
             "workflow_id": workflow_id,
