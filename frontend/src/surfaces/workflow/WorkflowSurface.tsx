@@ -350,10 +350,10 @@ function DashboardTab({ tasks, snackbarAvailable }: {
   )
 }
 
-// ─── Missions Tab (linked to tasks) ────────────────────────────
-function MissionsTab({ allTasks, onNavigateToTask }: {
+// ─── Missions Tab (grouping for tasks) ─────────────────────────
+function MissionsTab({ allTasks, onSelectMission }: {
   allTasks: WorkflowTask[]
-  onNavigateToTask: (taskId: string) => void
+  onSelectMission: (missionTitle: string) => void
 }) {
   const [missions, setMissions] = useState<Mission[]>([
     { id: 'm1', title: 'Surface Consolidation', status: 'active', priority: 'high', description: 'Consolidate surfaces into canonical lineup.', taskIds: [] },
@@ -403,22 +403,13 @@ function MissionsTab({ allTasks, onNavigateToTask }: {
                 <span className="workflow-panel-count">{m.linkedTasks.length} linked tasks</span>
               )}
             </div>
-            {m.linkedTasks.length > 0 && (
-              <div className="workflow-mission-tasks" style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {m.linkedTasks.slice(0, 5).map(t => (
-                  <div key={t.id} className="workflow-mission-task-row" onClick={() => onNavigateToTask(t.id)}
-                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', borderRadius: 4, background: 'var(--pico-card-sectioning-background-color)' }}>
-                    <span className="workflow-card-badge" style={{ borderColor: COLUMN_COLORS[t.status] || '#8b949e', color: COLUMN_COLORS[t.status] || '#8b949e', padding: '1px 6px', fontSize: 'var(--pico-font-size-condensed)' }}>
-                      {t.status}
-                    </span>
-                    <span className="workflow-card-title" style={{ fontWeight: 400, color: 'var(--pico-color)' }}>{t.title}</span>
-                  </div>
-                ))}
-                {m.linkedTasks.length > 5 && (
-                  <span className="workflow-panel-count" style={{ paddingLeft: 8 }}>+{m.linkedTasks.length - 5} more</span>
-                )}
-              </div>
-            )}
+    {/* Click card to view its tasks */}
+    <div style={{ marginTop: 8 }}>
+      <button className="workflow-toggle-btn" onClick={() => onSelectMission(m.title)}
+        style={{ width: '100%', justifyContent: 'center', padding: '6px 0' }}>
+        <Icon name="list" size={14} /> View {m.linkedTasks.length} tasks
+      </button>
+    </div>
           </div>
         ))}
       </div>
@@ -568,7 +559,7 @@ export default function WorkflowSurface() {
     navigate(`/workflow?tab=${nextTab}`)
   }
 
-  const handleNavigateToTask = (taskId: string) => {
+  const handleSelectMission = (missionTitle: string) => {
     setTabAndRoute('tasks')
   }
 
@@ -592,7 +583,7 @@ export default function WorkflowSurface() {
         <VaultSidebar open={sidebarOpen} showModeTabs sidebarMode="server" serverNavItems={workflowNavItems} />
         <main className="usx-surface-main workflow-surface-main">
           {activeTab === 'dashboard' && <DashboardTab tasks={tasks} snackbarAvailable={snackbarAvailable} />}
-          {activeTab === 'missions' && <MissionsTab allTasks={tasks} onNavigateToTask={handleNavigateToTask} />}
+          {activeTab === 'missions' && <MissionsTab allTasks={tasks} onSelectMission={handleSelectMission} />}
           {activeTab === 'tasks' && <TasksTab tasks={tasks} loading={loading} error={error} />}
         </main>
       </div>
