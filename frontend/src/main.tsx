@@ -30,6 +30,7 @@ import DeveloperSurface from './surfaces/developer/DeveloperSurface'
 import DocumentationSurface from './surfaces/documentation/DocumentationSurface'
 import UServerSurface from './surfaces/userver/UServerSurface'
 import WorkflowSurface from './surfaces/workflow/WorkflowSurface'
+import USystemSurface from './surfaces/system/USystemSurface'
 import { DevModeProvider, useDevMode } from './hooks/useDevMode'
 
 // S-pages (system pages)

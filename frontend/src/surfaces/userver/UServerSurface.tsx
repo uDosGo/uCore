@@ -34,15 +34,12 @@ const LEGACY_TAB_MAP: Record<string, string> = {
 }
 
 // ─── Types ──────────────────────────────────────────────────────────
+// Core backend ops: no admin/config tabs (pages, tools, secrets, settings → /system)
 const SERVER_TABS = [
   'dashboard',
   'ingest',
   'missions',
   'story',
-  'pages',
-  'tools',
-  'secrets',
-  'settings',
   'services',
   'logs',
   'workflows',
@@ -1809,16 +1806,13 @@ export default function UServerSurface() {
     { id: 'ingest', icon: 'upload_file', label: 'Import', active: tab === 'ingest', onClick: () => setTabAndRoute('ingest') },
     { id: 'missions', icon: 'account_tree', label: 'Mission Control', active: tab === 'missions', onClick: () => setTabAndRoute('missions') },
     { id: 'story', icon: 'auto_stories', label: 'Story Links', active: tab === 'story', onClick: () => setTabAndRoute('story') },
-    { id: 'pages', icon: 'dashboard', label: 'System Pages', active: tab === 'pages', onClick: () => setTabAndRoute('pages') },
-    { id: 'tools', icon: 'build', label: 'Tools', active: tab === 'tools', onClick: () => setTabAndRoute('tools') },
-    { id: 'secrets', icon: 'key', label: 'Secret Store', active: tab === 'secrets', onClick: () => setTabAndRoute('secrets') },
-    { id: 'settings', icon: 'settings', label: 'Settings', active: tab === 'settings', onClick: () => setTabAndRoute('settings') },
     { id: 'services', icon: 'dns', label: 'Services', active: tab === 'services', onClick: () => setTabAndRoute('services') },
     { id: 'logs', icon: 'article', label: 'Logs', active: tab === 'logs', onClick: () => setTabAndRoute('logs') },
     { id: 'workflows', icon: 'layers', label: 'Workflows', active: tab === 'workflows', onClick: () => setTabAndRoute('workflows') },
     { id: 'budget', icon: 'monitoring', label: 'Budget', active: tab === 'budget', onClick: () => setTabAndRoute('budget') },
     { id: 'agents', icon: 'smart_toy', label: 'Agents', active: tab === 'agents', onClick: () => setTabAndRoute('agents') },
     { id: 'snacks', icon: 'fast_forward', label: 'Snacks', active: tab === 'snacks', onClick: () => setTabAndRoute('snacks') },
+    { id: '_admin', icon: 'settings', label: '⚙ Admin → /system', active: false, onClick: () => navigate('/system?tab=pages') },
   ]
 
   return (
@@ -1871,14 +1865,10 @@ export default function UServerSurface() {
         )}
 
         <main className="usx-surface-main">
-          {tab === 'dashboard' && <DashboardTab services={services} workflows={workflows} logs={logs} surfaces={surfaces} onSecretStoreClick={() => setTabAndRoute('secrets')} />}
+          {tab === 'dashboard' && <DashboardTab services={services} workflows={workflows} logs={logs} surfaces={surfaces} />}
           {tab === 'ingest' && <IngestTab />}
           {tab === 'missions' && <MissionTaskBinderTab />}
           {tab === 'story' && <StoryLinksTab onNavigate={path => navigate(path)} />}
-          {tab === 'pages' && <SystemPagesPanel />}
-          {tab === 'tools' && <ToolsPanel />}
-          {tab === 'secrets' && <SecretStorePanel />}
-          {tab === 'settings' && <SettingsPanel />}
           {tab === 'services' && <ServicesTab services={services} />}
           {tab === 'logs' && <LogsTab logs={logs} loading={logsLoading} error={logsError} onRefresh={refreshLogs} />}
           {tab === 'workflows' && <WorkflowsTab workflows={workflows} />}
