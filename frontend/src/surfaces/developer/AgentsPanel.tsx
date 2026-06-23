@@ -1,11 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════
-   AgentsPanel — Specialized Agent Configuration Dashboard
+   AgentsPanel — Special Agent Configuration Dashboard (USX)
    ═══════════════════════════════════════════════════════════════════
-   Shows:
-   - Configured specialized agents
-   - Model assignments per agent
-   - Capabilities and cost tracking
-   - Task routing visualization
+   USX-styled agent cards with priority, model, provider, capabilities,
+   expandable details, and task routing info.
+   Consumed by: DeveloperSurface, UServerSurface
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useEffect } from 'react'
 import { Icon } from '../../components/Icon'
@@ -22,14 +20,6 @@ interface Agent {
   cost_per_task: number
   timeout: number
   priority: number
-}
-
-interface AgentStats {
-  agent_id: string
-  routed: number
-  success: number
-  error: number
-  avg_cost: number
 }
 
 export function AgentsPanel() {
@@ -60,183 +50,133 @@ export function AgentsPanel() {
 
   const providerColor = (provider: string) => {
     switch (provider?.toLowerCase()) {
-      case 'ollama':
-        return '#58a6ff'
-      case 'openrouter':
-        return '#3fb950'
-      case 'openai':
-        return '#79c0ff'
-      default:
-        return '#8b949e'
+      case 'ollama':    return '#58a6ff'
+      case 'openrouter': return '#3fb950'
+      case 'openai':    return '#79c0ff'
+      default:          return '#8b949e'
     }
   }
 
   return (
-    <div style={{ padding: '16px', height: '100%', overflow: 'auto' }}>
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <Icon name="smart_toy" size={20} />
-          <h2 style={{ margin: 0 }}>Specialized Agents</h2>
+    <div style={{ height: '100%', overflow: 'auto', padding: '0 16px 16px' }}>
+      {/* Header */}
+      <div className="userver-toolbar" style={{ padding: '12px 0' }}>
+        <div className="userver-toolbar-left">
+          <h2 className="userver-heading" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Icon name="smart_toy" size={20} />
+            Special Agents
+          </h2>
+          <span className="userver-card-subtitle">
+            {loading ? 'Loading\u2026' : `${agents.length} agents \u00b7 priority-sorted`}
+          </span>
         </div>
-        <p style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)', margin: 0 }}>
-          Configured agents by specialization with model assignments
-        </p>
+        <div className="userver-toolbar-actions" style={{ marginLeft: 'auto' }}>
+          <button className="userver-action-btn" onClick={() => void loadAgents()} disabled={loading}>
+            {loading ? 'Refreshing\u2026' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
-      {loading && <p style={{ color: 'var(--pico-muted-color, #8b949e)' }}>Loading...</p>}
+      {!loading && agents.length === 0 && (
+        <div className="userver-card" style={{ marginTop: 8, textAlign: 'center', padding: 24 }}>
+          <p className="userver-text" style={{ color: 'var(--pico-muted-color, #8b949e)' }}>
+            No agents configured. Use <code>/api/agents/spec/list</code> to register agents.
+          </p>
+        </div>
+      )}
 
-      {agents.length === 0 ? (
-        <p style={{ color: 'var(--pico-muted-color, #8b949e)' }}>No agents configured.</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {agents.sort((a, b) => a.priority - b.priority).map(agent => (
+      {/* Agent Cards — USX-styled */}
+      <div className="userver-grid">
+        {agents.sort((a, b) => a.priority - b.priority).map(agent => {
+          const isSelected = selectedAgent === agent.id
+          return (
             <div
               key={agent.id}
+              className="userver-card"
               style={{
-                padding: 12,
-                borderRadius: 6,
-                border: selectedAgent === agent.id ? '2px solid #58a6ff' : '1px solid var(--pico-form-element-border-color, #30363d)',
-                background: 'var(--pico-card-sectioning-background-color, #1c2128)',
+                borderLeft: `3px solid ${providerColor(agent.provider)}`,
                 cursor: 'pointer',
-                transition: 'all 0.2s',
+                transition: 'all 120ms',
+                borderColor: isSelected ? providerColor(agent.provider) : undefined,
+                boxShadow: isSelected ? `0 0 8px ${providerColor(agent.provider)}33` : undefined,
               }}
-              onClick={() => setSelectedAgent(selectedAgent === agent.id ? null : agent.id)}
+              onClick={() => setSelectedAgent(isSelected ? null : agent.id)}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 8 }}>
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: '0 0 4px' }}>
-                    #{agent.priority} {agent.name}
-                  </h4>
-                  <p style={{ margin: '0 0 4px', fontSize: '11px', color: 'var(--pico-muted-color, #8b949e)' }}>
-                    {agent.description}
-                  </p>
+              <div className="userver-card-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{
+                    padding: '2px 6px', borderRadius: 4,
+                    background: 'rgba(88,166,255,0.15)', color: '#58a6ff',
+                  }}>
+                    #{agent.priority}
+                  </span>
+                  <h3 className="userver-heading" style={{ margin: 0 }}>{agent.name}</h3>
                 </div>
-                <span
-                  style={{
-                    fontSize: '10px',
-                    padding: '3px 8px',
-                    borderRadius: 999,
-                    background: 'rgba(0,0,0,0.3)',
-                    color: providerColor(agent.provider),
-                  }}
-                >
+                <span style={{
+                  padding: '2px 8px', borderRadius: 999,
+                  background: 'rgba(0,0,0,0.3)', color: providerColor(agent.provider),
+                }}>
                   {agent.provider.toUpperCase()}
                 </span>
               </div>
 
-              {/* Model Assignment */}
-              <div
-                style={{
-                  padding: 8,
-                  borderRadius: 4,
-                  background: 'rgba(0,0,0,0.2)',
-                  marginBottom: 8,
-                }}
-              >
-                <p style={{ margin: '0 0 4px', fontSize: '10px', fontWeight: 'bold', color: '#58a6ff' }}>Model</p>
-                <code
-                  style={{
-                    fontSize: '11px',
-                    fontFamily: 'monospace',
-                    color: 'var(--pico-color, #c9d1d9)',
-                    wordBreak: 'break-all',
-                  }}
-                >
-                  {agent.model}
-                </code>
-              </div>
+              <div className="userver-card-content">
+                <p className="userver-text" style={{ margin: '0 0 8px' }}>{agent.description}</p>
 
-              {/* Capabilities */}
-              <div style={{ marginBottom: 8 }}>
-                <p style={{ margin: '0 0 4px', fontSize: '10px', fontWeight: 'bold' }}>Capabilities</p>
-                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                {/* Model assignment */}
+                <div style={{
+                  padding: 6, borderRadius: 4, marginBottom: 8,
+                  background: 'var(--pico-card-sectioning-background-color, #1c2128)',
+                }}>
+                  <span style={{ color: '#58a6ff', display: 'block', marginBottom: 2 }}>Model</span>
+                  <code style={{ wordBreak: 'break-all' }}>{agent.model}</code>
+                </div>
+
+                {/* Capabilities */}
+                <div style={{ marginBottom: 8, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                   {agent.capabilities.map(cap => (
-                    <span
-                      key={cap}
-                      style={{
-                        fontSize: '9px',
-                        padding: '2px 6px',
-                        borderRadius: 999,
-                        background: 'rgba(88, 166, 255, 0.2)',
-                        color: '#58a6ff',
-                      }}
-                    >
+                    <span key={cap} style={{
+                      padding: '1px 6px', borderRadius: 999,
+                      background: 'rgba(88,166,255,0.15)', color: '#58a6ff',
+                    }}>
                       {cap}
                     </span>
                   ))}
                 </div>
+
+                {/* Stats row */}
+                <div className="userver-service-details" style={{ gap: 12 }}>
+                  <span>Cost/task: <strong>${agent.cost_per_task.toFixed(4)}</strong></span>
+                  <span>Timeout: <strong>{agent.timeout}s</strong></span>
+                </div>
               </div>
 
-              {/* Stats */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--pico-muted-color, #8b949e)' }}>
-                <span>Cost/task: ${agent.cost_per_task.toFixed(4)}</span>
-                <span>Timeout: {agent.timeout}s</span>
-              </div>
-
-              {/* Expanded Details */}
-              {selectedAgent === agent.id && (
-                <div
-                  style={{
-                    marginTop: 12,
-                    paddingTop: 12,
-                    borderTop: '1px solid var(--pico-form-element-border-color, #30363d)',
-                    fontSize: '11px',
-                  }}
-                >
-                  <p style={{ margin: '0 0 8px', fontWeight: 'bold' }}>Description</p>
-                  <p
-                    style={{
-                      margin: 0,
-                      padding: 8,
-                      borderRadius: 4,
-                      background: 'rgba(0,0,0,0.2)',
-                      fontSize: '10px',
-                      lineHeight: 1.4,
-                      color: 'var(--pico-color, #c9d1d9)',
-                    }}
-                  >
-                    {agent.description}
-                  </p>
+              {/* Expanded description */}
+              {isSelected && (
+                <div className="userver-card-content" style={{ paddingTop: 0, color: 'var(--pico-muted-color, #8b949e)' }}>
+                  <hr style={{ border: 'none', borderTop: '1px solid var(--pico-border-color, #30363d)', margin: '8px 0' }} />
+                  <p className="userver-text" style={{ margin: 0 }}>{agent.description}</p>
                 </div>
               )}
             </div>
-          ))}
+          )
+        })}
+      </div>
+
+      {/* Task routing info card */}
+      <div className="userver-card" style={{ marginTop: 16, borderLeft: '3px solid #58a6ff', background: 'rgba(88,166,255,0.04)' }}>
+        <div className="userver-card-header">
+          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Icon name="alt_route" size={16} />
+            Task Routing
+          </h3>
         </div>
-      )}
-
-      <button
-        onClick={() => void loadAgents()}
-        disabled={loading}
-        style={{
-          marginTop: 16,
-          padding: '8px 16px',
-          fontSize: '12px',
-          borderRadius: 4,
-          border: '1px solid var(--pico-form-element-border-color, #30363d)',
-          background: 'var(--pico-card-sectioning-background-color, #1c2128)',
-          color: 'var(--pico-color, #c9d1d9)',
-          cursor: 'pointer',
-        }}
-      >
-        {loading ? 'Refreshing...' : 'Refresh'}
-      </button>
-
-      <div
-        style={{
-          marginTop: 24,
-          padding: 12,
-          borderRadius: 6,
-          border: '1px solid var(--pico-form-element-border-color, #30363d)',
-          background: 'rgba(88, 166, 255, 0.05)',
-          fontSize: '11px',
-          color: 'var(--pico-muted-color, #8b949e)',
-        }}
-      >
-        <p style={{ margin: '0 0 4px', fontWeight: 'bold' }}>Task Routing</p>
-        <p style={{ margin: 0 }}>
-          Tasks are automatically routed to the most appropriate agent based on task type and complexity. Click an agent to view its
-          full configuration.
-        </p>
+        <div className="userver-card-content">
+          <p className="userver-text" style={{ margin: 0 }}>
+            Tasks are automatically routed to the most appropriate agent based on task type and complexity.
+            Click an agent card to view its full configuration.
+          </p>
+        </div>
       </div>
     </div>
   )
