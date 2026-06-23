@@ -1,21 +1,22 @@
 /* ═══════════════════════════════════════════════════════════════════
    ui-hub — React Entry Point
    ═══════════════════════════════════════════════════════════════════
-   Surfaces (after consolidation):
-     /              → MissionControlSurface (dashboard + missions)
-     /[ps]\d{3}     → SystemPage  (P: surface status, S: system pages)
-     /assistui/*    → AssistUISurface (canonical AI chat)
+   Canonical Surface Routes:
+     /              → MissionControlSurface (surface hub dashboard)
+     /[ps]\d{3}     → SystemPage (P: surface status, S: system pages)
      /ucode/*       → UCodeSurface (Terminal + Teletext + Grid)
-    /gridui/*      → Redirect to /ucode (archived)
-    /gridcore/*    → Redirect to /ucode?panel=terminal (archived)
-     /proseui/*     → Redirects to / (absorbed into MissionControl)
-     /browserui/*   → BrowserUISurface (kept)
-     /server/*      → UServerSurface (kept)
+     /browserui/*   → BrowserUISurface (web reader)
+     /assistui/*    → AssistUISurface (canonical AI chat)
+     /documentation/* → DocumentationSurface (learning hub)
+     /server/*      → UServerSurface (backend ops)
+     /system/*      → USystemSurface (admin config)
      /workflow/*    → WorkflowSurface (daily missions, tasks, activity)
-     /developer/**  → DeveloperSurface (gated by Dev Mode)
-    /system/*      → Redirect to /server?tab=... (legacy compatibility)
-   Removed: HomeNestSurface, WorldMapSurface, Code3UISurface, VibeSurface, GridUISurface (dead)
-   Absorbed: ChatUISurface → AssistUI, FloatingChatPanel → AssistUI, USystemRouter → UIHubManager
+     /developer/**  → DeveloperSurface (gated by Dev Mode runtime probe)
+   Legacy compat (kept):
+     /gridui/*      → Redirect to /ucode
+     /userver/*     → Redirect to /server
+   Removed: proseui, gridcore, story-builder, user-setup-story, story/gtx-form,
+     devstudio, system-legacy (all dead/absorbed/consolidated)
    ═══════════════════════════════════════════════════════════════════ */
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -68,14 +69,10 @@ function App() {
   if (route) {
     const { pageCode } = route
     const code = pageCode.toLowerCase().replace(/[^ps0-9]/g, '')
-    // If we have a dedicated S-page component, render it
     if (code.startsWith('s')) {
       const SPage = S_PAGE_COMPONENTS[code]
-      if (SPage) {
-        return <SPage />
-      }
+      if (SPage) return <SPage />
     }
-    // Fall back to generic SystemPage for P-pages and unmapped S-pages
     return <SystemPage {...route} />
   }
   return <MissionControlSurface />
@@ -84,7 +81,6 @@ function App() {
 /** Dev route guard — reads from runtime context instead of build-time env */
 function DevRouteGuard({ children }: { children: React.ReactNode }) {
   const { devServerRunning, probing } = useDevMode()
-  // Show loading spinner while still probing (avoids premature redirect)
   if (probing) {
     return (
       <div style={{ padding: 40, textAlign: 'center', color: 'var(--pico-muted-color)', fontSize: 14 }}>
@@ -92,9 +88,7 @@ function DevRouteGuard({ children }: { children: React.ReactNode }) {
       </div>
     )
   }
-  if (!devServerRunning) {
-    return <Navigate to="/" replace />
-  }
+  if (!devServerRunning) return <Navigate to="/" replace />
   return <>{children}</>
 }
 
@@ -104,29 +98,22 @@ function Root() {
       <SurfaceShellProvider>
         <DevModeProvider>
           <Routes>
-            <Route path="/proseui/*" element={<Navigate to="/" replace />} />
+            {/* Legacy dead surfaces — consolidated */}
             <Route path="/gridui/*" element={<Navigate to="/ucode" replace />} />
-            <Route path="/story-builder" element={<Navigate to="/s101" replace />} />
-            <Route path="/user-setup-story" element={<Navigate to="/s101" replace />} />
-            <Route path="/story/gtx-form" element={<Navigate to="/s101" replace />} />
+            <Route path="/userver/*" element={<UserverRedirect />} />
+
+            {/* Canonical surfaces */}
             <Route path="/workflow/*" element={<WorkflowSurface />} />
             <Route path="/ucode/*" element={<UCodeSurface />} />
             <Route path="/browserui/*" element={<BrowserUISurface />} />
             <Route path="/assistui/*" element={<AssistUISurface />} />
             <Route path="/documentation/*" element={<DocumentationSurface />} />
-            <Route path="/devstudio" element={<Navigate to="/developer" replace />} />
-            <Route path="/devstudio/*" element={<Navigate to="/developer" replace />} />
             <Route path="/developer" element={<DevRouteGuard><DeveloperSurface /></DevRouteGuard>} />
             <Route path="/developer/*" element={<DevRouteGuard><DeveloperSurface /></DevRouteGuard>} />
             <Route path="/server/*" element={<UServerSurface />} />
-            <Route path="/userver/*" element={<UserverRouteRedirect />} />
             <Route path="/system/*" element={<USystemSurface />} />
-            <Route path="/system-legacy" element={<Navigate to="/system?tab=pages" replace />} />
-            <Route path="/system-legacy/*" element={<Navigate to="/system?tab=pages" replace />} />
-            <Route path="/gridcore/*" element={<Navigate to="/ucode?panel=terminal" replace />} />
             <Route path="/*" element={<App />} />
           </Routes>
-          {/* Floating chat bubble + panel — hidden on /assistui since full-page AssistUI is shown */}
           <FloatingChatWrapper />
         </DevModeProvider>
       </SurfaceShellProvider>
@@ -134,7 +121,7 @@ function Root() {
   )
 }
 
-function UserverRouteRedirect() {
+function UserverRedirect() {
   const location = useLocation()
   const nextPath = location.pathname.replace(/^\/userver/, '/server') || '/server'
   return <Navigate to={`${nextPath}${location.search}`} replace />
@@ -146,7 +133,6 @@ function FloatingChatWrapper() {
   if (location.pathname.startsWith('/assistui')) return null
   if (location.pathname.startsWith('/developer')) return null
   if (location.pathname.startsWith('/ucode')) return null
-  if (location.pathname.startsWith('/gridcore')) return null
   return <AssistUISurface floating />
 }
 

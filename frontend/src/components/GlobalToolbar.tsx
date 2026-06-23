@@ -78,19 +78,11 @@ export function GlobalToolbar({
   const { devServerRunning, loading, toggleDevMode } = useDevMode()
 
   const handleHome = () => {
-    navigate('/?tab=surfaces')
+    navigate('/')
   }
 
   const handleGlobe = () => {
     navigate('/browserui')
-  }
-
-  const handleFeeds = () => {
-    if (onToggleFeeds) {
-      onToggleFeeds()
-    } else {
-      navigate('/gridui?panel=feeds')
-    }
   }
 
   return (

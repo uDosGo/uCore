@@ -102,14 +102,12 @@ const isTestSurface = (surface: Pick<SurfaceDef, 'id' | 'name'>): boolean => {
   )
 }
 
+// Filter out internal/protected surfaces from the hub display
 const withoutUiHub = (list: SurfaceDef[]): SurfaceDef[] =>
   list.filter(
     s =>
       s.id !== 'ui-hub' &&
       s.id !== 'mission-control' &&
-      s.id !== 'devstudio' &&
-      s.id !== 'proseui' &&
-      s.id !== 'system' &&
       !isTestSurface(s),
   )
 
