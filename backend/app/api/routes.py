@@ -29,6 +29,12 @@ def register_routes(app: web.Application) -> None:
         handle_export_to_env, handle_secret_audit, handle_sync_github,
     )
     from .config_api import handle_get_config
+    from .variables_api import (
+        handle_get_variables,
+        handle_get_user_variables,
+        handle_update_user_variables,
+        handle_get_install_variables,
+    )
     from .budget_api import (
         handle_budget_status,
         handle_budget_usage,
@@ -131,6 +137,11 @@ def register_routes(app: web.Application) -> None:
 
     # Central config
     app.router.add_get("/api/config", handle_get_config)
+    # Variables API
+    app.router.add_get("/api/variables", handle_get_variables)
+    app.router.add_get("/api/variables/user", handle_get_user_variables)
+    app.router.add_put("/api/variables/user", handle_update_user_variables)
+    app.router.add_get("/api/variables/install", handle_get_install_variables)
     app.router.add_get("/api/budget/status", handle_budget_status)
     app.router.add_get("/api/budget/usage", handle_budget_usage)
     app.router.add_post("/api/budget/reload", handle_budget_reload)

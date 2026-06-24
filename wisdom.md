@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-06-22T20:28:33Z
+Date: 2026-06-24T01:07:32Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -16,26 +16,26 @@ Status: Refreshed by brain_sync
 - **Consolidation Dashboard mirrors progress**: Checkbox-based checklist + metric tracking builds confidence. Visual progress bars (coverage %) are more compelling than raw numbers.
 
 ## Recent Change Scan
-- frontend/dist/assets/MaterialSymbolsOutlined-Db6aBbE4.ttf
-- frontend/dist/assets/Teletext50-B0FE1AIM.otf
-- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-BsBxhfAV.ttf
+- frontend/src/surfaces/workflow/WorkflowSurface.tsx
 - frontend/dist/assets/press-start-2p-CnAFzuvi.woff2
-- frontend/dist/assets/Bedstead-OSqLCfiS.otf
-- frontend/dist/assets/index-DjyVuFu2.js
-- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-CFnYgsZY.woff
-- frontend/dist/index.html
-- frontend/dist/assets/index-DRAibU9i.css
 - frontend/dist/assets/PetMe128-DUjnzmmV.ttf
-- backend/.pytest_cache/v/cache/nodeids
-- backend/app/api/secret_store_api.py
-- frontend/src/surfaces/system/SecretStorePanel.tsx
-- backend/app/api/config_api.py
-- backend/app/skills/builtin/route_task.py
-- backend/app/services/provider_router.py
-- backend/app/core/settings.py
+- frontend/dist/assets/index-CSr0kI6D.js
+- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-BsBxhfAV.ttf
+- frontend/dist/assets/MaterialSymbolsOutlined-Db6aBbE4.ttf
+- frontend/dist/assets/Bedstead-OSqLCfiS.otf
+- frontend/dist/assets/Teletext50-B0FE1AIM.otf
+- frontend/dist/index.html
+- frontend/dist/assets/index-CYk8Wssy.css
+- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-CFnYgsZY.woff
+- frontend/src/main.tsx
+- frontend/src/surfaces/dashboard/DashboardSurface.tsx
+- frontend/src/styles/surfaces/workflow.css
+- frontend/src/surfaces/developer/AgentsPanel.tsx
+- frontend/src/surfaces/developer/ModelsPanel.tsx
 - frontend/src/surfaces/userver/UServerSurface.tsx
-- docs/USER_SETUP_VAULT_MCP_WORKSPACES.md
-- .tasker/UNIFIED_DEV_TASK_WORKFLOW.md
+- frontend/src/surfaces/shared/LogsPanel.tsx
+- frontend/src/UIHubManager.tsx
+- frontend/src/components/GlobalToolbar.tsx
 
 ## Memory Architecture
 - Short-term: active AI/chat session context.
@@ -62,40 +62,39 @@ Errors: 0
 Warnings: 0
 
 ### By Module
-- stdout: 406 entries (0 errors)
-- popcorn: 94 entries (0 errors)
+- popcorn: 500 entries (0 errors)
 
 ### Recent Activity
-- ℹ️ 2026-06-23T04:28:31  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-23T04:28:31  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — ╔══════════════════════════════════════════╗
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — ║       uCore v4.0.0 — unified daemon        ║
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — ╚══════════════════════════════════════════╝
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Host: 0.0.0.0:8484
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Debug: True
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Auto-start surfaces: False
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Starting uCore snackbar on 0.0.0.0:8484
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Database migration: v1 (surfaces, snacks, containers tables)
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore.api.github — GitHub API routes registered
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — Spool activity feed routes registered
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — Identity routes registered
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — Ceefax Teletext surface registered
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — BBCSDL surface registered
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — Dashboard surface registered
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] DEBUG    ucore — API module routes registered
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Maintenance scheduler started with 6 jobs
-- ℹ️ 2026-06-23T04:28:29  stdout  [2026-06-23 04:28:29] INFO     ucore — Maintenance scheduler stopped
-- ℹ️ 2026-06-23T04:28:26  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-23T04:28:26  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-23T04:28:21  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-23T04:28:21  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — ╔══════════════════════════════════════════╗
-- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — ║       uCore v4.0.0 — unified daemon        ║
-- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — ╚══════════════════════════════════════════╝
-- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — Host: 0.0.0.0:8484
-- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — Debug: True
-- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — Auto-start surfaces: False
-- ℹ️ 2026-06-23T04:28:19  stdout  [2026-06-23 04:28:19] INFO     ucore — Starting uCore snackbar on 0.0.0.0:8484
+- ℹ️ 2026-06-24T09:07:29  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:29  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:29  popcorn  Opening UI Hub (with auto-start)
+- ℹ️ 2026-06-24T09:07:29  popcorn  Opening UI Hub (with auto-start)
+- ℹ️ 2026-06-24T09:07:24  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:24  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:19  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:19  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:14  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:14  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:09  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:09  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:04  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:07:04  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:59  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:59  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:54  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:54  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:49  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:49  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:44  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:44  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:39  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:39  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:34  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:34  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:28  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:28  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-24T09:06:28  popcorn  Starting uDos Popcorn v3.0 — Surface Manager
+- ℹ️ 2026-06-24T09:06:28  popcorn  Starting uDos Popcorn v3.0 — Surface Manager
 
 ## Test Failure Signals (last 24h)
 

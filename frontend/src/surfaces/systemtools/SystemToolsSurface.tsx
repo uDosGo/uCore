@@ -1,390 +1,171 @@
 /* ═══════════════════════════════════════════════════════════════════
-   SystemToolsSurface — System Pages Browser & Administration
+   SystemToolsSurface — Tools Registry (things that DO something)
    ═══════════════════════════════════════════════════════════════════
-   First-class surface for system pages (S100-S899) — tools, pages,
-   modules, settings, and administrative functions.
+   Tools are actions/services/executables — NOT pages/routes/fallbacks.
+   Pages go in the Pages tab. Tools go here.
+   Pure Pico CSS classes — no inline styles for layout/typography.
    ═══════════════════════════════════════════════════════════════════ */
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { GlobalToolbar } from '../../components/GlobalToolbar'
+import React from 'react'
 import { Icon } from '../../components/Icon'
-import { SettingsPanel } from '../system/SettingsPanel'
 import '../../styles/hub/index.css'
 
-type SystemToolsTab = 'pages' | 'tools' | 'settings'
-
-interface SystemPageEntry {
-  code: string
-  name: string
-  description: string
-  icon: string
-  category: string
-  route: string
-}
-
-// ─── Tools Registry ──────────────────────────────────────────────
 interface Tool {
   id: string
   name: string
   description: string
   icon: string
   category: string
-  route?: string
-  action?: () => void
+  status: 'active' | 'planned' | 'external'
+  actionLabel: string
 }
 
 const TOOLS: Tool[] = [
   {
-    id: 'tool-builder',
-    name: 'Tool Builder',
-    description: 'Create custom tools and utilities',
-    icon: 'build',
-    category: 'Development',
-    route: '/s100',
-  },
-  {
-    id: 'workflow-executor',
-    name: 'Workflow Executor',
-    description: 'Run and monitor automated workflows',
-    icon: 'play_arrow',
-    category: 'Automation',
-    route: '/s300',
-  },
-  {
-    id: 'clipboard-sync',
-    name: 'Clipboard Sync',
-    description: 'Sync clipboard across devices',
-    icon: 'content_paste',
+    id: 'mcp-bridge',
+    name: 'MCP Bridge',
+    description: 'Model Context Protocol bridge — connect external MCP tool servers and expose their tools to the system.',
+    icon: 'bridge',
     category: 'Integration',
-    route: '/s310',
+    status: 'active',
+    actionLabel: 'Launch Bridge',
+  },
+  {
+    id: 'task-scheduler',
+    name: 'Task Scheduler',
+    description: 'Schedule recurring tasks, cron jobs, and system maintenance routines.',
+    icon: 'schedule',
+    category: 'Automation',
+    status: 'planned',
+    actionLabel: 'Configure',
   },
   {
     id: 'data-importer',
     name: 'Data Importer',
-    description: 'Import data from external sources',
+    description: 'Import data from external sources — files, APIs, databases.',
     icon: 'upload',
     category: 'Data',
+    status: 'planned',
+    actionLabel: 'Import',
   },
   {
     id: 'batch-processor',
     name: 'Batch Processor',
-    description: 'Process multiple items in parallel',
+    description: 'Process multiple items or files in parallel with configurable pipelines.',
     icon: 'settings_suggest',
     category: 'Processing',
+    status: 'planned',
+    actionLabel: 'Process',
   },
   {
-    id: 'scheduler',
-    name: 'Task Scheduler',
-    description: 'Schedule recurring tasks and jobs',
-    icon: 'schedule',
-    category: 'Automation',
+    id: 'clipboard-sync',
+    name: 'Clipboard Sync',
+    description: 'Synchronize clipboard buffer across devices and surfaces.',
+    icon: 'content_paste',
+    category: 'Integration',
+    status: 'active',
+    actionLabel: 'Sync',
+  },
+  {
+    id: 'vault-indexer',
+    name: 'Vault Indexer',
+    description: 'Index vault documents for semantic search and knowledge retrieval.',
+    icon: 'folder_sync',
+    category: 'Data',
+    status: 'active',
+    actionLabel: 'Index',
+  },
+  {
+    id: 'secret-sync',
+    name: 'Secret Sync',
+    description: 'Sync secrets between encrypted store, .env files, and environment variables.',
+    icon: 'key',
+    category: 'Security',
+    status: 'active',
+    actionLabel: 'Sync Secrets',
   },
 ]
 
-function ToolCard({ tool, onClick }: { tool: Tool; onClick: () => void }) {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        padding: '16px',
-        border: '1px solid var(--pico-form-element-border-color, #30363d)',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        transition: 'all 200ms ease',
-        background: 'var(--pico-card-background-color, #0d1117)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = '#58a6ff'
-        e.currentTarget.style.background = 'var(--pico-card-background-color, #0d1117)'
-        e.currentTarget.style.boxShadow = '0 0 12px rgba(88, 166, 255, 0.2)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--pico-form-element-border-color, #30363d)'
-        e.currentTarget.style.boxShadow = 'none'
-      }}
-    >
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '6px',
-            background: '#58a6ff20',
-            color: '#58a6ff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <Icon name={tool.icon} size={20} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-            <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>{tool.name}</h4>
-            <span style={{ fontSize: '10px', color: 'var(--pico-muted-color, #8b949e)', background: 'var(--pico-form-element-background-color, #0d1117)', padding: '2px 6px', borderRadius: '3px' }}>
-              {tool.category}
-            </span>
-          </div>
-          <p style={{ margin: 0, fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)', lineHeight: '1.4' }}>
-            {tool.description}
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function ToolsPanel() {
-  const navigate = useNavigate()
-
-  const handleToolClick = (tool: Tool) => {
-    if (tool.route) {
-      navigate(tool.route)
-    } else if (tool.action) {
-      tool.action()
-    }
-  }
-
-  // Group tools by category
   const categories = Array.from(new Set(TOOLS.map(t => t.category)))
 
   return (
-    <div style={{ padding: '24px', maxWidth: '900px' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ margin: '0 0 8px 0', fontSize: '20px' }}>Available Tools</h2>
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--pico-muted-color, #8b949e)' }}>
-          Access and manage system tools and utilities
-        </p>
-      </div>
+    <article className="container-fluid" style={{ margin: '12px', maxWidth: '960px' }}>
+      <header>
+        <hgroup>
+          <h5>System Tools</h5>
+          <p style={{ margin: 0 }}>Active services and utilities — things that DO something</p>
+        </hgroup>
+      </header>
 
-      {categories.map((category) => (
-        <div key={category} style={{ marginBottom: '32px' }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: 'var(--pico-muted-color, #8b949e)', textTransform: 'uppercase' }}>
-            {category}
-          </h3>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: '12px',
-            }}
-          >
-            {TOOLS.filter(t => t.category === category).map((tool) => (
-              <ToolCard key={tool.id} tool={tool} onClick={() => handleToolClick(tool)} />
+      {categories.map(category => (
+        <div key={category} style={{ marginBottom: '16px' }}>
+          <h6 style={{ margin: '0 0 8px 0' }}>{category}</h6>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
+            {TOOLS.filter(t => t.category === category).map(tool => (
+              <div
+                key={tool.id}
+                className="outline"
+                role="button"
+                style={{
+                  padding: '12px',
+                  textAlign: 'left',
+                  cursor: 'default',
+                  opacity: tool.status === 'active' ? 1 : 0.6,
+                }}
+              >
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                  <Icon name={tool.icon as any} size={20} />
+                  <div>
+                    <strong>{tool.name}</strong>
+                    <br />
+                    <small>{tool.description}</small>
+                    <br />
+                    <kbd style={{ marginTop: '6px', display: 'inline-block' }}>
+                      {tool.status === 'active' ? tool.actionLabel : 'Coming soon'}
+                    </kbd>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       ))}
-    </div>
-  )
-}
-
-// ─── System Pages Registry ──────────────────────────────────────────
-const SYSTEM_PAGES: SystemPageEntry[] = [
-  // Tools
-  {
-    code: 'S100',
-    name: 'Tool Builder',
-    description: 'Create and configure custom tools for the system',
-    icon: 'build',
-    category: 'tools',
-    route: '/s100',
-  },
-  {
-    code: 'S101',
-    name: 'Story Builder',
-    description: 'Compose and manage narrative content',
-    icon: 'article',
-    category: 'tools',
-    route: '/s101',
-  },
-  {
-    code: 'S300',
-    name: 'Workflow Builder',
-    description: 'Design and orchestrate workflows',
-    icon: 'schema',
-    category: 'tools',
-    route: '/s300',
-  },
-  {
-    code: 'S310',
-    name: 'Clipboard Orchestration',
-    description: 'Manage clipboard operations and data flow',
-    icon: 'content_paste',
-    category: 'tools',
-    route: '/s310',
-  },
-  {
-    code: 'S320',
-    name: 'Knowledge Tools',
-    description: 'Knowledge base management and search',
-    icon: 'school',
-    category: 'tools',
-    route: '/s320',
-  },
-]
-
-function SystemPageCard({ page, onClick }: { page: SystemPageEntry; onClick: () => void }) {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        padding: '16px',
-        border: '1px solid var(--pico-form-element-border-color, #30363d)',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        transition: 'all 200ms ease',
-        background: 'var(--pico-card-background-color, #0d1117)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = '#58a6ff'
-        e.currentTarget.style.background = 'var(--pico-card-background-color, #0d1117)'
-        e.currentTarget.style.boxShadow = '0 0 12px rgba(88, 166, 255, 0.2)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--pico-form-element-border-color, #30363d)'
-        e.currentTarget.style.boxShadow = 'none'
-      }}
-    >
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '6px',
-            background: '#58a6ff20',
-            color: '#58a6ff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <Icon name={page.icon} size={20} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-            <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>{page.name}</h4>
-            <code style={{ fontSize: '11px', color: 'var(--pico-muted-color, #8b949e)' }}>{page.code}</code>
-          </div>
-          <p style={{ margin: 0, fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)', lineHeight: '1.4' }}>
-            {page.description}
-          </p>
-        </div>
-      </div>
-    </div>
+    </article>
   )
 }
 
 function SystemPagesPanel() {
-  const navigate = useNavigate()
-
   return (
-    <div style={{ padding: '24px', maxWidth: '900px' }}>
-      <div style={{ marginTop: '0', paddingTop: '0' }}>
-        <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600' }}>System Pages Reference</h3>
-        <div style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)', lineHeight: '1.6' }}>
-          <p>
-            <strong>S100-S199:</strong> Tool builders and asset creation
-          </p>
-          <p>
-            <strong>S200-S299:</strong> Content management
-          </p>
-          <p>
-            <strong>S300-S399:</strong> Workflow and orchestration
-          </p>
-          <p>
-            <strong>S400-S499:</strong> Integration and modules
-          </p>
-          <p>
-            <strong>S500-S599:</strong> Security and configuration
-          </p>
-          <p>
-            <strong>S600-S699:</strong> Learning and documentation
-          </p>
-          <p>
-            <strong>S700-S799:</strong> Advanced features
-          </p>
-          <p>
-            <strong>S800-S899:</strong> System status and diagnostics
-          </p>
+    <div className="container-fluid" style={{ padding: '16px', maxWidth: '960px' }}>
+      <article>
+        <header>
+          <h5>System Pages Reference</h5>
+        </header>
+        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px' }}>
+          {[
+            { range: 'S100-S199', label: 'Tools & asset creation' },
+            { range: 'S200-S299', label: 'Content management' },
+            { range: 'S300-S399', label: 'Workflow & orchestration' },
+            { range: 'S400-S499', label: 'Integration & modules' },
+            { range: 'S500-S599', label: 'Security & configuration' },
+            { range: 'S600-S699', label: 'Learning & documentation' },
+            { range: 'S700-S799', label: 'Advanced features' },
+            { range: 'S800-S899', label: 'System status & diagnostics' },
+            { range: 'P100-P999', label: 'Surface status & fallback' },
+          ].map(item => (
+            <div key={item.range} className="outline" style={{ padding: '10px', textAlign: 'center' }}>
+              <kbd>{item.range}</kbd>
+              <div style={{ marginTop: '4px' }}><small>{item.label}</small></div>
+            </div>
+          ))}
         </div>
-      </div>
+      </article>
     </div>
   )
-}
-
-interface SystemToolsSurfaceProps {
-  embedded?: boolean
 }
 
 export { ToolsPanel, SystemPagesPanel }
 
-export default function SystemToolsSurface({ embedded = false }: SystemToolsSurfaceProps) {
-  const [activeTab, setActiveTab] = useState<SystemToolsTab>('pages')
-
-  const tabs = [
-    { id: 'pages', icon: 'dashboard', label: 'Pages' },
-    { id: 'tools', icon: 'build', label: 'Tools' },
-    { id: 'settings', icon: 'settings', label: 'Settings' },
-  ]
-
-  if (embedded) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--pico-background-color, #010409)' }}>
-        <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', borderBottom: '1px solid var(--pico-form-element-border-color, #30363d)' }}>
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as SystemToolsTab)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 10px',
-                borderRadius: '6px',
-                border: '1px solid var(--pico-form-element-border-color, #30363d)',
-                background: activeTab === tab.id ? '#58a6ff20' : 'transparent',
-                color: activeTab === tab.id ? '#58a6ff' : 'var(--pico-muted-color, #8b949e)',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: 600,
-              }}
-            >
-              <Icon name={tab.icon} size={14} />
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
-        <div style={{ flex: 1, overflow: 'auto', background: 'var(--pico-background-color, #010409)' }}>
-          {activeTab === 'pages' && <SystemPagesPanel />}
-          {activeTab === 'tools' && <ToolsPanel />}
-          {activeTab === 'settings' && <SettingsPanel />}
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--pico-background-color, #010409)' }}>
-      <GlobalToolbar
-        tabs={tabs.map((tab) => ({
-          ...tab,
-          active: activeTab === tab.id,
-          onClick: () => setActiveTab(tab.id as SystemToolsTab),
-        }))}
-        rightExtra={<span style={{ fontSize: '12px', color: 'var(--pico-muted-color, #8b949e)' }}>System Tools · S100-S899</span>}
-      />
-
-      <div style={{ flex: 1, overflow: 'auto', background: 'var(--pico-background-color, #010409)' }}>
-        {activeTab === 'pages' && <SystemPagesPanel />}
-        {activeTab === 'tools' && (
-          <ToolsPanel />
-        )}
-        {activeTab === 'settings' && <SettingsPanel />}
-      </div>
-    </div>
-  )
+export default function SystemToolsSurface() {
+  return null
 }

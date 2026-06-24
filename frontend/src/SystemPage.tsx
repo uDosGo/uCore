@@ -195,7 +195,8 @@ export function SystemPage({ pageCode, surface, error }: SystemPageProps) {
       </div>
 
       <div className="sys-page-footer">
-        <span className="sys-page-port">{page.code} \u00B7 uDosConnect</span>
+        <kbd>{page.code}</kbd>
+        <kbd>uDosConnect</kbd>
       </div>
     </div>
   )

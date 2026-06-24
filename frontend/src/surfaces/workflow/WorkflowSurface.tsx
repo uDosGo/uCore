@@ -18,7 +18,7 @@ import { renderMarkdown } from '../../utils/renderMarkdown'
 import '../../styles/surfaces/workflow.css'
 
 // ─── Types ──────────────────────────────────────────────────────
-type WorkflowTab = 'mission-control' | 'missions' | 'tasks' | 'binder'
+type WorkflowTab = 'mission-control' | 'missions' | 'tasks' | 'binder' | 'publish'
 type ViewMode = 'kanban' | 'list'
 
 interface WorkflowTask {
@@ -562,7 +562,7 @@ function MissionsTab({ allTasks, onSelectMission }: {
   return (
     <div className="workflow-panel">
       <div className="workflow-panel-header">
-        <h3>Missions</h3>
+        <h3>Active Missions</h3>
         <span className="workflow-panel-count">{missions.length}</span>
       </div>
       <div className="workflow-mission-list">
@@ -877,13 +877,28 @@ function BinderCompilerTab() {
   )
 }
 
+// ─── Publish Tab (placeholder) ──────────────────────────────────
+function PublishTab() {
+  return (
+    <div className="workflow-panel">
+      <div className="workflow-panel-header">
+        <h3>Publish</h3>
+        <span className="workflow-panel-count">Coming soon</span>
+      </div>
+      <div className="workflow-empty" style={{ padding: '40px 20px', textAlign: 'center' }}>
+        <p>Publish functionality will be consolidated here in a future round.</p>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Surface ──────────────────────────────────────────────
 export default function WorkflowSurface() {
   const location = useLocation()
   const navigate = useNavigate()
   const { sidebarOpen, toggleSidebar } = useSurfaceShell()
 
-  const VALID_TABS: WorkflowTab[] = ['mission-control', 'missions', 'tasks', 'binder']
+  const VALID_TABS: WorkflowTab[] = ['mission-control', 'missions', 'tasks', 'binder', 'publish']
 
   const tabState = useMemo(() => {
     const params = new URLSearchParams(location.search)
@@ -925,16 +940,18 @@ export default function WorkflowSurface() {
 
   const workflowNavItems: SidebarNavItem[] = [
     { id: 'mission-control', icon: 'rocket_launch', label: 'Mission Control', active: activeTab === 'mission-control', onClick: () => setTabAndRoute('mission-control') },
-    { id: 'missions', icon: 'flag', label: 'Missions', active: activeTab === 'missions', onClick: () => setTabAndRoute('missions') },
-    { id: 'tasks', icon: 'checklist', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
     { id: 'binder', icon: 'folder_special', label: 'Binder', active: activeTab === 'binder', onClick: () => setTabAndRoute('binder') },
+    { id: 'missions', icon: 'flag', label: 'Projects', active: activeTab === 'missions', onClick: () => setTabAndRoute('missions') },
+    { id: 'tasks', icon: 'checklist', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
+    { id: 'publish', icon: 'publish', label: 'Publish', active: activeTab === 'publish', onClick: () => setTabAndRoute('publish') },
   ]
 
   const toolbarTabs: ToolbarTab[] = [
     { id: 'mission-control', icon: 'rocket_launch', label: 'Mission Control', active: activeTab === 'mission-control', onClick: () => setTabAndRoute('mission-control') },
-    { id: 'missions', icon: 'flag', label: 'Missions', active: activeTab === 'missions', onClick: () => setTabAndRoute('missions') },
-    { id: 'tasks', icon: 'checklist', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
     { id: 'binder', icon: 'folder_special', label: 'Binder', active: activeTab === 'binder', onClick: () => setTabAndRoute('binder') },
+    { id: 'missions', icon: 'flag', label: 'Projects', active: activeTab === 'missions', onClick: () => setTabAndRoute('missions') },
+    { id: 'tasks', icon: 'checklist', label: 'Tasks', active: activeTab === 'tasks', onClick: () => setTabAndRoute('tasks') },
+    { id: 'publish', icon: 'publish', label: 'Publish', active: activeTab === 'publish', onClick: () => setTabAndRoute('publish') },
   ]
 
   return (
@@ -948,6 +965,7 @@ export default function WorkflowSurface() {
           {activeTab === 'missions' && <MissionsTab allTasks={tasks} onSelectMission={handleSelectMission} />}
           {activeTab === 'tasks' && <TasksTab tasks={tasks} loading={loading} error={error} />}
           {activeTab === 'binder' && <BinderCompilerTab />}
+          {activeTab === 'publish' && <PublishTab />}
         </main>
       </div>
     </div>

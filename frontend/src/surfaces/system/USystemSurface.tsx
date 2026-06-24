@@ -1,10 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    USystemSurface — USX Schema v3.1 System Administration Surface
    ═══════════════════════════════════════════════════════════════════
-   System admin config: pages, tools, secrets, settings.
-   Extracted from UServerSurface to separate admin from backend ops.
-   Project Type: Technical (TC) | Autonomy Level: L4 (Delegator)
-   Binder: ⚙️ Technical/Infrastructure | Tags: #system #admin #config
+   Tabs: Fallback, Tools, Variables (with embedded Secrets), Global, User
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -12,61 +9,15 @@ import { GlobalToolbar, type ToolbarTab } from '../../components/GlobalToolbar'
 import { Icon } from '../../components/Icon'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import VaultSidebar, { type SidebarNavItem } from '../../components/VaultSidebar'
-import { ToolsPanel, SystemPagesPanel } from '../systemtools/SystemToolsSurface'
-import { SettingsPanel } from '../system/SettingsPanel'
-import SecretStorePanel from '../system/SecretStorePanel'
+import { ToolsPanel } from '../systemtools/SystemToolsSurface'
+import SystemPagesBrowser from './SystemPagesBrowser'
+import GlobalSettingsPanel from './GlobalSettingsPanel'
+import UserSettingsPanel from './UserSettingsPanel'
+import VariablesPanel from './VariablesPanel'
 
-type SystemTab = 'pages' | 'tools' | 'secrets' | 'settings'
+type SystemTab = 'pages' | 'tools' | 'variables' | 'global-settings' | 'user-settings'
 
-const SYSTEM_TABS: SystemTab[] = ['pages', 'tools', 'secrets', 'settings']
-
-function PagesTab() {
-  return (
-    <div className="workflow-panel">
-      <div className="workflow-panel-header">
-        <h3>System Pages</h3>
-        <span className="workflow-panel-count">S100-S899</span>
-      </div>
-      <SystemPagesPanel />
-    </div>
-  )
-}
-
-function ToolsTab() {
-  return (
-    <div className="workflow-panel">
-      <div className="workflow-panel-header">
-        <h3>Tools</h3>
-        <span className="workflow-panel-count">Tool Registry</span>
-      </div>
-      <ToolsPanel />
-    </div>
-  )
-}
-
-function SecretsTab() {
-  return (
-    <div className="workflow-panel">
-      <div className="workflow-panel-header">
-        <h3>Secret Store</h3>
-        <span className="workflow-panel-count">AES-256-GCM</span>
-      </div>
-      <SecretStorePanel />
-    </div>
-  )
-}
-
-function SettingsTab() {
-  return (
-    <div className="workflow-panel">
-      <div className="workflow-panel-header">
-        <h3>Settings</h3>
-        <span className="workflow-panel-count">Configuration</span>
-      </div>
-      <SettingsPanel />
-    </div>
-  )
-}
+const SYSTEM_TABS: SystemTab[] = ['pages', 'tools', 'variables', 'global-settings', 'user-settings']
 
 export default function USystemSurface() {
   const location = useLocation()
@@ -88,17 +39,19 @@ export default function USystemSurface() {
   }
 
   const systemNavItems: SidebarNavItem[] = [
-    { id: 'pages', icon: 'dashboard', label: 'System Pages', active: activeTab === 'pages', onClick: () => setTabAndRoute('pages') },
+    { id: 'pages', icon: 'dashboard', label: 'Fallback', active: activeTab === 'pages', onClick: () => setTabAndRoute('pages') },
     { id: 'tools', icon: 'build', label: 'Tools', active: activeTab === 'tools', onClick: () => setTabAndRoute('tools') },
-    { id: 'secrets', icon: 'key', label: 'Secret Store', active: activeTab === 'secrets', onClick: () => setTabAndRoute('secrets') },
-    { id: 'settings', icon: 'settings', label: 'Settings', active: activeTab === 'settings', onClick: () => setTabAndRoute('settings') },
+    { id: 'variables', icon: 'tune', label: 'Variables', active: activeTab === 'variables', onClick: () => setTabAndRoute('variables') },
+    { id: 'global-settings', icon: 'settings', label: 'Global', active: activeTab === 'global-settings', onClick: () => setTabAndRoute('global-settings') },
+    { id: 'user-settings', icon: 'person', label: 'User', active: activeTab === 'user-settings', onClick: () => setTabAndRoute('user-settings') },
   ]
 
   const toolbarTabs: ToolbarTab[] = [
-    { id: 'pages', icon: 'dashboard', label: 'Pages', active: activeTab === 'pages', onClick: () => setTabAndRoute('pages') },
+    { id: 'pages', icon: 'dashboard', label: 'Fallback', active: activeTab === 'pages', onClick: () => setTabAndRoute('pages') },
     { id: 'tools', icon: 'build', label: 'Tools', active: activeTab === 'tools', onClick: () => setTabAndRoute('tools') },
-    { id: 'secrets', icon: 'key', label: 'Secrets', active: activeTab === 'secrets', onClick: () => setTabAndRoute('secrets') },
-    { id: 'settings', icon: 'settings', label: 'Settings', active: activeTab === 'settings', onClick: () => setTabAndRoute('settings') },
+    { id: 'variables', icon: 'tune', label: 'Variables', active: activeTab === 'variables', onClick: () => setTabAndRoute('variables') },
+    { id: 'global-settings', icon: 'settings', label: 'Global', active: activeTab === 'global-settings', onClick: () => setTabAndRoute('global-settings') },
+    { id: 'user-settings', icon: 'person', label: 'User', active: activeTab === 'user-settings', onClick: () => setTabAndRoute('user-settings') },
   ]
 
   return (
@@ -117,10 +70,51 @@ export default function USystemSurface() {
           serverNavItems={systemNavItems}
         />
         <main className="usx-surface-main workflow-surface-main">
-          {activeTab === 'pages' && <PagesTab />}
-          {activeTab === 'tools' && <ToolsTab />}
-          {activeTab === 'secrets' && <SecretsTab />}
-          {activeTab === 'settings' && <SettingsTab />}
+          {activeTab === 'pages' && (
+            <div className="workflow-panel">
+              <div className="workflow-panel-header">
+                <h3><Icon name="dashboard" size={16} /> System Pages</h3>
+                <span className="workflow-panel-count">S100-S899</span>
+              </div>
+              <SystemPagesBrowser />
+            </div>
+          )}
+          {activeTab === 'tools' && (
+            <div className="workflow-panel">
+              <div className="workflow-panel-header">
+                <h3><Icon name="build" size={16} /> System Tools</h3>
+                <span className="workflow-panel-count">Tool Registry</span>
+              </div>
+              <ToolsPanel />
+            </div>
+          )}
+          {activeTab === 'variables' && (
+            <div className="workflow-panel">
+              <div className="workflow-panel-header">
+                <h3><Icon name="tune" size={16} /> Variable Store</h3>
+                <span className="workflow-panel-count">$Variables</span>
+              </div>
+              <VariablesPanel />
+            </div>
+          )}
+          {activeTab === 'global-settings' && (
+            <div className="workflow-panel">
+              <div className="workflow-panel-header">
+                <h3><Icon name="settings" size={16} /> Global Settings</h3>
+                <span className="workflow-panel-count">System-wide</span>
+              </div>
+              <GlobalSettingsPanel />
+            </div>
+          )}
+          {activeTab === 'user-settings' && (
+            <div className="workflow-panel">
+              <div className="workflow-panel-header">
+                <h3><Icon name="person" size={16} /> User Settings</h3>
+                <span className="workflow-panel-count">Per-user</span>
+              </div>
+              <UserSettingsPanel />
+            </div>
+          )}
         </main>
       </div>
     </div>
