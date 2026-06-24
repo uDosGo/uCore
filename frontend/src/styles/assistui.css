@@ -343,7 +343,7 @@
 
 .assistui-prompt-card-icon {
   color: var(--pico-primary, #58a6ff);
-  font-size: 18px;
+  font-size: var(--pico-font-size-h3, 18px);
   line-height: 1;
 }
 
@@ -609,7 +609,7 @@
   align-items: center;
   gap: var(--usx-spacing-sm);
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--pico-font-size, 14px);
 }
 
 .hub-chat-panel-status {
@@ -671,7 +671,7 @@
   border: none;
   color: var(--pico-color, #c9d1d9);
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--pico-font-size-condensed, 13px);
   outline: none;
 }
 
@@ -701,7 +701,7 @@
 .hub-chat-msg {
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--pico-font-size-condensed, 13px);
   line-height: 1.4;
   max-width: 85%;
 }

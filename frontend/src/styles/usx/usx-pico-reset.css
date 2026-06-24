@@ -184,7 +184,7 @@ button[class*="primary"],
 [class*="btn--primary"],
 [class*="button--primary"] {
   background: var(--pico-primary, #58a6ff);
-  color: #fff;
+  color: var(--pico-primary-inverse, #fff);
   border-color: var(--pico-primary, #58a6ff);
 }
 
@@ -320,7 +320,7 @@ pre code {
 
 [class*="status--warning"],
 [class*="status"][class*="warning"] {
-  color: #d29922;
+  color: var(--pico-warning-color, #d29922);
   background: rgba(210, 153, 34, 0.1);
 }
 
