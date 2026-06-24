@@ -77,14 +77,14 @@
 .ucode-dashboard-header h2 {
   margin: 0;
   color: var(--pico-color, #e6edf3);
-  font-size: 14px;
+  font-size: var(--pico-font-size, 14px);
   font-weight: 700;
 }
 
 .ucode-dashboard-header p {
   margin: var(--usx-spacing-xs) 0 0;
   color: var(--pico-muted-color, #8b949e);
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
 }
 
 .ucode-pill {
@@ -93,7 +93,7 @@
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 999px;
   padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   color: var(--pico-muted-color, #8b949e);
   background: var(--pico-card-background-color, #0f141c);
   white-space: nowrap;
@@ -129,19 +129,19 @@
 }
 
 .ucode-tool-card-title {
-  font-size: 13px;
+  font-size: var(--pico-font-size-condensed, 13px);
   font-weight: 600;
   margin-bottom: var(--usx-list-item-gap);
 }
 
 .ucode-tool-card-subtitle {
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   color: var(--pico-primary, #58a6ff);
   margin-bottom: var(--usx-spacing-xs);
 }
 
 .ucode-tool-card-summary {
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   color: var(--pico-muted-color, #9ba7b4);
 }
 
@@ -153,13 +153,13 @@
 .ucode-tool-detail h3 {
   margin: 0 0 var(--usx-compact-gap);
   color: var(--pico-color, #e6edf3);
-  font-size: 14px;
+  font-size: var(--pico-font-size, 14px);
 }
 
 .ucode-tool-detail p {
   margin: 0 0 var(--usx-spacing-sm);
   color: var(--pico-muted-color, #9ba7b4);
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
 }
 
 .ucode-tool-detail-section {
@@ -169,7 +169,7 @@
 .ucode-tool-detail-section h4 {
   margin: 0 0 var(--usx-compact-gap);
   color: var(--pico-primary, #58a6ff);
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -178,7 +178,7 @@
   margin: 0;
   padding-left: var(--usx-spacing-lg);
   color: var(--pico-color, #c9d1d9);
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   line-height: 1.45;
 }
 

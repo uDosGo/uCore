@@ -186,7 +186,7 @@ body {
 }
 
 /* Headings — use appropriate hierarchy */
-h1 {
+.usx-typography h1, h1.usx-typography {
   font-size: var(--usx-font-size-h1);
   font-weight: var(--usx-font-weight-heading);
   line-height: var(--usx-line-height-h1);
@@ -194,7 +194,7 @@ h1 {
   margin: 1.5em 0 0.5em 0;
 }
 
-h2 {
+.usx-typography h2, h2.usx-typography {
   font-size: var(--usx-font-size-h2);
   font-weight: var(--usx-font-weight-heading);
   line-height: var(--usx-line-height-h2);
@@ -202,7 +202,7 @@ h2 {
   margin: 1.33em 0 0.67em 0;
 }
 
-h3 {
+.usx-typography h3, h3.usx-typography {
   font-size: var(--usx-font-size-h3);
   font-weight: var(--usx-font-weight-heading);
   line-height: var(--usx-line-height-h3);

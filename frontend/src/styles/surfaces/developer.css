@@ -112,7 +112,7 @@
   justify-content: space-between;
   gap: var(--usx-spacing-md);
   padding: var(--usx-spacing-sm) var(--usx-card-padding-vertical);
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   color: var(--pico-muted-color, #8b949e);
   border-bottom: 1px solid var(--pico-border-color, #30363d);
   background: rgba(88, 166, 255, 0.04);
@@ -136,7 +136,7 @@
   padding: var(--usx-spacing-lg);
   min-height: 100%;
   font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   line-height: 1.55;
   color: var(--pico-color);
   white-space: pre-wrap;
@@ -164,20 +164,20 @@
   background: var(--pico-background-color);
   color: var(--pico-color);
   font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   line-height: 1.55;
 }
 
 .developer-preview-empty,
 .developer-preview-truncated {
   padding: var(--usx-spacing-lg);
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   color: var(--pico-muted-color, #8b949e);
 }
 
 .developer-preview-save-notice {
   padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   color: var(--pico-warning, #f2cc60);
   border-top: 1px solid var(--pico-border-color, #30363d);
   background: rgba(210, 153, 34, 0.08);
@@ -196,7 +196,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--usx-spacing-sm);
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   font-weight: 600;
   color: var(--pico-color, #c9d1d9);
 }
@@ -504,19 +504,19 @@
 }
 
 .developer-chat-prompt-icon {
-  font-size: 18px;
+  font-size: var(--pico-font-size-h3, 18px);
   color: var(--pico-primary, #58a6ff);
 }
 
 .developer-chat-prompt-label {
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   white-space: normal;
   word-break: break-word;
 }
 
 .developer-chat-prompt-ctx {
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   color: var(--pico-muted-color, #8b949e);
   white-space: normal;
   word-break: break-word;
@@ -1225,7 +1225,7 @@
 .kanban-card-meta {
   display: flex;
   gap: var(--usx-spacing-sm);
-  font-size: 10px;
+  font-size: var(--pico-font-size-small, 10px);
   color: var(--pico-muted-color, #8b949e);
 }
 
@@ -1263,7 +1263,7 @@
   background: transparent;
   color: var(--pico-muted-color, #8b949e);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   font-family: inherit;
   transition: all 0.15s;
 }
@@ -1331,14 +1331,14 @@
 .kanban-detail-badge {
   padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   font-weight: 600;
   border: 1px solid;
   text-transform: capitalize;
 }
 
 .kanban-detail-meta-text {
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   color: var(--pico-muted-color, #8b949e);
 }
 
@@ -1350,7 +1350,7 @@
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 6px;
   padding: var(--usx-spacing-sm);
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
 }
 
 .kanban-detail-fm-row {
@@ -1375,7 +1375,7 @@
 }
 
 .kanban-detail-tag {
-  font-size: 10px;
+  font-size: var(--pico-font-size-small, 10px);
   padding: var(--usx-list-item-gap) var(--usx-compact-gap);
   background: rgba(88,166,255,0.1);
   color: var(--pico-primary, #58a6ff);
@@ -1383,7 +1383,7 @@
 }
 
 .kanban-detail-file {
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   color: var(--pico-muted-color, #8b949e);
   display: flex;
   align-items: center;
@@ -1405,7 +1405,7 @@
   color: var(--pico-color, #c9d1d9);
   cursor: pointer;
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   transition: all 0.15s;
   display: inline-flex;
   align-items: center;
@@ -1465,7 +1465,7 @@
   background: var(--pico-form-element-background-color, #0d1117);
   color: var(--pico-color, #c9d1d9);
   font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--pico-font-size-condensed, 12px);
   line-height: 1.55;
   resize: vertical;
   outline: none;
@@ -1505,7 +1505,7 @@
 }
 
 .diff-editor-simple-label {
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   color: var(--pico-muted-color, #8b949e);
 }
 
@@ -1516,7 +1516,7 @@
 
 .diff-editor-simple-btn {
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   border-radius: 4px;
   border: 1px solid var(--pico-border-color, #30363d);
   background: var(--pico-card-sectioning-background-color, #1c2128);
@@ -1564,7 +1564,7 @@
 
 .diff-editor-simple-pane-header {
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  font-size: 10px;
+  font-size: var(--pico-font-size-small, 10px);
   font-weight: 600;
   color: var(--pico-muted-color, #8b949e);
   background: rgba(88,166,255,0.04);
@@ -1575,7 +1575,7 @@
 
 .diff-editor-simple-pane-content {
   font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   line-height: 1.5;
   padding: 0;
 }
@@ -1591,7 +1591,7 @@
   text-align: right;
   padding: 1px 8px;
   color: var(--pico-muted-color, #8b949e);
-  font-size: 10px;
+  font-size: var(--pico-font-size-small, 10px);
   user-select: none;
   border-right: 1px solid var(--pico-border-color, #30363d);
   background: var(--pico-background-color, #0d1117);
@@ -1635,7 +1635,7 @@
 .diff-editor-simple-unified {
   width: 100%;
   font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
-  font-size: 11px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
   line-height: 1.5;
 }
 
@@ -1650,7 +1650,7 @@
   text-align: right;
   padding: 1px 8px;
   color: var(--pico-muted-color, #8b949e);
-  font-size: 10px;
+  font-size: var(--pico-font-size-small, 10px);
   user-select: none;
   border-right: 1px solid var(--pico-border-color, #30363d);
   background: var(--pico-background-color, #0d1117);
@@ -1678,7 +1678,7 @@
   align-items: center;
   padding: var(--usx-spacing-xs) var(--usx-spacing-md);
   border-top: 1px solid var(--pico-border-color, #30363d);
-  font-size: 10px;
+  font-size: var(--pico-font-size-small, 10px);
   color: var(--pico-muted-color, #8b949e);
   background: var(--pico-background-color, #0d1117);
   flex-shrink: 0;

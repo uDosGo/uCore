@@ -18,42 +18,42 @@ body, html {
 }
 
 /* Heading sizes — Prose-UI scale */
-h1 {
+.usx-prose h1, h1.usx-prose {
   font-size: 2rem;
   font-weight: 700;
   line-height: 1.2;
   margin: 1.5rem 0 0.5rem 0;
 }
 
-h2 {
+.usx-prose h2, h2.usx-prose {
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1.25;
   margin: 1.25rem 0 0.5rem 0;
 }
 
-h3 {
+.usx-prose h3, h3.usx-prose {
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.3;
   margin: 1rem 0 0.5rem 0;
 }
 
-h4 {
+.usx-prose h4, h4.usx-prose {
   font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.35;
   margin: 0.75rem 0 0.5rem 0;
 }
 
-h5 {
+.usx-prose h5, h5.usx-prose {
   font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.4;
   margin: 0.5rem 0 0.25rem 0;
 }
 
-h6 {
+.usx-prose h6, h6.usx-prose {
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.4;
