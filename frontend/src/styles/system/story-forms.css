@@ -616,12 +616,12 @@
 }
 
 .sys-msg--success {
-  background: color-mix(in srgb, #3fb950 20%, transparent);
+  background: color-mix(in srgb, var(--pico-ins-color) 20%, transparent);
   color: var(--pico-ins-color, #3fb950);
 }
 
 .sys-msg--error {
-  background: color-mix(in srgb, #f85149 20%, transparent);
+  background: color-mix(in srgb, var(--pico-del-color) 20%, transparent);
   color: var(--pico-del-color, #f85149);
 }
 

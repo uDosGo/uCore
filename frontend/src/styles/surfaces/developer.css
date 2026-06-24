@@ -147,7 +147,7 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  background: #0d1117;
+  background: var(--pico-background-color);
 }
 
 .developer-preview-code {
@@ -157,7 +157,7 @@
   font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
   font-size: 12px;
   line-height: 1.55;
-  color: #c9d1d9;
+  color: var(--pico-color);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -180,8 +180,8 @@
   outline: none;
   resize: none;
   padding: var(--usx-spacing-lg);
-  background: #0d1117;
-  color: #c9d1d9;
+  background: var(--pico-background-color);
+  color: var(--pico-color);
   font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
   font-size: 12px;
   line-height: 1.55;
@@ -238,7 +238,7 @@
   height: 56px;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #58a6ff 0%, #d29922 100%);
+  background: linear-gradient(135deg, var(--pico-primary) 0%, #d29922 100%);
   color: var(--pico-color-inverse, #fff);
   cursor: pointer;
   box-shadow: 0 16px 40px rgba(1, 4, 9, 0.45);

@@ -269,17 +269,17 @@
 /* ─── Layer 5: GitHub Dark Theme Overrides ───────────────────────── */
 [data-theme="dark"] {
   /* Keep only high-impact tokens not reliably matched by Pico defaults. */
-  --pico-background-color: #0d1117;
-  --pico-card-background-color: #161b22;
-  --pico-card-sectioning-background-color: #161b22;
-  --pico-color: #c9d1d9;
-  --pico-muted-color: #8b949e;
+  --pico-background-color: var(--pico-background-color);
+  --pico-card-background-color: var(--pico-card-background-color);
+  --pico-card-sectioning-background-color: var(--pico-card-background-color);
+  --pico-color: var(--pico-color);
+  --pico-muted-color: var(--pico-muted-color);
   --pico-primary: #0d6efd;
   --pico-primary-hover: #3694ff;
   --pico-primary-focus: rgba(13, 110, 253, 0.25);
-  --pico-border-color: #30363d;
-  --pico-ins-color: #3fb950;
-  --pico-del-color: #f85149;
+  --pico-border-color: var(--pico-border-color);
+  --pico-ins-color: var(--pico-ins-color);
+  --pico-del-color: var(--pico-del-color);
 }
 
 /* ─── NestFrame Grid ──────────────────────────────────────────────── */

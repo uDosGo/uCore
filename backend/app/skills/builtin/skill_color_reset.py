@@ -106,7 +106,7 @@ def _fix_colors(content: str, rel: str, results: dict) -> str:
             if pattern.lower() in line.lower():
                 # Case-insensitive replacement
                 new_line = re.sub(
-                    rf"#{hex_color}(?i)",
+                    rf"#{hex_color}",
                     f"var(--{var_name})",
                     line,
                     flags=re.IGNORECASE
