@@ -12,6 +12,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon } from './Icon'
 import { useDevMode } from '../hooks/useDevMode'
+import { useSurfaceShell } from './SurfaceShellContext'
 
 export interface ToolbarTab {
   id: string
@@ -74,6 +75,7 @@ export function GlobalToolbar({
   feedsOpen,
 }: GlobalToolbarProps) {
   const navigate = useNavigate()
+  const { sidebarOpen: contextSidebarOpen, toggleSidebar: contextToggleSidebar } = useSurfaceShell()
   const resolvedSidebarLabel = sidebarToggleLabel || 'Filepicker sidebar'
   const { devServerRunning, loading, toggleDevMode } = useDevMode()
 
@@ -95,18 +97,16 @@ export function GlobalToolbar({
           title="Back to UI Hub (Surfaces tab)"
           aria-label="Home"
         >
-          <Icon name="home" size={18} />
+          <Icon name="home" />
         </button>
-        {onToggleSidebar && (
-          <button
-            className={`usx-header-btn ${sidebarOpen ? 'active' : ''}`}
-            onClick={onToggleSidebar}
-            title={sidebarOpen ? `Close ${resolvedSidebarLabel.toLowerCase()}` : `Open ${resolvedSidebarLabel.toLowerCase()}`}
-            aria-label={`Toggle ${resolvedSidebarLabel.toLowerCase()}`}
-          >
-            <Icon name="folder" size={18} />
-          </button>
-        )}
+        <button
+          className={`usx-header-btn ${sidebarOpen || contextSidebarOpen ? 'active' : ''}`}
+          onClick={onToggleSidebar || contextToggleSidebar}
+          title={(sidebarOpen || contextSidebarOpen) ? `Close ${resolvedSidebarLabel.toLowerCase()}` : `Open ${resolvedSidebarLabel.toLowerCase()}`}
+          aria-label={`Toggle ${resolvedSidebarLabel.toLowerCase()}`}
+        >
+          <Icon name="folder" />
+        </button>
         {!hideGlobe && (
           <button
             className="usx-header-btn"
@@ -114,7 +114,7 @@ export function GlobalToolbar({
             title="Web Reader Surface"
             aria-label="Web Reader"
           >
-            <Icon name="map" size={18} />
+            <Icon name="map" />
           </button>
         )}
         {!hideAssistUI && (
@@ -123,7 +123,7 @@ export function GlobalToolbar({
             onClick={() => navigate('/assistui')}
             title={assistUIActive ? 'Assist UI (active)' : 'Open Assist UI (full-page AI chat)'}
           >
-            <Icon name="bolt" size={18} />
+            <Icon name="bolt" />
           </button>
         )}
       </div>
@@ -138,7 +138,7 @@ export function GlobalToolbar({
               onClick={tab.onClick}
               title={tab.label}
             >
-              <Icon name={tab.icon} size={16} />
+              <Icon name={tab.icon} />
               <span>{tab.label}</span>
             </button>
           ))}
@@ -162,7 +162,7 @@ export function GlobalToolbar({
               background: 'rgba(249, 117, 131, 0.08)',
             }}
           >
-            <Icon name="tune" size={16} />
+            <Icon name="tune" />
             <span style={{ fontSize: 11, marginLeft: 4 }}>Dev</span>
           </button>
         )}
@@ -176,7 +176,7 @@ export function GlobalToolbar({
           }}
           title="System Settings"
         >
-          <Icon name="settings" size={18} />
+          <Icon name="settings" />
         </button>
       </div>
     </header>

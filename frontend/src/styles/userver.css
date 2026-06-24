@@ -19,9 +19,9 @@
 .userver-status-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
   color: var(--pico-muted-color, #8b949e);
-  padding: 2px 8px;
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
   border-radius: 4px;
   background: var(--pico-card-background-color, #161b22);
 }
@@ -37,8 +37,8 @@
 .userver-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 12px;
-  padding: 16px;
+  gap: var(--usx-spacing-md);
+  padding: var(--pico-spacing);
 }
 
 /* ─── Cards ──────────────────────────────────────────────────────── */
@@ -53,7 +53,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 12px var(--pico-spacing);
   border-bottom: 1px solid var(--pico-border-color, #30363d);
 }
 
@@ -67,7 +67,7 @@
 }
 
 .userver-card-content {
-  padding: 12px 16px;
+  padding: 12px var(--pico-spacing);
 }
 
 /* ─── Welcome Card ───────────────────────────────────────────────── */
@@ -92,7 +92,7 @@
 /* ─── Stats Row ──────────────────────────────────────────────────── */
 .userver-stats-row {
   display: flex;
-  gap: 16px;
+  gap: var(--usx-spacing-lg);
   margin-top: 12px;
 }
 
@@ -100,7 +100,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: var(--usx-list-item-gap);
 }
 
 .userver-stat-value {
@@ -130,7 +130,7 @@
 .userver-service-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--usx-list-item-gap);
   flex: 1;
   min-width: 0;
 }
@@ -152,7 +152,7 @@
 .userver-service-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   flex-shrink: 0;
 }
 
@@ -163,7 +163,7 @@
 
 .userver-service-status {
   font-weight: 500;
-  padding: 2px 6px;
+  padding: var(--usx-list-item-gap) var(--usx-compact-gap);
   border-radius: 4px;
 }
 
@@ -175,7 +175,7 @@
 
 .userver-service-status.degraded {
   background: rgba(210, 153, 34, 0.15);
-  color: #d29922;
+  color: var(--pico-warning-color, #d29922);
 }
 
 .userver-service-status.down,
@@ -202,7 +202,7 @@
 /* ─── Service Details ────────────────────────────────────────────── */
 .userver-service-details {
   display: flex;
-  gap: 16px;
+  gap: var(--usx-spacing-lg);
   color: var(--pico-muted-color, #8b949e);
 }
 
@@ -214,7 +214,7 @@
 .userver-log-entry {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   padding: 4px 0;
   font-family: 'SF Mono', 'Fira Code', monospace;
   border-bottom: 1px solid var(--pico-border-color, #30363d);
@@ -248,7 +248,7 @@
 }
 
 .userver-log-level.warn {
-  color: #d29922;
+  color: var(--pico-warning-color, #d29922);
 }
 
 .userver-log-level.error {
@@ -266,14 +266,14 @@
 /* ─── Log Filter ─────────────────────────────────────────────────── */
 .userver-log-filter {
   display: flex;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: var(--usx-spacing-sm);
+  padding: 12px var(--pico-spacing);
   align-items: center;
 }
 
 .userver-log-filter input {
   flex: 1;
-  padding: 6px 10px;
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   background: var(--pico-card-sectioning-background-color, #1c2128);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 6px;
@@ -305,7 +305,7 @@
 .userver-workflow-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--usx-list-item-gap);
 }
 
 .userver-workflow-name {
@@ -321,12 +321,12 @@
 .userver-workflow-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .userver-workflow-status {
   font-weight: 500;
-  padding: 2px 6px;
+  padding: var(--usx-list-item-gap) var(--usx-compact-gap);
   border-radius: 4px;
 }
 
@@ -359,28 +359,28 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 12px var(--pico-spacing);
   border-bottom: 1px solid var(--pico-border-color, #30363d);
 }
 
 .userver-toolbar-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .userver-toolbar-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 /* ─── Action Button ──────────────────────────────────────────────── */
 .userver-action-btn {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   background: var(--pico-card-sectioning-background-color, #1c2128);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 6px;
@@ -397,7 +397,7 @@
 .userver-settings-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .userver-settings-row {
@@ -410,8 +410,8 @@
 .userver-settings-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   border-radius: 6px;
   text-decoration: none;
   color: var(--pico-color, #c9d1d9);

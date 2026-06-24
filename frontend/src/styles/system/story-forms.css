@@ -21,8 +21,8 @@
 /* ─── Mode Toggle ─────────────────────────────────────────────── */
 .story-mode-toggle {
   display: flex;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: var(--usx-spacing-sm);
+  padding: 12px var(--pico-spacing);
   border-bottom: 1px solid var(--story-border);
   background: var(--story-surface);
 }
@@ -30,8 +30,8 @@
 .story-mode-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-compact-gap) var(--usx-card-padding-vertical);
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: transparent;
@@ -63,14 +63,14 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--usx-spacing-xl);
 }
 
 /* ─── Step Progress ───────────────────────────────────────────── */
 .story-progress {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   padding: 8px 0;
 }
 
@@ -107,7 +107,7 @@
   background: var(--story-surface);
   border: 1px solid var(--story-border);
   border-radius: 10px;
-  padding: 32px;
+  padding: var(--pico-spacing-lg);
   animation: storyFadeIn 0.3s ease;
 }
 
@@ -131,13 +131,13 @@
 .story-step-input-group {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--pico-spacing);
 }
 
 .story-step-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .story-step-label {
@@ -148,7 +148,7 @@
 }
 
 .story-step-input {
-  padding: 10px 12px;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: var(--story-bg);
@@ -163,7 +163,7 @@
 }
 
 .story-step-select {
-  padding: 10px 12px;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: var(--story-bg);
@@ -177,15 +177,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: var(--usx-spacing-md);
   margin-top: 24px;
 }
 
 .story-step-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-sm) var(--usx-section-separator);
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: transparent;
@@ -211,7 +211,7 @@
 
 .story-step-btn--primary {
   background: var(--story-accent);
-  color: #fff;
+  color: var(--pico-color-inverse, #fff);
   border-color: var(--story-accent);
 }
 
@@ -223,8 +223,8 @@
 .story-slide-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: transparent;
@@ -251,7 +251,7 @@
 .story-var-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
   padding: 1px 8px;
   border-radius: 999px;
   font-size: 0.8em;
@@ -311,7 +311,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
+  gap: var(--usx-spacing-lg);
   padding: 12px 0;
 }
 
@@ -319,7 +319,7 @@
 .story-library {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  gap: var(--usx-spacing-lg);
   padding: 16px 0;
 }
 
@@ -327,7 +327,7 @@
   background: var(--story-surface);
   border: 1px solid var(--story-border);
   border-radius: 8px;
-  padding: 20px;
+  padding: var(--usx-section-separator);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -365,7 +365,7 @@
 
 .story-card-meta {
   display: flex;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   color: var(--pico-muted-color);
   font-size: 0.8em;
 }
@@ -374,19 +374,19 @@
 .story-editor {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--usx-spacing-lg);
 }
 
 .story-editor-header {
   display: flex;
-  gap: 12px;
+  gap: var(--usx-spacing-md);
   align-items: center;
   flex-wrap: wrap;
 }
 
 .story-editor-title-input {
   flex: 1;
-  padding: 10px 12px;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: var(--story-bg);
@@ -407,7 +407,7 @@
   border-radius: 999px;
   font-size: 0.8em;
   background: color-mix(in srgb, #a855f7 15%, transparent);
-  color: #a855f7;
+  color: var(--pico-primary, #a855f7);
   border: 1px solid color-mix(in srgb, #a855f7 30%, transparent);
 }
 
@@ -415,14 +415,14 @@
 .sys-page-variables-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 12px;
+  gap: var(--usx-spacing-md);
   padding: 8px 0;
 }
 
 .sys-var-card {
   display: flex;
-  gap: 12px;
-  padding: 14px;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-card-padding-vertical);
   background: var(--pico-card-background-color);
   border: 1px solid var(--pico-border-color);
   border-radius: 8px;
@@ -466,7 +466,7 @@
 
 .sys-var-input {
   width: 100%;
-  padding: 6px 10px;
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   border: 1px solid var(--pico-border-color);
   border-radius: 4px;
   background: var(--pico-background-color);
@@ -481,9 +481,9 @@
 /* ─── Variable Scope Tabs ─────────────────────────────────────── */
 .sys-var-scope-tabs {
   display: flex;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
   margin-bottom: 16px;
-  padding: 4px;
+  padding: var(--usx-spacing-xs);
   background: var(--pico-card-sectioning-background-color);
   border-radius: 6px;
 }
@@ -491,8 +491,8 @@
 .sys-var-scope-tab {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-compact-gap) var(--usx-card-padding-vertical);
   border: none;
   border-radius: 4px;
   background: transparent;
@@ -511,7 +511,7 @@
 
 .sys-var-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   align-items: center;
   margin-bottom: 16px;
   flex-wrap: wrap;
@@ -520,7 +520,7 @@
 .sys-var-hint {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
   color: var(--pico-muted-color);
   margin-left: auto;
 }
@@ -540,7 +540,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 16px;
+  gap: var(--pico-spacing);
   padding: 40px 24px;
 }
 
@@ -548,10 +548,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
+  padding: var(--usx-spacing-md) var(--usx-spacing-xl);
   border-top: 1px solid var(--pico-border-color);
   background: var(--pico-card-sectioning-background-color);
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .sys-page-footer kbd + kbd::before {
@@ -571,8 +571,8 @@
 .sys-page-section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: var(--usx-spacing-sm);
+  padding: 12px var(--pico-spacing);
   border-bottom: 1px solid var(--pico-border-color);
 }
 
@@ -581,13 +581,13 @@
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .sys-page-section-badge {
   margin-left: auto;
   font-family: var(--pico-font-family-monospace);
-  padding: 2px 8px;
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
   border-radius: 3px;
   background: color-mix(in srgb, var(--pico-primary) 15%, transparent);
   color: var(--pico-primary);
@@ -596,48 +596,48 @@
 
 .sys-page-section-desc {
   margin: 0;
-  padding: 12px 16px;
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
   color: var(--pico-muted-color);
   line-height: 1.5;
   border-bottom: 1px solid var(--pico-border-color);
 }
 
 .sys-page-loading {
-  padding: 24px;
+  padding: var(--usx-spacing-xl);
   text-align: center;
   color: var(--pico-muted-color);
 }
 
 /* ─── Status Messages ─────────────────────────────────────────── */
 .sys-msg {
-  padding: 8px 12px;
-  margin: 12px 16px;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  margin: var(--pico-spacing) var(--pico-spacing);
   border-radius: 6px;
 }
 
 .sys-msg--success {
   background: color-mix(in srgb, #3fb950 20%, transparent);
-  color: #3fb950;
+  color: var(--pico-ins-color, #3fb950);
 }
 
 .sys-msg--error {
   background: color-mix(in srgb, #f85149 20%, transparent);
-  color: #f85149;
+  color: var(--pico-del-color, #f85149);
 }
 
 /* ─── System Page Browser ─────────────────────────────────────── */
 .sys-page-browser {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 10px;
-  padding: 16px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--pico-spacing);
 }
 
 .sys-page-browser-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-card-padding-vertical);
   background: var(--pico-card-background-color);
   border: 1px solid var(--pico-border-color);
   border-radius: 8px;
@@ -653,7 +653,7 @@
 .sys-page-browser-card-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--usx-spacing-sm);
 }
 
 .sys-page-browser-card-icon {
@@ -700,14 +700,14 @@
 /* ─── System Pages Filter ─────────────────────────────────────── */
 .sys-page-filter {
   display: flex;
-  gap: 6px;
-  padding: 12px 16px;
+  gap: var(--usx-compact-gap);
+  padding: 12px var(--pico-spacing);
   border-bottom: 1px solid var(--pico-border-color);
   flex-wrap: wrap;
 }
 
 .sys-page-filter-btn {
-  padding: 4px 10px;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border: 1px solid var(--pico-border-color);
   border-radius: 4px;
   background: transparent;
@@ -730,7 +730,7 @@
 .sys-page-search {
   flex: 1;
   min-width: 150px;
-  padding: 4px 10px;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border: 1px solid var(--pico-border-color);
   border-radius: 4px;
   background: var(--pico-background-color);
@@ -745,8 +745,8 @@
 /* ─── System Pages Stats ──────────────────────────────────────── */
 .sys-page-stats {
   display: flex;
-  gap: 16px;
-  padding: 12px 16px;
+  gap: var(--pico-spacing);
+  padding: 12px var(--pico-spacing);
   border-bottom: 1px solid var(--pico-border-color);
   color: var(--pico-muted-color);
 }
@@ -754,7 +754,7 @@
 .sys-page-stat {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .sys-page-stat-value {

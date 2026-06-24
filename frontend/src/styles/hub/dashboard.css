@@ -1,14 +1,14 @@
 /* ═══════════════════════════════════════════════════════════════════
-   hub/dashboard.css — Dashboard Tab Styles
-   Uses Pico.css tokens via --pico-* CSS variables.
+   hub/dashboard.css — Dashboard Tab Styles (USX Phase 2 standardized)
+   Uses Pico.css tokens via --pico-* CSS variables + USX spacing vars.
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ─── Status Badge (header right) ───────────────────────────────── */
 .hub-status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border-radius: 999px;
   font-weight: 500;
   background: var(--pico-card-sectioning-background-color, #1c2128);
@@ -31,8 +31,8 @@
 .hub-snackbar-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border-radius: 999px;
   font-weight: 500;
   background: rgba(63, 185, 80, 0.15);
@@ -43,8 +43,8 @@
 .hub-tab-bar {
   display: flex;
   justify-content: center;
-  gap: 4px;
-  padding: 12px 16px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-compact-padding) var(--usx-section-padding);
   background: transparent;
   overflow-x: auto;
 }
@@ -52,8 +52,8 @@
 .hub-tab-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-compact-gap) var(--usx-section-padding);
   border: none;
   border-radius: 999px;
   background: transparent;
@@ -81,7 +81,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  padding: 24px;
+  padding: var(--usx-section-padding);
   background: var(--pico-background-color, #0d1117);
 }
 
@@ -89,7 +89,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: var(--usx-section-padding);
   max-width: 400px;
   width: 100%;
   text-align: center;
@@ -98,7 +98,7 @@
 .hub-loading-overlay-spinner {
   color: var(--pico-primary, #58a6ff);
   animation: usx-spin 1s linear infinite;
-  margin-bottom: 8px;
+  margin-bottom: var(--usx-spacing-sm);
 }
 
 .hub-loading-overlay-title {
@@ -120,16 +120,16 @@
 .hub-loading-overlay-steps {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   width: 100%;
   max-width: 280px;
-  margin-top: 8px;
+  margin-top: var(--usx-spacing-sm);
 }
 
 .hub-loading-step {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   color: var(--pico-muted-color, #8b949e);
   opacity: 0.6;
   transition: all 300ms ease;
@@ -144,8 +144,8 @@
 .hub-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 16px;
-  padding: 24px;
+  gap: var(--usx-grid-gap-loose);
+  padding: var(--usx-section-padding);
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
@@ -156,8 +156,8 @@
 .hub-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 20px;
+  gap: var(--usx-section-padding);
+  padding: var(--usx-section-padding);
   border-radius: 12px;
   background: var(--pico-card-background-color, #161b22);
   border: 1px solid var(--pico-border-color, #30363d);
@@ -194,8 +194,8 @@
 .hub-card-progress {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 0 4px;
+  gap: var(--usx-section-padding);
+  padding: 0 var(--usx-spacing-xs);
 }
 
 .hub-progress-bar {
@@ -231,8 +231,8 @@
 .hub-action-progress {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 10px 12px;
+  gap: var(--usx-section-padding);
+  padding: var(--usx-section-padding);
   border-radius: 8px;
   background: var(--pico-card-sectioning-background-color, #1c2128);
   border: 1px solid var(--pico-border-color, #30363d);
@@ -256,7 +256,7 @@
 .hub-action-progress-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .hub-action-progress-label {
@@ -285,7 +285,7 @@
 .hub-card-header {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--usx-section-padding);
 }
 
 .hub-card-icon {
@@ -308,7 +308,7 @@
 }
 
 .hub-card-subtitle {
-  margin: 2px 0 0;
+  margin: var(--usx-list-item-gap) 0 0;
   font-weight: 500;
 }
 
@@ -330,19 +330,19 @@
 
 .hub-star-btn:hover {
   background: var(--pico-card-sectioning-background-color, #1c2128);
-  color: #d29922;
+  color: var(--pico-warning-color, #d29922);
 }
 
-.hub-star-btn--active { color: #d29922; }
+.hub-star-btn--active { color: var(--pico-warning-color, #d29922); }
 
 /* ─── Status Badge (per-card) ───────────────────────────────────── */
 .hub-card-status {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
   font-weight: 500;
   flex-shrink: 0;
-  padding: 4px 10px;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border-radius: 999px;
   border: 1px solid var(--pico-border-color, #30363d);
   white-space: nowrap;
@@ -406,23 +406,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--usx-section-padding);
   margin-top: auto;
-  padding-top: 8px;
+  padding-top: var(--usx-spacing-sm);
   border-top: 1px solid var(--pico-border-color, #30363d);
 }
 
 .hub-card-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .hub-card-port {
   font-family: 'SF Mono', 'Fira Code', monospace;
   color: var(--pico-muted-color, #8b949e);
   background: var(--pico-card-background-color, #161b22);
-  padding: 2px 8px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   border-radius: 4px;
   border: 1px solid var(--pico-border-color, #30363d);
 }
@@ -435,7 +435,7 @@
 .hub-card-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .hub-text-muted {
@@ -444,25 +444,25 @@
 
 /* ─── Dashboard ─────────────────────────────────────────────────── */
 .hub-dashboard {
-  padding: 24px;
+  padding: var(--usx-section-padding);
   max-width: 1400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--usx-section-padding);
 }
 
 /* ─── Dashboard Section (top area: stats, activity, tasks) ──────── */
 .hub-dashboard-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--usx-section-padding);
 }
 
 .hub-dashboard-section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   color: var(--pico-color, #c9d1d9);
 }
 
@@ -474,7 +474,7 @@
 .hub-dashboard-section-count {
   color: var(--pico-muted-color, #8b949e);
   background: var(--pico-card-sectioning-background-color, #1c2128);
-  padding: 2px 10px;
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
   border-radius: 999px;
 }
 
@@ -482,17 +482,17 @@
 .hub-dashboard-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
+  gap: var(--usx-section-padding);
 }
 
 .hub-dashboard-stat-card {
   background: var(--pico-card-background-color, #161b22);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 8px;
-  padding: 16px;
+  padding: var(--usx-section-padding);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .hub-dashboard-stat-label {
@@ -523,7 +523,7 @@
 .hub-dashboard-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--usx-section-padding);
 }
 
 @media (max-width: 768px) {
@@ -536,13 +536,13 @@
 .hub-dashboard-activity {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .hub-dashboard-activity-row {
   display: flex;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: var(--usx-compact-padding);
+  padding: var(--usx-spacing-sm) var(--usx-compact-padding);
   border-radius: 6px;
   align-items: center;
   background: var(--pico-card-background-color, #161b22);
@@ -563,14 +563,14 @@
 .hub-dashboard-tasks {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .hub-dashboard-task-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: var(--usx-spacing-sm) var(--usx-compact-padding);
   border-radius: 6px;
   cursor: pointer;
   background: var(--pico-card-background-color, #161b22);
@@ -582,7 +582,7 @@
 .hub-dashboard-task-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   cursor: pointer;
   flex: 1;
 }
@@ -598,29 +598,29 @@
 
 .hub-dashboard-tag {
   display: inline-flex;
-  padding: 2px 8px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   border-radius: 4px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
-.hub-dashboard-tag--high { background: rgba(231, 111, 81, 0.15); color: #E76F51; }
-.hub-dashboard-tag--medium { background: rgba(233, 196, 106, 0.15); color: #E9C46A; }
-.hub-dashboard-tag--low { background: rgba(42, 157, 143, 0.15); color: #2A9D8F; }
+.hub-dashboard-tag--high { background: var(--pico-del-color, #E76F51); color: var(--pico-del-color, #E76F51); }
+.hub-dashboard-tag--medium { background: var(--pico-warning-color, #E9C46A); color: var(--pico-warning-color, #E9C46A); }
+.hub-dashboard-tag--low { background: var(--pico-ins-color, #2A9D8F); color: var(--pico-ins-color, #2A9D8F); }
 
 /* ─── Starred Grid (surfaces section) ───────────────────────────── */
 .hub-dashboard-starred-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 16px;
+  gap: var(--usx-section-padding);
 }
 
 /* ─── Dashboard Cards ───────────────────────────────────────────── */
 .hub-dash-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
+  gap: var(--usx-section-padding);
 }
 
 .hub-dash-card {
@@ -647,7 +647,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: var(--usx-card-padding-vertical) var(--usx-card-padding-horizontal);
   cursor: pointer;
   user-select: none;
 }
@@ -657,14 +657,14 @@
 .hub-dash-card-header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--usx-spacing-sm);
   color: var(--dash-card-color, var(--pico-primary, #58a6ff));
 }
 
 .hub-dash-card-header-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--usx-list-item-gap);
 }
 
 .hub-dash-card-title {
@@ -680,7 +680,7 @@
 .hub-dash-card-header-right {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .hub-dash-move-btn,
@@ -705,7 +705,7 @@
 }
 
 .hub-dash-card-body {
-  padding: 12px 16px 16px;
+  padding: var(--usx-compact-padding) var(--usx-card-padding-horizontal) var(--usx-section-padding);
   flex: 1;
 }
 
@@ -713,13 +713,13 @@
 .hub-dash-card-stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: var(--usx-compact-padding);
 }
 
 .hub-dash-stat-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .hub-dash-stat-value {
@@ -738,7 +738,7 @@
   background: var(--pico-border-color, #30363d);
   border-radius: 2px;
   overflow: hidden;
-  margin-top: 4px;
+  margin-top: var(--usx-spacing-xs);
 }
 
 .hub-dash-stat-bar-fill {
@@ -751,14 +751,14 @@
 .hub-dash-card-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .hub-dash-list-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--usx-compact-padding);
   border-radius: 8px;
   background: var(--pico-card-background-color, #161b22);
   border: 1px solid var(--pico-border-color, #30363d);
@@ -795,14 +795,14 @@
 .hub-dash-card-preview-items {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .hub-dash-preview-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-sm);
   border-left: 3px solid var(--pico-primary, #58a6ff);
   background: var(--pico-card-background-color, #161b22);
   border-radius: 4px;
@@ -816,21 +816,21 @@
 .hub-dash-preview-more {
   color: var(--pico-muted-color, #8b949e);
   text-align: center;
-  padding: 4px;
+  padding: var(--usx-spacing-xs);
 }
 
 /* ─── Chat Prompts ───────────────────────────────────────────────── */
 .hub-dash-prompts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .hub-dash-prompt-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-sm);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 8px;
   background: var(--pico-card-background-color, #161b22);
@@ -851,14 +851,14 @@
 .hub-dash-card-actions {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .hub-dash-action-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--usx-compact-padding);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 8px;
   background: var(--pico-card-background-color, #161b22);
@@ -877,14 +877,14 @@
 .hub-dash-card-tasks {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .hub-dash-task-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 8px;
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   border-radius: 6px;
   transition: background 0.15s ease;
 }
@@ -894,7 +894,7 @@
 .hub-dash-task-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   cursor: pointer;
   flex: 1;
 }
@@ -911,29 +911,29 @@
 }
 
 .hub-dash-task-priority {
-  padding: 2px 6px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-compact-gap);
   border-radius: 4px;
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
-.hub-dash-task-priority--high { background: #ff444420; color: #ff4444; }
-.hub-dash-task-priority--medium { background: #f59e0b20; color: #f59e0b; }
-.hub-dash-task-priority--low { background: #22c55e20; color: #22c55e; }
+.hub-dash-task-priority--high { background: rgba(248, 81, 73, 0.15); color: var(--pico-del-color, #f85149); }
+.hub-dash-task-priority--medium { background: rgba(210, 153, 34, 0.15); color: var(--pico-warning-color, #d29922); }
+.hub-dash-task-priority--low { background: rgba(63, 185, 80, 0.15); color: var(--pico-ins-color, #3fb950); }
 
 /* ─── Activity Card ───────────────────────────────────────────────── */
 .hub-dash-card-activity {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--usx-list-item-gap);
 }
 
 .hub-dash-activity-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 6px 8px;
+  gap: var(--usx-compact-padding);
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   border-radius: 6px;
   transition: background 0.15s ease;
 }
@@ -955,8 +955,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 24px 16px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xl) var(--usx-section-padding);
   color: var(--pico-muted-color, #8b949e);
   text-align: center;
 }
@@ -965,8 +965,8 @@
 .hub-snackbar-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 12px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-xs) var(--usx-compact-padding);
   border-radius: 999px;
   font-weight: 500;
   border: 1px solid var(--pico-border-color, #30363d);
@@ -1000,7 +1000,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: var(--usx-spacing-sm) var(--usx-section-padding);
   background: var(--pico-card-background-color, #161b22);
   color: var(--pico-muted-color, #8b949e);
   flex-shrink: 0;
@@ -1009,18 +1009,18 @@
 .hub-footer-snackbar {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .hub-footer-static { text-align: right; }
 
 /* ─── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .hub-grid { grid-template-columns: 1fr; padding: 16px; }
+  .hub-grid { grid-template-columns: 1fr; padding: var(--usx-section-padding); }
   .hub-tab-btn span { display: none; }
   .hub-card-footer { flex-direction: column; align-items: stretch; }
   .hub-card-actions { flex-wrap: wrap; }
-  .hub-dashboard { padding: 16px; }
+  .hub-dashboard { padding: var(--usx-section-padding); }
   .hub-dash-cards-grid { grid-template-columns: 1fr; }
   .hub-dash-card--large { grid-column: span 1; }
   .hub-dash-card--expanded { grid-column: 1 / -1; }

@@ -149,18 +149,18 @@ function WorkflowDetailPanel({ task, onClose, onUpdate }: {
     <div className="kanban-detail-panel">
       <div className="kanban-detail-header">
         <div className="kanban-detail-header-tabs">
-          <button className={`kanban-detail-tab ${panelMode === 'detail' ? 'active' : ''}`} onClick={() => setPanelMode('detail')}>
-            <Icon name="info" size={14} /> Detail
-          </button>
-          <button className={`kanban-detail-tab ${panelMode === 'prose' ? 'active' : ''}`} onClick={() => setPanelMode('prose')}>
-            <Icon name="description" size={14} /> Prose
-          </button>
-          <button className={`kanban-detail-tab ${panelMode === 'editor' ? 'active' : ''}`} onClick={() => setPanelMode('editor')}>
-            <Icon name="edit" size={14} /> Editor
-          </button>
+            <button className={`kanban-detail-tab ${panelMode === 'detail' ? 'active' : ''}`} onClick={() => setPanelMode('detail')}>
+              <Icon name="info" /> Detail
+            </button>
+            <button className={`kanban-detail-tab ${panelMode === 'prose' ? 'active' : ''}`} onClick={() => setPanelMode('prose')}>
+              <Icon name="description" /> Prose
+            </button>
+            <button className={`kanban-detail-tab ${panelMode === 'editor' ? 'active' : ''}`} onClick={() => setPanelMode('editor')}>
+              <Icon name="edit" /> Editor
+            </button>
         </div>
         <button className="kanban-detail-close" onClick={onClose} title="Close panel">
-          <Icon name="close" size={16} />
+          <Icon name="close" />
         </button>
       </div>
 
@@ -198,7 +198,7 @@ function WorkflowDetailPanel({ task, onClose, onUpdate }: {
             )}
             <div className="kanban-detail-section">
               <div className="kanban-detail-file">
-                <Icon name="description" size={14} /> {task.file}
+                <Icon name="description" /> {task.file}
               </div>
             </div>
             <div className="kanban-detail-actions">
@@ -213,7 +213,7 @@ function WorkflowDetailPanel({ task, onClose, onUpdate }: {
                 </>
               ) : (
                 <button className="kanban-detail-btn primary" onClick={() => setEditing(true)}>
-                  <Icon name="edit" size={14} /> Edit
+                  <Icon name="edit" /> Edit
                 </button>
               )}
             </div>
@@ -249,7 +249,7 @@ function WorkflowDetailPanel({ task, onClose, onUpdate }: {
                   <div className="prose" dangerouslySetInnerHTML={{ __html: renderMarkdown(task.description || task.title) }} />
                 </div>
                 <button className="kanban-detail-btn primary" onClick={() => setEditing(true)}>
-                  <Icon name="edit" size={14} /> Edit
+                  <Icon name="edit" /> Edit
                 </button>
               </>
             )}
@@ -334,7 +334,7 @@ function NewMissionDropPanel({ onFilesQueued }: {
   return (
     <div className="mc-section">
       <div className="mc-section-header">
-        <Icon name="add" size={16} />
+        <Icon name="add" />
         <h3>Launchpad</h3>
         <span>Drop files to create a mission binder</span>
       </div>
@@ -347,7 +347,7 @@ function NewMissionDropPanel({ onFilesQueued }: {
         onDrop={handleDrop}
       >
         <div className="mc-drop-panel-icon">
-          <Icon name={dragging ? 'cloud_upload' : queuedFiles.length > 0 ? 'check_circle' : 'upload_file'} size={36} />
+          <Icon name={dragging ? 'cloud_upload' : queuedFiles.length > 0 ? 'check_circle' : 'upload_file'} />
         </div>
         <p className="mc-drop-panel-title">
           {dragging ? 'Drop files to queue them' : queuedFiles.length > 0 ? `${queuedFiles.length} file(s) queued` : 'Drag & drop files here'}
@@ -379,7 +379,7 @@ function NewMissionDropPanel({ onFilesQueued }: {
           {queuedFiles.map(f => (
             <div key={f.id} className="mc-queue-item">
               <div className="mc-queue-item-icon">
-                <Icon name="description" size={16} />
+                <Icon name="description" />
               </div>
               <div className="mc-queue-item-info">
                 <div className="mc-queue-item-name">{f.name}</div>
@@ -387,7 +387,7 @@ function NewMissionDropPanel({ onFilesQueued }: {
               </div>
               <div className="mc-queue-item-size">{formatSize(f.size)}</div>
               <button className="mc-queue-item-remove" onClick={() => removeFile(f.id)} title="Remove">
-                <Icon name="close" size={14} />
+                <Icon name="close" />
               </button>
             </div>
           ))}
@@ -413,38 +413,38 @@ function LiveWorkflowStats({ tasks, snackbarAvailable }: {
   return (
     <div className="mc-section">
       <div className="mc-section-header">
-        <Icon name="monitor_heart" size={16} />
+        <Icon name="monitor_heart" />
         <h3>Mission Control</h3>
         <span>Real-time system overview</span>
       </div>
 
       <div className="mc-stats-grid">
         <div className="mc-stat-card">
-          <span className="mc-stat-label"><Icon name="flag" size={12} /> Active Missions</span>
+          <span className="mc-stat-label"><Icon name="flag" /> Active Missions</span>
           <span className="mc-stat-value">{activeMissions}</span>
-          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: '100%', background: '#58a6ff' }} /></div>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: '100%', background: 'var(--pico-primary, #58a6ff)' }} /></div>
         </div>
         <div className="mc-stat-card">
-          <span className="mc-stat-label"><Icon name="account_tree" size={12} /> Workflows Running</span>
+          <span className="mc-stat-label"><Icon name="account_tree" /> Workflows Running</span>
           <span className="mc-stat-value">{workflowsRunning}</span>
-          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: `${(workflowsRunning / 10) * 100}%`, background: '#3fb950' }} /></div>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: `${(workflowsRunning / 10) * 100}%`, background: 'var(--pico-ins-color, #3fb950)' }} /></div>
         </div>
         <div className="mc-stat-card">
-          <span className="mc-stat-label"><Icon name="folder" size={12} /> Files Processed</span>
+          <span className="mc-stat-label"><Icon name="folder" /> Files Processed</span>
           <span className="mc-stat-value">{filesProcessed}</span>
-          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: '100%', background: '#d29922' }} /></div>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: '100%', background: 'var(--pico-warning-color, #d29922)' }} /></div>
         </div>
         <div className="mc-stat-card">
-          <span className="mc-stat-label"><Icon name="checklist" size={12} /> Tasks</span>
+          <span className="mc-stat-label"><Icon name="checklist" /> Tasks</span>
           <span className="mc-stat-value">{tasksDone}/{tasksTotal}</span>
-          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: `${tasksPct}%`, background: '#a855f7' }} /></div>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: `${tasksPct}%`, background: 'var(--pico-primary-focus, #a855f7)' }} /></div>
         </div>
         <div className="mc-stat-card">
-          <span className="mc-stat-label"><Icon name="restaurant_menu" size={12} /> Snackbar</span>
-          <span className="mc-stat-value" style={{ color: snackbarAvailable ? '#3fb950' : '#f85149' }}>
+          <span className="mc-stat-label"><Icon name="restaurant_menu" /> Snackbar</span>
+          <span className="mc-stat-value" style={{ color: snackbarAvailable ? 'var(--pico-ins-color, #3fb950)' : 'var(--pico-del-color, #f85149)' }}>
             {snackbarAvailable ? 'Online' : 'Offline'}
           </span>
-          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: '100%', background: snackbarAvailable ? '#3fb950' : '#f85149' }} /></div>
+          <div className="mc-stat-bar"><div className="mc-stat-bar-fill" style={{ width: '100%', background: snackbarAvailable ? 'var(--pico-ins-color, #3fb950)' : 'var(--pico-del-color, #f85149)' }} /></div>
         </div>
       </div>
     </div>
@@ -491,18 +491,18 @@ function MissionControlTab({ tasks, snackbarAvailable }: {
       <div className="mc-grid-2">
         <div className="mc-section">
           <div className="mc-section-header">
-            <Icon name="bolt" size={16} />
+            <Icon name="bolt" />
             <h3>Quick Actions</h3>
           </div>
           <div className="workflow-action-grid">
             {quickActions.map(a => (
               a.route ? (
                 <a key={a.label} href={a.route} className="workflow-action-btn" style={{ '--wf-action-color': a.color } as React.CSSProperties}>
-                  <Icon name={a.icon} size={16} /> {a.label}
+                  <Icon name={a.icon} /> {a.label}
                 </a>
               ) : (
                 <button key={a.label} className="workflow-action-btn" style={{ '--wf-action-color': a.color } as React.CSSProperties}>
-                  <Icon name={a.icon} size={16} /> {a.label}
+                  <Icon name={a.icon} /> {a.label}
                 </button>
               )
             ))}
@@ -511,13 +511,13 @@ function MissionControlTab({ tasks, snackbarAvailable }: {
 
         <div className="mc-section">
           <div className="mc-section-header">
-            <Icon name="history" size={16} />
+            <Icon name="history" />
             <h3>Activity</h3>
           </div>
           <div className="workflow-activity-list">
             {activity.map(a => (
               <div key={a.title} className="workflow-activity-row">
-                {a.icon && <Icon name={a.icon} size={14} style={{ color: 'var(--pico-muted-color)' }} />}
+                {a.icon && <Icon name={a.icon} style={{ color: 'var(--pico-muted-color)' }} />}
                 <span className="workflow-activity-date">{a.date}</span>
                 <span className="workflow-activity-title">{a.title}</span>
               </div>
@@ -584,7 +584,7 @@ function MissionsTab({ allTasks, onSelectMission }: {
             <div style={{ marginTop: 8 }}>
               <button className="workflow-toggle-btn" onClick={() => onSelectMission(m.title)}
                 style={{ width: '100%', justifyContent: 'center', padding: '6px 0' }}>
-                <Icon name="list" size={14} /> View {m.linkedTasks.length} tasks
+                <Icon name="list" /> View {m.linkedTasks.length} tasks
               </button>
             </div>
           </div>
@@ -638,21 +638,21 @@ function TasksTab({ tasks, loading, error }: {
           <div className="workflow-view-toggle" style={{ display: 'flex', border: '1px solid var(--pico-border-color)', borderRadius: 6, overflow: 'hidden' }}>
             <button className={`workflow-view-btn ${viewMode === 'kanban' ? 'active' : ''}`} onClick={() => setViewMode('kanban')}
               style={{ padding: '4px 10px', border: 'none', background: viewMode === 'kanban' ? 'var(--pico-card-sectioning-background-color)' : 'transparent', color: 'var(--pico-color)', cursor: 'pointer', fontFamily: 'inherit' }}>
-              <Icon name="grid_view" size={14} />
+              <Icon name="grid_view" />
             </button>
             <button className={`workflow-view-btn ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}
               style={{ padding: '4px 10px', border: 'none', background: viewMode === 'list' ? 'var(--pico-card-sectioning-background-color)' : 'transparent', color: 'var(--pico-color)', cursor: 'pointer', fontFamily: 'inherit' }}>
-              <Icon name="list" size={14} />
+              <Icon name="list" />
             </button>
           </div>
           <button className="workflow-toggle-btn" onClick={() => setShowCompleted(v => !v)}>
-            <Icon name="check_circle" size={14} />
+            <Icon name="check_circle" />
             {showCompleted ? 'Hide' : 'Show'}
           </button>
         </div>
       </div>
 
-      {error && <div className="workflow-card" style={{ borderLeft: '3px solid #f85149' }}><p style={{ color: '#f85149', margin: 0 }}>{error}</p></div>}
+      {error && <div className="workflow-card" style={{ borderLeft: '3px solid var(--pico-del-color, #f85149)' }}><p style={{ color: 'var(--pico-del-color, #f85149)', margin: 0 }}>{error}</p></div>}
       {loading && userTasks.length === 0 && <div className="workflow-empty">Loading user tasks...</div>}
 
       <div className="workflow-tasks-body" style={{ display: 'flex', flex: 1, minHeight: 0, gap: 12, overflow: 'hidden' }}>
@@ -670,7 +670,7 @@ function TasksTab({ tasks, loading, error }: {
                       {t.status}
                     </span>
                     <span className="workflow-card-title" style={{ fontWeight: 400, flex: 1 }}>{t.title}</span>
-                    {t.priority === 'high' && <Icon name="priority_high" size={14} style={{ color: '#f85149', flexShrink: 0 }} />}
+                    {t.priority === 'high' && <Icon name="priority_high" style={{ color: 'var(--pico-del-color, #f85149)', flexShrink: 0 }} />}
                     {t.tags && t.tags.length > 0 && (
                       <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
                         {t.tags.slice(0, 2).map(tag => <span key={tag} className="kanban-detail-tag" style={{ fontSize: 'var(--pico-font-size-condensed)' }}>{tag}</span>)}
@@ -778,10 +778,10 @@ function BinderCompilerTab() {
   return (
     <div className="workflow-dashboard binder-compiler">
       <div className="binder-compiler-header">
-        <h3><Icon name="folder_special" size={18} /> Binder Compiler</h3>
+        <h3><Icon name="folder_special" /> Binder Compiler</h3>
         <div className="binder-compiler-stats">
-          <span><Icon name="folder" size={12} /> {binders.length} binders</span>
-          <span><Icon name="description" size={12} /> {binders.reduce((s, b) => s + b.sourceCount, 0)} sources</span>
+          <span><Icon name="folder" /> {binders.length} binders</span>
+          <span><Icon name="description" /> {binders.reduce((s, b) => s + b.sourceCount, 0)} sources</span>
         </div>
       </div>
 
@@ -792,11 +792,11 @@ function BinderCompilerTab() {
       {incomingFiles.length > 0 && (
         <div className="binder-incoming">
           <div className="binder-incoming-header">
-            <h4><Icon name="input" size={14} /> Incoming Files</h4>
+            <h4><Icon name="input" /> Incoming Files</h4>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <span className="binder-incoming-count">{incomingFiles.length} file(s)</span>
               <button className="binder-process-all" onClick={processFiles} disabled={processing}>
-                <Icon name={processing ? 'sync' : 'auto_awesome'} size={14} className={processing ? 'hub-spin' : ''} />
+                <Icon name={processing ? 'sync' : 'auto_awesome'} className={processing ? 'hub-spin' : ''} />
                 {processing ? 'Processing...' : 'Compile Binder'}
               </button>
             </div>
@@ -804,13 +804,13 @@ function BinderCompilerTab() {
           <div className="binder-incoming-list">
             {incomingFiles.map(f => (
               <div key={f.id} className="binder-incoming-item">
-                <div className="binder-incoming-item-icon"><Icon name="description" size={14} /></div>
+                <div className="binder-incoming-item-icon"><Icon name="description" /></div>
                 <span className="binder-incoming-item-name">{f.name}</span>
                 <span className="binder-incoming-item-meta" style={{ fontSize: 10, color: 'var(--pico-muted-color)' }}>{formatSize(f.size)}</span>
                 <span className={`binder-incoming-item-status binder-incoming-item-status--${processingFileId === f.id ? 'processing' : 'queued'}`}>
                   {processingFileId === f.id ? 'Processing...' : 'Queued'}
                 </span>
-                <button className="mc-queue-item-remove" onClick={() => removeIncoming(f.id)} title="Remove"><Icon name="close" size={12} /></button>
+                <button className="mc-queue-item-remove" onClick={() => removeIncoming(f.id)} title="Remove"><Icon name="close" /></button>
               </div>
             ))}
           </div>
@@ -819,7 +819,7 @@ function BinderCompilerTab() {
 
       <div className="mc-section">
         <div className="mc-section-header">
-          <Icon name="folder" size={16} />
+          <Icon name="folder" />
           <h3>Compiled Binders</h3>
           <span>{binders.length} total</span>
         </div>
@@ -829,7 +829,7 @@ function BinderCompilerTab() {
             {binders.map(b => (
               <div key={b.id} className="binder-item">
                 <div className="binder-item-icon" style={{ background: `${b.color}18`, color: b.color }}>
-                  <Icon name={b.icon} size={20} />
+                  <Icon name={b.icon} />
                 </div>
                 <div className="binder-item-info">
                   <div className="binder-item-name">{b.name}</div>
@@ -845,7 +845,7 @@ function BinderCompilerTab() {
           </div>
         ) : (
           <div className="binder-empty">
-            <div className="binder-empty-icon"><Icon name="folder_open" size={40} /></div>
+            <div className="binder-empty-icon"><Icon name="folder_open" /></div>
             <h4>No binders yet</h4>
             <p>Drop files above to create your first binder. Binders collate source files into organized mission or task groups.</p>
           </div>
@@ -854,7 +854,7 @@ function BinderCompilerTab() {
 
       <div className="mc-section">
         <div className="mc-section-header">
-          <Icon name="info" size={16} />
+          <Icon name="info" />
           <h3>How it works</h3>
         </div>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -864,7 +864,7 @@ function BinderCompilerTab() {
             { step: '3', title: 'Link to Mission', desc: 'Binders can be assigned to missions or task groups for structured work' },
           ].map(s => (
             <div key={s.step} style={{ flex: '1 1 200px', display: 'flex', gap: 10, alignItems: 'flex-start', padding: 12, background: 'var(--pico-card-background-color, #0d1117)', border: '1px solid var(--pico-border-color, #30363d)', borderRadius: 8 }}>
-              <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--pico-primary, #58a6ff)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{s.step}</span>
+              <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--pico-primary, #58a6ff)', color: 'var(--pico-primary-inverse, #fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{s.step}</span>
               <div>
                 <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--pico-color, #e6edf3)' }}>{s.title}</div>
                 <div style={{ fontSize: 12, color: 'var(--pico-muted-color, #8b949e)' }}>{s.desc}</div>

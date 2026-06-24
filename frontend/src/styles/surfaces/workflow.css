@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
-   workflow.css — Workflow Surface Styles
+   workflow.css — Workflow Surface Styles (USX Phase 2 standardized)
    ═══════════════════════════════════════════════════════════════════
-   Includes mission-control drop panel, binder compiler, and live stats
+   Uses Pico tokens for colors, USX spacing variables for layout.
    ═══════════════════════════════════════════════════════════════════ */
 /* ─── Existing Workflow Styles ─────────────────────────────────── */
 .workflow-surface {
@@ -14,7 +14,7 @@
 }
 
 .workflow-surface-main {
-  padding: 20px 24px;
+  padding: var(--usx-section-padding);
   overflow-y: auto;
   min-height: 0;
 }
@@ -23,15 +23,15 @@
 .workflow-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: var(--usx-section-gap);
+  margin-bottom: var(--usx-section-separator);
 }
 
 .workflow-section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-bottom: 6px;
+  gap: var(--usx-spacing-sm);
+  padding-bottom: var(--usx-compact-gap);
   border-bottom: 1px solid var(--pico-border-color, #30363d);
 }
 
@@ -52,14 +52,14 @@
 .workflow-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
+  gap: var(--usx-section-gap);
 }
 
 .workflow-stat-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px 16px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-card-padding-vertical) var(--usx-card-padding-horizontal);
   background: var(--pico-card-background-color, #0d1117);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 8px;
@@ -71,18 +71,18 @@
 }
 
 .workflow-stat-value {
-  font-size: 22px;
+  font-size: var(--pico-font-size, 14px);
   font-weight: 700;
   color: var(--pico-color, #e6edf3);
   line-height: 1.2;
 }
 
 .workflow-stat-value--online {
-  color: #3fb950;
+  color: var(--pico-ins-color, #3fb950);
 }
 
 .workflow-stat-value--offline {
-  color: #f85149;
+  color: var(--pico-del-color, #f85149);
 }
 
 .workflow-stat-bar {
@@ -90,7 +90,7 @@
   border-radius: 2px;
   background: var(--pico-card-sectioning-background-color, #161b22);
   overflow: hidden;
-  margin-top: 4px;
+  margin-top: var(--usx-spacing-xs);
 }
 
 .workflow-stat-bar-fill {
@@ -103,8 +103,8 @@
 .workflow-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: var(--usx-grid-gap-loose);
+  margin-bottom: var(--usx-section-separator);
 }
 
 @media (max-width: 900px) {
@@ -117,14 +117,14 @@
 .workflow-activity-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--usx-list-item-gap);
 }
 
 .workflow-activity-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-sm);
   border-radius: 4px;
   background: var(--pico-card-background-color, #0d1117);
   border: 1px solid var(--pico-border-color, #30363d);
@@ -146,14 +146,14 @@
 .workflow-action-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .workflow-action-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--usx-compact-padding);
   border: 1px solid var(--pico-border-color, #30363d);
   background: var(--pico-card-background-color, #0d1117);
   color: var(--pico-color, #e6edf3);
@@ -173,14 +173,14 @@
 .workflow-task-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--usx-list-item-gap);
 }
 
 .workflow-task-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   border-radius: 4px;
   background: var(--pico-card-background-color, #0d1117);
   border: 1px solid var(--pico-border-color, #30363d);
@@ -189,7 +189,7 @@
 .workflow-task-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   cursor: pointer;
   flex: 1;
   min-width: 0;
@@ -214,14 +214,14 @@
 .workflow-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--usx-section-gap);
 }
 
 .workflow-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--usx-section-gap);
 }
 
 .workflow-panel-header h3 {
@@ -233,7 +233,7 @@
 .workflow-panel-count {
   font-size: var(--pico-font-size-condensed, 12px);
   color: var(--pico-muted-color, #8b949e);
-  padding: 2px 8px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   border-radius: 10px;
   background: var(--pico-card-sectioning-background-color, #161b22);
 }
@@ -242,8 +242,8 @@
 .workflow-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px 16px;
+  gap: var(--usx-card-gap);
+  padding: var(--usx-card-padding-vertical) var(--usx-card-padding-horizontal);
   background: var(--pico-card-background-color, #0d1117);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 8px;
@@ -253,7 +253,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .workflow-card-title {
@@ -264,7 +264,7 @@
 
 .workflow-card-badge {
   font-size: var(--pico-font-size-condensed, 12px);
-  padding: 2px 8px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   border-radius: 10px;
   border: 1px solid;
   flex-shrink: 0;
@@ -280,7 +280,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .workflow-card-status {
@@ -292,15 +292,15 @@
 .workflow-mission-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--usx-card-gap);
 }
 
 /* ─── Toggle button ─────────────────────────────────────────────── */
 .workflow-toggle-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-compact-gap) var(--usx-compact-padding);
   border: 1px solid var(--pico-border-color, #30363d);
   background: var(--pico-card-background-color, #0d1117);
   color: var(--pico-color, #e6edf3);
@@ -320,7 +320,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: var(--usx-spacing-2xl);
   color: var(--pico-muted-color, #8b949e);
   font-size: var(--pico-font-size-condensed, 12px);
 }
@@ -333,7 +333,7 @@
 .mc-drop-panel {
   border: 2px dashed var(--pico-border-color, #30363d);
   border-radius: 12px;
-  padding: 32px 24px;
+  padding: var(--usx-spacing-2xl) var(--usx-spacing-2xl);
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -344,7 +344,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--usx-section-gap);
 }
 
 .mc-drop-panel:hover {
@@ -365,7 +365,6 @@
 }
 
 .mc-drop-panel-icon {
-  font-size: 36px;
   color: var(--pico-muted-color, #8b949e);
   line-height: 1;
 }
@@ -389,14 +388,14 @@
 
 .mc-drop-panel-formats {
   display: flex;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .mc-drop-panel-format-badge {
-  font-size: 10px;
-  padding: 2px 8px;
+  font-size: var(--pico-font-size-condensed, 12px);
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   border-radius: 4px;
   background: var(--pico-card-sectioning-background-color, #161b22);
   border: 1px solid var(--pico-border-color, #30363d);
@@ -412,17 +411,17 @@
 
 /* ─── Queued Files List ─────────────────────────────────────────── */
 .mc-queue {
-  margin-top: 12px;
+  margin-top: var(--usx-section-gap);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .mc-queue-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: var(--usx-spacing-sm) 0;
 }
 
 .mc-queue-header h4 {
@@ -436,7 +435,7 @@
 
 .mc-queue-clear {
   font-size: var(--pico-font-size-condensed, 12px);
-  padding: 2px 8px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   border: 1px solid var(--pico-del-color, #f85149);
   border-radius: 4px;
   background: transparent;
@@ -447,8 +446,8 @@
 .mc-queue-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--usx-compact-padding);
   background: var(--pico-card-sectioning-background-color, #161b22);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 6px;
@@ -489,7 +488,7 @@
 }
 
 .mc-queue-item-remove {
-  padding: 4px;
+  padding: var(--usx-spacing-xs);
   border: none;
   background: transparent;
   color: var(--pico-muted-color, #8b949e);
@@ -505,16 +504,16 @@
 
 .mc-queue-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   justify-content: flex-end;
-  margin-top: 8px;
+  margin-top: var(--usx-spacing-sm);
 }
 
 .mc-queue-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-sm) var(--usx-section-padding);
   border-radius: 6px;
   border: 1px solid var(--pico-border-color, #30363d);
   background: var(--pico-card-background-color, #0d1117);
@@ -533,7 +532,7 @@
 .mc-queue-btn--primary {
   background: var(--pico-primary, #58a6ff);
   border-color: var(--pico-primary, #58a6ff);
-  color: #fff;
+  color: var(--pico-color-inverse, #fff);
 }
 
 .mc-queue-btn--primary:hover {
@@ -545,15 +544,15 @@
 .mc-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: var(--usx-section-gap);
+  margin-bottom: var(--usx-section-separator);
 }
 
 .mc-stat-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px 16px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-card-padding-vertical) var(--usx-card-padding-horizontal);
   background: var(--pico-card-background-color, #0d1117);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 8px;
@@ -564,11 +563,11 @@
   color: var(--pico-muted-color, #8b949e);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .mc-stat-value {
-  font-size: 22px;
+  font-size: var(--pico-font-size, 14px);
   font-weight: 700;
   color: var(--pico-color, #e6edf3);
   line-height: 1.2;
@@ -579,7 +578,7 @@
   border-radius: 2px;
   background: var(--pico-card-sectioning-background-color, #161b22);
   overflow: hidden;
-  margin-top: 4px;
+  margin-top: var(--usx-spacing-xs);
 }
 
 .mc-stat-bar-fill {
@@ -592,14 +591,14 @@
 .binder-compiler {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--usx-section-padding);
 }
 
 .binder-compiler-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--usx-section-gap);
 }
 
 .binder-compiler-header h3 {
@@ -609,12 +608,12 @@
   color: var(--pico-color, #e6edf3);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .binder-compiler-stats {
   display: flex;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
   font-size: var(--pico-font-size-condensed, 12px);
   color: var(--pico-muted-color, #8b949e);
 }
@@ -622,20 +621,20 @@
 .binder-compiler-stats span {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .binder-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--usx-card-gap);
 }
 
 .binder-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: var(--usx-section-gap);
+  padding: var(--usx-card-padding-vertical) var(--usx-card-padding-horizontal);
   background: var(--pico-card-background-color, #0d1117);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 8px;
@@ -672,13 +671,13 @@
   font-size: var(--pico-font-size-condensed, 12px);
   color: var(--pico-muted-color, #8b949e);
   display: flex;
-  gap: 12px;
-  margin-top: 2px;
+  gap: var(--usx-section-gap);
+  margin-top: var(--usx-list-item-gap);
 }
 
 .binder-item-status {
   font-size: var(--pico-font-size-condensed, 12px);
-  padding: 2px 8px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   border-radius: 10px;
   border: 1px solid;
   flex-shrink: 0;
@@ -704,8 +703,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 48px 24px;
+  gap: var(--usx-section-gap);
+  padding: 48px var(--usx-spacing-xl);
   text-align: center;
   border: 1px dashed var(--pico-border-color, #30363d);
   border-radius: 12px;
@@ -713,7 +712,6 @@
 }
 
 .binder-empty-icon {
-  font-size: 40px;
   color: var(--pico-muted-color, #8b949e);
   line-height: 1;
 }
@@ -743,7 +741,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   background: var(--pico-card-sectioning-background-color, #161b22);
   border-bottom: 1px solid var(--pico-border-color, #30363d);
 }
@@ -754,13 +752,13 @@
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .binder-incoming-count {
   font-size: var(--pico-font-size-condensed, 12px);
   color: var(--pico-muted-color, #8b949e);
-  padding: 2px 8px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   border-radius: 10px;
   background: var(--pico-card-background-color, #0d1117);
 }
@@ -773,8 +771,8 @@
 .binder-incoming-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border-bottom: 1px solid var(--pico-border-color, #30363d);
   font-size: var(--pico-font-size-condensed, 12px);
 }
@@ -798,9 +796,9 @@
 
 .binder-incoming-item-status {
   flex-shrink: 0;
-  padding: 2px 6px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-compact-gap);
   border-radius: 4px;
-  font-size: 10px;
+  font-size: var(--pico-font-size-condensed, 12px);
   font-weight: 600;
 }
 
@@ -828,12 +826,12 @@
 .binder-process-all {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-xl);
   border-radius: 6px;
   border: none;
   background: var(--pico-primary, #58a6ff);
-  color: #fff;
+  color: var(--pico-color-inverse, #fff);
   cursor: pointer;
   font-size: var(--pico-font-size, 14px);
   font-weight: 500;
@@ -853,14 +851,15 @@
 .mc-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--usx-section-gap);
+  margin-bottom: calc(var(--usx-section-padding) * 2);
 }
 
 .mc-section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-bottom: 4px;
+  gap: var(--usx-spacing-sm);
+  padding-bottom: var(--usx-spacing-xs);
   border-bottom: 1px solid var(--pico-border-color, #30363d);
 }
 
@@ -880,8 +879,8 @@
 .mc-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: var(--usx-grid-gap-loose);
+  margin-bottom: var(--usx-section-separator);
 }
 
 @media (max-width: 900px) {

@@ -6,6 +6,8 @@ import { Icon } from './components/Icon'
 import { USXThemeProvider } from './components/USXThemeProvider'
 import { SurfaceSnackbar } from './components/SurfaceSnackbar'
 import { useSurfaceStore } from './hooks/useSurfaceStore'
+import { useSurfaceShell } from './components/SurfaceShellContext'
+import VaultSidebar, { type SidebarNavItem } from './components/VaultSidebar'
 import './styles/hub/index.css'
 import './styles/global-toolbar.css'
 import { GlobalToolbar, type ToolbarTab } from './components/GlobalToolbar'
@@ -117,7 +119,7 @@ function StatusBadge({ status }: { status: string }) {
   const cfg = config[status] || config.stopped
   return (
     <div className={`hub-card-status ${cfg.className}`}>
-      <Icon name={cfg.icon} size={14} />
+      <Icon name={cfg.icon} />
       <span>{cfg.label}</span>
     </div>
   )
@@ -164,7 +166,7 @@ function ActionProgressIndicator({ progress, action }: {
   return (
     <div className={`hub-action-progress ${statusClass}`}>
       <div className="hub-action-progress-header">
-        <Icon name={statusIcon} size={14} className={isCompleted || isFailed ? '' : 'hub-spin'} />
+        <Icon name={statusIcon} className={isCompleted || isFailed ? '' : 'hub-spin'} />
         <span className="hub-action-progress-label">
           {isCompleted ? `${actionLabels[action]} — Complete` :
            isFailed ? `${actionLabels[action]} — Failed` :
@@ -244,7 +246,7 @@ function SurfaceCard({ surface, snackbarAvailable, onAction, pendingAction, acti
     >
       <div className="hub-card-header">
         <div className="hub-card-icon" style={{ background: `${surface.color}20`, color: surface.color }}>
-          <Icon name={surface.icon} size={24} />
+          <Icon name={surface.icon} />
         </div>
         <div className="hub-card-info">
           <div className="hub-card-title">{surface.name}</div>
@@ -273,7 +275,7 @@ function SurfaceCard({ surface, snackbarAvailable, onAction, pendingAction, acti
             <a href={url} className="hub-btn hub-btn--primary" onClick={(e) => e.stopPropagation()}>Open</a>
           ) : isPending ? (
             <span className="hub-card-pending-spinner">
-              <Icon name="sync" size={16} className="hub-spin" />
+              <Icon name="sync" className="hub-spin" />
             </span>
           ) : isRunning ? (
             <>
@@ -281,7 +283,7 @@ function SurfaceCard({ surface, snackbarAvailable, onAction, pendingAction, acti
               {snackbarAvailable && (
                 <>
                   <button className="hub-btn hub-btn--warning" onClick={(e) => handleAction(e, 'restart')} title="Restart surface">
-                    <Icon name="refresh" size={14} /> Restart
+                    <Icon name="refresh" /> Restart
                   </button>
                   <button className="hub-btn hub-btn--danger" onClick={(e) => handleAction(e, 'stop')}>
                     Stop
@@ -296,10 +298,10 @@ function SurfaceCard({ surface, snackbarAvailable, onAction, pendingAction, acti
                   Start
                 </button>
                 <button className="hub-btn hub-btn--info" onClick={(e) => handleAction(e, 'repair')} title="Run repair skill">
-                  <Icon name="build" size={14} /> Repair
+                  <Icon name="build" /> Repair
                 </button>
                 <button className="hub-btn hub-btn--info" onClick={(e) => handleAction(e, 'debug')} title="Run diagnostics">
-                  <Icon name="bug_report" size={14} /> Debug
+                  <Icon name="bug_report" /> Debug
                 </button>
               </>
             ) : (
@@ -320,7 +322,7 @@ function LoadingOverlay({ message, progress }: { message: string; progress: numb
     <div className="hub-loading-overlay">
       <div className="hub-loading-overlay-content">
         <div className="hub-loading-overlay-spinner">
-          <Icon name="sync" size={32} className="hub-spin" />
+          <Icon name="sync" className="hub-spin" />
         </div>
         <h3 className="hub-loading-overlay-title">Loading Surfaces</h3>
         <p className="hub-loading-overlay-msg">{message}</p>
@@ -329,19 +331,19 @@ function LoadingOverlay({ message, progress }: { message: string; progress: numb
         </div>
         <div className="hub-loading-overlay-steps">
           <div className={`hub-loading-step ${progress >= 10 ? 'hub-loading-step--done' : ''}`}>
-            <Icon name={progress >= 10 ? 'check_circle' : 'radio_button_unchecked'} size={12} />
+            <Icon name={progress >= 10 ? 'check_circle' : 'radio_button_unchecked'} />
             <span>Connecting to Snackbar</span>
           </div>
           <div className={`hub-loading-step ${progress >= 40 ? 'hub-loading-step--done' : ''}`}>
-            <Icon name={progress >= 40 ? 'check_circle' : 'radio_button_unchecked'} size={12} />
+            <Icon name={progress >= 40 ? 'check_circle' : 'radio_button_unchecked'} />
             <span>Discovering surfaces</span>
           </div>
           <div className={`hub-loading-step ${progress >= 70 ? 'hub-loading-step--done' : ''}`}>
-            <Icon name={progress >= 70 ? 'check_circle' : 'radio_button_unchecked'} size={12} />
+            <Icon name={progress >= 70 ? 'check_circle' : 'radio_button_unchecked'} />
             <span>Probing ports</span>
           </div>
           <div className={`hub-loading-step ${progress >= 100 ? 'hub-loading-step--done' : ''}`}>
-            <Icon name={progress >= 100 ? 'check_circle' : 'radio_button_unchecked'} size={12} />
+            <Icon name={progress >= 100 ? 'check_circle' : 'radio_button_unchecked'} />
             <span>Ready</span>
           </div>
         </div>
@@ -587,7 +589,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
                   }
                 }}>
                   <div className="hub-dash-list-icon" style={{ color: s.color }}>
-                    <Icon name={s.icon} size={18} />
+                    <Icon name={s.icon} />
                   </div>
                   <div className="hub-dash-list-info">
                     <div className="hub-dash-list-name">{s.name}</div>
@@ -621,7 +623,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
             <div className="hub-dash-prompts-grid">
               {card.data.map((p: any) => (
                 <button key={p.id} className="hub-dash-prompt-btn" style={{ '--prompt-color': p.color } as React.CSSProperties}>
-                  <Icon name={p.icon} size={14} />
+                  <Icon name={p.icon} />
                   <span>{p.label}</span>
                 </button>
               ))}
@@ -634,7 +636,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
           <div className="hub-dash-card-actions">
             {card.data.map((a: any) => (
               <button key={a.id} className="hub-dash-action-btn" onClick={a.action || undefined}>
-                <Icon name={a.icon} size={14} />
+                <Icon name={a.icon} />
                 <span>{a.label}</span>
               </button>
             ))}
@@ -656,7 +658,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
             ))}
             {taskList.length === 0 && (
               <div className="hub-dash-empty">
-                <Icon name="checklist" size={18} />
+                <Icon name="checklist" />
                 <span>No tasks yet</span>
               </div>
             )}
@@ -693,7 +695,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
             {/* Card Header */}
             <div className="hub-dash-card-header" onClick={() => setExpandedCard(expandedCard === card.id ? null : card.id)}>
               <div className="hub-dash-card-header-left">
-                {card.icon && <Icon name={card.icon} size={16} />}
+                {card.icon && <Icon name={card.icon} />}
                 <div className="hub-dash-card-header-info">
                   <h3 className="hub-dash-card-title">{card.title}</h3>
                   {card.subtitle && <span className="hub-dash-card-subtitle">{card.subtitle}</span>}
@@ -701,13 +703,13 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
               </div>
               <div className="hub-dash-card-header-right">
                 <button className="hub-dash-move-btn" onClick={(e) => { e.stopPropagation(); moveCard(card.id, 'up') }} title="Move up">
-                  <Icon name="chevron_up" size={14} />
+                  <Icon name="chevron_up" />
                 </button>
                 <button className="hub-dash-move-btn" onClick={(e) => { e.stopPropagation(); moveCard(card.id, 'down') }} title="Move down">
-                  <Icon name="chevron_down" size={14} />
+                  <Icon name="chevron_down" />
                 </button>
                 <button className="hub-dash-expand-btn" title={expandedCard === card.id ? 'Collapse' : 'Expand'}>
-                  <Icon name={expandedCard === card.id ? 'unfold_less' : 'unfold_more'} size={16} />
+                  <Icon name={expandedCard === card.id ? 'unfold_less' : 'unfold_more'} />
                 </button>
               </div>
             </div>
@@ -724,7 +726,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, performAction, pendingAct
       {starredSurfaces.length > 0 && (
         <div className="hub-dashboard-section">
           <div className="hub-dashboard-section-header">
-            <Icon name="star" size={16} />
+            <Icon name="star" />
             <h3>Starred Surfaces</h3>
             <span className="hub-dashboard-section-count">{starredSurfaces.length}</span>
           </div>
@@ -770,7 +772,7 @@ function ModulesPanel() {
     <div className="hub-apps">
       <div className="hub-apps-section">
         <div className="hub-apps-section-header">
-          <Icon name="apps" size={18} />
+          <Icon name="apps" />
           <h3>Installed Modules</h3>
           <p>Tools and utilities available across surfaces</p>
         </div>
@@ -780,7 +782,7 @@ function ModulesPanel() {
             <div key={mod.id} className="hub-app-card" style={{ '--hub-app-color': mod.color } as React.CSSProperties}>
               <div className="hub-app-card-header">
                 <div className="hub-app-card-icon" style={{ background: `${mod.color}20`, color: mod.color }}>
-                  <Icon name={mod.icon} size={24} />
+                  <Icon name={mod.icon} />
                 </div>
                 <div className="hub-app-card-info">
                   <h3 className="hub-app-card-title">{mod.name}</h3>
@@ -1017,7 +1019,7 @@ function InstallPanel() {
     <div className="hub-install">
       <div className="hub-install-section">
         <div className="hub-install-section-header">
-          <Icon name="download" size={18} />
+          <Icon name="download" />
           <h3>Install & Configure</h3>
           <p>Tools, runtimes, and browser mods for the uConnect ecosystem</p>
         </div>
@@ -1027,14 +1029,14 @@ function InstallPanel() {
             className={`hub-tab-btn ${activeSection === 'apps' ? 'hub-tab-btn--active' : ''}`}
             onClick={() => setActiveSection('apps')}
           >
-            <Icon name="apps" size={16} />
+            <Icon name="apps" />
             <span>Applications</span>
           </button>
           <button
             className={`hub-tab-btn ${activeSection === 'browser' ? 'hub-tab-btn--active' : ''}`}
             onClick={() => setActiveSection('browser')}
           >
-            <Icon name="language" size={16} />
+            <Icon name="language" />
             <span>Zen Browser Mods</span>
           </button>
         </div>
@@ -1049,7 +1051,7 @@ function InstallPanel() {
                 <div key={app.id} className="hub-install-card" style={{ '--hub-install-color': app.color } as React.CSSProperties}>
                   <div className="hub-install-card-header">
                     <div className="hub-install-card-icon" style={{ background: `${app.color}20`, color: app.color }}>
-                      <Icon name={app.icon} size={26} />
+                      <Icon name={app.icon} />
                     </div>
                     <div className="hub-install-card-info">
                       <h3 className="hub-install-card-title">{app.name}</h3>
@@ -1074,7 +1076,7 @@ function InstallPanel() {
 
                   <div className="hub-install-card-footer">
                     <span className="hub-app-card-badge" style={{ background: status.bg, color: status.color }}>
-                      <Icon name={status.icon} size={12} style={{ marginRight: 4 }} />
+                      <Icon name={status.icon} style={{ marginRight: 4 }} />
                       {status.label}
                     </span>
                     <a
@@ -1085,7 +1087,7 @@ function InstallPanel() {
                       style={isInstalled ? { background: 'var(--pico-ins-color, #3fb950)', color: 'var(--pico-ins-color, #3fb950)' } : undefined}
                     >
                       {isInstalled ? 'Open' : 'Install'}
-                      <Icon name="open_in_new" size={14} />
+                      <Icon name="open_in_new" />
                     </a>
                   </div>
                 </div>
@@ -1100,7 +1102,7 @@ function InstallPanel() {
             <div className="hub-install-card" style={{ '--hub-install-color': '#6c63ff', marginBottom: 16 } as React.CSSProperties}>
               <div className="hub-install-card-header">
                 <div className="hub-install-card-icon" style={{ background: '#6c63ff20', color: '#6c63ff' }}>
-                  <Icon name="auto_awesome" size={26} />
+                  <Icon name="auto_awesome" />
                 </div>
                 <div className="hub-install-card-info">
                   <h3 className="hub-install-card-title">Setup Guide</h3>
@@ -1140,7 +1142,7 @@ function InstallPanel() {
                 <div key={mod.id} className="hub-install-card" style={{ '--hub-install-color': mod.color } as React.CSSProperties}>
                   <div className="hub-install-card-header">
                     <div className="hub-install-card-icon" style={{ background: `${mod.color}20`, color: mod.color }}>
-                      <Icon name={mod.icon} size={26} />
+                      <Icon name={mod.icon} />
                     </div>
                     <div className="hub-install-card-info">
                       <h3 className="hub-install-card-title">{mod.name}</h3>
@@ -1257,7 +1259,7 @@ function DocsPanel() {
         <div className="hub-docs-section">
           <div className="hub-docs-section-header">
             <button className="hub-btn hub-btn--info" onClick={() => setDocView('library')}>
-              <Icon name="arrow_back" size={14} /> Back
+              <Icon name="arrow_back" /> Back
             </button>
             <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 600, color: section.color }}>{section.title}</h3>
             <p>{section.docs.length} documents</p>
@@ -1267,7 +1269,7 @@ function DocsPanel() {
               <a key={doc.id} href={doc.url} className="hub-doc-card" style={{ '--hub-doc-color': section.color } as React.CSSProperties}>
                 <div className="hub-doc-card-header">
                   <div className="hub-doc-card-icon" style={{ background: `${section.color}20`, color: section.color }}>
-                    <Icon name={doc.icon} size={22} />
+                    <Icon name={doc.icon} />
                   </div>
                   <div className="hub-doc-card-info">
                     <h3 className="hub-doc-card-title">{doc.name}</h3>
@@ -1292,7 +1294,7 @@ function DocsPanel() {
       <div className="hub-docs" style={{ padding: 0, maxWidth: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
         <div className="hub-docs-site-header">
           <button className="hub-btn hub-btn--info" onClick={() => setDocView('library')}>
-            <Icon name="arrow_back" size={14} /> Back to Docs
+            <Icon name="arrow_back" /> Back to Docs
           </button>
           <span className="hub-docs-site-title">Developer Documentation Site</span>
         </div>
@@ -1311,7 +1313,7 @@ function DocsPanel() {
     <div className="hub-docs">
       <div className="hub-docs-section">
         <div className="hub-docs-section-header">
-          <Icon name="menu_book" size={18} />
+          <Icon name="menu_book" />
           <h3>Documentation Library</h3>
           <p>Guides, references, and system documentation</p>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1327,7 +1329,7 @@ function DocsPanel() {
               title="Sync docs from Developer via Snackbar"
               style={{ fontSize: 12, gap: 4 }}
             >
-              <Icon name={syncStatus === 'syncing' ? 'sync' : syncStatus === 'failed' ? 'error' : 'refresh'} size={14} className={syncStatus === 'syncing' ? 'hub-spin' : ''} />
+              <Icon name={syncStatus === 'syncing' ? 'sync' : syncStatus === 'failed' ? 'error' : 'refresh'} className={syncStatus === 'syncing' ? 'hub-spin' : ''} />
               {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'failed' ? 'Retry' : 'Sync Docs'}
             </button>
           </div>
@@ -1342,7 +1344,7 @@ function DocsPanel() {
                    syncStatus === 'failed' ? 'var(--pico-del-color, #f85149)' :
                    'var(--pico-muted-color, #8b949e)',
           }}>
-            <Icon name={syncStatus === 'synced' ? 'check_circle' : syncStatus === 'failed' ? 'error' : 'sync'} size={12} style={{ marginRight: 6 }} />
+            <Icon name={syncStatus === 'synced' ? 'check_circle' : syncStatus === 'failed' ? 'error' : 'sync'} style={{ marginRight: 6 }} />
             {syncMessage}
           </div>
         )}
@@ -1357,7 +1359,7 @@ function DocsPanel() {
             >
               <div className="hub-doc-card-header">
                 <div className="hub-doc-card-icon" style={{ background: `${section.color}20`, color: section.color }}>
-                  <Icon name={section.icon} size={26} />
+                  <Icon name={section.icon} />
                 </div>
                 <div className="hub-doc-card-info">
                   <h3 className="hub-doc-card-title">{section.title}</h3>
@@ -1376,7 +1378,7 @@ function DocsPanel() {
           <div className="hub-doc-card" style={{ '--hub-doc-color': '#58a6ff', cursor: 'pointer' } as React.CSSProperties} onClick={() => setDocView('site')}>
             <div className="hub-doc-card-header">
               <div className="hub-doc-card-icon" style={{ background: '#58a6ff20', color: '#58a6ff' }}>
-                <Icon name="web" size={26} />
+                <Icon name="web" />
               </div>
               <div className="hub-doc-card-info">
                 <h3 className="hub-doc-card-title">Docs Site</h3>
@@ -1417,6 +1419,8 @@ function UIHubInner() {
       return localStorage.getItem('hub-dev-mode-toggled') === 'true'
     } catch { return false }
   })
+
+  const { sidebarOpen, toggleSidebar } = useSurfaceShell()
 
   const runningCount = surfaces.filter(s => s.status === 'running').length
 
@@ -1778,6 +1782,9 @@ function UIHubInner() {
     <div className="hub-surface">
       <GlobalToolbar
         tabs={hubTabs}
+        onToggleSidebar={toggleSidebar}
+        sidebarOpen={sidebarOpen}
+        sidebarToggleLabel="UI Hub sidebar"
         rightExtra={
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <button
@@ -1797,7 +1804,7 @@ function UIHubInner() {
                 gap: '4px',
               }}
             >
-              <Icon name={devModeToggled ? 'debug' : 'tune'} size={14} />
+              <Icon name={devModeToggled ? 'debug' : 'tune'} />
               <span>Dev: {devModeToggled ? 'On' : 'Off'}</span>
             </button>
             <span className="hub-status-badge">
@@ -1809,8 +1816,9 @@ function UIHubInner() {
       />
 
 
-      <div className="usx-surface-body" style={{ display: 'flex', overflow: 'hidden', position: 'relative' }}>
-        <main className="usx-surface-main" style={{ flex: 1, overflow: 'auto' }}>
+      <div className="usx-surface-body" style={{ position: 'relative' }}>
+        <VaultSidebar open={sidebarOpen} showModeTabs sidebarMode="server" />
+        <main className="usx-surface-main">
           {loading ? (
             <LoadingOverlay message={loadingMessage} progress={loadingProgress} />
           ) : activeTab === 'surfaces' ? (

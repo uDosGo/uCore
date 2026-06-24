@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
 import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
 import AssistUISurface from '../assistui/AssistUISurface'
+import VaultSidebar, { type SidebarNavItem } from '../../components/VaultSidebar'
+import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import '../../styles/hub/index.css'
 
 // ─── Types ──────────────────────────────────────────────────────────
@@ -328,6 +330,7 @@ function DashboardPanel({ surfaces, snackbarAvailable, onNavigate, onAction }: {
 // ─── Main Component ────────────────────────────────────────────────
 export default function DashboardSurface() {
   const navigate = useNavigate()
+  const { sidebarOpen, toggleSidebar } = useSurfaceShell()
   const [activeTab, setActiveTab] = useState<MissionTab>('dashboard')
   const [surfaces, setSurfaces] = useState<SurfaceDef[]>([])
   const [loading, setLoading] = useState(true)
@@ -542,6 +545,10 @@ export default function DashboardSurface() {
     }
   }, [refresh])
 
+  const dashboardNavItems: SidebarNavItem[] = [
+    { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', active: activeTab === 'dashboard', onClick: () => setActiveTab('dashboard') },
+  ]
+
   // ─── Render ─────────────────────────────────────────────────────
   const tabs: ToolbarTab[] = [
     ...MISSION_TABS.map(t => ({
@@ -566,6 +573,9 @@ export default function DashboardSurface() {
         tabs={tabs}
         chatMode={chatMode}
         onToggleChat={toggleChat}
+        onToggleSidebar={toggleSidebar}
+        sidebarOpen={sidebarOpen}
+        sidebarToggleLabel="Dashboard sidebar"
         rightExtra={
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <span className="hub-status-badge">
@@ -577,25 +587,23 @@ export default function DashboardSurface() {
       />
 
       <div className="usx-surface-body" style={{ display: 'flex', overflow: 'hidden', position: 'relative' }}>
+        <VaultSidebar open={sidebarOpen} showModeTabs sidebarMode="server" serverNavItems={dashboardNavItems} />
         <main className="usx-surface-main" style={{ flex: 1, overflow: 'auto' }}>
           {loading ? (
-            <div className="hub-loading">
+            <div className="hub-loading" style={{ padding: 40, textAlign: 'center' }}>
               <div className="hub-loading-spinner" />
               <p>Loading surfaces...</p>
             </div>
-          ) : activeTab === 'dashboard' ? (
+          ) : (
             <DashboardPanel
               surfaces={surfaces}
               snackbarAvailable={snackbarAvailable}
               onNavigate={setActiveTab}
               onAction={performAction}
             />
-          ) : null}
+          )}
         </main>
       </div>
-
-      {/* ─── Floating Chat Panel ──────────────────────────────────── */}
-      <AssistUISurface floating />
 
       <footer className="hub-footer">
         <span>Mission Control · Surface Hub</span>
@@ -605,6 +613,8 @@ export default function DashboardSurface() {
           <span className="hub-footer-static">Snackbar offline — static port fallback</span>
         )}
       </footer>
+
+      <AssistUISurface floating />
     </div>
   )
 }

@@ -1,28 +1,39 @@
+/* ucode.css — USX Phase 2 standardized
+ * Hardcoded colors → var(--pico-*) with fallbacks
+ * Hardcoded px spacing → var(--usx-*) spacing variables
+ */
 .ucode-surface {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background: var(--surface-bg, #0d1117);
+  height: 100vh;
+  overflow: hidden;
+  background: var(--surface-bg, var(--pico-background-color, #0d1117));
+  font-family: var(--pico-font-family, system-ui, -apple-system, sans-serif);
 }
 
 .ucode-body {
   min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
 }
 
 .ucode-main {
   min-height: 0;
+  flex: 1;
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(360px, 1fr);
-  gap: 16px;
-  padding: 16px;
+  gap: var(--usx-grid-gap-loose);
+  padding: var(--usx-section-padding);
   box-sizing: border-box;
+  overflow: auto;
 }
 
 .ucode-main-viewport {
   min-height: 0;
-  border: 1px solid #30363d;
+  border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 10px;
-  background: #0f141c;
+  background: var(--pico-card-background-color, #0f141c);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -31,10 +42,10 @@
 .ucode-main-viewport-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid #30363d;
-  background: #111822;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-compact-gap) var(--usx-compact-padding);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-sectioning-background-color, #111822);
 }
 
 .ucode-main-viewport-body {
@@ -45,118 +56,118 @@
 
 .ucode-dashboard {
   min-height: 0;
-  border: 1px solid #30363d;
+  border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 10px;
-  background: #111822;
+  background: var(--pico-card-sectioning-background-color, #111822);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .ucode-dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 10px;
-  padding: 12px;
-  border-bottom: 1px solid #30363d;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-compact-padding);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
 }
 
 .ucode-dashboard-header h2 {
   margin: 0;
-  color: #e6edf3;
+  color: var(--pico-color, #e6edf3);
   font-size: 14px;
   font-weight: 700;
 }
 
 .ucode-dashboard-header p {
-  margin: 4px 0 0;
-  color: #8b949e;
+  margin: var(--usx-spacing-xs) 0 0;
+  color: var(--pico-muted-color, #8b949e);
   font-size: 12px;
 }
 
 .ucode-pill {
   display: inline-flex;
   align-items: center;
-  border: 1px solid #30363d;
+  border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 999px;
-  padding: 2px 8px;
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   font-size: 11px;
-  color: #8b949e;
-  background: #0f141c;
+  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-card-background-color, #0f141c);
   white-space: nowrap;
 }
 
 .ucode-pill--accent {
-  border-color: #2f81f7;
-  color: #58a6ff;
+  border-color: var(--pico-primary, #2f81f7);
+  color: var(--pico-primary, #58a6ff);
 }
 
 .ucode-tool-grid {
-  padding: 12px;
+  padding: var(--usx-compact-padding);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
+  gap: var(--usx-grid-gap-dense);
   overflow: auto;
 }
 
 .ucode-tool-card {
   text-align: left;
-  border: 1px solid #30363d;
+  border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 8px;
-  background: #0d1117;
-  color: #e6edf3;
-  padding: 10px;
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #e6edf3);
+  padding: var(--usx-spacing-sm);
   cursor: pointer;
   transition: border-color 120ms ease, background 120ms ease;
 }
 
 .ucode-tool-card:hover {
-  border-color: #58a6ff;
-  background: #121a24;
+  border-color: var(--pico-primary, #58a6ff);
+  background: #121a24; /* Intentional hover accent — no direct Pico mapping */
 }
 
 .ucode-tool-card-title {
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 2px;
+  margin-bottom: var(--usx-list-item-gap);
 }
 
 .ucode-tool-card-subtitle {
   font-size: 11px;
-  color: #58a6ff;
-  margin-bottom: 4px;
+  color: var(--pico-primary, #58a6ff);
+  margin-bottom: var(--usx-spacing-xs);
 }
 
 .ucode-tool-card-summary {
   font-size: 12px;
-  color: #9ba7b4;
+  color: var(--pico-muted-color, #9ba7b4);
 }
 
 .ucode-tool-detail {
-  padding: 12px;
+  padding: var(--usx-compact-padding);
   overflow: auto;
 }
 
 .ucode-tool-detail h3 {
-  margin: 0 0 6px;
-  color: #e6edf3;
+  margin: 0 0 var(--usx-compact-gap);
+  color: var(--pico-color, #e6edf3);
   font-size: 14px;
 }
 
 .ucode-tool-detail p {
-  margin: 0 0 10px;
-  color: #9ba7b4;
+  margin: 0 0 var(--usx-spacing-sm);
+  color: var(--pico-muted-color, #9ba7b4);
   font-size: 12px;
 }
 
 .ucode-tool-detail-section {
-  margin-bottom: 10px;
+  margin-bottom: var(--usx-spacing-sm);
 }
 
 .ucode-tool-detail-section h4 {
-  margin: 0 0 6px;
-  color: #58a6ff;
+  margin: 0 0 var(--usx-compact-gap);
+  color: var(--pico-primary, #58a6ff);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -164,8 +175,8 @@
 
 .ucode-tool-detail-section ul {
   margin: 0;
-  padding-left: 18px;
-  color: #c9d1d9;
+  padding-left: var(--usx-spacing-lg);
+  color: var(--pico-color, #c9d1d9);
   font-size: 12px;
   line-height: 1.45;
 }
@@ -173,12 +184,12 @@
 .ucode-back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  border: 1px solid #30363d;
+  gap: var(--usx-spacing-xs);
+  border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 6px;
-  padding: 4px 8px;
-  background: #0d1117;
-  color: #58a6ff;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-primary, #58a6ff);
   cursor: pointer;
 }
 

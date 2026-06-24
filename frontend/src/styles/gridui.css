@@ -126,7 +126,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  padding: var(--usx-spacing-sm) var(--usx-card-padding-vertical);
   border-bottom: 1px solid var(--surface-border, #30363d);
   background: var(--surface-bg, #0d1117);
 }
@@ -156,7 +156,7 @@
 
 /* ─── Popup Sections ────────────────────────────────────────────── */
 .gridui-viewport-popup-section {
-  padding: 10px 14px;
+  padding: var(--usx-spacing-sm) var(--usx-card-padding-vertical);
   border-bottom: 1px solid var(--surface-border, #30363d);
 }
 
@@ -175,7 +175,7 @@
 /* ─── Preset Buttons ────────────────────────────────────────────── */
 .gridui-viewport-popup-presets {
   display: flex;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
   flex-wrap: wrap;
 }
 
@@ -183,8 +183,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px 10px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-sm);
   border: 1px solid var(--surface-border, #30363d);
   border-radius: 8px;
   background: transparent;
@@ -212,13 +212,13 @@
 .gridui-viewport-popup-manual {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .gridui-viewport-manual-field {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--usx-list-item-gap);
   flex: 1;
 }
 
@@ -229,7 +229,7 @@
 }
 
 .gridui-viewport-manual-input {
-  padding: 6px 8px;
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   border: 1px solid var(--surface-border, #30363d);
   border-radius: 6px;
   background: var(--surface-bg, #0d1117);
@@ -252,7 +252,7 @@
 /* ─── Font Selector Buttons ─────────────────────────────────────── */
 .gridui-viewport-popup-fonts {
   display: flex;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
   flex-wrap: wrap;
 }
 
@@ -260,10 +260,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
   flex: 1;
   min-width: 56px;
-  padding: 8px 6px;
+  padding: var(--usx-spacing-sm) var(--usx-compact-gap);
   border: 1px solid var(--surface-border, #30363d);
   border-radius: 8px;
   background: transparent;
@@ -295,16 +295,16 @@
 /* ─── Border Mode Buttons ───────────────────────────────────────── */
 .gridui-viewport-popup-border-modes {
   display: flex;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 .gridui-viewport-border-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
   flex: 1;
-  padding: 8px 6px;
+  padding: var(--usx-spacing-sm) var(--usx-compact-gap);
   border: 1px solid var(--surface-border, #30363d);
   border-radius: 8px;
   background: transparent;
@@ -331,7 +331,7 @@
 .gridui-dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 12px;
+  gap: var(--usx-spacing-md);
 }
 
 .gridui-stat-value {
@@ -357,7 +357,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 8px;
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   border-radius: 4px;
   cursor: pointer;
 }
@@ -367,7 +367,7 @@
 .gridui-task-label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
   cursor: pointer;
   flex: 1;
 }
@@ -383,8 +383,8 @@
 
 .gridui-activity-row {
   display: flex;
-  gap: 12px;
-  padding: 6px 8px;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   border-radius: 4px;
   align-items: center;
 }
@@ -417,11 +417,11 @@
 .gridui-vault-content {
   flex: 1;
   overflow: auto;
-  padding: 16px;
+  padding: var(--usx-spacing-lg);
 }
 
 .gridui-vault-doc {
-  padding: 8px 12px;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border-bottom: 1px solid var(--grid-border-light, #30363d);
   cursor: pointer;
 }
@@ -441,7 +441,7 @@
 
 .gridui-vault-pre {
   margin: 0;
-  padding: 12px;
+  padding: var(--usx-spacing-md);
   background: var(--grid-bg, #010409);
   border: 1px solid var(--grid-border-light, #30363d);
   border-radius: 4px;
@@ -477,8 +477,8 @@
 .gridui-editor-layer-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-compact-gap) var(--usx-spacing-md);
   border-bottom: 1px solid var(--grid-border-light, #30363d);
 }
 
@@ -497,8 +497,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 12px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border: none;
   background: transparent;
   color: var(--grid-text-secondary, #8b949e);
@@ -524,7 +524,7 @@
 .gridui-settings-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--usx-spacing-lg);
   max-width: 600px;
 }
 
@@ -544,13 +544,13 @@
 .gridui-settings-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: var(--usx-spacing-md);
 }
 
 .gridui-settings-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .gridui-settings-field-label {
@@ -558,7 +558,7 @@
 }
 
 .gridui-settings-number-input {
-  padding: 4px 8px;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border: 1px solid var(--grid-border, #30363d);
   border-radius: 4px;
   background: var(--grid-bg, #0d1117);
@@ -576,7 +576,7 @@
 .gridui-charmaps-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .gridui-charmaps-cell {

@@ -21,7 +21,8 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import DashboardSurface from './surfaces/dashboard/DashboardSurface'
 import { SystemPage, parseSystemRoute } from './SystemPage'
-import { SurfaceShellProvider } from './components/SurfaceShellContext'
+import { SurfaceShellProvider, useSurfaceShell } from './components/SurfaceShellContext'
+import VaultSidebar from './components/VaultSidebar'
 import UCodeSurface from './surfaces/ucode/UCodeSurface'
 import BrowserUISurface from './surfaces/browserui/BrowserUISurface'
 import AssistUISurface from './surfaces/assistui/AssistUISurface'
@@ -34,9 +35,16 @@ import { DevModeProvider, useDevMode } from './hooks/useDevMode'
 import { S_PAGE_COMPONENTS } from './pages/spage-registry'
 
 import './styles/usx/usx-icons.css'
+import './styles/usx/usx-base.css'
+import './styles/usx/usx-typography.css'
+import './styles/usx/usx-typography-prose.css'
 import './styles/tokens.css'
-import './styles/hub/index.css'
+/* nestframe must come before hub to establish Pico base styles */
 import './styles/nestframe.css'
+/* USX standardization: spacing scale + Pico reset (before surface styles) */
+import './styles/usx/usx-spacing-scale.css'
+import './styles/usx/usx-pico-reset.css'
+import './styles/hub/index.css'
 import './styles/surface-host.css'
 import './styles/global-toolbar.css'
 import './styles/surfaces/developer.css'
@@ -72,28 +80,63 @@ function DevRouteGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+/**
+ * Surfaces that already render their own VaultSidebar.
+ * RootLayout skips the fallback sidebar for these to avoid double-render.
+ */
+const SURFACES_WITH_SIDEBAR = new Set([
+  '/workflow',
+  '/ucode',
+  '/developer',
+  '/server',
+  '/system',
+  '/',
+])
+
+function RootLayout({ children }: { children: React.ReactNode }) {
+  const { sidebarOpen } = useSurfaceShell()
+  const location = useLocation()
+  // Normalize path: root "/" stays as "/", otherwise use first segment
+  const normalizedPath = location.pathname === '/'
+    ? '/'
+    : '/' + (location.pathname.split('/').filter(Boolean)[0] || '')
+  const hasOwnSidebar = SURFACES_WITH_SIDEBAR.has(normalizedPath)
+  return (
+    <div className="usx-surface-body" style={{ position: 'relative' }}>
+      {!hasOwnSidebar && (
+        <VaultSidebar open={sidebarOpen} showModeTabs sidebarMode="server" />
+      )}
+      <main className="usx-surface-main" style={{ flex: 1, overflow: 'auto' }}>
+        {children}
+      </main>
+    </div>
+  )
+}
+
 function Root() {
   return (
     <BrowserRouter>
       <SurfaceShellProvider>
         <DevModeProvider>
-          <Routes>
-            {/* Legacy dead surfaces — consolidated */}
-            <Route path="/gridui/*" element={<Navigate to="/ucode" replace />} />
-            <Route path="/userver/*" element={<UserverRedirect />} />
+          <RootLayout>
+            <Routes>
+              {/* Legacy dead surfaces — consolidated */}
+              <Route path="/gridui/*" element={<Navigate to="/ucode" replace />} />
+              <Route path="/userver/*" element={<UserverRedirect />} />
 
-            {/* Canonical surfaces */}
-            <Route path="/workflow/*" element={<WorkflowSurface />} />
-            <Route path="/ucode/*" element={<UCodeSurface />} />
-            <Route path="/browserui/*" element={<BrowserUISurface />} />
-            <Route path="/assistui/*" element={<AssistUISurface />} />
-            <Route path="/documentation/*" element={<DocumentationSurface />} />
-            <Route path="/developer" element={<DevRouteGuard><DeveloperSurface /></DevRouteGuard>} />
-            <Route path="/developer/*" element={<DevRouteGuard><DeveloperSurface /></DevRouteGuard>} />
-            <Route path="/server/*" element={<UServerSurface />} />
-            <Route path="/system/*" element={<USystemSurface />} />
-            <Route path="/*" element={<App />} />
-          </Routes>
+              {/* Canonical surfaces */}
+              <Route path="/workflow/*" element={<WorkflowSurface />} />
+              <Route path="/ucode/*" element={<UCodeSurface />} />
+              <Route path="/browserui/*" element={<BrowserUISurface />} />
+              <Route path="/assistui/*" element={<AssistUISurface />} />
+              <Route path="/documentation/*" element={<DocumentationSurface />} />
+              <Route path="/developer" element={<DevRouteGuard><DeveloperSurface /></DevRouteGuard>} />
+              <Route path="/developer/*" element={<DevRouteGuard><DeveloperSurface /></DevRouteGuard>} />
+              <Route path="/server/*" element={<UServerSurface />} />
+              <Route path="/system/*" element={<USystemSurface />} />
+              <Route path="/*" element={<App />} />
+            </Routes>
+          </RootLayout>
           <FloatingChatWrapper />
         </DevModeProvider>
       </SurfaceShellProvider>

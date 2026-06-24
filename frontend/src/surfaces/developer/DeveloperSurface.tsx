@@ -18,9 +18,13 @@ import { ModelsPanel } from './ModelsPanel'
 import { AgentsPanel } from './AgentsPanel'
 import { KanbanSurface } from './KanbanSurface'
 import { GridSmithTab } from './GridSmithTab'
+import { SkillsPanel } from './SkillsPanel'
+import { USXDefaultsPanel } from './USXDefaultsPanel'
+import { RulesPanel } from './RulesPanel'
+import { SurfacesPanel } from './SurfacesPanel'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings' | 'gridsmith'
+type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings' | 'gridsmith' | 'skills' | 'usx' | 'rules' | 'surfaces'
 
 interface WorkflowRun {
   run_id: string
@@ -93,7 +97,7 @@ const SAMPLE_REPOS: RepoInfo[] = [
 ]
 
 const SNACKBAR_API = 'http://localhost:8484'
-const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'kanban', 'gridsmith', 'repos', 'review', 'settings']
+const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'skills', 'usx', 'surfaces', 'kanban', 'gridsmith', 'repos', 'review', 'rules', 'settings']
 
 // ─── Sample Review Entries ──────────────────────────────────────────
 const SAMPLE_REVIEWS: ReviewEntry[] = [
@@ -1037,10 +1041,14 @@ export default function DeveloperSurface() {
   const developerNavItems: SidebarNavItem[] = [
     { id: 'models', icon: 'database', label: 'Models', active: activeTab === 'models', onClick: () => setTabAndRoute('models') },
     { id: 'agents', icon: 'smart_toy', label: 'Agents', active: activeTab === 'agents', onClick: () => setTabAndRoute('agents') },
+    { id: 'skills', icon: 'extension', label: 'Skills', active: activeTab === 'skills', onClick: () => setTabAndRoute('skills') },
+    { id: 'usx', icon: 'palette', label: 'USX Defaults', active: activeTab === 'usx', onClick: () => setTabAndRoute('usx') },
+    { id: 'surfaces', icon: 'dashboard_customize', label: 'Surfaces', active: activeTab === 'surfaces', onClick: () => setTabAndRoute('surfaces') },
     { id: 'kanban', icon: 'calendar_view_week', label: 'Kanban', active: activeTab === 'kanban', onClick: () => setTabAndRoute('kanban') },
     { id: 'gridsmith', icon: 'grid_view', label: 'GridSmith', active: activeTab === 'gridsmith', onClick: () => setTabAndRoute('gridsmith') },
     { id: 'repos', icon: 'folder_open', label: 'Repos', active: activeTab === 'repos', onClick: () => setTabAndRoute('repos') },
     { id: 'review', icon: 'visibility', label: 'Review', active: activeTab === 'review', onClick: () => setTabAndRoute('review') },
+    { id: 'rules', icon: 'gavel', label: 'Rules', active: activeTab === 'rules', onClick: () => setTabAndRoute('rules') },
     { id: 'settings', icon: 'settings', label: 'Settings', active: activeTab === 'settings', onClick: () => setTabAndRoute('settings') },
   ]
 
@@ -1151,6 +1159,9 @@ export default function DeveloperSurface() {
         <main className="usx-surface-main developer-surface-main">
         {activeTab === 'models' && <ModelsPanel />}
         {activeTab === 'agents' && <AgentsPanel />}
+        {activeTab === 'skills' && <SkillsPanel />}
+        {activeTab === 'usx' && <USXDefaultsPanel />}
+        {activeTab === 'surfaces' && <SurfacesPanel />}
         {activeTab === 'kanban' && <KanbanSurface />}
         {activeTab === 'gridsmith' && <GridSmithTab />}
         {activeTab === 'repos' && <ReposPanel repos={repos} loading={reposLoading} onBrowseRepo={(repoName) => {
@@ -1195,7 +1206,8 @@ export default function DeveloperSurface() {
             })
           }
           fetchFileDiff(selectedRepoId, filePath)
-        }} onStageFile={handleStageFile} onUnstageFile={handleUnstageFile} stagedFiles={stagedFiles} />}        {activeTab === 'settings' && <SettingsPanel />}
+        }} onStageFile={handleStageFile} onUnstageFile={handleUnstageFile} stagedFiles={stagedFiles} />}        {activeTab === 'rules' && <RulesPanel />}
+        {activeTab === 'settings' && <SettingsPanel />}
         </main>
 
         <button

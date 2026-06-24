@@ -52,7 +52,7 @@
 .gridui-terminal-input-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--usx-spacing-xs);
 }
 
 .gridui-terminal-input-field {
@@ -70,8 +70,8 @@
 .gridui-teletext-info-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 6px 12px;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-compact-gap) var(--usx-spacing-md);
   background: var(--surface-card, #161b22);
   border-top: 1px solid var(--surface-border, #30363d);
   font-size: 12px;
@@ -103,11 +103,11 @@
 .gridui-teletext-live-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
   border-radius: 4px;
   background: #da3633;
-  color: #ffffff;
+  color: var(--pico-primary-inverse, #ffffff);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -124,11 +124,11 @@
 .gridui-teletext-feed-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
   border-radius: 4px;
   background: #1f6feb;
-  color: #ffffff;
+  color: var(--pico-primary-inverse, #ffffff);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -143,7 +143,7 @@
 
 .gridui-teletext-feed-badge-paused {
   background: #484f58;
-  color: #e6edf3;
+  color: var(--pico-color, #e6edf3);
   animation: none;
 }
 
@@ -151,11 +151,11 @@
 .gridui-teletext-bbcsdl-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
   border-radius: 4px;
   background: #8957e5;
-  color: #ffffff;
+  color: var(--pico-primary-inverse, #ffffff);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -170,7 +170,7 @@
 
 /* ─── GO TO PAGE Button ──────────────────────────────────────────── */
 .gridui-teletext-goto-btn {
-  padding: 4px 10px;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border: 1px solid var(--surface-border, #30363d);
   border-radius: 4px;
   background: transparent;
@@ -195,8 +195,8 @@
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-md) var(--usx-section-separator);
   background: var(--surface-card-high, #1c2128);
   border: 1px solid var(--surface-border-strong, #484f58);
   border-radius: 8px;
@@ -213,7 +213,7 @@
 
 .gridui-teletext-nav-input {
   width: 64px;
-  padding: 6px 8px;
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
   border: 1px solid var(--surface-border-strong, #484f58);
   border-radius: 4px;
   background: var(--surface-bg, #0d1117);
@@ -232,7 +232,7 @@
 }
 
 .gridui-teletext-nav-close {
-  padding: 4px 8px;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border: none;
   background: transparent;
   color: var(--surface-text-muted, #8b949e);
@@ -249,8 +249,8 @@
 .gridui-teletext-feed-ticker {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 4px 12px;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-md);
   background: var(--surface-bg, #0d1117);
   border-top: 1px solid var(--surface-border, #30363d);
   font-size: 11px;

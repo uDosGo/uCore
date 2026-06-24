@@ -7,8 +7,8 @@
 .hub-apps-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
-  padding: 24px;
+  gap: var(--usx-spacing-lg);
+  padding: var(--usx-spacing-xl);
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -16,8 +16,8 @@
 .hub-app-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 20px;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-section-separator);
   border-radius: 12px;
   background: var(--pico-card-background-color, #161b22);
   border: 1px solid var(--pico-border-color, #30363d);
@@ -35,7 +35,7 @@
 .hub-app-card-header {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--usx-spacing-md);
 }
 
 .hub-app-card-icon {
@@ -78,7 +78,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--usx-spacing-md);
   margin-top: auto;
   padding-top: 8px;
   border-top: 1px solid var(--pico-border-color, #30363d);
@@ -87,21 +87,21 @@
 .hub-app-card-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--usx-spacing-sm);
 }
 
 .hub-app-card-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--usx-compact-gap);
 }
 
 /* ─── Install Tab ────────────────────────────────────────────────── */
 .hub-install-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
-  padding: 24px;
+  gap: var(--usx-spacing-lg);
+  padding: var(--usx-spacing-xl);
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -109,8 +109,8 @@
 .hub-install-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 20px;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-section-separator);
   border-radius: 12px;
   background: var(--pico-card-background-color, #161b22);
   border: 1px solid var(--pico-border-color, #30363d);
@@ -125,7 +125,7 @@
 .hub-install-card-header {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--usx-spacing-md);
 }
 
 .hub-install-card-icon {
@@ -164,7 +164,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--usx-spacing-md);
   margin-top: auto;
   padding-top: 8px;
   border-top: 1px solid var(--pico-border-color, #30363d);
@@ -173,12 +173,12 @@
 .hub-install-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-compact-gap) var(--usx-spacing-lg);
   border: none;
   border-radius: 6px;
   background: var(--pico-primary, #58a6ff);
-  color: #ffffff;
+  color: var(--pico-primary-inverse, #ffffff);
   cursor: pointer;
   font-family: inherit;
   font-size: 0.85rem;
@@ -204,8 +204,8 @@
 
 /* ─── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .hub-apps-grid { grid-template-columns: 1fr; padding: 16px; }
-  .hub-install-grid { grid-template-columns: 1fr; padding: 16px; }
+  padding: var(--usx-spacing-lg);
+  padding: var(--usx-spacing-lg);
   .hub-app-card-footer { flex-direction: column; align-items: stretch; }
   .hub-install-card-footer { flex-direction: column; align-items: stretch; }
 }
