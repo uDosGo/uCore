@@ -31,6 +31,20 @@ LUCIDE_MAP = {
     "component_exchange", "folder_sync", "check", "more_vert", "arrow_forward",
     "arrow_upward", "arrow_downward", "warning", "info_outline", "help_outline",
     "done_all", "cancel", "redo", "undo", "dns",
+    # Phase 3: Icon Migration expansion (40+ icons)
+    "save", "person", "slideshow", "database", "data_array", "chevron_left",
+    "chevron_right", "remove", "expand_more", "view_column", "gavel",
+    "restart_alt", "format_size", "text_fields", "toggle_on", "memory",
+    "alt_route", "power_settings_new", "emoji_objects", "extension",
+    "emoji_events", "assessment", "article", "key", "stop", "content_copy",
+    "lock", "upload", "variable", "computer", "dark_mode", "vertical_split",
+    "keyboard", "font_download", "file_upload", "light_mode", "brightness_4",
+    "brightness_7", "public", "cloud", "cloud_queue", "storage", "backup",
+    "restore", "update", "security", "verified", "auto_fix_high",
+    "miscellaneous_services", "send",
+    # Final 9 icons for 100% coverage
+    "badge", "rss_feed", "science", "list_alt", "explore",
+    "my_location", "bookmark", "opacity", "subject",
 }
 
 
