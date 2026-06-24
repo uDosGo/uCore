@@ -31,6 +31,7 @@ import DocumentationSurface from './surfaces/documentation/DocumentationSurface'
 import UServerSurface from './surfaces/userver/UServerSurface'
 import WorkflowSurface from './surfaces/workflow/WorkflowSurface'
 import USystemSurface from './surfaces/system/USystemSurface'
+import DefaultSidebar from './components/DefaultSidebar'
 import { DevModeProvider, useDevMode } from './hooks/useDevMode'
 import { S_PAGE_COMPONENTS } from './pages/spage-registry'
 
@@ -106,10 +107,8 @@ function RootLayout({ children }: { children: React.ReactNode }) {
     : '/' + (location.pathname.split('/').filter(Boolean)[0] || '')
   const hasOwnSidebar = SURFACES_WITH_SIDEBAR.has(normalizedPath)
   return (
-    <div className="usx-surface-body" style={{ position: 'relative' }}>
-      {!hasOwnSidebar && (
-        <VaultSidebar open={sidebarOpen} showModeTabs sidebarMode="server" />
-      )}
+    <div className="usx-surface-body" style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      {!hasOwnSidebar && <DefaultSidebar open={sidebarOpen} />}
       <main className="usx-surface-main" style={{ flex: 1, overflow: 'auto' }}>
         {children}
       </main>
