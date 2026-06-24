@@ -44,6 +44,8 @@ import './styles/nestframe.css'
 /* USX standardization: spacing scale + Pico reset (before surface styles) */
 import './styles/usx/usx-spacing-scale.css'
 import './styles/usx/usx-pico-reset.css'
+/* Pico CSS integration: nav, buttons, forms, cards, badges */
+import './styles/usx/usx-pico-integration.css'
 import './styles/hub/index.css'
 import './styles/surface-host.css'
 import './styles/global-toolbar.css'
