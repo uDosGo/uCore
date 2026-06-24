@@ -1,35 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════
-   developer.css — Developer Surface Styles (USXv2/Pico CSS)
+   developer.css — Developer Surface Styles (USX Phase 2 standardized)
+   ═══════════════════════════════════════════════════════════════════
+   Layout → uses canonical .usx-surface-layout, .usx-surface-body,
+   and .usx-surface-main from usx-layout-system.css.
+   This file provides surface-specific theme tokens only.
    ═══════════════════════════════════════════════════════════════════ */
 @import '../prose-ui-standard.css';
 
 /* ─── Surface Container ──────────────────────────────────────────── */
 .developer-surface {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100%;
   background: var(--pico-background-color, #0d1117);
   color: var(--pico-color, #c9d1d9);
-  overflow: hidden;
-}
-
-/* ─── Surface Body (flex row: tab bar + main) ───────────────────── */
-.developer-surface-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* ─── Surface Main (scrollable content area) ────────────────────── */
-.developer-surface-main {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-  width: 100%;
 }
 
 .developer-chat-float-panel {

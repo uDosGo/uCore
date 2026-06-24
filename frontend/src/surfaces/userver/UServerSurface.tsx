@@ -839,7 +839,7 @@ export default function UServerSurface() {
   ]
 
   return (
-    <div className="userver-surface">
+    <div className="usx-surface-layout userver-surface">
       <GlobalToolbar
         chatMode={chatOpen ? 'panel' : 'closed'}
         onToggleChat={() => setChatOpen(prev => !prev)}

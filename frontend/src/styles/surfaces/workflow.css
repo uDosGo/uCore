@@ -2,21 +2,17 @@
    workflow.css — Workflow Surface Styles (USX Phase 2 standardized)
    ═══════════════════════════════════════════════════════════════════
    Uses Pico tokens for colors, USX spacing variables for layout.
+   
+   USX ALIGNMENT NOTE:
+   Layout → uses canonical .usx-surface-layout and .usx-surface-main
+   from usx-layout-system.css. Surface-specific theme tokens remain
+   here for now.
    ═══════════════════════════════════════════════════════════════════ */
 /* ─── Existing Workflow Styles ─────────────────────────────────── */
 .workflow-surface {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
   background: var(--pico-background-color, #010409);
   color: var(--pico-color, #e6edf3);
   font-family: var(--pico-font-family, system-ui, sans-serif);
-}
-
-.workflow-surface-main {
-  padding: var(--usx-section-padding);
-  overflow-y: auto;
-  min-height: 0;
 }
 
 /* ─── Sections ─────────────────────────────────────────────────── */

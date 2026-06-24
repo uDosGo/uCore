@@ -955,12 +955,12 @@ export default function WorkflowSurface() {
   ]
 
   return (
-    <div className="workflow-surface">
+    <div className="usx-surface-layout workflow-surface">
       <GlobalToolbar tabs={toolbarTabs} onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} sidebarToggleLabel="Workflow sidebar"
         rightExtra={<div style={{ display: 'flex', gap: 8, alignItems: 'center' }}><span className="hub-status-badge">Tasks: {tasks.length}</span></div>} />
       <div className="usx-surface-body" style={{ position: 'relative' }}>
         <VaultSidebar open={sidebarOpen} showModeTabs sidebarMode="server" serverNavItems={workflowNavItems} />
-        <main className="usx-surface-main workflow-surface-main">
+        <main className="usx-surface-main">
           {activeTab === 'mission-control' && <MissionControlTab tasks={tasks} snackbarAvailable={snackbarAvailable} />}
           {activeTab === 'missions' && <MissionsTab allTasks={tasks} onSelectMission={handleSelectMission} />}
           {activeTab === 'tasks' && <TasksTab tasks={tasks} loading={loading} error={error} />}

@@ -1060,7 +1060,7 @@ export default function DeveloperSurface() {
   ]
 
   return (
-    <div className="developer-surface">
+    <div className="usx-surface-layout developer-surface">
       <GlobalToolbar
         onToggleSidebar={toggleSidebar}
         sidebarOpen={sidebarOpen}
@@ -1163,7 +1163,7 @@ export default function DeveloperSurface() {
           </div>
         )}
 
-        <main className="usx-surface-main developer-surface-main">
+        <main className="usx-surface-main">
         {activeTab === 'models' && <ModelsPanel />}
         {activeTab === 'agents' && <AgentsPanel />}
         {activeTab === 'skills' && <SkillsPanel />}

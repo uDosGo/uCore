@@ -9,6 +9,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 import React, { useState, useEffect, useRef } from 'react'
 import { GlobalToolbar } from '../../components/GlobalToolbar'
+import VaultSidebar from '../../components/VaultSidebar'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import AssistUISurface from '../assistui/AssistUISurface'
 import { Icon } from '../../components/Icon'
@@ -81,6 +82,7 @@ const SAMPLE_STACKS: CardStack[] = [
 
 export default function BrowserUISurface() {
   const shell = useSurfaceShell()
+  const { sidebarOpen, toggleSidebar } = shell
   const [searchQuery, setSearchQuery] = useState('')
   const [stacks, setStacks] = useState<CardStack[]>(SAMPLE_STACKS)
   const [activeStack, setActiveStack] = useState<string | null>(null)
@@ -126,15 +128,21 @@ export default function BrowserUISurface() {
   }
 
   return (
-    <div className="browserui-surface">
+    <div className="usx-surface-layout browserui-surface">
       {/* ─── Global Toolbar (consistent across all surfaces) ─── */}
       <GlobalToolbar
         tabs={[]}
         chatMode={shell.chatOpen ? 'panel' : 'closed'}
         onToggleChat={shell.toggleChat}
+        onToggleSidebar={toggleSidebar}
+        sidebarOpen={sidebarOpen}
+        sidebarToggleLabel="Browser sidebar"
       />
 
       <div className="usx-surface-body">
+        {/* ─── VaultSidebar — shared across all surfaces ─── */}
+        <VaultSidebar open={sidebarOpen} sidebarMode="filepicker" />
+
         {/* ─── Chat Panel — overlays ALL surfaces (absolute, z-index) ─── */}
         {shell.chatOpen && (
           <div className="hub-chat-panel">

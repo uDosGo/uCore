@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════
-   browserui.css — BrowserUISurface Styles
-   Uses Pico CSS custom properties for consistent theming.
+   browserui.css — BrowserUISurface Styles (USX Phase 2 standardized)
+   Uses Pico tokens for colors, USX spacing variables for layout.
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ─── Surface Root ─────────────────────────────────────────────── */
@@ -8,17 +8,13 @@
   background: var(--pico-background-color, #0d1117);
   color: var(--pico-color, #c9d1d9);
   font-family: var(--pico-font-family, system-ui, -apple-system, sans-serif);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  transition: background 0.15s ease, color 0.15s ease;
 }
 
 /* ─── Search Section ───────────────────────────────────────────── */
 .browserui-search-section {
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem 1rem;
+  padding: var(--usx-spacing-2xl) var(--usx-spacing-lg) var(--usx-spacing-lg);
   flex-shrink: 0;
 }
 
@@ -39,8 +35,8 @@
 .browserui-stacks {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  padding: 0.75rem 1rem 1.5rem;
+  gap: var(--usx-spacing-lg);
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg) var(--usx-spacing-xl);
   flex: 1;
   align-content: start;
 }
@@ -59,8 +55,8 @@
 .browserui-stack-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
   border-bottom: 1px solid var(--pico-border-color, #30363d);
   flex-shrink: 0;
 }
@@ -83,7 +79,7 @@
 
 /* ─── Card ─────────────────────────────────────────────────────── */
 .browserui-card {
-  padding: 0.75rem 1rem;
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
   cursor: pointer;
   transition: background 0.15s ease;
   border-bottom: 1px solid var(--pico-border-color, #30363d);
@@ -150,8 +146,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 3rem 1rem;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-spacing-2xl) var(--usx-spacing-lg);
   text-align: center;
   color: var(--pico-muted-color, #8b949e);
 }

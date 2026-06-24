@@ -7,6 +7,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Icon } from '../../components/Icon'
 import { GlobalToolbar, ToolbarTab } from '../../components/GlobalToolbar'
+import VaultSidebar from '../../components/VaultSidebar'
 import { useSurfaceShell } from '../../components/SurfaceShellContext'
 import '../../styles/assistui.css'
 
@@ -351,6 +352,7 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
   const [activeAgent, setActiveAgent] = useState<AgentMode>('vault')
   const [prompts, setPrompts] = useState<PromptCard[]>(DEFAULT_PROMPTS)
   const shell = useSurfaceShell()
+  const { sidebarOpen, toggleSidebar } = shell
 
   // Model selection
   const [models, setModels] = useState<ModelOption[]>([
@@ -725,7 +727,7 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
 
   // ─── Full-Page Mode ────────────────────────────────────────────
   return (
-    <div className="assistui-surface">
+    <div className="usx-surface-layout assistui-surface">
 
       {/* Global Toolbar — show bolt icon as active since we're on AssistUI */}
       {!hideToolbar && (
@@ -736,10 +738,18 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
           onOpenSettings={() => {}}
           hideChatToggle
           assistUIActive
+          onToggleSidebar={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+          sidebarToggleLabel="Assist sidebar"
         />
       )}
 
-      {/* ─── Conversation List Sidebar ─────────────────────────── */}
+      {/* ─── Main Content ──────────────────────────────────────── */}
+      <div className="assistui-main">
+        {/* VaultSidebar — shared across all surfaces */}
+        <VaultSidebar open={sidebarOpen} sidebarMode="filepicker" />
+
+        {/* ─── Conversation List Sidebar ─────────────────────────── */}
       {conversationListOpen && (
         <div className="assistui-conv-sidebar">
           <div className="assistui-conv-sidebar-header">
@@ -783,8 +793,6 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
         </div>
       )}
 
-      {/* ─── Main Content ──────────────────────────────────────── */}
-      <div className="assistui-main">
         {/* Chat Body */}
         <div className="assistui-body">
           <div className="assistui-body-inner">

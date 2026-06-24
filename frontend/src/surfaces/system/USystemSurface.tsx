@@ -69,7 +69,7 @@ export default function USystemSurface() {
   ]
 
   return (
-    <div className="workflow-surface">
+    <div className="usx-surface-layout workflow-surface">
       <GlobalToolbar
         tabs={toolbarTabs}
         onToggleSidebar={toggleSidebar}
@@ -83,7 +83,7 @@ export default function USystemSurface() {
           sidebarMode="server"
           serverNavItems={systemNavItems}
         />
-        <main className="usx-surface-main workflow-surface-main">
+        <main className="usx-surface-main">
           {activeTab === 'pages' && !inlineSPage && (
             <div className="workflow-panel">
               <div className="workflow-panel-header">
