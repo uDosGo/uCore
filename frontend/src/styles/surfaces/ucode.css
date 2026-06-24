@@ -18,7 +18,8 @@
   position: relative;
 }
 
-.ucode-main {
+.ucode-main,
+.usx-surface-main.ucode-main {
   min-height: 0;
   flex: 1;
   display: grid;
@@ -194,7 +195,8 @@
 }
 
 @media (max-width: 1100px) {
-  .ucode-main {
+  .ucode-main,
+.usx-surface-main.ucode-main {
     grid-template-columns: 1fr;
   }
 

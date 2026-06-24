@@ -4,7 +4,8 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ─── Surface Container ──────────────────────────────────────────── */
-.assistui-surface {
+.assistui-surface,
+.usx-surface-layout.assistui-surface {
   display: flex;
   flex-direction: column;
   height: 100vh;
