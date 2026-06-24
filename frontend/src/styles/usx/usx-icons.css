@@ -8,9 +8,9 @@
      • Icons in card headers / title areas: slightly larger
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Base icon default — 24px minimum */
+/* Base icon default — 28px, scales with Pico font-size */
 .material-symbols-outlined {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -18,14 +18,14 @@
   user-select: none;
 }
 
-/* Icons inside buttons — match button text size */
+/* Icons inside buttons — slightly larger than button text */
 button .material-symbols-outlined,
 a .material-symbols-outlined,
 .btn .material-symbols-outlined,
 [role="button"] .material-symbols-outlined,
 .story-step-btn .material-symbols-outlined,
 .story-slide-btn .material-symbols-outlined {
-  font-size: 1em;
+  font-size: 1.25em;
 }
 
 /* Icons in headers — match heading text */
