@@ -150,7 +150,7 @@ export default function S101StoryBuilder() {
           <>
             {/* Story Library */}
             <div className="story-mode-toggle">
-              <span style={{ fontSize: '12px', color: 'var(--pico-muted-color)', fontWeight: 500 }}>Available Stories</span>
+              <span>Available Stories</span>
               <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
                 <span className="story-var-badge" style={{ '--story-accent': '#58a6ff' } as React.CSSProperties}>
                   <Icon name="person" size={12} /> Typeform
@@ -188,25 +188,24 @@ export default function S101StoryBuilder() {
                         <button
                           className="story-step-btn story-step-btn--primary"
                           onClick={() => handlePlayTypeform(story)}
-                          style={{ background: story.color, borderColor: story.color, padding: '4px 12px', fontSize: '12px' }}
+                          style={{ background: story.color, borderColor: story.color }}
                         >
-                          <Icon name="play_arrow" size={12} /> Play Form
+                          <Icon name="play_arrow" size={14} /> Play Form
                         </button>
                       ) : (
                         <button
                           className="story-step-btn story-step-btn--primary"
                           onClick={() => handlePlayMarp(story)}
-                          style={{ background: story.color, borderColor: story.color, padding: '4px 12px', fontSize: '12px' }}
+                          style={{ background: story.color, borderColor: story.color }}
                         >
-                          <Icon name="slideshow" size={12} /> View Slides
+                          <Icon name="slideshow" size={14} /> View Slides
                         </button>
                       )}
                       <button
                         className="story-step-btn"
                         onClick={() => handlePlayTypeform(story)}
-                        style={{ padding: '4px 12px', fontSize: '12px' }}
                       >
-                        <Icon name="edit" size={12} /> Edit
+                        <Icon name="edit" size={14} /> Edit
                       </button>
                     </div>
                   </div>
@@ -242,14 +241,14 @@ export default function S101StoryBuilder() {
         {mode === 'typeform' && activeStory && (
           <div className="story-content">
             <div className="story-mode-toggle" style={{ borderTop: '1px solid var(--story-border)', marginTop: 0 }}>
-              <button className="story-step-btn" onClick={handleBackToLibrary} style={{ padding: '4px 10px', fontSize: '12px' }}>
+              <button className="story-step-btn" onClick={handleBackToLibrary}>
                 <Icon name="arrow_back" size={12} /> Library
               </button>
               <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <span className="story-var-badge" style={{ '--story-accent': activeStory.color } as React.CSSProperties}>
                   <Icon name="person" size={12} /> {activeStory.title}
                 </span>
-                <button className="story-step-btn" onClick={() => { setShowTypeform(false); setShowMarp(true); setMode('marp') }} style={{ padding: '4px 10px', fontSize: '12px' }}>
+                <button className="story-step-btn" onClick={() => { setShowTypeform(false); setShowMarp(true); setMode('marp') }}>
                   <Icon name="slideshow" size={12} /> Switch to Slides
                 </button>
               </div>
@@ -266,7 +265,7 @@ export default function S101StoryBuilder() {
         {mode === 'marp' && activeStory && (
           <div className="story-content">
             <div className="story-mode-toggle" style={{ borderTop: '1px solid var(--story-border)', marginTop: 0 }}>
-              <button className="story-step-btn" onClick={handleBackToLibrary} style={{ padding: '4px 10px', fontSize: '12px' }}>
+              <button className="story-step-btn" onClick={handleBackToLibrary}>
                 <Icon name="arrow_back" size={12} /> Library
               </button>
               <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -274,7 +273,7 @@ export default function S101StoryBuilder() {
                   <Icon name="slideshow" size={12} /> {activeStory.title}
                 </span>
                 {activeStory.steps.some(s => s.type === 'input' || s.type === 'collect' || s.type === 'select') && (
-                  <button className="story-step-btn" onClick={() => { setShowMarp(false); setShowTypeform(true); setMode('typeform') }} style={{ padding: '4px 10px', fontSize: '12px' }}>
+                  <button className="story-step-btn" onClick={() => { setShowMarp(false); setShowTypeform(true); setMode('typeform') }}>
                     <Icon name="person" size={12} /> Switch to Form
                   </button>
                 )}

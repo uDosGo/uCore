@@ -32,7 +32,7 @@ export function useSurfaceShell() {
 
 // ─── Provider ───────────────────────────────────────────────────────
 export function SurfaceShellProvider({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [chatOpen, setChatOpen] = useState(false)
   const [lastSurface, setLastSurface] = useState<LastSurface | null>(null)
 

@@ -15,8 +15,6 @@
    Legacy compat (kept):
      /gridui/*      → Redirect to /ucode
      /userver/*     → Redirect to /server
-   Removed: proseui, gridcore, story-builder, user-setup-story, story/gtx-form,
-     devstudio, system-legacy (all dead/absorbed/consolidated)
    ═══════════════════════════════════════════════════════════════════ */
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -33,15 +31,7 @@ import UServerSurface from './surfaces/userver/UServerSurface'
 import WorkflowSurface from './surfaces/workflow/WorkflowSurface'
 import USystemSurface from './surfaces/system/USystemSurface'
 import { DevModeProvider, useDevMode } from './hooks/useDevMode'
-
-// S-pages (system pages)
-import S100ToolBuilder from './pages/S100ToolBuilder'
-import S101StoryBuilder from './pages/S101StoryBuilder'
-import S300WorkflowBuilder from './pages/S300WorkflowBuilder'
-import S310ClipboardOrchestration from './pages/S310ClipboardOrchestration'
-import S320KnowledgeTools from './pages/S320KnowledgeTools'
-import S330MigrationDashboard from './pages/S330MigrationDashboard'
-import S600Learning from './pages/S600Learning'
+import { S_PAGE_COMPONENTS } from './pages/spage-registry'
 
 import './styles/tokens.css'
 import './styles/hub/index.css'
@@ -52,17 +42,6 @@ import './styles/surfaces/developer.css'
 import './styles/surfaces/ucode.css'
 import './styles/vault-sidebar.css'
 import './surfaces/browserui/styles/browserui.css'
-
-// ─── S-page component map ──────────────────────────────────────────
-const S_PAGE_COMPONENTS: Record<string, React.ComponentType> = {
-  s100: S100ToolBuilder,
-  s101: S101StoryBuilder,
-  s300: S300WorkflowBuilder,
-  s310: S310ClipboardOrchestration,
-  s320: S320KnowledgeTools,
-  s330: S330MigrationDashboard,
-  s600: S600Learning,
-}
 
 function App() {
   const route = parseSystemRoute(window.location.pathname)

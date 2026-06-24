@@ -152,10 +152,12 @@ export function SystemPage({ pageCode, surface, error }: SystemPageProps) {
           <div className="sys-page-loader" style={{ borderTopColor: accentColor }} />
         )}
 
-        {/* ─── USX Icon (consistent with GlobalToolbar style) ─── */}
-        <div className="sys-page-icon">
-          <Icon name={page.icon} size={40} />
-        </div>
+        {/* ─── USX Icon — hidden when status/alert icon is shown ─── */}
+        {!isOffline && !isStarting && (
+          <div className="sys-page-icon">
+            <Icon name={page.icon} size={40} />
+          </div>
+        )}
 
         {isOffline && (
           <div className="sys-page-status-icon">

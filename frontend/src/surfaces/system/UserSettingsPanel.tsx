@@ -171,7 +171,7 @@ export default function UserSettingsPanel() {
         {/* Vault Settings — from backend knowledge/status */}
         <div className="hub-settings-card">
           <div className="hub-settings-card-header">
-            <Icon name="folder_sync" size={16} />
+            <Icon name="sync" size={16} />
             <h3>Vault Settings</h3>
             <span className="hub-settings-card-subtitle">AppFlowy vault locations</span>
           </div>

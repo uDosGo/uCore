@@ -1,7 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════
    story-forms.css — Story Forms & Story Builder USX styles
-   Isolated from main surface defaults. Uses --sys-* CSS custom props.
-   Dual-mode: Typeform (linear steps) and Marp (slide deck).
+   ═══════════════════════════════════════════════════════════════════
+   Uses Pico CSS variables throughout — no hardcoded font-size or
+   font-family overrides. Relies on Pico cascade for typography.
+   Padding and spacing are consistent with USX conventions.
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ─── Story Builder Layout ────────────────────────────────────── */
@@ -10,15 +12,13 @@
   --story-bg: var(--pico-background-color, #010409);
   --story-surface: var(--pico-card-background-color, #161b22);
   --story-border: var(--pico-border-color, #30363d);
-  --story-text: var(--pico-color, #e6edf3);
-  --story-muted: var(--pico-muted-color, #8b949e);
   display: flex;
   flex-direction: column;
   height: 100%;
-  color: var(--story-text);
+  overflow-y: auto;
 }
 
-/* ─── Mode Toggle (Typeform / Marp) ───────────────────────────── */
+/* ─── Mode Toggle ─────────────────────────────────────────────── */
 .story-mode-toggle {
   display: flex;
   gap: 8px;
@@ -35,7 +35,7 @@
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: transparent;
-  color: var(--story-muted);
+  color: var(--pico-muted-color);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -55,7 +55,6 @@
 .story-content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
 }
 
 /* ─── Typeform Mode ───────────────────────────────────────────── */
@@ -103,18 +102,12 @@
   background: var(--story-accent);
 }
 
-.story-step-counter {
-  font-size: 12px;
-  color: var(--story-muted);
-  margin-left: auto;
-}
-
 /* ─── Story Step Card ─────────────────────────────────────────── */
 .story-step-card {
   background: var(--story-surface);
   border: 1px solid var(--story-border);
   border-radius: 10px;
-  padding: 24px;
+  padding: 32px;
   animation: storyFadeIn 0.3s ease;
 }
 
@@ -125,31 +118,31 @@
 
 .story-step-title {
   font-weight: 600;
-  margin: 0 0 8px 0;
-  color: var(--story-text);
+  margin: 0 0 12px 0;
+  color: var(--pico-color);
 }
 
 .story-step-desc {
-  color: var(--story-muted);
-  margin: 0 0 16px 0;
-  line-height: 1.5;
+  color: var(--pico-muted-color);
+  margin: 0 0 20px 0;
+  line-height: 1.6;
 }
 
 .story-step-input-group {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .story-step-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .story-step-label {
   font-weight: 500;
-  color: var(--story-muted);
+  color: var(--pico-muted-color);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -159,7 +152,7 @@
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: var(--story-bg);
-  color: var(--story-text);
+  color: var(--pico-color);
   outline: none;
   transition: border-color 0.15s ease;
 }
@@ -174,9 +167,7 @@
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: var(--story-bg);
-  color: var(--story-text);
-  font-family: inherit;
-  font-size: 14px;
+  color: var(--pico-color);
   outline: none;
   cursor: pointer;
 }
@@ -187,18 +178,18 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
 .story-step-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 20px;
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: transparent;
-  color: var(--story-text);
+  color: var(--pico-color);
   cursor: pointer;
   font-weight: 500;
   transition: all 0.15s ease;
@@ -224,14 +215,38 @@
   filter: brightness(1.1);
 }
 
+/* ─── Slide Navigation ──────────────────────────────────────────── */
+.story-slide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--story-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.story-slide-btn:hover:not(:disabled) {
+  border-color: var(--story-accent);
+  color: var(--story-accent);
+}
+
+.story-slide-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ─── Variable Badge ──────────────────────────────────────────── */
 .story-var-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8em;
   background: color-mix(in srgb, var(--story-accent) 15%, transparent);
   color: var(--story-accent);
   border: 1px solid color-mix(in srgb, var(--story-accent) 30%, transparent);
@@ -247,7 +262,7 @@
   background: var(--story-surface);
   border: 1px solid var(--story-border);
   border-radius: 10px;
-  padding: 40px;
+  padding: 48px;
   min-height: 480px;
   display: flex;
   flex-direction: column;
@@ -265,14 +280,14 @@
 }
 
 .story-slide-subtitle {
-  color: var(--story-muted);
+  color: var(--pico-muted-color);
   margin-bottom: 24px;
   font-weight: 400;
 }
 
 .story-slide-body {
   line-height: 1.6;
-  color: var(--story-text);
+  color: var(--pico-color);
   flex: 1;
 }
 
@@ -280,8 +295,8 @@
   position: absolute;
   bottom: 16px;
   right: 24px;
-  color: var(--story-muted);
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--pico-muted-color);
+  font-family: var(--pico-font-family-monospace);
 }
 
 .story-slide-nav {
@@ -292,39 +307,11 @@
   padding: 12px 0;
 }
 
-.story-slide-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border: 1px solid var(--story-border);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--story-text);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.story-slide-btn:hover:not(:disabled) {
-  border-color: var(--story-accent);
-  color: var(--story-accent);
-}
-
-.story-slide-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.story-slide-counter {
-  color: var(--story-muted);
-  font-family: 'SF Mono', 'Fira Code', monospace;
-}
-
 /* ─── Story Library Grid ──────────────────────────────────────── */
 .story-library {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
+  gap: 16px;
   padding: 16px 0;
 }
 
@@ -332,7 +319,7 @@
   background: var(--story-surface);
   border: 1px solid var(--story-border);
   border-radius: 8px;
-  padding: 16px;
+  padding: 20px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -350,22 +337,20 @@
 }
 
 .story-card-title {
-  font-size: 14px;
   font-weight: 600;
-  color: var(--story-text);
+  color: var(--pico-color);
   margin: 0;
 }
 
 .story-card-badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  display: inline-flex;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8em;
 }
 
 .story-card-desc {
-  font-size: 12px;
-  color: var(--story-muted);
+  color: var(--pico-muted-color);
   margin: 0 0 12px 0;
   line-height: 1.4;
 }
@@ -373,9 +358,8 @@
 .story-card-meta {
   display: flex;
   gap: 8px;
-  font-size: 11px;
-  color: var(--story-muted);
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--pico-muted-color);
+  font-size: 0.8em;
 }
 
 /* ─── Story Editor Controls ───────────────────────────────────── */
@@ -398,9 +382,7 @@
   border: 1px solid var(--story-border);
   border-radius: 6px;
   background: var(--story-bg);
-  color: var(--story-text);
-  font-family: inherit;
-  font-size: 16px;
+  color: var(--pico-color);
   font-weight: 600;
   outline: none;
   min-width: 200px;
@@ -410,19 +392,18 @@
   border-color: var(--story-accent);
 }
 
-/* ─── Variable Tag in Stories ─────────────────────────────────── */
+/* ─── Variable Tag ────────────────────────────────────────────── */
 .story-var-tag {
   display: inline-block;
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-size: 11px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8em;
   background: color-mix(in srgb, #a855f7 15%, transparent);
   color: #a855f7;
   border: 1px solid color-mix(in srgb, #a855f7 30%, transparent);
 }
 
-/* ─── System Page Variables Grid ──────────────────────────────── */
+/* ─── Variable Cards Grid ──────────────────────────────────────── */
 .sys-page-variables-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -434,8 +415,8 @@
   display: flex;
   gap: 12px;
   padding: 14px;
-  background: var(--pico-card-background-color, #161b22);
-  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
   border-radius: 8px;
   align-items: flex-start;
 }
@@ -457,41 +438,36 @@
 }
 
 .sys-var-card-label {
-  font-size: 12px;
   font-weight: 600;
-  color: var(--pico-color, #e6edf3);
+  color: var(--pico-color);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
 }
 
 .sys-var-card-value {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 14px;
-  color: var(--pico-color, #e6edf3);
+  font-family: var(--pico-font-family-monospace);
+  color: var(--pico-color);
   word-break: break-all;
 }
 
 .sys-var-card-desc {
-  font-size: 11px;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
   margin-top: 4px;
 }
 
 .sys-var-input {
   width: 100%;
   padding: 6px 10px;
-  border: 1px solid var(--pico-border-color, #30363d);
+  border: 1px solid var(--pico-border-color);
   border-radius: 4px;
-  background: var(--pico-background-color, #010409);
-  color: var(--pico-color, #e6edf3);
-  font-family: inherit;
-  font-size: 13px;
+  background: var(--pico-background-color);
+  color: var(--pico-color);
   outline: none;
 }
 
 .sys-var-input:focus {
-  border-color: var(--pico-primary, #58a6ff);
+  border-color: var(--pico-primary);
 }
 
 /* ─── Variable Scope Tabs ─────────────────────────────────────── */
@@ -500,7 +476,7 @@
   gap: 4px;
   margin-bottom: 16px;
   padding: 4px;
-  background: var(--pico-card-sectioning-background-color, #1c2128);
+  background: var(--pico-card-sectioning-background-color);
   border-radius: 6px;
 }
 
@@ -512,21 +488,17 @@
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
   cursor: pointer;
-  font-family: inherit;
-  font-size: 12px;
   font-weight: 500;
   transition: all 0.15s ease;
 }
 
-.sys-var-scope-tab:hover {
-  color: var(--pico-color, #e6edf3);
-}
+.sys-var-scope-tab:hover { color: var(--pico-color); }
 
 .sys-var-scope-tab--active {
-  background: var(--pico-card-background-color, #161b22);
-  color: var(--pico-primary, #58a6ff);
+  background: var(--pico-card-background-color);
+  color: var(--pico-primary);
 }
 
 .sys-var-actions {
@@ -541,17 +513,16 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
   margin-left: auto;
 }
 
-/* ─── System Page — full-screen fallback layout ────────────────── */
+/* ─── System Page Container — full-screen fallback ────────────── */
 .sys-page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--pico-background-color, #010409);
+  background: var(--pico-background-color);
 }
 
 .sys-page-container {
@@ -570,8 +541,8 @@
   align-items: center;
   justify-content: center;
   padding: 12px 24px;
-  border-top: 1px solid var(--pico-border-color, #30363d);
-  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-top: 1px solid var(--pico-border-color);
+  background: var(--pico-card-sectioning-background-color);
   gap: 8px;
 }
 
@@ -583,8 +554,8 @@
 
 /* ─── System Page Section ─────────────────────────────────────── */
 .sys-page-section {
-  background: var(--pico-card-background-color, #161b22);
-  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
   border-radius: 8px;
   margin: 0 0 16px 0;
 }
@@ -594,12 +565,11 @@
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  border-bottom: 1px solid var(--pico-border-color);
 }
 
 .sys-page-section-header h3 {
   margin: 0;
-  font-size: 15px;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -608,29 +578,26 @@
 
 .sys-page-section-badge {
   margin-left: auto;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 11px;
+  font-family: var(--pico-font-family-monospace);
   padding: 2px 8px;
   border-radius: 3px;
-  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 15%, transparent);
-  color: var(--pico-primary, #58a6ff);
-  border: 1px solid color-mix(in srgb, var(--pico-primary, #58a6ff) 30%, transparent);
+  background: color-mix(in srgb, var(--pico-primary) 15%, transparent);
+  color: var(--pico-primary);
+  border: 1px solid color-mix(in srgb, var(--pico-primary) 30%, transparent);
 }
 
 .sys-page-section-desc {
   margin: 0;
   padding: 12px 16px;
-  font-size: 13px;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
   line-height: 1.5;
-  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  border-bottom: 1px solid var(--pico-border-color);
 }
 
 .sys-page-loading {
   padding: 24px;
   text-align: center;
-  color: var(--pico-muted-color, #8b949e);
-  font-size: 14px;
+  color: var(--pico-muted-color);
 }
 
 /* ─── Status Messages ─────────────────────────────────────────── */
@@ -638,7 +605,6 @@
   padding: 8px 12px;
   margin: 12px 16px;
   border-radius: 6px;
-  font-size: 13px;
 }
 
 .sys-msg--success {
@@ -651,39 +617,7 @@
   color: #f85149;
 }
 
-/* ─── Variables Grid for Installation ─────────────────────────── */
-.sys-install-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 8px;
-}
-
-.sys-install-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 12px;
-  background: var(--pico-card-background-color, #161b22);
-  border: 1px solid var(--pico-border-color, #30363d);
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.sys-install-label {
-  color: var(--pico-muted-color, #8b949e);
-  font-weight: 500;
-}
-
-.sys-install-value {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  color: var(--pico-color, #e6edf3);
-  max-width: 60%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: right;
-}
-
-/* ─── System Page Browser Grid ────────────────────────────────── */
+/* ─── System Page Browser ─────────────────────────────────────── */
 .sys-page-browser {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -696,16 +630,16 @@
   flex-direction: column;
   gap: 8px;
   padding: 14px;
-  background: var(--pico-card-background-color, #161b22);
-  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .sys-page-browser-card:hover {
-  border-color: var(--pico-primary, #58a6ff);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--pico-primary, #58a6ff) 12%, transparent);
+  border-color: var(--pico-primary);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--pico-primary) 12%, transparent);
 }
 
 .sys-page-browser-card-header {
@@ -725,15 +659,13 @@
 }
 
 .sys-page-browser-card-title {
-  font-size: 13px;
   font-weight: 600;
-  color: var(--pico-color, #e6edf3);
+  color: var(--pico-color);
   margin: 0;
 }
 
 .sys-page-browser-card-desc {
-  font-size: 11px;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
   margin: 0;
   line-height: 1.4;
 }
@@ -745,18 +677,16 @@
 }
 
 .sys-page-browser-card-code {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 10px;
+  font-family: var(--pico-font-family-monospace);
   padding: 1px 6px;
   border-radius: 3px;
-  background: var(--pico-card-sectioning-background-color, #1c2128);
-  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-card-sectioning-background-color);
+  color: var(--pico-muted-color);
 }
 
 .sys-page-browser-card-status {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 10px;
-  color: var(--pico-muted-color, #8b949e);
+  font-family: var(--pico-font-family-monospace);
+  color: var(--pico-muted-color);
 }
 
 /* ─── System Pages Filter ─────────────────────────────────────── */
@@ -764,48 +694,44 @@
   display: flex;
   gap: 6px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  border-bottom: 1px solid var(--pico-border-color);
   flex-wrap: wrap;
 }
 
 .sys-page-filter-btn {
   padding: 4px 10px;
-  border: 1px solid var(--pico-border-color, #30363d);
+  border: 1px solid var(--pico-border-color);
   border-radius: 4px;
   background: transparent;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--pico-muted-color);
   cursor: pointer;
-  font-family: inherit;
-  font-size: 11px;
   transition: all 0.15s ease;
 }
 
 .sys-page-filter-btn:hover {
-  border-color: var(--pico-primary, #58a6ff);
-  color: var(--pico-primary, #58a6ff);
+  border-color: var(--pico-primary);
+  color: var(--pico-primary);
 }
 
 .sys-page-filter-btn--active {
-  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 15%, transparent);
-  border-color: var(--pico-primary, #58a6ff);
-  color: var(--pico-primary, #58a6ff);
+  background: color-mix(in srgb, var(--pico-primary) 15%, transparent);
+  border-color: var(--pico-primary);
+  color: var(--pico-primary);
 }
 
 .sys-page-search {
   flex: 1;
   min-width: 150px;
   padding: 4px 10px;
-  border: 1px solid var(--pico-border-color, #30363d);
+  border: 1px solid var(--pico-border-color);
   border-radius: 4px;
-  background: var(--pico-background-color, #010409);
-  color: var(--pico-color, #e6edf3);
-  font-family: inherit;
-  font-size: 12px;
+  background: var(--pico-background-color);
+  color: var(--pico-color);
   outline: none;
 }
 
 .sys-page-search:focus {
-  border-color: var(--pico-primary, #58a6ff);
+  border-color: var(--pico-primary);
 }
 
 /* ─── System Pages Stats ──────────────────────────────────────── */
@@ -813,9 +739,8 @@
   display: flex;
   gap: 16px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--pico-border-color, #30363d);
-  font-size: 12px;
-  color: var(--pico-muted-color, #8b949e);
+  border-bottom: 1px solid var(--pico-border-color);
+  color: var(--pico-muted-color);
 }
 
 .sys-page-stat {
@@ -826,5 +751,5 @@
 
 .sys-page-stat-value {
   font-weight: 600;
-  color: var(--pico-color, #e6edf3);
+  color: var(--pico-color);
 }
