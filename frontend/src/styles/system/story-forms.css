@@ -195,6 +195,10 @@
   transition: all 0.15s ease;
 }
 
+.story-step-btn .material-symbols-outlined {
+  font-size: 1em;
+}
+
 .story-step-btn:hover:not(:disabled) {
   border-color: var(--story-accent);
   color: var(--story-accent);
@@ -227,6 +231,10 @@
   color: var(--pico-color);
   cursor: pointer;
   transition: all 0.15s ease;
+}
+
+.story-slide-btn .material-symbols-outlined {
+  font-size: 1em;
 }
 
 .story-slide-btn:hover:not(:disabled) {

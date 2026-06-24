@@ -10,17 +10,15 @@ export interface IconProps {
 /**
  * Icon — Material Icons wrapper component.
  * Renders a Material Icons symbol using the Google Material Symbols font.
+ * Sizing is handled by usx-icons.css — inline size prop overrides only
+ * when explicitly needed.
  */
-export const Icon: React.FC<IconProps> = ({ name, size = 24, className, style }) => {
+export const Icon: React.FC<IconProps> = ({ name, size, className, style }) => {
   return (
     <span
       className={`material-symbols-outlined ${className || ''}`}
       style={{
         fontSize: size,
-        display: 'inline-block',
-        verticalAlign: 'middle',
-        lineHeight: 1,
-        userSelect: 'none',
         ...style,
       }}
       aria-hidden="true"

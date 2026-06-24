@@ -33,6 +33,7 @@ import USystemSurface from './surfaces/system/USystemSurface'
 import { DevModeProvider, useDevMode } from './hooks/useDevMode'
 import { S_PAGE_COMPONENTS } from './pages/spage-registry'
 
+import './styles/usx/usx-icons.css'
 import './styles/tokens.css'
 import './styles/hub/index.css'
 import './styles/nestframe.css'

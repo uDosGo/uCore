@@ -1,0 +1,76 @@
+/* ═══════════════════════════════════════════════════════════════════
+   usx-icons.css — USX Icon sizing (Material Symbols)
+   ═══════════════════════════════════════════════════════════════════
+   Icons inherit font-size from their parent element by default,
+   but we provide sensible contextual defaults:
+     • Standalone icons: 24px (1.5rem)
+     • Icons inside buttons/inline with text: match text size
+     • Icons in card headers / title areas: slightly larger
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Base icon default — 24px minimum */
+.material-symbols-outlined {
+  font-size: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  user-select: none;
+}
+
+/* Icons inside buttons — match button text size */
+button .material-symbols-outlined,
+a .material-symbols-outlined,
+.btn .material-symbols-outlined,
+[role="button"] .material-symbols-outlined,
+.story-step-btn .material-symbols-outlined,
+.story-slide-btn .material-symbols-outlined {
+  font-size: 1em;
+}
+
+/* Icons in headers — match heading text */
+h1 .material-symbols-outlined,
+h2 .material-symbols-outlined,
+h3 .material-symbols-outlined,
+h4 .material-symbols-outlined,
+h5 .material-symbols-outlined,
+h6 .material-symbols-outlined,
+.story-step-title .material-symbols-outlined {
+  font-size: 1em;
+}
+
+/* Icons in nav/toolbar — compact */
+.global-toolbar-nav-btn .material-symbols-outlined,
+.usx-header-btn .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* Icons in card icon containers — fixed */
+.hub-card-icon .material-symbols-outlined,
+.sys-page-browser-card-icon .material-symbols-outlined,
+.sys-var-card-icon .material-symbols-outlined,
+.hub-settings-card-header .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* Icons in status/tag badges — small */
+.story-var-badge .material-symbols-outlined,
+.story-card-badge .material-symbols-outlined,
+.workflow-panel-header .material-symbols-outlined {
+  font-size: 1em;
+}
+
+/* Icons in sidebar nav — compact */
+.vault-sidebar-nav-item .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* Icon inside fallback page — large */
+.sys-page-icon .material-symbols-outlined {
+  font-size: 2.5rem;
+}
+
+/* Icon inside kanban detail — match text */
+.kanban-detail-btn .material-symbols-outlined {
+  font-size: 1em;
+}
