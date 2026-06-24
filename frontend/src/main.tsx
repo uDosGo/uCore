@@ -46,6 +46,8 @@ import './styles/usx/usx-spacing-scale.css'
 import './styles/usx/usx-pico-reset.css'
 /* Pico CSS integration: nav, buttons, forms, cards, badges */
 import './styles/usx/usx-pico-integration.css'
+/* Icon refinement: sizing, spacing, animations */
+import './styles/usx/usx-icon-refinement.css'
 import './styles/hub/index.css'
 import './styles/surface-host.css'
 import './styles/global-toolbar.css'
