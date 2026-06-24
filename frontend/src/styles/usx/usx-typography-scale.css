@@ -1,0 +1,359 @@
+/* ═══════════════════════════════════════════════════════════════════
+   usx-typography-scale.css — Global Typography Variables & Scaling
+   ═══════════════════════════════════════════════════════════════════
+   
+   This module provides a flexible, responsive typography system with:
+   - Global font-size hierarchy (Display/H1/H2/H3/Body/Meta)
+   - Responsive scaling profiles (10-foot base, 0.8x desktop, 0.65x mobile)
+   - Runtime switchable styles via data-attributes
+   - All sizes defined as CSS variables for easy customization
+   
+   Typography Hierarchy:
+   - Display: Large hero/landing text (44px base)
+   - H1: Page titles (32px base)
+   - H2: Section titles (24px base)
+   - H3: Subsection titles (20px base)
+   - Body: Primary content text (14px base)
+   - Meta: Secondary/supporting text (11.2px = 0.8em of Body)
+   
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Base Typography Variables (10-foot style: large & generous) ──– */
+/* IMPORTANT: 10-foot is the base/default scale — used for desktop by default.
+   Smaller viewports (tablet/mobile) and explicit overrides use the profiles below. */
+:root {
+  /* Font families — inherit from Pico unless overridden */
+  --usx-font-family-display: var(--pico-font-family);
+  --usx-font-family-heading: var(--pico-font-family);
+  --usx-font-family-body: var(--pico-font-family);
+  --usx-font-family-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+
+  /* ─── 10-FOOT PROFILE (Base/Default for all viewports) ──────────── */
+  /* This is the "ideal" large display size — readable at 10 feet away.
+     Used by default on desktop (1025px+) and explicitly set smaller sizes below. */
+  --usx-font-size-display: 44px;
+  --usx-line-height-display: 1.2;
+
+  --usx-font-size-h1: 32px;
+  --usx-line-height-h1: 1.25;
+
+  --usx-font-size-h2: 24px;
+  --usx-line-height-h2: 1.33;
+
+  --usx-font-size-h3: 20px;
+  --usx-line-height-h3: 1.4;
+
+  --usx-font-size-body: 14px;
+  --usx-line-height-body: 1.6;
+
+  /* Meta = 0.8em relative to Body */
+  --usx-font-size-meta: calc(var(--usx-font-size-body) * 0.8);
+  --usx-line-height-meta: 1.5;
+
+  /* Font weights */
+  --usx-font-weight-display: 700;
+  --usx-font-weight-heading: 600;
+  --usx-font-weight-body: 400;
+  --usx-font-weight-meta: 500;
+
+  /* Letter spacing */
+  --usx-letter-spacing-display: -0.02em;
+  --usx-letter-spacing-heading: -0.01em;
+  --usx-letter-spacing-body: 0;
+  --usx-letter-spacing-meta: 0.01em;
+}
+
+/* ─── TABLET PROFILE (0.8x of 10-foot scale) ────────────────────– */
+/* Only apply scaling for tablet size — desktop keeps 10-foot base size */
+@media (min-width: 768px) and (max-width: 1024px) {
+  :root:not([data-typography-scale]) {
+    --usx-font-size-display: calc(44px * 0.8);
+    --usx-font-size-h1: calc(32px * 0.8);
+    --usx-font-size-h2: calc(24px * 0.8);
+    --usx-font-size-h3: calc(20px * 0.8);
+    --usx-font-size-body: calc(14px * 0.8);
+    --usx-font-size-meta: calc(14px * 0.8 * 0.8);
+  }
+}
+
+/* ─── MOBILE PROFILE (0.65x of 10-foot scale) ──────────────────── */
+/* Scale down for mobile devices — tablet and desktop keep base/0.8x respectively */
+@media (max-width: 767px) {
+  :root:not([data-typography-scale]) {
+    --usx-font-size-display: calc(44px * 0.65);
+    --usx-font-size-h1: calc(32px * 0.65);
+    --usx-font-size-h2: calc(24px * 0.65);
+    --usx-font-size-h3: calc(20px * 0.65);
+    --usx-font-size-body: calc(14px * 0.65);
+    --usx-font-size-meta: calc(14px * 0.65 * 0.8);
+  }
+}
+
+/* ─── EXPLICIT SCALE OVERRIDES (for runtime switching) ──────────– */
+/* These allow forcing a specific scale regardless of viewport size */
+
+:root[data-typography-scale="10-foot"] {
+  --usx-font-size-display: 44px;
+  --usx-font-size-h1: 32px;
+  --usx-font-size-h2: 24px;
+  --usx-font-size-h3: 20px;
+  --usx-font-size-body: 14px;
+  --usx-font-size-meta: calc(14px * 0.8);
+}
+
+:root[data-typography-scale="desktop-compact"] {
+  --usx-font-size-display: calc(44px * 0.8);
+  --usx-font-size-h1: calc(32px * 0.8);
+  --usx-font-size-h2: calc(24px * 0.8);
+  --usx-font-size-h3: calc(20px * 0.8);
+  --usx-font-size-body: calc(14px * 0.8);
+  --usx-font-size-meta: calc(14px * 0.8 * 0.8);
+}
+
+:root[data-typography-scale="mobile-compact"] {
+  --usx-font-size-display: calc(44px * 0.65);
+  --usx-font-size-h1: calc(32px * 0.65);
+  --usx-font-size-h2: calc(24px * 0.65);
+  --usx-font-size-h3: calc(20px * 0.65);
+  --usx-font-size-body: calc(14px * 0.65);
+  --usx-font-size-meta: calc(14px * 0.65 * 0.8);
+}
+
+/* ─── Typography Utility Classes ────────────────────────────────── */
+
+.usx-display {
+  font-family: var(--usx-font-family-display);
+  font-size: var(--usx-font-size-display);
+  font-weight: var(--usx-font-weight-display);
+  line-height: var(--usx-line-height-display);
+  letter-spacing: var(--usx-letter-spacing-display);
+}
+
+.usx-h1 {
+  font-family: var(--usx-font-family-heading);
+  font-size: var(--usx-font-size-h1);
+  font-weight: var(--usx-font-weight-heading);
+  line-height: var(--usx-line-height-h1);
+  letter-spacing: var(--usx-letter-spacing-heading);
+}
+
+.usx-h2 {
+  font-family: var(--usx-font-family-heading);
+  font-size: var(--usx-font-size-h2);
+  font-weight: var(--usx-font-weight-heading);
+  line-height: var(--usx-line-height-h2);
+  letter-spacing: var(--usx-letter-spacing-heading);
+}
+
+.usx-h3 {
+  font-family: var(--usx-font-family-heading);
+  font-size: var(--usx-font-size-h3);
+  font-weight: var(--usx-font-weight-heading);
+  line-height: var(--usx-line-height-h3);
+  letter-spacing: var(--usx-letter-spacing-heading);
+}
+
+.usx-body {
+  font-family: var(--usx-font-family-body);
+  font-size: var(--usx-font-size-body);
+  font-weight: var(--usx-font-weight-body);
+  line-height: var(--usx-line-height-body);
+  letter-spacing: var(--usx-letter-spacing-body);
+}
+
+.usx-meta {
+  font-family: var(--usx-font-family-body);
+  font-size: var(--usx-font-size-meta);
+  font-weight: var(--usx-font-weight-meta);
+  line-height: var(--usx-line-height-meta);
+  letter-spacing: var(--usx-letter-spacing-meta);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Element Defaults (HTML structure) ─────────────────────────– */
+
+html {
+  /* Apply body scale to root for inheritance */
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+}
+
+body {
+  font-family: var(--usx-font-family-body);
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+  letter-spacing: var(--usx-letter-spacing-body);
+}
+
+/* Headings — use appropriate hierarchy */
+h1 {
+  font-size: var(--usx-font-size-h1);
+  font-weight: var(--usx-font-weight-heading);
+  line-height: var(--usx-line-height-h1);
+  letter-spacing: var(--usx-letter-spacing-heading);
+  margin: 1.5em 0 0.5em 0;
+}
+
+h2 {
+  font-size: var(--usx-font-size-h2);
+  font-weight: var(--usx-font-weight-heading);
+  line-height: var(--usx-line-height-h2);
+  letter-spacing: var(--usx-letter-spacing-heading);
+  margin: 1.33em 0 0.67em 0;
+}
+
+h3 {
+  font-size: var(--usx-font-size-h3);
+  font-weight: var(--usx-font-weight-heading);
+  line-height: var(--usx-line-height-h3);
+  letter-spacing: var(--usx-letter-spacing-heading);
+  margin: 1.4em 0 0.7em 0;
+}
+
+h4, h5, h6 {
+  font-size: var(--usx-font-size-h3);
+  font-weight: var(--usx-font-weight-heading);
+  line-height: var(--usx-line-height-h3);
+  letter-spacing: var(--usx-letter-spacing-heading);
+}
+
+p {
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+  margin: 0.5em 0;
+}
+
+small,
+.usx-small {
+  font-size: var(--usx-font-size-meta);
+  line-height: var(--usx-line-height-meta);
+}
+
+label {
+  font-size: var(--usx-font-size-body);
+  font-weight: var(--usx-font-weight-heading);
+}
+
+code,
+pre {
+  font-family: var(--usx-font-family-mono);
+  font-size: calc(var(--usx-font-size-body) * 0.9);
+}
+
+/* ─── Component Typography ──────────────────────────────────────– */
+
+button,
+.btn,
+.hub-btn {
+  font-size: var(--usx-font-size-body);
+  font-weight: var(--usx-font-weight-heading);
+  line-height: var(--usx-line-height-body);
+}
+
+button.small,
+.btn.small {
+  font-size: var(--usx-font-size-meta);
+  font-weight: var(--usx-font-weight-body);
+}
+
+input,
+select,
+textarea {
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+}
+
+.badge,
+.pill,
+.tag {
+  font-size: var(--usx-font-size-meta);
+  font-weight: var(--usx-font-weight-heading);
+  line-height: var(--usx-line-height-meta);
+}
+
+/* ─── Navigation Typography ────────────────────────────────────– */
+
+nav,
+.navbar,
+.global-toolbar {
+  font-size: var(--usx-font-size-body);
+}
+
+nav a,
+.nav-link,
+.global-toolbar-nav-btn {
+  font-size: var(--usx-font-size-body);
+  font-weight: var(--usx-font-weight-body);
+}
+
+/* ─── Surface Headers & Titles ────────────────────────────────– */
+
+.usx-surface-header {
+  font-size: var(--usx-font-size-body);
+}
+
+.card-title,
+.hub-card-title {
+  font-size: var(--usx-font-size-h3);
+  font-weight: var(--usx-font-weight-heading);
+}
+
+.card-subtitle,
+.hub-card-subtitle {
+  font-size: var(--usx-font-size-meta);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Message & Dialog Typography ──────────────────────────── */
+
+.dialog-title,
+.modal-title {
+  font-size: var(--usx-font-size-h2);
+  font-weight: var(--usx-font-weight-heading);
+}
+
+.dialog-body {
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+}
+
+/* ─── Prose/Markdown Content ───────────────────────────────– */
+
+.prose,
+.markdown,
+article {
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+}
+
+.prose h1,
+.prose h2,
+.prose h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose p {
+  margin: 1em 0;
+}
+
+.prose code {
+  font-size: calc(var(--usx-font-size-body) * 0.9);
+}
+
+/* ─── Accessibility: Ensure minimum readable text size ──────– */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Large text mode support for accessibility */
+@media (prefers-contrast: more) {
+  .usx-meta {
+    font-weight: var(--usx-font-weight-body);
+  }
+}

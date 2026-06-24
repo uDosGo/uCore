@@ -18,6 +18,9 @@
 /* ─── Layer 2: Prose UI ──────────────────────────────────────────── */
 @import './prose-ui-standard.css';
 
+/* ─── Layer 2.5: USX Typography Scale (Global variables & responsive sizing) ── */
+@import './usx/usx-typography-scale.css';
+
 /* ─── Layer 3: NestFrame Grid System ─────────────────────────────── */
 
 /* ─── Layer 4: USX Surface Layout ──────────────────────────────────── */
@@ -45,7 +48,18 @@
   overflow-x: hidden;
   position: relative;
   width: 100%;
+  padding: var(--usx-spacing-xl); /* Pico standard: 24px side padding */
+}
+
+/* Ensure all main content areas have proper padding (Pico standard) */
+main.usx-surface-main {
   padding: var(--usx-spacing-xl);
+}
+
+/* If content is directly in main without wrapper, apply side padding */
+main {
+  padding-left: var(--usx-spacing-xl);
+  padding-right: var(--usx-spacing-xl);
 }
 
 .usx-surface-main--compact {
@@ -85,18 +99,16 @@
   border: none;
   background: transparent;
   color: var(--pico-muted-color, #8b949e);
-  border-radius: 6px;
+  border-radius: 0;
   cursor: pointer;
-  transition: background 80ms ease;
+  transition: color 80ms ease;
 }
 
 .usx-header-btn:hover {
-  background: var(--pico-card-sectioning-background-color, #1c2128);
   color: var(--pico-color, #c9d1d9);
 }
 
 .usx-header-btn.active {
-  background: var(--pico-primary-container, rgba(13, 110, 253, 0.15));
   color: var(--pico-primary, #58a6ff);
 }
 

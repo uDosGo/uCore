@@ -45,10 +45,14 @@ import './styles/nestframe.css'
 /* USX standardization: spacing scale + Pico reset (before surface styles) */
 import './styles/usx/usx-spacing-scale.css'
 import './styles/usx/usx-pico-reset.css'
+/* CENTRALIZED LAYOUT SYSTEM - must come before all surface CSS */
+import './styles/usx/usx-layout-system.css'
 /* Pico CSS integration: nav, buttons, forms, cards, badges */
 import './styles/usx/usx-pico-integration.css'
 /* Icon refinement: sizing, spacing, animations */
 import './styles/usx/usx-icon-refinement.css'
+/* Typography globals: apply font family/size overrides */
+import './styles/typography-global-apply.css'
 import './styles/hub/index.css'
 import './styles/surface-host.css'
 import './styles/global-toolbar.css'
@@ -106,9 +110,16 @@ function RootLayout({ children }: { children: React.ReactNode }) {
     ? '/'
     : '/' + (location.pathname.split('/').filter(Boolean)[0] || '')
   const hasOwnSidebar = SURFACES_WITH_SIDEBAR.has(normalizedPath)
+  
+  // Surfaces with their own layout shouldn't be wrapped
+  if (hasOwnSidebar) {
+    return <>{children}</>
+  }
+  
+  // Other routes get the default sidebar + main layout
   return (
     <div className="usx-surface-body" style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {!hasOwnSidebar && <DefaultSidebar open={sidebarOpen} />}
+      <DefaultSidebar open={sidebarOpen} />
       <main className="usx-surface-main" style={{ flex: 1, overflow: 'auto' }}>
         {children}
       </main>

@@ -22,6 +22,7 @@ import { SkillsPanel } from './SkillsPanel'
 import { USXDefaultsPanel } from './USXDefaultsPanel'
 import { RulesPanel } from './RulesPanel'
 import { SurfacesPanel } from './SurfacesPanel'
+import TypographySettingsPanel from './TypographySettingsPanel'
 
 // ─── Types ──────────────────────────────────────────────────────────
 type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings' | 'gridsmith' | 'skills' | 'usx' | 'rules' | 'surfaces'
@@ -614,76 +615,82 @@ function SettingsPanel() {
   }
 
   return (
-    <div className="developer-panel">
-      <div className="developer-panel-header">
-        <h3 className="developer-panel-title">Settings</h3>
-        <span className="developer-panel-count">Configuration</span>
-      </div>
+    <>
+      {/* Typography Settings */}
+      <TypographySettingsPanel />
 
-      <div className="developer-settings-section">
-        <h4 className="developer-settings-section-title"><Icon name="power_settings_new" /> Service Connections</h4>
-        <div className="developer-settings-field">
-          <label className="developer-settings-label">Hivemind URL</label>
-          <input className="developer-search-input" value={settings.hivemindUrl} onChange={e => setSettings(p => ({ ...p, hivemindUrl: e.target.value }))} />
+      {/* Service & Preferences */}
+      <div className="developer-panel" style={{ marginTop: '32px' }}>
+        <div className="developer-panel-header">
+          <h3 className="developer-panel-title">Settings</h3>
+          <span className="developer-panel-count">Configuration</span>
         </div>
-        <div className="developer-settings-field">
-          <label className="developer-settings-label">Ollama URL</label>
-          <input className="developer-search-input" value={settings.ollamaUrl} onChange={e => setSettings(p => ({ ...p, ollamaUrl: e.target.value }))} />
-        </div>
-        <div className="developer-settings-field">
-          <label className="developer-settings-label">Snackbar URL</label>
-          <input className="developer-search-input" value={settings.snackbarUrl} onChange={e => setSettings(p => ({ ...p, snackbarUrl: e.target.value }))} />
-        </div>
-      </div>
 
-      <div className="developer-settings-section">
-        <h4 className="developer-settings-section-title"><Icon name="settings" /> Preferences</h4>
-        <div className="developer-settings-toggle-row">
-          <span>Auto-sync repositories</span>
-          <button className={`developer-toggle ${settings.autoSync ? 'developer-toggle--on' : ''}`} onClick={() => handleToggle('autoSync')}>
-            <span className="developer-toggle-knob" />
-          </button>
+        <div className="developer-settings-section">
+          <h4 className="developer-settings-section-title"><Icon name="power_settings_new" /> Service Connections</h4>
+          <div className="developer-settings-field">
+            <label className="developer-settings-label">Hivemind URL</label>
+            <input className="developer-search-input" value={settings.hivemindUrl} onChange={e => setSettings(p => ({ ...p, hivemindUrl: e.target.value }))} />
+          </div>
+          <div className="developer-settings-field">
+            <label className="developer-settings-label">Ollama URL</label>
+            <input className="developer-search-input" value={settings.ollamaUrl} onChange={e => setSettings(p => ({ ...p, ollamaUrl: e.target.value }))} />
+          </div>
+          <div className="developer-settings-field">
+            <label className="developer-settings-label">Snackbar URL</label>
+            <input className="developer-search-input" value={settings.snackbarUrl} onChange={e => setSettings(p => ({ ...p, snackbarUrl: e.target.value }))} />
+          </div>
         </div>
-        <div className="developer-settings-toggle-row">
-          <span>Dark mode</span>
-          <button className={`developer-toggle ${settings.darkMode ? 'developer-toggle--on' : ''}`} onClick={() => handleToggle('darkMode')}>
-            <span className="developer-toggle-knob" />
-          </button>
-        </div>
-        <div className="developer-settings-toggle-row">
-          <span>Teletext font</span>
-          <button className={`developer-toggle ${settings.teletextFont ? 'developer-toggle--on' : ''}`} onClick={() => handleToggle('teletextFont')}>
-            <span className="developer-toggle-knob" />
-          </button>
-        </div>
-        <div className="developer-settings-field">
-          <label className="developer-settings-label">Autonomy Level</label>
-          <select className="developer-search-input" value={settings.autonomyLevel} onChange={e => setSettings(p => ({ ...p, autonomyLevel: e.target.value }))}>
-            <option>L1 — Observer</option>
-            <option>L2 — Assistant</option>
-            <option>L3 — Collaborator</option>
-            <option>L4 — Delegator</option>
-            <option>L5 — Autonomous</option>
-          </select>
-        </div>
-      </div>
 
-      <div className="developer-settings-section">
-        <h4 className="developer-settings-section-title"><Icon name="badge" /> Identity</h4>
-        <div className="developer-settings-info-row">
-          <span>User ID</span>
-          <code className="developer-settings-code">UDOS-20260613-AC00B8</code>
+        <div className="developer-settings-section">
+          <h4 className="developer-settings-section-title"><Icon name="settings" /> Preferences</h4>
+          <div className="developer-settings-toggle-row">
+            <span>Auto-sync repositories</span>
+            <button className={`developer-toggle ${settings.autoSync ? 'developer-toggle--on' : ''}`} onClick={() => handleToggle('autoSync')}>
+              <span className="developer-toggle-knob" />
+            </button>
+          </div>
+          <div className="developer-settings-toggle-row">
+            <span>Dark mode</span>
+            <button className={`developer-toggle ${settings.darkMode ? 'developer-toggle--on' : ''}`} onClick={() => handleToggle('darkMode')}>
+              <span className="developer-toggle-knob" />
+            </button>
+          </div>
+          <div className="developer-settings-toggle-row">
+            <span>Teletext font</span>
+            <button className={`developer-toggle ${settings.teletextFont ? 'developer-toggle--on' : ''}`} onClick={() => handleToggle('teletextFont')}>
+              <span className="developer-toggle-knob" />
+            </button>
+          </div>
+          <div className="developer-settings-field">
+            <label className="developer-settings-label">Autonomy Level</label>
+            <select className="developer-search-input" value={settings.autonomyLevel} onChange={e => setSettings(p => ({ ...p, autonomyLevel: e.target.value }))}>
+              <option>L1 — Observer</option>
+              <option>L2 — Assistant</option>
+              <option>L3 — Collaborator</option>
+              <option>L4 — Delegator</option>
+              <option>L5 — Autonomous</option>
+            </select>
+          </div>
         </div>
-        <div className="developer-settings-info-row">
-          <span>Codeword</span>
-          <code className="developer-settings-code">homebase</code>
-        </div>
-        <div className="developer-settings-info-row">
-          <span>Install ID</span>
-          <code className="developer-settings-code">macbook.local-arm64-af6f24a3</code>
+
+        <div className="developer-settings-section">
+          <h4 className="developer-settings-section-title"><Icon name="badge" /> Identity</h4>
+          <div className="developer-settings-info-row">
+            <span>User ID</span>
+            <code className="developer-settings-code">UDOS-20260613-AC00B8</code>
+          </div>
+          <div className="developer-settings-info-row">
+            <span>Codeword</span>
+            <code className="developer-settings-code">homebase</code>
+          </div>
+          <div className="developer-settings-info-row">
+            <span>Install ID</span>
+            <code className="developer-settings-code">macbook.local-arm64-af6f24a3</code>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

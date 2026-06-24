@@ -1,55 +1,37 @@
 /* ═══════════════════════════════════════════════════════════════════
-   global-toolbar.css — GlobalToolbar component styles
+   global-toolbar.css — GlobalToolbar Component Styling
+   ═══════════════════════════════════════════════════════════════════
+   LAYOUT: defined in usx-layout-system.css
+   COLORS: defined in usx-pico-integration.css
+   
+   This file: Component-specific styling only
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ─── Global Toolbar Nav (middle area) ──────────────────────────── */
-.global-toolbar-nav {
+/* Navigation button text sizing */
+.global-toolbar-nav-btn {
+  font-size: 0.8em;
+}
+
+/* Right section alignment */
+.global-toolbar-right {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  flex: 1;
-  justify-content: center;
-  overflow-x: auto;
-  padding: 0 0.5rem;
-}
-
-.global-toolbar-nav-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.65rem;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  color: var(--pico-muted-color, #8b949e);
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 80ms ease;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.global-toolbar-nav-btn:hover {
-  background: var(--pico-card-sectioning-background-color, #1c2128);
-  color: var(--pico-color, #c9d1d9);
-}
-
-.global-toolbar-nav-btn.active {
-  background: var(--pico-primary, #58a6ff);
-  color: var(--pico-primary-inverse, #ffffff);
-  border-color: var(--pico-primary, #58a6ff);
-}
-
-/* ─── Header buttons: consistent sizing, alignment & colour ────── */
-/* Uses canonical .usx-header-btn from @usx/styles/components/usx-surface.css */
-
-/* ─── Global Toolbar Sticky Fix ────────────────────────────────── */
-/* Ensure the toolbar stays locked to the top when the main content scrolls.
-   The usx-surface-header class from USX provides base styling, but we need
-   explicit sticky positioning + flex-shrink: 0 to prevent it from collapsing. */
-.global-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  gap: var(--usx-spacing-md);
   flex-shrink: 0;
+}
+
+/* Dev mode status indicator (far right, no shrinking) */
+.dev-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  padding: 0 var(--usx-spacing-sm);
+  margin-left: auto;
+  font-size: 0.75em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }

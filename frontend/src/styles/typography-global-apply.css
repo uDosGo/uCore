@@ -1,0 +1,38 @@
+/* ═══════════════════════════════════════════════════════════════════
+   typography-global-apply.css — Apply typography overrides globally
+   ═══════════════════════════════════════════════════════════════════
+   Wires font family and size variables to the doc root for all surfaces
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Import web fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Default: Inter (if no override) */
+html {
+  /* Default typography (can be overridden by --usx-font-family-override) */
+  font-family: var(--usx-font-family-override, 'Inter', system-ui, -apple-system, sans-serif);
+}
+
+/* Apply font size override if set */
+html[style*="--usx-font-size-override"] {
+  font-size: var(--usx-font-size-override);
+}
+
+/* Specific font family data attributes for fine-grained control */
+html[data-typography-family="inter"] {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+html[data-typography-family="merriweather"] {
+  font-family: Merriweather, Georgia, serif;
+}
+
+html[data-typography-family="jetbrains-mono"] {
+  font-family: "JetBrains Mono", "SF Mono", monospace;
+  letter-spacing: 0.02em; /* Monospace slightly wider spacing */
+}
+
+/* Ensure all text elements inherit properly */
+body, button, input, select, textarea, optgroup, p, h1, h2, h3, h4, h5, h6 {
+  font-family: inherit;
+}

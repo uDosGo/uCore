@@ -80,13 +80,13 @@
 }
 
 .developer-preview-title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--usx-font-size-body);
+  font-weight: var(--usx-font-weight-heading);
   color: var(--pico-color, #c9d1d9);
 }
 
 .developer-preview-subtitle {
-  font-size: 11px;
+  font-size: var(--usx-font-size-meta);
   color: var(--pico-muted-color, #8b949e);
 }
 
@@ -104,7 +104,7 @@
   color: var(--pico-color, #c9d1d9);
   border-radius: 8px;
   padding: var(--usx-compact-gap) var(--usx-spacing-sm);
-  font-size: 11px;
+  font-size: var(--usx-font-size-meta);
   cursor: pointer;
 }
 

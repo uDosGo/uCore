@@ -16,17 +16,10 @@
 
 /* ─── Top Bar (sticky — stays at top when content scrolls) ──────── */
 .assistui-topbar {
-  display: flex;
-  align-items: center;
-  gap: var(--usx-spacing-md);
-  padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
   background: var(--pico-card-background-color, #161b22);
   border-bottom: 1px solid var(--pico-border-color, #30363d);
-  flex-shrink: 0;
+  gap: var(--usx-spacing-md);
   flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
 /* Agent pills */
@@ -63,9 +56,9 @@
 }
 
 .assistui-agent-pill--active {
-  background: rgba(13, 110, 253, 0.15);
-  border-color: var(--pico-primary, #0d6efd);
-  color: var(--pico-primary, #58a6ff);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-color: var(--pico-border-color, #30363d);
+  color: var(--pico-color, #c9d1d9);
 }
 
 /* Model picker */

@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom'
 import { Icon } from './Icon'
 import { useDevMode } from '../hooks/useDevMode'
 import { useSurfaceShell } from './SurfaceShellContext'
+import '../styles/global-toolbar.css'
 
 export interface ToolbarTab {
   id: string
@@ -145,40 +146,36 @@ export function GlobalToolbar({
         </nav>
       )}
 
-      {/* ─── Right: Dev Mode + Settings + extra ─── */}
-      <div className="usx-header-right">
-        {rightExtra}
+       {/* ─── Right: extra ─── */}
+       <div className="usx-header-right">
+         {rightExtra}
+       </div>
 
-        {/* Dev Mode toggle — only appears when dev server is running */}
-        {devServerRunning && (
-          <button
-            className="usx-header-btn usx-header-btn--dev"
-            onClick={toggleDevMode}
-            disabled={loading}
-            title="Dev Mode active — click to stop dev server"
-            style={{
-              color: '#f97583',
-              borderColor: 'rgba(249, 117, 131, 0.3)',
-              background: 'rgba(249, 117, 131, 0.08)',
-            }}
-          >
-            <Icon name="tune" />
-            <span style={{ fontSize: 11, marginLeft: 4 }}>Dev</span>
-          </button>
-        )}
+       {/* ─── Far Right: Dev Mode badge + Settings (no flex shrinking) ─── */}
+       {devServerRunning && (
+         <button
+           className="dev-mode-badge"
+           onClick={toggleDevMode}
+           disabled={loading}
+           title="Dev Mode active — click to stop dev server"
+         >
+           <Icon name="tune" />
+           <span>Dev</span>
+         </button>
+       )}
 
-        {/* Settings gear → System Surface */}
-        <button
-          className="usx-header-btn"
-          onClick={() => {
-            if (onOpenSettings) onOpenSettings()
-            navigate('/system?tab=settings')
-          }}
-          title="System Settings"
-        >
-          <Icon name="settings" />
-        </button>
-      </div>
+       {/* Settings gear → System Surface (far right, last) */}
+       <button
+         className="usx-header-btn"
+         style={{ marginLeft: 'auto', flexShrink: 0 }}
+         onClick={() => {
+           if (onOpenSettings) onOpenSettings()
+           navigate('/system?tab=settings')
+         }}
+         title="System Settings"
+       >
+         <Icon name="settings" />
+       </button>
     </header>
   )
 }
