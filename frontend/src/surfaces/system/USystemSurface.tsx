@@ -16,6 +16,7 @@ import GlobalSettingsPanel from './GlobalSettingsPanel'
 import UserSettingsPanel from './UserSettingsPanel'
 import VariablesPanel from './VariablesPanel'
 import { S_PAGE_COMPONENTS } from '../../pages/spage-registry'
+import './system-surface.css'
 
 type SystemTab = 'pages' | 'tools' | 'services' | 'variables' | 'global-settings' | 'user-settings'
 
