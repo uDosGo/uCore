@@ -47,7 +47,7 @@ export default function GlobalSettingsPanel() {
             <h3>Font Style</h3>
           </div>
           <div className="hub-settings-card-body">
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div className="system-settings-button-group">
               {fontStyleOptions.map(style => {
                 const config = fontStyleConfig[style]
                 return (
@@ -55,16 +55,7 @@ export default function GlobalSettingsPanel() {
                     key={style}
                     className={`hub-settings-toggle-btn ${settings.fontStyle === style ? 'hub-settings-toggle-btn--active' : ''}`}
                     onClick={() => updateSetting('fontStyle', style)}
-                    style={{
-                      fontFamily: config.cssVar,
-                      padding: '10px 16px',
-                      borderRadius: 6,
-                      border: `2px solid ${settings.fontStyle === style ? 'var(--pico-primary, #58a6ff)' : 'var(--pico-border-color, #30363d)'}`,
-                      background: settings.fontStyle === style ? 'rgba(88,166,255,0.1)' : 'transparent',
-                      color: 'var(--pico-color, #c9d1d9)',
-                      cursor: 'pointer',
-                      fontWeight: 500,
-                    }}
+                    style={{ fontFamily: config.cssVar }}
                   >
                     {config.name}
                   </button>
@@ -81,7 +72,7 @@ export default function GlobalSettingsPanel() {
             <h3>Base Font Size</h3>
           </div>
           <div className="hub-settings-card-body">
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <div className="system-settings-button-group">
               {fontSizeOptions.map(size => {
                 const labels = { xs: 'XS', s: 'S', m: 'M', l: 'L', xl: 'XL' }
                 return (
@@ -89,24 +80,14 @@ export default function GlobalSettingsPanel() {
                     key={size}
                     className={`hub-settings-toggle-btn ${settings.baseFontSize === size ? 'hub-settings-toggle-btn--active' : ''}`}
                     onClick={() => updateSetting('baseFontSize', size)}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: 6,
-                      border: `2px solid ${settings.baseFontSize === size ? 'var(--pico-primary, #58a6ff)' : 'var(--pico-border-color, #30363d)'}`,
-                      background: settings.baseFontSize === size ? 'rgba(88,166,255,0.1)' : 'transparent',
-                      color: 'var(--pico-color, #c9d1d9)',
-                      cursor: 'pointer',
-                      fontWeight: 600,
-                      minWidth: 44,
-                      textAlign: 'center',
-                    }}
+                    style={{ minWidth: 44, textAlign: 'center' }}
                   >
                     {labels[size]}
                   </button>
                 )
               })}
             </div>
-            <p style={{ fontSize: 12, color: 'var(--pico-muted-color, #8b949e)', margin: '8px 0 0' }}>
+            <p style={{ fontSize: `var(--pico-font-size-sm, 0.875rem)`, color: 'var(--pico-muted-color, #8b949e)', margin: '8px 0 0' }}>
               Default: M (14px) — Adjusts base typography across all surfaces
             </p>
           </div>
@@ -119,10 +100,10 @@ export default function GlobalSettingsPanel() {
             <h3>Color Palette & Mode</h3>
           </div>
           <div className="hub-settings-card-body">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="system-settings-grid">
               {/* Palette Selection */}
               <div>
-                <h4 style={{ fontSize: 13, fontWeight: 600, margin: '0 0 12px', color: 'var(--pico-muted-color, #8b949e)' }}>Palette</h4>
+                <h4 style={{ fontSize: `var(--pico-font-size-sm, 0.875rem)`, fontWeight: 600, margin: '0 0 12px', color: 'var(--pico-muted-color, #8b949e)' }}>Palette</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {paletteOptions.map(palette => {
                     const config = paletteConfig[palette]
@@ -130,16 +111,8 @@ export default function GlobalSettingsPanel() {
                       <button
                         key={palette}
                         onClick={() => updateSetting('colorPalette', palette)}
-                        style={{
-                          padding: '8px 12px',
-                          borderRadius: 6,
-                          border: `2px solid ${settings.colorPalette === palette ? 'var(--pico-primary, #58a6ff)' : 'var(--pico-border-color, #30363d)'}`,
-                          background: settings.colorPalette === palette ? 'rgba(88,166,255,0.1)' : 'transparent',
-                          color: 'var(--pico-color, #c9d1d9)',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          fontWeight: settings.colorPalette === palette ? 600 : 400,
-                        }}
+                        className={`hub-settings-toggle-btn ${settings.colorPalette === palette ? 'hub-settings-toggle-btn--active' : ''}`}
+                        style={{ textAlign: 'left' }}
                       >
                         {config.name}
                       </button>
@@ -150,26 +123,14 @@ export default function GlobalSettingsPanel() {
 
               {/* Light/Dark Mode */}
               <div>
-                <h4 style={{ fontSize: 13, fontWeight: 600, margin: '0 0 12px', color: 'var(--pico-muted-color, #8b949e)' }}>Mode</h4>
+                <h4 style={{ fontSize: `var(--pico-font-size-sm, 0.875rem)`, fontWeight: 600, margin: '0 0 12px', color: 'var(--pico-muted-color, #8b949e)' }}>Mode</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {modeOptions.map(mode => (
                     <button
                       key={mode}
                       onClick={() => updateSetting('mode', mode)}
-                      style={{
-                        padding: '8px 12px',
-                        borderRadius: 6,
-                        border: `2px solid ${settings.mode === mode ? 'var(--pico-primary, #58a6ff)' : 'var(--pico-border-color, #30363d)'}`,
-                        background: settings.mode === mode ? 'rgba(88,166,255,0.1)' : 'transparent',
-                        color: 'var(--pico-color, #c9d1d9)',
-                        cursor: 'pointer',
-                        textAlign: 'center',
-                        fontWeight: settings.mode === mode ? 600 : 400,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                      }}
+                      className={`hub-settings-toggle-btn ${settings.mode === mode ? 'hub-settings-toggle-btn--active' : ''}`}
+                      style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                     >
                       <Icon name={mode === 'dark' ? 'dark_mode' : 'light_mode'} size={16} />
                       {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -224,13 +185,13 @@ export default function GlobalSettingsPanel() {
         )}
 
         {/* Developer Settings Info */}
-        <div className="hub-settings-card" style={{ background: 'rgba(88,166,255,0.05)', borderLeft: '3px solid var(--pico-primary, #58a6ff)' }}>
+        <div className="hub-settings-card system-settings-info">
           <div className="hub-settings-card-header">
             <Icon name="info" size={16} />
             <h3>Advanced Settings</h3>
           </div>
           <div className="hub-settings-card-body">
-            <p style={{ fontSize: 12, color: 'var(--pico-muted-color, #8b949e)', margin: 0, lineHeight: 1.6 }}>
+            <p style={{ margin: 0, lineHeight: 1.6 }}>
               <strong>USX Settings</strong> (typography scales, spacing, CSS variables) and <strong>GridCore Settings</strong> (grid algebra, cell dimensions) are available in Developer Surface.
             </p>
           </div>
