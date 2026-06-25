@@ -471,3 +471,41 @@
   gap: 12px;
   flex-wrap: wrap;
 }
+
+/* ─── Workflow Panels ─────────────────────────────────────────── */
+.workflow-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.workflow-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+}
+
+.workflow-panel-header h3 {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--pico-font-size, 1rem);
+  color: var(--pico-color, #c9d1d9);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-panel-count {
+  margin-left: auto;
+  font-size: var(--pico-font-size-sm, 0.875rem);
+  color: var(--pico-muted-color, #8b949e);
+  font-family: var(--pico-font-family-monospace);
+  font-weight: 500;
+}
