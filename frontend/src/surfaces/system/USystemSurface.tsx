@@ -106,7 +106,7 @@ export default function USystemSurface() {
           {activeTab === 'services' && (
             <div className="workflow-panel">
               <div className="workflow-panel-header">
-                <h3><Icon name="widgets" size={16} /> System Services</h3>
+                <h3><Icon name="hub" size={16} /> System Services</h3>
                 <span className="workflow-panel-count">Non-S-page</span>
               </div>
               <ServicesPanel />
