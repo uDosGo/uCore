@@ -23,9 +23,11 @@ import { USXDefaultsPanel } from './USXDefaultsPanel'
 import { RulesPanel } from './RulesPanel'
 import { SurfacesPanel } from './SurfacesPanel'
 import TypographySettingsPanel from './TypographySettingsPanel'
+import { USXSettingsPanel } from './USXSettingsPanel'
+import { GridCoreSettingsPanel } from './GridCoreSettingsPanel'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings' | 'gridsmith' | 'skills' | 'usx' | 'rules' | 'surfaces'
+type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings' | 'gridsmith' | 'skills' | 'usx' | 'usx-settings' | 'gridcore-settings' | 'rules' | 'surfaces'
 
 interface WorkflowRun {
   run_id: string
@@ -98,7 +100,7 @@ const SAMPLE_REPOS: RepoInfo[] = [
 ]
 
 const SNACKBAR_API = 'http://localhost:8484'
-const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'skills', 'usx', 'surfaces', 'kanban', 'gridsmith', 'repos', 'review', 'rules', 'settings']
+const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'skills', 'usx', 'usx-settings', 'gridcore-settings', 'surfaces', 'kanban', 'gridsmith', 'repos', 'review', 'rules', 'settings']
 
 // ─── Sample Review Entries ──────────────────────────────────────────
 const SAMPLE_REVIEWS: ReviewEntry[] = [
@@ -1050,6 +1052,8 @@ export default function DeveloperSurface() {
     { id: 'agents', icon: 'smart_toy', label: 'Agents', active: activeTab === 'agents', onClick: () => setTabAndRoute('agents') },
     { id: 'skills', icon: 'extension', label: 'Skills', active: activeTab === 'skills', onClick: () => setTabAndRoute('skills') },
     { id: 'usx', icon: 'palette', label: 'USX Defaults', active: activeTab === 'usx', onClick: () => setTabAndRoute('usx') },
+    { id: 'usx-settings', icon: 'tune', label: 'USX Settings', active: activeTab === 'usx-settings', onClick: () => setTabAndRoute('usx-settings') },
+    { id: 'gridcore-settings', icon: 'grid_view', label: 'GridCore Settings', active: activeTab === 'gridcore-settings', onClick: () => setTabAndRoute('gridcore-settings') },
     { id: 'surfaces', icon: 'dashboard_customize', label: 'Surfaces', active: activeTab === 'surfaces', onClick: () => setTabAndRoute('surfaces') },
     { id: 'kanban', icon: 'calendar_view_week', label: 'Kanban', active: activeTab === 'kanban', onClick: () => setTabAndRoute('kanban') },
     { id: 'gridsmith', icon: 'grid_view', label: 'GridSmith', active: activeTab === 'gridsmith', onClick: () => setTabAndRoute('gridsmith') },
@@ -1168,6 +1172,8 @@ export default function DeveloperSurface() {
         {activeTab === 'agents' && <AgentsPanel />}
         {activeTab === 'skills' && <SkillsPanel />}
         {activeTab === 'usx' && <USXDefaultsPanel />}
+        {activeTab === 'usx-settings' && <USXSettingsPanel />}
+        {activeTab === 'gridcore-settings' && <GridCoreSettingsPanel />}
         {activeTab === 'surfaces' && <SurfacesPanel />}
         {activeTab === 'kanban' && <KanbanSurface />}
         {activeTab === 'gridsmith' && <GridSmithTab />}
@@ -1178,7 +1184,8 @@ export default function DeveloperSurface() {
           setFilePreview(null)
           setFileDiff(null)
           setSaveNotice(null)
-        }} />}        {activeTab === 'review' && <ReviewPanel reviews={reviewEntries} loading={reviewLoading} repoName={selectedRepoId} onPreviewFile={(filePath) => {
+        }} />}
+        {activeTab === 'review' && <ReviewPanel reviews={reviewEntries} loading={reviewLoading} repoName={selectedRepoId} onPreviewFile={(filePath) => {
           setSidebarMode('filepicker')
           setPreviewMode('file')
           setSaveNotice(null)
@@ -1213,7 +1220,8 @@ export default function DeveloperSurface() {
             })
           }
           fetchFileDiff(selectedRepoId, filePath)
-        }} onStageFile={handleStageFile} onUnstageFile={handleUnstageFile} stagedFiles={stagedFiles} />}        {activeTab === 'rules' && <RulesPanel />}
+        }} onStageFile={handleStageFile} onUnstageFile={handleUnstageFile} stagedFiles={stagedFiles} />}
+        {activeTab === 'rules' && <RulesPanel />}
         {activeTab === 'settings' && <SettingsPanel />}
         </main>
 

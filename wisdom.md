@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-06-24T01:07:32Z
+Date: 2026-06-25T02:05:02Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -16,26 +16,26 @@ Status: Refreshed by brain_sync
 - **Consolidation Dashboard mirrors progress**: Checkbox-based checklist + metric tracking builds confidence. Visual progress bars (coverage %) are more compelling than raw numbers.
 
 ## Recent Change Scan
-- frontend/src/surfaces/workflow/WorkflowSurface.tsx
-- frontend/dist/assets/press-start-2p-CnAFzuvi.woff2
-- frontend/dist/assets/PetMe128-DUjnzmmV.ttf
-- frontend/dist/assets/index-CSr0kI6D.js
-- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-BsBxhfAV.ttf
-- frontend/dist/assets/MaterialSymbolsOutlined-Db6aBbE4.ttf
-- frontend/dist/assets/Bedstead-OSqLCfiS.otf
-- frontend/dist/assets/Teletext50-B0FE1AIM.otf
-- frontend/dist/index.html
-- frontend/dist/assets/index-CYk8Wssy.css
-- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-CFnYgsZY.woff
-- frontend/src/main.tsx
-- frontend/src/surfaces/dashboard/DashboardSurface.tsx
-- frontend/src/styles/surfaces/workflow.css
-- frontend/src/surfaces/developer/AgentsPanel.tsx
-- frontend/src/surfaces/developer/ModelsPanel.tsx
+- frontend/src/styles/usx/usx-typography-prose.css
+- frontend/src/styles/surfaces/developer.css
+- frontend/src/styles/usx/usx-typography-scale.css
+- frontend/src/styles/surfaces/ucode.css
+- frontend/src/styles/system/story-forms.css
+- frontend/src/styles/vault-sidebar.css
+- frontend/src/styles/assistui.css
+- frontend/src/styles/usx/usx-pico-reset.css
+- frontend/src/surfaces/developer/DeveloperSurface.tsx
+- frontend/src/surfaces/system/USystemSurface.tsx
+- frontend/src/surfaces/browserui/styles/browserui.css
+- frontend/src/surfaces/assistui/AssistUISurface.tsx
+- frontend/src/surfaces/browserui/BrowserUISurface.tsx
+- .tasker/workflow-usx-alignment-report.md
 - frontend/src/surfaces/userver/UServerSurface.tsx
-- frontend/src/surfaces/shared/LogsPanel.tsx
-- frontend/src/UIHubManager.tsx
-- frontend/src/components/GlobalToolbar.tsx
+- frontend/src/styles/userver.css
+- frontend/src/surfaces/workflow/WorkflowSurface.tsx
+- frontend/src/styles/surfaces/workflow.css
+- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-BsBxhfAV.ttf
+- frontend/dist/assets/index-DCVJNXgl.js
 
 ## Memory Architecture
 - Short-term: active AI/chat session context.
@@ -65,36 +65,36 @@ Warnings: 0
 - popcorn: 500 entries (0 errors)
 
 ### Recent Activity
-- ℹ️ 2026-06-24T09:07:29  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:29  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:29  popcorn  Opening UI Hub (with auto-start)
-- ℹ️ 2026-06-24T09:07:29  popcorn  Opening UI Hub (with auto-start)
-- ℹ️ 2026-06-24T09:07:24  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:24  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:19  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:19  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:14  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:14  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:09  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:09  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:04  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:07:04  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:59  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:59  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:54  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:54  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:49  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:49  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:44  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:44  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:39  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:39  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:34  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:34  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:28  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:28  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-24T09:06:28  popcorn  Starting uDos Popcorn v3.0 — Surface Manager
-- ℹ️ 2026-06-24T09:06:28  popcorn  Starting uDos Popcorn v3.0 — Surface Manager
+- ℹ️ 2026-06-25T10:04:59  popcorn  Opening UI Hub (with auto-start)
+- ℹ️ 2026-06-25T10:04:59  popcorn  Opening UI Hub (with auto-start)
+- ℹ️ 2026-06-25T10:04:58  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:58  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:53  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:53  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:48  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:48  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:43  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:43  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:38  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:38  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:33  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:33  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:28  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:28  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:22  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:22  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:17  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:17  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:12  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:12  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:07  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:07  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:02  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:04:02  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:03:57  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:03:57  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:03:52  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-25T10:03:52  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
 
 ## Test Failure Signals (last 24h)
 

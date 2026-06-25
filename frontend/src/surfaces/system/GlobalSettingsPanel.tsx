@@ -1,60 +1,23 @@
 /* ═══════════════════════════════════════════════════════════════════
-   GlobalSettingsPanel — System-wide global settings
-   Display, font, palette, auto-save, toggles.
-   Persists to localStorage and optionally syncs to backend.
+   GlobalSettingsPanel — System-wide Global Switchers
+   ═══════════════════════════════════════════════════════════════════
+   Final user-facing controls for core display preferences.
+   Font Style (3 options), Base Font Size (5 presets), Color Palette
+   (4 options with light/dark variants), and Light/Dark Mode.
+   
+   All advanced USX and GridCore settings are locked in Developer Surface.
    ═══════════════════════════════════════════════════════════════════ */
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Icon } from '../../components/Icon'
+import { useGlobalSettings, FontStyle, BaseFontSize, ColorPalette, LightDarkMode } from '../../hooks/useGlobalSettings'
 
 const SNACKBAR_API = 'http://localhost:8484'
 
-const SETTINGS_KEY = 'ucore-global-settings'
-
-interface GlobalSettings {
-  displayMode: 'grid' | 'list' | 'compact'
-  fontSize: number
-  palette: string
-  autoSave: boolean
-  showStatusBar: boolean
-  enableAnimations: boolean
-}
-
-const DEFAULT_SETTINGS: GlobalSettings = {
-  displayMode: 'grid',
-  fontSize: 14,
-  palette: 'default',
-  autoSave: true,
-  showStatusBar: true,
-  enableAnimations: true,
-}
-
-function loadSettings(): GlobalSettings {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY)
-    if (raw) return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }
-  } catch { /* ignore */ }
-  return { ...DEFAULT_SETTINGS }
-}
-
-function saveSettings(settings: GlobalSettings) {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
-  // Apply palette attribute (scoped, doesn't break Pico cascade)
-  document.documentElement.setAttribute('data-palette', settings.palette)
-  // NOTE: Font size is stored in localStorage for future use but NOT applied
-  // as a CSS override to avoid breaking Pico's cascade. Apply it only via
-  // data-attribute if needed for per-component theming.
-}
-
 export default function GlobalSettingsPanel() {
-  const [settings, setSettings] = useState<GlobalSettings>(DEFAULT_SETTINGS)
+  const { settings, isLoaded, updateSetting, fontStyleConfig, paletteConfig } = useGlobalSettings()
   const [backendConfig, setBackendConfig] = useState<any>(null)
-  const [statusMsg, setStatusMsg] = useState<string | null>(null)
 
   useEffect(() => {
-    const loaded = loadSettings()
-    setSettings(loaded)
-    saveSettings(loaded) // ensure CSS props applied
-
     // Load backend config for display
     fetch(`${SNACKBAR_API}/api/config`, { signal: AbortSignal.timeout(2500) })
       .then(r => r.json())
@@ -62,146 +25,157 @@ export default function GlobalSettingsPanel() {
       .catch(() => {})
   }, [])
 
-  const updateSetting = useCallback(<K extends keyof GlobalSettings>(
-    key: K, value: GlobalSettings[K]
-  ) => {
-    setSettings(prev => {
-      const next = { ...prev, [key]: value }
-      saveSettings(next)
-      return next
-    })
-  }, [])
-
-  const palettes = [
-    { id: 'default', name: 'Default', color: '#58a6ff' },
-    { id: 'green', name: 'Forest', color: '#22c55e' },
-    { id: 'orange', name: 'Sunset', color: '#f0883e' },
-    { id: 'purple', name: 'Twilight', color: '#a855f7' },
-    { id: 'cyan', name: 'Neon', color: '#00ff9d' },
-  ]
+  if (!isLoaded) {
+    return <div className="hub-settings">Loading settings...</div>
+  }
 
   const systemItems = backendConfig?.system || []
   const installItems = backendConfig?.installation || []
 
+  const fontStyleOptions: FontStyle[] = ['inter', 'merriweather', 'jetbrains-mono']
+  const fontSizeOptions: BaseFontSize[] = ['xs', 's', 'm', 'l', 'xl']
+  const paletteOptions: ColorPalette[] = ['gh-dark', 'pico-green', 'pico-sunset', 'pico-twilight']
+  const modeOptions: LightDarkMode[] = ['light', 'dark']
+
   return (
     <div className="hub-settings">
-      {statusMsg && (
-        <div className="sys-msg sys-msg--success">{statusMsg}</div>
-      )}
-
       <div className="hub-settings-form">
-        {/* Display Mode */}
+        {/* Font Style Switcher */}
         <div className="hub-settings-card">
           <div className="hub-settings-card-header">
-            <Icon name="grid_view" size={16} />
-            <h3>Display Mode</h3>
+            <Icon name="text_fields" size={16} />
+            <h3>Font Style</h3>
           </div>
           <div className="hub-settings-card-body">
-            <div className="hub-settings-display-modes">
-              {(['grid', 'list', 'compact'] as const).map(mode => (
-                <button
-                  key={mode}
-                  className={`hub-settings-display-btn ${settings.displayMode === mode ? 'hub-settings-display-btn--active' : ''}`}
-                  onClick={() => updateSetting('displayMode', mode)}
-                >
-                  <div className="hub-settings-display-label">{mode.charAt(0).toUpperCase() + mode.slice(1)}</div>
-                  <div className="hub-settings-display-desc">
-                    {mode === 'grid' ? 'Card grid layout' : mode === 'list' ? 'Compact list' : 'Minimal cards'}
-                  </div>
-                </button>
-              ))}
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              {fontStyleOptions.map(style => {
+                const config = fontStyleConfig[style]
+                return (
+                  <button
+                    key={style}
+                    className={`hub-settings-toggle-btn ${settings.fontStyle === style ? 'hub-settings-toggle-btn--active' : ''}`}
+                    onClick={() => updateSetting('fontStyle', style)}
+                    style={{
+                      fontFamily: config.cssVar,
+                      padding: '10px 16px',
+                      borderRadius: 6,
+                      border: `2px solid ${settings.fontStyle === style ? 'var(--pico-primary, #58a6ff)' : 'var(--pico-border-color, #30363d)'}`,
+                      background: settings.fontStyle === style ? 'rgba(88,166,255,0.1)' : 'transparent',
+                      color: 'var(--pico-color, #c9d1d9)',
+                      cursor: 'pointer',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {config.name}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
 
-        {/* Font Size */}
+        {/* Base Font Size Switcher */}
         <div className="hub-settings-card">
           <div className="hub-settings-card-header">
             <Icon name="format_size" size={16} />
-            <h3>Font Size</h3>
-            <span className="hub-settings-card-subtitle">{settings.fontSize}px</span>
+            <h3>Base Font Size</h3>
           </div>
           <div className="hub-settings-card-body">
-            <div className="hub-settings-fontsize-controls">
-              {[12, 13, 14, 15, 16, 18, 20, 22, 24].map(size => (
-                <button
-                  key={size}
-                  className={`hub-settings-fontsize-btn ${settings.fontSize === size ? 'hub-settings-fontsize-btn--active' : ''}`}
-                  onClick={() => updateSetting('fontSize', size)}
-                >
-                  {size}
-                </button>
-              ))}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {fontSizeOptions.map(size => {
+                const labels = { xs: 'XS', s: 'S', m: 'M', l: 'L', xl: 'XL' }
+                return (
+                  <button
+                    key={size}
+                    className={`hub-settings-toggle-btn ${settings.baseFontSize === size ? 'hub-settings-toggle-btn--active' : ''}`}
+                    onClick={() => updateSetting('baseFontSize', size)}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: 6,
+                      border: `2px solid ${settings.baseFontSize === size ? 'var(--pico-primary, #58a6ff)' : 'var(--pico-border-color, #30363d)'}`,
+                      background: settings.baseFontSize === size ? 'rgba(88,166,255,0.1)' : 'transparent',
+                      color: 'var(--pico-color, #c9d1d9)',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      minWidth: 44,
+                      textAlign: 'center',
+                    }}
+                  >
+                    {labels[size]}
+                  </button>
+                )
+              })}
             </div>
+            <p style={{ fontSize: 12, color: 'var(--pico-muted-color, #8b949e)', margin: '8px 0 0' }}>
+              Default: M (14px) — Adjusts base typography across all surfaces
+            </p>
           </div>
         </div>
 
-        {/* Color Palette */}
+        {/* Color Palette & Light/Dark Mode */}
         <div className="hub-settings-card">
           <div className="hub-settings-card-header">
             <Icon name="palette" size={16} />
-            <h3>Color Palette</h3>
+            <h3>Color Palette & Mode</h3>
           </div>
           <div className="hub-settings-card-body">
-            <div className="hub-settings-palettes">
-              {palettes.map(p => (
-                <button
-                  key={p.id}
-                  className={`hub-settings-palette-btn ${settings.palette === p.id ? 'hub-settings-palette-btn--active' : ''}`}
-                  onClick={() => updateSetting('palette', p.id)}
-                >
-                  <span className="hub-settings-palette-swatch" style={{ background: p.color }} />
-                  <span className="hub-settings-palette-name">{p.name}</span>
-                  {settings.palette === p.id && <Icon name="check" size={16} />}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              {/* Palette Selection */}
+              <div>
+                <h4 style={{ fontSize: 13, fontWeight: 600, margin: '0 0 12px', color: 'var(--pico-muted-color, #8b949e)' }}>Palette</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {paletteOptions.map(palette => {
+                    const config = paletteConfig[palette]
+                    return (
+                      <button
+                        key={palette}
+                        onClick={() => updateSetting('colorPalette', palette)}
+                        style={{
+                          padding: '8px 12px',
+                          borderRadius: 6,
+                          border: `2px solid ${settings.colorPalette === palette ? 'var(--pico-primary, #58a6ff)' : 'var(--pico-border-color, #30363d)'}`,
+                          background: settings.colorPalette === palette ? 'rgba(88,166,255,0.1)' : 'transparent',
+                          color: 'var(--pico-color, #c9d1d9)',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          fontWeight: settings.colorPalette === palette ? 600 : 400,
+                        }}
+                      >
+                        {config.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
 
-        {/* Toggles */}
-        <div className="hub-settings-card">
-          <div className="hub-settings-card-header">
-            <Icon name="toggle_on" size={16} />
-            <h3>Preferences</h3>
-          </div>
-          <div className="hub-settings-card-body">
-            <div className="hub-settings-connections">
-              <div className="hub-settings-connection-row">
-                <span>Auto-save</span>
-                <label className="hub-toggle">
-                  <input
-                    type="checkbox"
-                    checked={settings.autoSave}
-                    onChange={e => updateSetting('autoSave', e.target.checked)}
-                    style={{ accentColor: 'var(--pico-primary, #58a6ff)' }}
-                  />
-                  <span className="hub-settings-mono">{settings.autoSave ? 'Enabled' : 'Disabled'}</span>
-                </label>
-              </div>
-              <div className="hub-settings-connection-row">
-                <span>Status Bar</span>
-                <label className="hub-toggle">
-                  <input
-                    type="checkbox"
-                    checked={settings.showStatusBar}
-                    onChange={e => updateSetting('showStatusBar', e.target.checked)}
-                    style={{ accentColor: 'var(--pico-primary, #58a6ff)' }}
-                  />
-                  <span className="hub-settings-mono">{settings.showStatusBar ? 'Visible' : 'Hidden'}</span>
-                </label>
-              </div>
-              <div className="hub-settings-connection-row">
-                <span>Animations</span>
-                <label className="hub-toggle">
-                  <input
-                    type="checkbox"
-                    checked={settings.enableAnimations}
-                    onChange={e => updateSetting('enableAnimations', e.target.checked)}
-                    style={{ accentColor: 'var(--pico-primary, #58a6ff)' }}
-                  />
-                  <span className="hub-settings-mono">{settings.enableAnimations ? 'On' : 'Off'}</span>
-                </label>
+              {/* Light/Dark Mode */}
+              <div>
+                <h4 style={{ fontSize: 13, fontWeight: 600, margin: '0 0 12px', color: 'var(--pico-muted-color, #8b949e)' }}>Mode</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {modeOptions.map(mode => (
+                    <button
+                      key={mode}
+                      onClick={() => updateSetting('mode', mode)}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: 6,
+                        border: `2px solid ${settings.mode === mode ? 'var(--pico-primary, #58a6ff)' : 'var(--pico-border-color, #30363d)'}`,
+                        background: settings.mode === mode ? 'rgba(88,166,255,0.1)' : 'transparent',
+                        color: 'var(--pico-color, #c9d1d9)',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        fontWeight: settings.mode === mode ? 600 : 400,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                      }}
+                    >
+                      <Icon name={mode === 'dark' ? 'dark_mode' : 'light_mode'} size={16} />
+                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -248,6 +222,19 @@ export default function GlobalSettingsPanel() {
             </div>
           </div>
         )}
+
+        {/* Developer Settings Info */}
+        <div className="hub-settings-card" style={{ background: 'rgba(88,166,255,0.05)', borderLeft: '3px solid var(--pico-primary, #58a6ff)' }}>
+          <div className="hub-settings-card-header">
+            <Icon name="info" size={16} />
+            <h3>Advanced Settings</h3>
+          </div>
+          <div className="hub-settings-card-body">
+            <p style={{ fontSize: 12, color: 'var(--pico-muted-color, #8b949e)', margin: 0, lineHeight: 1.6 }}>
+              <strong>USX Settings</strong> (typography scales, spacing, CSS variables) and <strong>GridCore Settings</strong> (grid algebra, cell dimensions) are available in Developer Surface.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
