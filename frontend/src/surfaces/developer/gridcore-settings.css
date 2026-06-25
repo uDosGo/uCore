@@ -10,10 +10,10 @@
 
 .gridcore-settings-info {
   padding: 12px 14px;
-  background: rgba(88, 166, 255, 0.05);
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 5%, transparent);
   border: 1px solid var(--pico-primary, #58a6ff);
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--pico-font-size, 1rem);
   color: var(--pico-muted-color, #8b949e);
   line-height: 1.6;
 }
@@ -29,7 +29,7 @@
 }
 
 .gridcore-settings-section-title {
-  font-size: 13px;
+  font-size: var(--pico-font-size, 1rem);
   font-weight: 600;
   color: var(--pico-color, #c9d1d9);
   margin: 0;
@@ -55,22 +55,22 @@
   background: transparent;
   color: var(--pico-color, #c9d1d9);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
   transition: all 0.2s ease;
 }
 
 .gridcore-settings-preset-btn:hover {
   border-color: var(--pico-primary, #58a6ff);
-  background: rgba(88, 166, 255, 0.08);
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 8%, transparent);
 }
 
 .gridcore-settings-preset-name {
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--pico-font-size, 1rem);
 }
 
 .gridcore-settings-preset-desc {
-  font-size: 11px;
+  font-size: var(--pico-font-size-xs, 0.75rem);
   color: var(--pico-muted-color, #8b949e);
   text-align: center;
   line-height: 1.4;
@@ -83,7 +83,7 @@
 }
 
 .gridcore-settings-field label {
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
   font-weight: 600;
   color: var(--pico-muted-color, #8b949e);
 }
@@ -137,7 +137,7 @@
 }
 
 .gridcore-settings-help {
-  font-size: 11px;
+  font-size: var(--pico-font-size-xs, 0.75rem);
   color: var(--pico-muted-color, #8b949e);
   margin: 0;
 }
@@ -155,7 +155,7 @@
   background: transparent;
   color: var(--pico-color, #c9d1d9);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
   font-weight: 500;
   transition: all 0.2s ease;
 }
@@ -166,7 +166,7 @@
 }
 
 .gridcore-settings-btn-option--active {
-  background: rgba(88, 166, 255, 0.1);
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 10%, transparent);
   border-color: var(--pico-primary, #58a6ff);
   color: var(--pico-primary, #58a6ff);
   font-weight: 600;
@@ -178,7 +178,7 @@
   justify-content: space-between;
   padding: 10px 0;
   border-bottom: 1px solid var(--pico-border-color, #30363d);
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
 }
 
 .gridcore-settings-toggle-row:last-child {
@@ -198,6 +198,6 @@
 }
 
 .gridcore-settings-toggle span {
-  font-size: 11px;
+  font-size: var(--pico-font-size-xs, 0.75rem);
   color: var(--pico-muted-color, #8b949e);
 }

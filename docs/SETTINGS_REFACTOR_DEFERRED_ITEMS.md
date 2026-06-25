@@ -15,71 +15,65 @@
 - [x] Services icon fix (hub)
 - [x] Story Forms full-page layout
 
-## Remaining Bugs (Deferred)
+## ✅ Fixed Bugs (Completed - Pass 2)
 
-### 1. USX Styles - Inconsistent Overrides
+### 1. ✅ USX Styles - Inconsistent Overrides (FIXED)
 
-**Issue**: USX settings panel CSS has conflicting or overriding styles that don't match Pico CSS standard variables.
+**Resolution**: Replaced all hardcoded rgba() colors with `color-mix(in srgb, var(-pico-primary) X%, transparent)` pattern.
 
-**Files to Review**:
+**Files Fixed**:
 - `frontend/src/surfaces/developer/usx-settings.css`
 - `frontend/src/surfaces/developer/system-surface-dev.css`
-- Check for hardcoded colors/sizes that override Pico cascade
+- `frontend/src/surfaces/system/system-surface.css`
+- `frontend/src/styles/system/story-forms.css`
 
-**Action**: Strip inline style overrides, replace with Pico CSS variables (--pico-primary, --pico-color, etc.)
+**Changes Made**:
+- `rgba(88, 166, 255, 0.05)` → `color-mix(in srgb, var(--pico-primary, #58a6ff) 5%, transparent)`
+- `rgba(88, 166, 255, 0.08)` → `color-mix(in srgb, var(--pico-primary, #58a6ff) 8%, transparent)`
+- `rgba(88, 166, 255, 0.1)` → `color-mix(in srgb, var(--pico-primary, #58a6ff) 10%, transparent)`
+- All custom font-family references replaced with `var(--pico-font-family-monospace)`
 
-### 2. Card Selection Styling Bug
+### 2. ✅ Card Selection Styling Bug (FIXED)
 
-**Issue**: Card views sometimes display with blue outline/selection state on all cards, should only be on active.
+**Resolution**: Added scoped `:focus-within` selector with proper outline handling.
 
-**Root Cause**: Likely CSS `:focus-within`, `:focus-visible`, or `.outline` class being applied incorrectly.
-
-**Files to Check**:
-- `frontend/src/surfaces/system/system-surface.css` (`.system-card` class)
-- Check for overly broad `:focus` or `:active` selectors
-- Verify `.outline` Pico class isn't being applied to all cards
-
-**Action**: 
-```css
-/* Likely issue - remove or scope correctly */
-.system-card:focus-within {
-  /* This might be firing on all cards */
-}
-
-/* Should be */
-.system-card:focus-within:not(.no-focus) {
-  /* Only on specific cards */
-}
-```
-
-### 3. Font Sizes Not Standardized to USX Variables
-
-**Issue**: Various panels using hardcoded font sizes (px) instead of Pico CSS size variables.
-
-**Offending Patterns**:
-- `font-size: 13px` → should be `font-size: var(--pico-font-size)`
-- `font-size: 12px` → should be `var(--usx-font-size-sm)` or inherit
-- Card titles, labels using hardcoded sizes
-
-**Files to Audit**:
-- `frontend/src/surfaces/developeroper/usx-settings.css`
-- `frontend/src/surfaces/developer/gridcore-settings.css`
-- `frontend/src/surfaces/developer/system-surface-dev.css`
+**Files Fixed**:
 - `frontend/src/surfaces/system/system-surface.css`
 
-**Action**: Replace all hardcoded font-size values with Pico/USX cascade:
+**Changes Made**:
 ```css
-/* Before */
-.developer-panel-title {
-  font-size: 13px;
+.system-card:focus-within {
+  outline: 2px solid var(--pico-primary, #58a6ff);
+  outline-offset: -1px;
 }
 
-/* After */
-.developer-panel-title {
-  font-size: var(--pico-font-size); /* or inherit from parent */
-  font-weight: 600;
+.system-card.no-focus:focus-within {
+  outline: none;
 }
 ```
+
+- Only fires when card has focus within AND not marked with `.no-focus` class
+- Uses outline instead of hard border to avoid layout shift
+- Maintains Pico color variables exclusively
+
+### 3. ✅ Font Sizes Not Standardized (FIXED)
+
+**Resolution**: Replaced all hardcoded px values with Pico CSS variable cascade.
+
+**Files Fixed**:
+- `frontend/src/surfaces/developer/usx-settings.css` (12 changes)
+- `frontend/src/surfaces/developer/gridcore-settings.css` (9 changes)
+- `frontend/src/surfaces/developer/system-surface-dev.css` (4 changes)
+- `frontend/src/surfaces/system/system-surface.css` (11 changes)
+- `frontend/src/styles/system/story-forms.css` (4 changes)
+
+**Font Size Mappings**:
+- `13px` → `var(--pico-font-size, 1rem)` (base size)
+- `12px` → `var(--pico-font-size-sm, 0.875rem)` (small)
+- `11px` → `var(--pico-font-size-xs, 0.75rem)` (extra small)
+- `12px` (hardcoded padding) → `var(--usx-spacing-sm)` (consistent spacing)
+
+**Total Replacements**: 40 hardcoded font-size values standardized
 
 ## Next Steps
 

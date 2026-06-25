@@ -318,7 +318,7 @@
   justify-content: center;
   align-items: center;
   gap: var(--usx-spacing-lg);
-  padding: 12px 0;
+  padding: var(--usx-spacing-sm) 0;
 }
 
 /* ─── Story Library Grid ──────────────────────────────────────── */
@@ -412,9 +412,9 @@
   padding: 1px 8px;
   border-radius: 999px;
   font-size: 0.8em;
-  background: color-mix(in srgb, #a855f7 15%, transparent);
-  color: var(--pico-primary, #a855f7);
-  border: 1px solid color-mix(in srgb, #a855f7 30%, transparent);
+  background: color-mix(in srgb, var(--pico-primary) 15%, transparent);
+  color: var(--pico-primary);
+  border: 1px solid color-mix(in srgb, var(--pico-primary) 30%, transparent);
 }
 
 /* ─── Variable Cards Grid ──────────────────────────────────────── */
@@ -578,7 +578,7 @@
   display: flex;
   align-items: center;
   gap: var(--usx-spacing-sm);
-  padding: 12px var(--pico-spacing);
+  padding: var(--usx-spacing-sm) var(--pico-spacing);
   border-bottom: 1px solid var(--pico-border-color);
 }
 
@@ -707,7 +707,7 @@
 .sys-page-filter {
   display: flex;
   gap: var(--usx-compact-gap);
-  padding: 12px var(--pico-spacing);
+  padding: var(--usx-spacing-sm) var(--pico-spacing);
   border-bottom: 1px solid var(--pico-border-color);
   flex-wrap: wrap;
 }
@@ -752,7 +752,7 @@
 .sys-page-stats {
   display: flex;
   gap: var(--pico-spacing);
-  padding: 12px var(--pico-spacing);
+  padding: var(--usx-spacing-sm) var(--pico-spacing);
   border-bottom: 1px solid var(--pico-border-color);
   color: var(--pico-muted-color);
 }

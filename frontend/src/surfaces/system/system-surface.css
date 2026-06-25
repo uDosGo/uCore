@@ -34,7 +34,7 @@
 
 .system-panel-count {
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
   color: var(--pico-muted-color, #8b949e);
   font-family: var(--pico-font-family-monospace);
 }
@@ -42,10 +42,10 @@
 /* ─── System Info Box ─────────────────────────────────────────── */
 .system-info-box {
   padding: 12px 14px;
-  background: rgba(88, 166, 255, 0.05);
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 5%, transparent);
   border: 1px solid var(--pico-primary, #58a6ff);
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--pico-font-size, 1rem);
   color: var(--pico-muted-color, #8b949e);
   line-height: 1.6;
 }
@@ -63,7 +63,7 @@
 }
 
 .system-section-title {
-  font-size: 13px;
+  font-size: var(--pico-font-size, 1rem);
   font-weight: 600;
   color: var(--pico-color, #c9d1d9);
   margin: 0;
@@ -78,7 +78,7 @@
   border-radius: 6px;
   background: var(--pico-form-element-background-color, #0d1117);
   color: var(--pico-color, #c9d1d9);
-  font-size: 13px;
+  font-size: var(--pico-font-size, 1rem);
 }
 
 .system-search:focus {
@@ -108,7 +108,16 @@
 
 .system-card:hover {
   border-color: var(--pico-primary, #58a6ff);
-  background: rgba(88, 166, 255, 0.05);
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 5%, transparent);
+}
+
+.system-card:focus-within {
+  outline: 2px solid var(--pico-primary, #58a6ff);
+  outline-offset: -1px;
+}
+
+.system-card.no-focus:focus-within {
+  outline: none;
 }
 
 .system-card-header {
@@ -132,21 +141,21 @@
   font-weight: 600;
   color: var(--pico-color, #c9d1d9);
   margin: 0;
-  font-size: 13px;
+  font-size: var(--pico-font-size, 1rem);
 }
 
 .system-card-desc {
   color: var(--pico-muted-color, #8b949e);
   margin: 0;
   line-height: 1.4;
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
 }
 
 .system-card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: var(--pico-font-size-xs, 0.75rem);
   color: var(--pico-muted-color, #8b949e);
 }
 
@@ -185,7 +194,7 @@
   background: transparent;
   color: var(--pico-muted-color, #8b949e);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
   font-weight: 500;
   transition: all 0.2s ease;
 }
@@ -196,7 +205,7 @@
 }
 
 .system-filter-btn--active {
-  background: rgba(88, 166, 255, 0.1);
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 10%, transparent);
   border-color: var(--pico-primary, #58a6ff);
   color: var(--pico-primary, #58a6ff);
   font-weight: 600;
@@ -215,7 +224,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
   color: var(--pico-muted-color, #8b949e);
   font-family: var(--pico-font-family-monospace);
 }
@@ -240,7 +249,7 @@
   background: var(--pico-card-sectioning-background-color, #1c2128);
   border: 1px solid var(--pico-border-color, #30363d);
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--pico-font-size, 1rem);
 }
 
 .system-list-item-icon {
@@ -267,7 +276,7 @@
 .system-list-item-value {
   color: var(--pico-muted-color, #8b949e);
   font-family: var(--pico-font-family-monospace);
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
 }
 
 /* ─── Preserve gtxform/marp styling ───────────────────────────── */
@@ -285,7 +294,7 @@
 
 .gtxform-label {
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--pico-font-size-sm, 0.875rem);
   color: var(--pico-muted-color, #8b949e);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -299,7 +308,7 @@
   border-radius: 6px;
   background: var(--pico-form-element-background-color, #0d1117);
   color: var(--pico-color, #c9d1d9);
-  font-size: 13px;
+  font-size: var(--pico-font-size, 1rem);
   outline: none;
 }
 
