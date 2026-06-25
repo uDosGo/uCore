@@ -54,7 +54,7 @@ export default function USystemSurface() {
   const systemNavItems: SidebarNavItem[] = [
     { id: 'pages', icon: 'dashboard', label: 'Fallback', active: activeTab === 'pages', onClick: () => setTabAndRoute('pages') },
     { id: 'tools', icon: 'build', label: 'Tools', active: activeTab === 'tools', onClick: () => setTabAndRoute('tools') },
-    { id: 'services', icon: 'widgets', label: 'Services', active: activeTab === 'services', onClick: () => setTabAndRoute('services') },
+    { id: 'services', icon: 'hub', label: 'Services', active: activeTab === 'services', onClick: () => setTabAndRoute('services') },
     { id: 'variables', icon: 'tune', label: 'Variables', active: activeTab === 'variables', onClick: () => setTabAndRoute('variables') },
     { id: 'global-settings', icon: 'settings', label: 'Global', active: activeTab === 'global-settings', onClick: () => setTabAndRoute('global-settings') },
     { id: 'user-settings', icon: 'person', label: 'User', active: activeTab === 'user-settings', onClick: () => setTabAndRoute('user-settings') },
@@ -63,7 +63,7 @@ export default function USystemSurface() {
   const toolbarTabs: ToolbarTab[] = [
     { id: 'pages', icon: 'dashboard', label: 'Fallback', active: activeTab === 'pages', onClick: () => setTabAndRoute('pages') },
     { id: 'tools', icon: 'build', label: 'Tools', active: activeTab === 'tools', onClick: () => setTabAndRoute('tools') },
-    { id: 'services', icon: 'widgets', label: 'Services', active: activeTab === 'services', onClick: () => setTabAndRoute('services') },
+    { id: 'services', icon: 'hub', label: 'Services', active: activeTab === 'services', onClick: () => setTabAndRoute('services') },
     { id: 'variables', icon: 'tune', label: 'Variables', active: activeTab === 'variables', onClick: () => setTabAndRoute('variables') },
     { id: 'global-settings', icon: 'settings', label: 'Global', active: activeTab === 'global-settings', onClick: () => setTabAndRoute('global-settings') },
     { id: 'user-settings', icon: 'person', label: 'User', active: activeTab === 'user-settings', onClick: () => setTabAndRoute('user-settings') },
