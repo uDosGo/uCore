@@ -5,7 +5,8 @@ from app.services.container_manager import ContainerManager
 class ContainerStop(BaseSkill):
     meta = SkillMeta(id="container_stop", name="Stop Container",
         description="Stop a container by ID", category="containers", timeout=30,
-        params=[SkillParam(name="container_id", type="string", required=True)])
+        params=[SkillParam(name="container_id", type="string", required=True)],
+        requires_confirmation=True)
     async def run(self, **kwargs) -> dict:
         mgr = ContainerManager()
         cid = kwargs["container_id"]

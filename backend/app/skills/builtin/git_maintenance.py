@@ -364,6 +364,7 @@ class GitMaintenance(BaseSkill):
                        default=False,
                        description="Abort in-progress rebase/merge/cherry-pick"),
         ],
+        requires_confirmation=True,
     )
 
     async def run(self, **kwargs) -> dict:

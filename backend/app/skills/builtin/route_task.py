@@ -70,6 +70,7 @@ class RouteTask(BaseSkill):
                 description="Execute the task immediately (vs advice-only)",
             ),
         ],
+        requires_confirmation=True,
     )
 
     def _estimate_complexity(self, task: str) -> str:
@@ -236,6 +237,9 @@ class RouteTask(BaseSkill):
         if context_size not in valid_context:
             context_size = "small"
 
+        # Record detected/normalized complexity for observability/tests
+        detected_complexity = complexity
+
         # Check budget (if execute requested)
         budget_remaining = 100.0
         try:
@@ -259,6 +263,7 @@ class RouteTask(BaseSkill):
             "task": task[:100] + ("..." if len(task) > 100 else ""),
             "analysis": {
                 "complexity": complexity,
+                "detected_complexity": detected_complexity,
                 "context_size": context_size,
                 "risk_level": risk_level,
                 "task_length": len(task),
@@ -269,6 +274,18 @@ class RouteTask(BaseSkill):
                 "budget_remaining": budget_remaining,
             },
         }
+
+        # Strategy breakdown for multi-tier routing (used by tests)
+        def _build_strategy(detected: str) -> dict:
+            if detected == "simple":
+                tiers = {"simple": 0.8, "medium": 0.15, "complex": 0.05}
+            elif detected == "medium":
+                tiers = {"simple": 0.2, "medium": 0.7, "complex": 0.1}
+            else:
+                tiers = {"simple": 0.1, "medium": 0.2, "complex": 0.7}
+            return {"tier_allocations": tiers, "notes": f"Strategy for {detected} tasks"}
+
+        result["strategy"] = _build_strategy(detected_complexity)
 
         # Execute if requested
         if execute:

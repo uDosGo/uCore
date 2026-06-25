@@ -45,6 +45,7 @@ class ClipboardMaintenance(BaseSkill):
                 default=DEFAULT_MAX_DAYS,
             ),
         ],
+        requires_confirmation=True,
     )
 
     async def run(self, **kwargs) -> dict:

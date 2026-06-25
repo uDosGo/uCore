@@ -7,7 +7,8 @@ class SurfaceRestart(BaseSkill):
     meta = SkillMeta(id="surface_restart", name="Restart Surface",
         description="Stop then start a surface by ID",
         category="surfaces", timeout=30,
-        params=[SkillParam(name="surface_id", type="string", required=True)])
+        params=[SkillParam(name="surface_id", type="string", required=True)],
+        requires_confirmation=True)
     async def run(self, **kwargs) -> dict:
         mgr = SurfaceManager()
         sid = kwargs["surface_id"]

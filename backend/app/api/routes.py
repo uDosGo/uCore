@@ -188,6 +188,10 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/models", handle_models)
     app.router.add_post("/api/skills/{skill_id}/run", handle_run_skill)
     app.router.add_post("/api/skills/run", handle_run_named_skill)
+    # Health and skill state endpoints
+    from .skills import handle_skill_state, handle_health
+    app.router.add_get("/api/skills/state", handle_skill_state)
+    app.router.add_get("/api/health", handle_health)
     register_surface_routes(app)
     register_snack_routes(app)
     register_container_routes(app)

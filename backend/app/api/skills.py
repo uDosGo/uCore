@@ -17,6 +17,8 @@ log = logging.getLogger("ucore.skills")
 
 # Default skill paths — try Python registry first, then filesystem
 from app.skills.registry import get_skill, run_skill_by_id
+from app.skills.state import read_state
+from app.services.health import get_health_summary
 
 SKILL_PATHS = [
     Path(__file__).parent.parent / "skills" / "builtin",  # backend/app/skills/builtin/
@@ -74,6 +76,22 @@ async def _run_skill_by_id(
                     kwargs.setdefault(k, v)
         else:
             kwargs = body
+        # Enforce confirmation for skills that require explicit user approval
+        requires_confirm = getattr(skill.meta, "requires_confirmation", False) or skill.meta.category in ("mutating", "destructive", "write")
+        # Confirmation can be provided via JSON body {"confirm": true} or header X-User-Confirm: true
+        confirmed = False
+        if isinstance(body, dict) and body.get("confirm") is True:
+            confirmed = True
+        elif request.headers.get("X-User-Confirm", "").lower() == "true":
+            confirmed = True
+
+        if requires_confirm and not confirmed:
+            return web.json_response({
+                "error": "Skill requires explicit confirmation. Re-submit with {\"confirm\": true} in the body or header 'X-User-Confirm: true'.",
+                "skill_id": skill_id,
+                "requires_confirmation": True,
+            }, status=403)
+
         result = await skill.run(**kwargs)
         return web.json_response(result)
 
@@ -172,3 +190,20 @@ async def handle_list_skills(request: web.Request) -> web.Response:
     from app.skills.registry import list_skills as ls
     skills = ls()
     return web.json_response({"skills": skills, "count": len(skills)})
+
+
+async def handle_skill_state(request: web.Request) -> web.Response:
+    """GET /api/skills/state — return persisted skill run state."""
+    try:
+        state = read_state()
+        return web.json_response({"state": state})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+async def handle_health(request: web.Request) -> web.Response:
+    try:
+        summary = get_health_summary()
+        return web.json_response({"health": summary})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)

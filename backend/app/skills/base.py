@@ -10,6 +10,7 @@ class SkillMeta(BaseModel):
     id: str; name: str; description: str = ""
     category: str = "general"; params: list[SkillParam] = []
     timeout: int = 60
+    requires_confirmation: bool = False
 
 class BaseSkill:
     meta: SkillMeta

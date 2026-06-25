@@ -76,6 +76,7 @@ class EpisodicLog(BaseSkill):
                 ),
             ),
         ],
+        requires_confirmation=True,
     )
 
     async def run(self, **kwargs) -> dict:

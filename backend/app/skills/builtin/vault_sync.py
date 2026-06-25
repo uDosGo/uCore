@@ -48,6 +48,7 @@ class VaultSync(BaseSkill):
                 description="Print condensed action counts",
             ),
         ],
+        requires_confirmation=True,
     )
 
     async def run(self, **kwargs) -> dict:

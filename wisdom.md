@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-06-25T02:05:02Z
+Date: 2026-06-25T22:20:00Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -14,6 +14,10 @@ Status: Refreshed by brain_sync
 - **Playwright Python/JS API is standardized**: Whether connecting to Zen, Lightpanda CDP, or headless Firefox, same Playwright code works. Switch backend, keep same interface.
 - **UI Refinement = Multiple Tabs + Shared Components**: S320 tabbed interface reduces cognitive load. TaskDetailDrawer reusable across surfaces. Progressive disclosure pattern works well.
 - **Consolidation Dashboard mirrors progress**: Checkbox-based checklist + metric tracking builds confidence. Visual progress bars (coverage %) are more compelling than raw numbers.
+- **⛔ Prevent skill loops with convergence guards**: USX surface rebuild skills that run audit→repair→re-audit cycles MUST have a `max_iterations` guard (default 3) and a surface-level cooldown tracker (5 min TTL). Without this, orchestration agents can infinite-loop on surfaces that never converge to zero issues. `skill_surface_rebuild` has this guard; add it to any new multi-step pipeline skill.
+- **Popcorn polling interval matters**: The popcorn tray app polled Ollama every 5 seconds, generating 500 spool entries/day. Raised to 30 seconds. Keep daemon polling intervals ≥30s unless latency-critical. Use `NSTimer` or `threading.Timer` with cooldown, not raw loops.
+- **launchd KeepAlive traps**: `com.udos.ucore-popcorn.plist` had `KeepAlive <true/>` — killing the process just spawned another immediately. Use `launchctl bootout` to stop, not just `kill`. Distinguish between "stop for debugging" and "disable until reboot."
+- **`except` nesting bug in snackbar_menu.py**: A `release_lock()` function had a bare `except` nested inside `try:` at the wrong indentation level, causing `SyntaxError: invalid syntax` on line 1122. Always run `flake8` or `py_compile` on changed files; this error only surfaced in `stderr.log` after launchd restart.
 
 ## Recent Change Scan
 - frontend/src/styles/usx/usx-typography-prose.css

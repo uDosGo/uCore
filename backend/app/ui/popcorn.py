@@ -42,7 +42,9 @@ from PyObjCTools import AppHelper
 
 UCORE_URL = "http://127.0.0.1:8484"
 UI_HUB_URL = "http://localhost:5173"
-REFRESH_INTERVAL = 5.0  # seconds
+# Polling interval for Ollama status refresh
+# Was 5.0s — raised to reduce aggressive polling and log spam
+REFRESH_INTERVAL = 30.0
 UCORE_BACKEND_DIR = str(Path(__file__).resolve().parents[2])
 
 log_dir = os.path.expanduser("~/.ucore/logs")

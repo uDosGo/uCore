@@ -7,7 +7,8 @@ class ImportSurface(BaseSkill):
     meta = SkillMeta(id="import", name="Import Surface",
         description="Import a surface from JSON data",
         category="data", timeout=30,
-        params=[SkillParam(name="data", type="object", required=True, description="Surface JSON data")])
+        params=[SkillParam(name="data", type="object", required=True, description="Surface JSON data")],
+        requires_confirmation=True)
     async def run(self, **kwargs) -> dict:
         mgr = SurfaceManager()
         data = kwargs["data"]

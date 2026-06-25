@@ -41,6 +41,7 @@ class SpoolMaintenance(BaseSkill):
                 default=DEFAULT_MAX_AGE_DAYS,
             ),
         ],
+        requires_confirmation=True,
     )
 
     async def run(self, **kwargs) -> dict:

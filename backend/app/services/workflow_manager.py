@@ -105,6 +105,23 @@ class WorkflowManager:
         steps_json = json.dumps(steps)
 
         with self._connect() as conn:
+            # If the workflow already exists, return it instead of attempting
+            # a duplicate insert (keeps tests idempotent if DB pre-populated).
+            existing = conn.execute("SELECT id FROM workflows WHERE id = ?", (workflow_id,)).fetchone()
+            if existing:
+                # Return existing workflow payload
+                row = conn.execute("SELECT * FROM workflows WHERE id = ?", (workflow_id,)).fetchone()
+                steps_exist = json.loads(row["steps"] or "[]")
+                return {
+                    "id": row["id"],
+                    "name": row["name"],
+                    "description": row["description"],
+                    "schedule": row["schedule"],
+                    "created_at": row["created_at"],
+                    "steps": steps_exist,
+                    "step_count": len(steps_exist),
+                }
+
             conn.execute(
                 """
                 INSERT INTO workflows
@@ -268,6 +285,20 @@ class WorkflowManager:
         steps_json = json.dumps(steps)
 
         with self._connect() as conn:
+            # Avoid duplicate run_id insertion: if present, return existing run
+            existing = conn.execute("SELECT run_id FROM workflow_runs WHERE run_id = ?", (run_id,)).fetchone()
+            if existing:
+                row = conn.execute("SELECT * FROM workflow_runs WHERE run_id = ?", (run_id,)).fetchone()
+                return {
+                    "run_id": row["run_id"],
+                    "workflow_id": row["workflow_id"],
+                    "workflow_name": row["workflow_name"],
+                    "started_at": row["started_at"],
+                    "finished_at": row["finished_at"],
+                    "status": row["status"],
+                    "steps": json.loads(row["steps"] or "[]"),
+                }
+
             conn.execute(
                 """
                 INSERT INTO workflow_runs

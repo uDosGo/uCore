@@ -9,7 +9,8 @@ class BackupData(BaseSkill):
     meta = SkillMeta(id="backup", name="Backup Data",
         description="Backup uCore database, config, secrets, wisdom.md, and user data",
         category="maintenance", timeout=120,
-        params=[SkillParam(name="destination", type="string", default="~/.ucore/backups")])
+        params=[SkillParam(name="destination", type="string", default="~/.ucore/backups")],
+        requires_confirmation=True)
     async def run(self, **kwargs) -> dict:
         dest = Path(kwargs.get("destination", "~/.ucore/backups")).expanduser()
         dest.mkdir(parents=True, exist_ok=True)

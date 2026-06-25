@@ -6,7 +6,8 @@ class ExportSurface(BaseSkill):
     meta = SkillMeta(id="export", name="Export Surface",
         description="Export surface data as JSON",
         category="data", timeout=30,
-        params=[SkillParam(name="surface_id", type="string", required=True)])
+        params=[SkillParam(name="surface_id", type="string", required=True)],
+        requires_confirmation=True)
     async def run(self, **kwargs) -> dict:
         mgr = SurfaceManager()
         sid = kwargs["surface_id"]

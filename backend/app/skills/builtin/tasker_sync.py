@@ -44,6 +44,7 @@ class TaskerSync(BaseSkill):
             SkillParam(name="id_field", type="string", required=False, default="id", description="Column used for stable source identifier"),
             SkillParam(name="dry_run", type="boolean", required=False, default=False, description="Preview exports without writing files"),
         ],
+        requires_confirmation=True,
     )
 
     async def run(self, **kwargs) -> dict:

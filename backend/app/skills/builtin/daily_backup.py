@@ -39,6 +39,7 @@ class DailyBackup(BaseSkill):
                 description="Backup type: full, database, config, secrets",
             ),
         ],
+        requires_confirmation=True,
     )
 
     async def run(self, **kwargs) -> dict:

@@ -86,55 +86,55 @@ export default function USystemSurface() {
         />
         <main className="usx-surface-main">
           {activeTab === 'pages' && !inlineSPage && (
-            <div className="workflow-panel">
-              <div className="workflow-panel-header">
+            <div className="system-panel">
+              <div className="system-panel-header">
                 <h3><Icon name="dashboard" size={16} /> System Pages</h3>
-                <span className="workflow-panel-count">S100-S899</span>
+                <span className="system-panel-count">S100-S899</span>
               </div>
               <SystemPagesBrowser />
             </div>
           )}
           {activeTab === 'tools' && !inlineSPage && (
-            <div className="workflow-panel">
-              <div className="workflow-panel-header">
+            <div className="system-panel">
+              <div className="system-panel-header">
                 <h3><Icon name="build" size={16} /> System Tools</h3>
-                <span className="workflow-panel-count">S-Page Tools</span>
+                <span className="system-panel-count">S-Page Tools</span>
               </div>
               <SPageToolsPanel />
             </div>
           )}
           {activeTab === 'services' && (
-            <div className="workflow-panel">
-              <div className="workflow-panel-header">
+            <div className="system-panel">
+              <div className="system-panel-header">
                 <h3><Icon name="hub" size={16} /> System Services</h3>
-                <span className="workflow-panel-count">Non-S-page</span>
+                <span className="system-panel-count">Non-S-page</span>
               </div>
               <ServicesPanel />
             </div>
           )}
           {activeTab === 'variables' && (
-            <div className="workflow-panel">
-              <div className="workflow-panel-header">
+            <div className="system-panel">
+              <div className="system-panel-header">
                 <h3><Icon name="tune" size={16} /> Variable Store</h3>
-                <span className="workflow-panel-count">$Variables</span>
+                <span className="system-panel-count">$Variables</span>
               </div>
               <VariablesPanel />
             </div>
           )}
           {activeTab === 'global-settings' && (
-            <div className="workflow-panel">
-              <div className="workflow-panel-header">
+            <div className="system-panel">
+              <div className="system-panel-header">
                 <h3><Icon name="settings" size={16} /> Global Settings</h3>
-                <span className="workflow-panel-count">System-wide</span>
+                <span className="system-panel-count">System-wide</span>
               </div>
               <GlobalSettingsPanel />
             </div>
           )}
           {activeTab === 'user-settings' && (
-            <div className="workflow-panel">
-              <div className="workflow-panel-header">
+            <div className="system-panel">
+              <div className="system-panel-header">
                 <h3><Icon name="person" size={16} /> User Settings</h3>
-                <span className="workflow-panel-count">Per-user</span>
+                <span className="system-panel-count">Per-user</span>
               </div>
               <UserSettingsPanel />
             </div>
@@ -142,7 +142,7 @@ export default function USystemSurface() {
 
           {/* Render S-page tool inline when ?page= is set */}
           {inlineSPage && (
-            <div className="workflow-panel" style={{ flex: 1, overflow: 'auto' }}>
+            <div className="system-panel" style={{ flex: 1, overflow: 'auto' }}>
               {inlineSPage}
             </div>
           )}

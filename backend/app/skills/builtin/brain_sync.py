@@ -97,6 +97,7 @@ class BrainSync(BaseSkill):
                 ),
             ),
         ],
+        requires_confirmation=True,
     )
 
     async def run(self, **kwargs) -> dict:

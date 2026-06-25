@@ -26,24 +26,53 @@ import urllib.request
 import urllib.error
 import urllib.parse
 
-import objc
-from Foundation import NSObject, NSRunLoop, NSDate, NSURL, NSIndexSet
-from AppKit import (
-    NSApplication, NSStatusBar, NSVariableStatusItemLength,
-    NSMenu, NSMenuItem, NSImage, NSFont, NSColor, NSWorkspace,
-    NSAlert, NSApp, NSTextField, NSSearchField, NSScrollView,
-    NSTableView, NSTableColumn, NSPanel, NSButton, NSBackingStoreBuffered,
-    NSWindowStyleMaskTitled, NSWindowStyleMaskClosable,
-    NSWindowStyleMaskUtilityWindow, NSFloatingWindowLevel,
-    NSEvent, NSEventMaskKeyDown, NSEventModifierFlagCommand,
-)
-from PyObjCTools import AppHelper
+try:
+    import objc
+    from Foundation import NSObject, NSRunLoop, NSDate, NSURL, NSIndexSet
+    from AppKit import (
+        NSApplication,
+        NSStatusBar,
+        NSVariableStatusItemLength,
+        NSMenu,
+        NSMenuItem,
+        NSImage,
+        NSFont,
+        NSColor,
+        NSWorkspace,
+        NSAlert,
+        NSApp,
+        NSTextField,
+        NSSearchField,
+        NSScrollView,
+        NSTableView,
+        NSTableColumn,
+        NSPanel,
+        NSButton,
+        NSBackingStoreBuffered,
+        NSWindowStyleMaskTitled,
+        NSWindowStyleMaskClosable,
+        NSWindowStyleMaskUtilityWindow,
+        NSFloatingWindowLevel,
+        NSEvent,
+        NSEventMaskKeyDown,
+        NSEventModifierFlagCommand,
+    )
+    from PyObjCTools import AppHelper
+    _MAC = True
+except Exception:
+    # macOS-specific imports are optional — allow running in non-mac CI/environments.
+    _MAC = False
+    class _Dummy:
+        pass
+
+    # Provide harmless placeholders to avoid NameError when importing on non-mac hosts.
+    NSApplication = NSStatusBar = NSVariableStatusItemLength = NSMenu = NSMenuItem = NSImage = NSFont = NSColor = NSWorkspace = NSAlert = NSApp = NSTextField = NSSearchField = NSScrollView = NSTableView = NSTableColumn = NSPanel = NSButton = NSBackingStoreBuffered = NSWindowStyleMaskTitled = NSWindowStyleMaskClosable = NSWindowStyleMaskUtilityWindow = NSFloatingWindowLevel = NSEvent = NSEventMaskKeyDown = NSEventModifierFlagCommand = _Dummy
 
 # ─── Config ───────────────────────────────────────────────────────────
 
 UCORE_URL = "http://127.0.0.1:8484"
 UI_HUB_URL = "http://localhost:5173"
-REFRESH_INTERVAL = 5.0  # seconds
+REFRESH_INTERVAL = 30.0  # seconds
 
 UCORE_LABEL = "com.udos.ucore-server"
 LEGACY_LABEL = "com.udos.snackbar-server"
@@ -54,7 +83,12 @@ CLIPBOARD_SHORTCUT = os.environ.get(
     "UCORE_CLIPBOARD_SHORTCUT", "ctrl+cmd+v"
 ).lower().strip()
 UCORE_PLIST = os.path.expanduser("~/Library/LaunchAgents/com.udos.ucore-server.plist")
-UCORE_BACKEND_DIR = f"{settings.udos_root}/uCore/backend"
+try:
+    from app.core.settings import settings
+    UCORE_BACKEND_DIR = f"{settings.udos_root}/uCore/backend"
+except Exception:
+    # Fallback for import-time checks and non-standard environments
+    UCORE_BACKEND_DIR = os.path.expanduser("~/Code/uCore/backend")
 
 log_dir = os.path.expanduser("~/.ucore/logs")
 os.makedirs(log_dir, exist_ok=True)
@@ -820,7 +854,7 @@ class SnackbarMenuDelegate(NSObject):
             return None
         return self._clipboard_panel_items[row]
 
-    def focusClipboardTable_(self):
+    def focusClipboardTable_(self, sender=None):
         """Move keyboard focus from search field to the clipboard results table."""
         if self._clipboard_panel is None or self._clipboard_table is None:
             return
@@ -1119,8 +1153,6 @@ def release_lock():
             if stored_pid == os.getpid():
                 os.remove(LOCKFILE)
                 log.info("Lockfile released")
-        except (OSError, ValueError):
-            pass
     except (ValueError, OSError):
         pass
 
