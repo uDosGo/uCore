@@ -15,14 +15,18 @@ Orchestrates complete USX standardization on any surface:
 Enables one-command surface migration: run({'surface': 'developer.css'})
 """
 from __future__ import annotations
+
 import time
 from pathlib import Path
+
 from app.skills.state import update_skill_state
 
 SKILLS_DIR = Path(__file__).parent
 
-# Convergence guard — track surface rebuild attempts to prevent loops
-_CONVERGENCE_TRACKER: dict[str, int] = {}
+# Convergence guard — track surface rebuild attempts and timestamps to
+# prevent loops
+# Structure: {surface_name: {"attempts": int, "last_run_ts": int}}
+_CONVERGENCE_TRACKER: dict[str, dict] = {}
 _MAX_ITERATIONS = 3
 _COOLDOWN_SECONDS = 300  # 5 min cooldown before retry counter resets
 
@@ -47,6 +51,7 @@ def run(
     Returns
     -------
     dict with success/action/dry_run/results and a ``converged`` flag.
+
     """
     if not surface:
         return {
@@ -59,9 +64,9 @@ def run(
 
     # ── Convergence guard ───────────────────────────────────────
     now = time.time()
-    # Prune stale entries
+    # Prune stale entries (based on last_run_ts, not attempt count)
     stale = [k for k, v in _CONVERGENCE_TRACKER.items()
-             if now - v > _COOLDOWN_SECONDS]
+             if now - v.get("last_run_ts", 0) > _COOLDOWN_SECONDS]
     for k in stale:
         del _CONVERGENCE_TRACKER[k]
 
@@ -70,7 +75,10 @@ def run(
         else _MAX_ITERATIONS
     )
     if max_iter > 0:
-        prev = _CONVERGENCE_TRACKER.get(surface, 0)
+        prev_data = _CONVERGENCE_TRACKER.get(
+            surface, {"attempts": 0, "last_run_ts": 0}
+        )
+        prev = prev_data["attempts"]
         if prev >= max_iter:
             return {
                 "success": False,
@@ -80,10 +88,20 @@ def run(
                     f"Run with max_iterations=0 to override."
                 ),
             }
-        _CONVERGENCE_TRACKER[surface] = prev + 1
-        # Persist attempt count for observability
+        # Increment attempt count and update timestamp
+        _CONVERGENCE_TRACKER[surface] = {
+            "attempts": prev + 1,
+            "last_run_ts": int(now)
+        }
+        # Persist attempt count and timestamp for observability
         try:
-            update_skill_state(f"surface_rebuild:{surface}", {"attempts": _CONVERGENCE_TRACKER[surface], "last_run_ts": int(now)})
+            update_skill_state(
+                f"surface_rebuild:{surface}",
+                {
+                    "attempts": _CONVERGENCE_TRACKER[surface]["attempts"],
+                    "last_run_ts": _CONVERGENCE_TRACKER[surface]["last_run_ts"]
+                }
+            )
         except Exception:
             pass
 
@@ -150,21 +168,28 @@ def run(
         results["ready_for_deployment"] = True
         results["converged"] = True
         results["recommendations"].append(
-            f"Surface '{surface}' is USX-standardized and ready for deployment"
+            f"Surface '{surface}' is USX-standardized and "
+            "ready for deployment",
         )
         # All steps passed — reset convergence counter so fresh runs work later
         _CONVERGENCE_TRACKER.pop(surface, None)
         # Persist success/convergence state
         try:
-            update_skill_state(f"surface_rebuild:{surface}", {"converged": True, "last_result": results})
+            update_skill_state(
+                f"surface_rebuild:{surface}",
+                {"converged": True, "last_result": results}
+            )
         except Exception:
             pass
     else:
         results["recommendations"].append(
-            "Address issues before deployment"
+            "Address issues before deployment",
         )
         try:
-            update_skill_state(f"surface_rebuild:{surface}", {"converged": False, "last_result": results})
+            update_skill_state(
+                f"surface_rebuild:{surface}",
+                {"converged": False, "last_result": results}
+            )
         except Exception:
             pass
 
