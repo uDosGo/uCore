@@ -71,6 +71,16 @@ def register_routes(app: web.Application) -> None:
         handle_mcp_call,
         handle_mcp_discover,
     )
+    from .toon import (
+        handle_toon_encode,
+        handle_toon_stats,
+        handle_toon_clear,
+    )
+    from .flow_router import (
+        handle_flow_router_route,
+        handle_flow_router_analytics,
+        handle_flow_router_history,
+    )
     from .metadata import (
         maintenance_status_handler,
         system_info_handler,
@@ -144,6 +154,16 @@ def register_routes(app: web.Application) -> None:
     # MCP Integration
     app.router.add_get("/api/mcp/tools", handle_mcp_discover)
     app.router.add_post("/api/mcp/call", handle_mcp_call)
+
+    # TOON Context Optimization
+    app.router.add_post("/api/toon/encode", handle_toon_encode)
+    app.router.add_get("/api/toon/stats", handle_toon_stats)
+    app.router.add_post("/api/toon/clear", handle_toon_clear)
+
+    # Flow-LLM Router
+    app.router.add_post("/api/flow-router/route", handle_flow_router_route)
+    app.router.add_get("/api/flow-router/analytics", handle_flow_router_analytics)
+    app.router.add_get("/api/flow-router/history", handle_flow_router_history)
 
     # Secret Store
     app.router.add_get("/api/secrets", handle_list_secrets)

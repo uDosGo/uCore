@@ -19,7 +19,7 @@
 
 ### 1. ✅ USX Styles - Inconsistent Overrides (FIXED)
 
-**Resolution**: Replaced all hardcoded rgba() colors with `color-mix(in srgb, var(-pico-primary) X%, transparent)` pattern.
+**Resolution**: Replaced all hardcoded rgba() colors with `color-mix(in srgb, var(--pico-primary) X%, transparent)` pattern.
 
 **Files Fixed**:
 - `frontend/src/surfaces/developer/usx-settings.css`

@@ -25,7 +25,7 @@ import { SurfacesPanel } from './SurfacesPanel'
 import TypographySettingsPanel from './TypographySettingsPanel'
 import { USXSettingsPanel } from './USXSettingsPanel'
 import { GridCoreSettingsPanel } from './GridCoreSettingsPanel'
-import uSystemSettingsPanel from './uSystemSettingsPanel'
+import USystemSettingsPanel from './uSystemSettingsPanel'
 
 // ─── Types ──────────────────────────────────────────────────────────
 type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings' | 'gridsmith' | 'skills' | 'usx' | 'usx-settings' | 'gridcore-settings' | 'usystem-settings' | 'rules' | 'surfaces'
@@ -1175,7 +1175,7 @@ export default function DeveloperSurface() {
         {activeTab === 'usx' && <USXDefaultsPanel />}
         {activeTab === 'usx-settings' && <USXSettingsPanel />}
         {activeTab === 'gridcore-settings' && <GridCoreSettingsPanel />}
-        {activeTab === 'usystem-settings' && <uSystemSettingsPanel />}
+        {activeTab === 'usystem-settings' && <USystemSettingsPanel />}
         {activeTab === 'surfaces' && <SurfacesPanel />}
         {activeTab === 'kanban' && <KanbanSurface />}
         {activeTab === 'gridsmith' && <GridSmithTab />}

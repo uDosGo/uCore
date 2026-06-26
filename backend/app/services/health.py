@@ -6,6 +6,22 @@ from pathlib import Path
 from app.skills.state import read_state
 
 
+def _clean_and_truncate_line(line: str, max_len: int = 150) -> str:
+    """Truncate the line to a safe length and redact secret/token patterns."""
+    # Simple redaction for common authorization/token values if any
+    import re
+    # Match strings resembling bearer tokens, api keys, password/secret strings
+    # Redact Authorization header or passwords or any other standard credential strings
+    redacted = re.sub(
+        r'(?i)(token|bearer|auth|authorization|api_key|password|secret|key)\s*[:= ]\s*["\']?[a-zA-Z0-9_\.\-]{8,150}["\']?',
+        r'\1: "[REDACTED]"',
+        line
+    )
+    if len(redacted) > max_len:
+        return redacted[:max_len] + "..."
+    return redacted
+
+
 def _tail_lines(path: Path, max_lines: int = 200) -> list[str]:
     try:
         with open(path, encoding="utf-8", errors="replace") as f:
@@ -30,7 +46,8 @@ def recent_errors_from_logs(log_dir: Path | None = None, max_entries: int = 50) 
             # collect lines that look like errors
             for ln in reversed(lines):
                 if "ERROR" in ln or "Exception" in ln or "Traceback" in ln or "CRITICAL" in ln:
-                    out.append({"file": path.name, "line": ln})
+                    cleaned = _clean_and_truncate_line(ln)
+                    out.append({"file": path.name, "line": cleaned})
                     if len(out) >= max_entries:
                         return out
     return out

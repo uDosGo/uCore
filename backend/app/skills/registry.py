@@ -44,7 +44,22 @@ def list_skills() -> list[dict]:
     _ensure()
     return [{"id": s.meta.id, "name": s.meta.name, "description": s.meta.description,
              "category": s.meta.category, "timeout": s.meta.timeout,
-             "requires_confirmation": getattr(s.meta, "requires_confirmation", False)} for s in _registry.values()]
+             "requires_confirmation": getattr(s.meta, "requires_confirmation", False),
+             "category_priority": _get_category_priority(s.meta.category)} for s in _registry.values()]
+
+
+def _get_category_priority(category: str) -> int:
+    """Return priority for sorting categories in UI."""
+    priorities = {
+        "system": 1,
+        "mutating": 2,
+        "destructive": 3,
+        "maintenance": 4,
+        "surfaces": 5,
+        "containers": 6,
+        "general": 7,
+    }
+    return priorities.get(category, 7)
 
 def get_skill(skill_id: str) -> BaseSkill | None:
     _ensure(); return _registry.get(skill_id)

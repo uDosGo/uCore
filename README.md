@@ -35,10 +35,49 @@ VS Code (Cline) → MCP Bridge → uCore (port 8484)
   ├── Knowledge — AppFlowy SQLite + vector DB bridge
   ├── Secrets — AES-256-GCM encrypted store
   ├── Chat — AI providers via OpenRouter/Ollama/Gemini
-  └── Surfaces — AssistUI, GridUI, BrowserUI, System, UServer
+  ├── Surfaces — AssistUI, GridUI, BrowserUI, System, UServer
+  ├── TOON Context Optimization — Token-optimized context encoding (30-60% token savings)
+  └── Flow-LLM Router — Cost-optimized routing with analytics and visualization
 
 → Roundtable MCP → parallel Claude/Gemini/OpenRouter execution
 ```
+
+## Optimized Workflow Features ✅
+
+uCore now includes advanced optimization features to reduce token waste and improve cost efficiency:
+
+### 🎯 TOON Context Optimization ✅
+- Converts structured data (JSON, CSV, Markdown) to TOON format for 30-60% token efficiency
+
+### 🛡️ System Workflow Management ✅
+- `workflow_guard`: Enforce workflow safety policies and prevent dangerous automation loops
+- `workflow_audit`: Audit workflow execution history and detect potential loops or anomalies
+- `workflow_pause`: Pause or resume workflow execution to prevent runaway automation
+- Caches and compresses API responses, file contents, and build outputs
+- Available via MCP tools: `toon_encode`, `toon_stats`, `toon_clear`
+- REST API: `/api/toon/encode`, `/api/toon/stats`, `/api/toon/clear`
+- Configuration: `config/toon.example.yaml`
+
+### 🧠 Flow-LLM Router ✅
+- Smart, cost-optimized routing to the best model for each task
+- Detailed analytics showing cost savings, token savings, and latency improvements
+- Visualizable routing history for debugging and optimization
+- Available via MCP tools: `flow_router_route`, `flow_router_analytics`, `flow_router_history`
+- REST API: `/api/flow-router/route`, `/api/flow-router/analytics`, `/api/flow-router/history`
+- Configuration: `config/flow-router.example.yaml`
+
+### 🎮 Developer Surface Integration ✅
+- Cline Kanban UI shows real-time routing decisions, model selection, and cost savings
+- Visual feedback for each agent run with estimated cost and token usage
+- Automatic review and PR creation with context-aware feedback
+- Analytics dashboard for monitoring cost savings and token efficiency
+
+## Quick Start
+
+1. Start uCore backend: `cd backend && python3 -m app`
+2. Start frontend: `cd frontend && npm run dev`
+3. Run quick start script: `scripts/start_optimized_workflow.sh`
+4. Access Cline Kanban UI at `http://localhost:5173`
 
 ## Documentation
 

@@ -8,6 +8,9 @@ Date: 2026-06-21
 - MCP integration to uCore bridge (`~/.continue/mcp-udos.py`)
 - Preflight checks for Cline + MCP + local Kanban flow
 - Baseline rules aligned with Markdown-first `.tasker/` workflow
+- TOON Context Optimization — Token-optimized context encoding (30-60% token savings)
+- Flow-LLM Router — Cost-optimized routing with analytics and visualization
+- Token Optimizer MCP — Cache and compress API responses and file contents
 
 ## 1) Reset Cline settings
 

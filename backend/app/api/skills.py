@@ -18,7 +18,7 @@ log = logging.getLogger("ucore.skills")
 
 # Default skill paths — try Python registry first, then filesystem
 from app.services.health import get_health_summary
-from app.skills.registry import get_skill
+from app.skills.registry import get_skill, list_skills
 from app.skills.state import read_state
 
 SKILL_PATHS = [
@@ -188,6 +188,8 @@ async def handle_list_skills(request: web.Request) -> web.Response:
     """GET /api/skills — list all available skills."""
     from app.skills.registry import list_skills as ls
     skills = ls()
+    # Sort by category priority, then by name
+    skills.sort(key=lambda s: (s.get("category_priority", 7), s.get("name", "")))
     return web.json_response({"skills": skills, "count": len(skills)})
 
 

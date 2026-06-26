@@ -37,7 +37,7 @@ uCore/
 └── CONTEXT.md                      # This file
 ```
 
-## 3. Available Skills (15 total)
+## 3. Available Skills (18 total)
 
 | Skill | ID | What It Does | Cost |
 |-------|-----|-------------|------|
@@ -56,6 +56,9 @@ uCore/
 | **Vault Sync** | `vault_sync` | Run AppFlowy/Vault bidirectional markdown sync | — |
 | **Route Task** | `route_task` | Route tasks to optimal AI provider | — |
 | **Daily Backup** | `daily_backup` | Scheduled backup (config/database/secrets) | — |
+| **Workflow Guard** | `workflow_guard` | Enforce workflow safety policies and prevent dangerous automation loops | — |
+| **Workflow Audit** | `workflow_audit` | Audit workflow execution history and detect potential loops or anomalies | — |
+| **Workflow Pause** | `workflow_pause` | Pause or resume workflow execution to prevent runaway automation | — |
 
 ## 3A. Memory Architecture
 

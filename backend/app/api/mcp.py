@@ -320,6 +320,105 @@ async def handle_mcp_discover(request: web.Request) -> web.Response:
         },
     })
 
+    # TOON Context Optimization Tools
+    tools.append({
+        "name": "toon_encode",
+        "description": "Convert content to TOON format for token optimization",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "description": "Content to convert to TOON format",
+                },
+                "content_type": {
+                    "type": "string",
+                    "description": "Content type: text, json, markdown, csv",
+                    "default": "text",
+                },
+            },
+            "required": ["content"],
+        },
+    })
+    tools.append({
+        "name": "toon_stats",
+        "description": "Get TOON context server statistics",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+        },
+    })
+    tools.append({
+        "name": "toon_clear",
+        "description": "Clear TOON context cache",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+        },
+    })
+
+    # Flow-LLM Router Tools
+    tools.append({
+        "name": "flow_router_route",
+        "description": "Route a task to optimal provider/model with cost analytics",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "task": {
+                    "type": "string",
+                    "description": "Task description to route",
+                },
+                "complexity": {
+                    "type": "string",
+                    "description": "Complexity: auto, simple, medium, complex",
+                    "default": "auto",
+                },
+                "context_size": {
+                    "type": "string",
+                    "description": "Context size: small, medium, large",
+                    "default": "small",
+                },
+                "risk_level": {
+                    "type": "string",
+                    "description": "Risk level: low, medium, high",
+                    "default": "low",
+                },
+                "task_id": {
+                    "type": "string",
+                    "description": "Optional task ID for tracking",
+                },
+                "budget_remaining": {
+                    "type": "number",
+                    "description": "Remaining budget for this month",
+                    "default": 100.0,
+                },
+            },
+            "required": ["task"],
+        },
+    })
+    tools.append({
+        "name": "flow_router_analytics",
+        "description": "Get routing analytics and cost savings",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+        },
+    })
+    tools.append({
+        "name": "flow_router_history",
+        "description": "Get recent routing history",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "number",
+                    "description": "Maximum number of history entries to return",
+                    "default": 100,
+                },
+            },
+        },
+    })
+
     return web.json_response({
         "jsonrpc": "2.0",
         "result": {
@@ -765,6 +864,195 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "id": body.get("id"),
         })
 
+    if tool_name == "toon_encode":
+        from app.api.toon import handle_toon_encode
+        # Convert to web.Request-like object for the handler
+        
+        # Create a mock request with the body
+        class MockRequest:
+            def __init__(self, body):
+                self._body = body
+            
+            async def json(self):
+                return self._body
+        
+        mock_request = MockRequest(arguments)
+        try:
+            response = await handle_toon_encode(mock_request)
+            # Extract the response content
+            response_data = await response.json()
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "result": {
+                    "content": [
+                        {"type": "text", "text": json.dumps(response_data, indent=2)},
+                    ],
+                },
+                "id": body.get("id"),
+            })
+        except Exception as e:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {"code": -32000, "message": str(e)},
+                "id": body.get("id"),
+            }, status=500)
+    
+    if tool_name == "toon_stats":
+        from app.api.toon import handle_toon_stats
+        
+        # Create a mock request
+        class MockRequest:
+            def __init__(self):
+                pass
+            
+            async def json(self):
+                return {}
+        
+        mock_request = MockRequest()
+        try:
+            response = await handle_toon_stats(mock_request)
+            response_data = await response.json()
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "result": {
+                    "content": [
+                        {"type": "text", "text": json.dumps(response_data, indent=2)},
+                    ],
+                },
+                "id": body.get("id"),
+            })
+        except Exception as e:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {"code": -32000, "message": str(e)},
+                "id": body.get("id"),
+            }, status=500)
+    
+    if tool_name == "toon_clear":
+        from app.api.toon import handle_toon_clear
+        
+        # Create a mock request
+        class MockRequest:
+            def __init__(self):
+                pass
+            
+            async def json(self):
+                return {}
+        
+        mock_request = MockRequest()
+        try:
+            response = await handle_toon_clear(mock_request)
+            response_data = await response.json()
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "result": {
+                    "content": [
+                        {"type": "text", "text": json.dumps(response_data, indent=2)},
+                    ],
+                },
+                "id": body.get("id"),
+            })
+        except Exception as e:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {"code": -32000, "message": str(e)},
+                "id": body.get("id"),
+            }, status=500)
+    
+    if tool_name == "flow_router_route":
+        from app.api.flow_router import handle_flow_router_route
+        
+        # Create a mock request with the body
+        
+        class MockRequest:
+            def __init__(self, body):
+                self._body = body
+            
+            async def json(self):
+                return self._body
+        
+        mock_request = MockRequest(arguments)
+        try:
+            response = await handle_flow_router_route(mock_request)
+            response_data = await response.json()
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "result": {
+                    "content": [
+                        {"type": "text", "text": json.dumps(response_data, indent=2)},
+                    ],
+                },
+                "id": body.get("id"),
+            })
+        except Exception as e:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {"code": -32000, "message": str(e)},
+                "id": body.get("id"),
+            }, status=500)
+    
+    if tool_name == "flow_router_analytics":
+        from app.api.flow_router import handle_flow_router_analytics
+        
+        # Create a mock request
+        class MockRequest:
+            def __init__(self):
+                pass
+            
+            async def json(self):
+                return {}
+        
+        mock_request = MockRequest()
+        try:
+            response = await handle_flow_router_analytics(mock_request)
+            response_data = await response.json()
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "result": {
+                    "content": [
+                        {"type": "text", "text": json.dumps(response_data, indent=2)},
+                    ],
+                },
+                "id": body.get("id"),
+            })
+        except Exception as e:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {"code": -32000, "message": str(e)},
+                "id": body.get("id"),
+            }, status=500)
+    
+    if tool_name == "flow_router_history":
+        from app.api.flow_router import handle_flow_router_history
+        
+        # Create a mock request
+        class MockRequest:
+            def __init__(self):
+                pass
+            
+            async def json(self):
+                return {}
+        
+        mock_request = MockRequest()
+        try:
+            response = await handle_flow_router_history(mock_request)
+            response_data = await response.json()
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "result": {
+                    "content": [
+                        {"type": "text", "text": json.dumps(response_data, indent=2)},
+                    ],
+                },
+                "id": body.get("id"),
+            })
+        except Exception as e:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {"code": -32000, "message": str(e)},
+                "id": body.get("id"),
+            }, status=500)
+    
     return web.json_response({
         "jsonrpc": "2.0",
         "error": {"code": -32601, "message": f"Tool '{tool_name}' not found"},

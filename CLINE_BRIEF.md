@@ -47,6 +47,11 @@ npm run dev
 ### 4. Phase 9B Status ✅
 The Phase 9 backend endpoints are implemented and covered by targeted tests.
 
+**Optimization Features**:
+1. `TOON Context Optimization` — Token-optimized context encoding (30-60% token savings)
+2. `Flow-LLM Router` — Cost-optimized routing with analytics and visualization
+3. `Token Optimizer MCP` — Cache and compress API responses and file contents
+
 **Knowledge/AppFlowy**:
 1. `GET /api/knowledge/local/databases` — List local DBs
 2. `POST /api/knowledge/local/query` — Execute SQL queries

@@ -19,9 +19,9 @@ LOG_DIR = Path.home() / ".ucore/logs"
 
 def plist_text() -> str:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    return f"""<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\"><dict>
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
   <key>Label</key><string>{LABEL}</string>
   <key>ProgramArguments</key>
   <array>
@@ -30,7 +30,7 @@ def plist_text() -> str:
   </array>
   <key>WorkingDirectory</key><string>{PROJECT_DIR}</string>
   <key>RunAtLoad</key><true/>
-  <key>KeepAlive</key><true/>
+  <key>KeepAlive</key><false/>
   <key>StandardOutPath</key><string>{LOG_DIR / 'ucore-menu.log'}</string>
   <key>StandardErrorPath</key><string>{LOG_DIR / 'ucore-menu.err.log'}</string>
 </dict></plist>
