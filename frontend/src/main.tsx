@@ -53,6 +53,8 @@ import './styles/usx/usx-pico-integration.css'
 import './styles/usx/usx-icon-refinement.css'
 /* Typography globals: apply font family/size overrides */
 import './styles/typography-global-apply.css'
+/* USX typography responsive system: consistent sizing across breakpoints */
+import './styles/usx/usx-typography-responsive.css'
 import './styles/hub/index.css'
 import './styles/surface-host.css'
 import './styles/global-toolbar.css'
