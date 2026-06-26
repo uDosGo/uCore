@@ -9,8 +9,8 @@ import json
 import logging
 import os
 import secrets as pysecrets
-from typing import Any, Optional
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import Any
 
 from app.core.settings import settings
 
@@ -34,8 +34,8 @@ def _derive_key(master_key: bytes) -> bytes:
     """Derive a 256-bit AES key using HKDF."""
     if len(master_key) == 32:
         return master_key
-    from cryptography.hazmat.primitives.hkdf import HKDF  # type: ignore
     from cryptography.hazmat.primitives import hashes  # type: ignore
+    from cryptography.hazmat.primitives.hkdf import HKDF  # type: ignore
     hkdf = HKDF(
         algorithm=hashes.SHA256(),
         length=32,
@@ -75,13 +75,13 @@ class SecretStore:
         action: str,
         key: str,
         actor: str = "system",
-        metadata: Optional[dict] = None,
+        metadata: dict | None = None,
     ) -> None:
         """Append a minimal audit event without persisting secret values."""
         try:
             self._audit_file.parent.mkdir(parents=True, exist_ok=True)
             event = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "action": action,
                 "key": key,
                 "actor": actor,
@@ -126,7 +126,7 @@ class SecretStore:
         if not SECRETS_FILE.exists():
             log.info("No secrets file, starting fresh")
             self._secrets = {}
-            return
+            return None
 
         try:
             data = SECRETS_FILE.read_bytes()
@@ -156,7 +156,7 @@ class SecretStore:
             return self._save_plaintext()
 
         if not self._dirty:
-            return
+            return None
 
         self._key = _get_or_create_key()
         aes_key = _derive_key(self._key)
@@ -181,9 +181,9 @@ class SecretStore:
     def get(
         self,
         key: str,
-        default: Optional[str] = None,
+        default: str | None = None,
         actor: str = "system",
-    ) -> Optional[str]:
+    ) -> str | None:
         """Get a secret by key."""
         value = self._secrets.get(key, default)
         if actor != "system":
@@ -256,7 +256,7 @@ class SecretStore:
 
 
 # Singleton
-_store: Optional[SecretStore] = None
+_store: SecretStore | None = None
 
 
 def get_store() -> SecretStore:

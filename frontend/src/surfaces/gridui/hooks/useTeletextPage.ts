@@ -196,11 +196,11 @@ export function useTeletextPage(options: UseTeletextPageOptions = {}): UseTelete
     const ro = new ResizeObserver(entries => {
       for (const entry of entries) {
         const cs = entry.contentBoxSize?.[0]
-        if (cs) {
-          setContainerSize({ w: cs.inlineSize, h: cs.blockSize })
-        } else {
-          setContainerSize({ w: entry.contentRect.width, h: entry.contentRect.height })
-        }
+        const w = cs ? cs.inlineSize : entry.contentRect.width
+        const h = cs ? cs.blockSize : entry.contentRect.height
+        // Ignore transient zero sizes from layout passes — keep previous size
+        if (w <= 1 || h <= 1) continue
+        setContainerSize({ w, h })
       }
     })
     ro.observe(el)
@@ -355,10 +355,14 @@ export function useTeletextPage(options: UseTeletextPageOptions = {}): UseTelete
   const scaleX = availableW / contentW
   const scaleY = availableH / contentH
   const scale = Math.min(scaleX, scaleY, 4)
-  const scaledCellW = cellW * scale
-  const scaledCellH = cellH * scale
-  const zoomedW = contentW * scale
-  const zoomedH = contentH * scale
+  const rawScaledCellW = cellW * scale
+  const rawScaledCellH = cellH * scale
+  // Prevent sub-pixel collapse: round and clamp to sensible minimum
+  const MIN_CELL_PX = 4
+  const scaledCellW = Math.max(MIN_CELL_PX, Math.round(rawScaledCellW))
+  const scaledCellH = Math.max(MIN_CELL_PX, Math.round(rawScaledCellH))
+  const zoomedW = vp.cols * scaledCellW
+  const zoomedH = vp.rows * scaledCellH
 
   const displayModeFilter: React.CSSProperties =
     store.displayMode === 'mono' ? { filter: 'grayscale(100%)' } :

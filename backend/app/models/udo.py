@@ -1,16 +1,17 @@
 """UDO model — Universal Device Object abstraction for uCore."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
 import uuid
-from typing import Any, Optional
+from datetime import UTC, datetime
+from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 
 class UDODeviceType(str, Enum):
     """Types of devices a UDO can represent."""
+
     SURFACE = "surface"         # UI surface
     CONTAINER = "container"     # Runtime container
     SERVICE = "service"         # System service
@@ -24,6 +25,7 @@ class UDODeviceType(str, Enum):
 
 class UDOStatus(str, Enum):
     """Operational status of a UDO."""
+
     OFFLINE = "offline"
     ONLINE = "online"
     BUSY = "busy"
@@ -38,6 +40,7 @@ class UDO(BaseModel):
     to containers to physical IoT devices is represented as a UDO, providing
     a uniform interface for discovery, control, and monitoring.
     """
+
     id: str = Field(default_factory=lambda: f"udo_{uuid.uuid4().hex[:12]}")
     name: str
     device_type: UDODeviceType = UDODeviceType.VIRTUAL
@@ -45,14 +48,14 @@ class UDO(BaseModel):
     capabilities: list[str] = Field(default_factory=list)
     properties: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
-    parent_id: Optional[str] = None
-    last_heartbeat: Optional[datetime] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    parent_id: str | None = None
+    last_heartbeat: datetime | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     def ping(self) -> UDO:
         """Record a heartbeat ping."""
-        self.last_heartbeat = datetime.now(timezone.utc)
+        self.last_heartbeat = datetime.now(UTC)
         self.updated_at = self.last_heartbeat
         if self.status == UDOStatus.OFFLINE:
             self.status = UDOStatus.ONLINE

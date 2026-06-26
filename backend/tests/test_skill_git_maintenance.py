@@ -6,7 +6,6 @@ import tempfile
 from pathlib import Path
 
 import pytest
-
 from app.skills.builtin.git_maintenance import GitMaintenance
 
 
@@ -30,7 +29,7 @@ def _run_git(repo: Path, *args: str) -> tuple[int, str]:
     """Run a synchronous git command."""
     result = subprocess.run(
         ["git", "-C", str(repo), *args],
-        capture_output=True, text=True, timeout=10
+        capture_output=True, text=True, timeout=10,
     )
     return result.returncode, result.stdout.strip()
 
@@ -83,7 +82,7 @@ class TestGitMaintenance:
 
     @pytest.mark.asyncio
     async def test_non_conventional_commit_detected(
-        self, skill: GitMaintenance, temp_git_repo: Path
+        self, skill: GitMaintenance, temp_git_repo: Path,
     ):
         """A bad commit message should be detected."""
         _commit(temp_git_repo, "bad commit message without conventional prefix")
@@ -95,7 +94,7 @@ class TestGitMaintenance:
 
     @pytest.mark.asyncio
     async def test_conventional_commit_passes(
-        self, skill: GitMaintenance, temp_git_repo: Path
+        self, skill: GitMaintenance, temp_git_repo: Path,
     ):
         """Valid conventional commits should not be flagged."""
         _commit(temp_git_repo, "feat: add new feature")
@@ -109,7 +108,7 @@ class TestGitMaintenance:
 
     @pytest.mark.asyncio
     async def test_detached_head_flag(
-        self, skill: GitMaintenance, temp_git_repo: Path
+        self, skill: GitMaintenance, temp_git_repo: Path,
     ):
         """A detached HEAD should be detected."""
         _commit(temp_git_repo, "feat: initial")
@@ -140,7 +139,7 @@ class TestGitMaintenance:
 
     @pytest.mark.asyncio
     async def test_orphaned_branch_cleanup(
-        self, skill: GitMaintenance, temp_git_repo: Path
+        self, skill: GitMaintenance, temp_git_repo: Path,
     ):
         """Orphaned merged branches should be detected and deletable."""
         _commit(temp_git_repo, "feat: initial")

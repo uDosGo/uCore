@@ -1,7 +1,6 @@
 """Tests for ContainerManager service."""
 from __future__ import annotations
 
-import pytest
 from app.models.container import ContainerRuntime, ContainerStatus
 from app.services.container_manager import ContainerManager
 

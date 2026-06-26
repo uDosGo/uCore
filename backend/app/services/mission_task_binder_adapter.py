@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 DEFAULT_MISSION = "General"
 DEFAULT_BINDER = "note"
 DEFAULT_TITLE = "(untitled)"

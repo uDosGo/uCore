@@ -1,7 +1,9 @@
 from __future__ import annotations
-from app.skills.base import BaseSkill, SkillMeta, SkillParam
-from app.services.surface_manager import SurfaceManager
+
 from app.models.surface import SurfaceState
+from app.services.surface_manager import SurfaceManager
+from app.skills.base import BaseSkill, SkillMeta, SkillParam
+
 
 class SurfaceRepair(BaseSkill):
     meta = SkillMeta(id="surface_repair", name="Repair Surface",

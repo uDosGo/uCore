@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from app.core.settings import settings
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
-
 
 ROTATED_SUFFIX_RE = re.compile(r"^(?P<name>.+\.log)\.(?P<index>\d+)$")
 DEFAULT_MAX_BYTES = 2 * 1024 * 1024
@@ -70,7 +69,7 @@ class SpoolMaintenance(BaseSkill):
             self._rotate_file(log_file, backup_count)
             rotated += 1
 
-        cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
+        cutoff = datetime.now(UTC) - timedelta(days=max_age_days)
         for path in sorted(logs_dir.iterdir()):
             if not path.is_file():
                 continue
@@ -109,6 +108,6 @@ class SpoolMaintenance(BaseSkill):
     def _is_older_than(self, path: Path, cutoff: datetime) -> bool:
         modified = datetime.fromtimestamp(
             path.stat().st_mtime,
-            tz=timezone.utc,
+            tz=UTC,
         )
         return modified < cutoff

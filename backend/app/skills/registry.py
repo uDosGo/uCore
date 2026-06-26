@@ -1,7 +1,11 @@
 from __future__ import annotations
-import importlib.util, inspect, logging, sys
+
+import importlib.util
+import inspect
+import logging
+import sys
 from pathlib import Path
-from typing import Optional
+
 from app.skills.base import BaseSkill
 
 log = logging.getLogger("ucore.skills.registry")
@@ -42,7 +46,7 @@ def list_skills() -> list[dict]:
              "category": s.meta.category, "timeout": s.meta.timeout,
              "requires_confirmation": getattr(s.meta, "requires_confirmation", False)} for s in _registry.values()]
 
-def get_skill(skill_id: str) -> Optional[BaseSkill]:
+def get_skill(skill_id: str) -> BaseSkill | None:
     _ensure(); return _registry.get(skill_id)
 
 async def run_skill_by_id(skill_id: str, **kwargs) -> dict:

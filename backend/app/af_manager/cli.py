@@ -25,7 +25,7 @@ log = logging.getLogger("af_manager")
 def cmd_import(args: argparse.Namespace) -> None:
     """Run vault import."""
     from .config import load_config
-    from .sync import run_import, scan_vault
+    from .sync import run_import
 
     config = load_config()
 
@@ -56,15 +56,15 @@ def cmd_import(args: argparse.Namespace) -> None:
 def cmd_watch(args: argparse.Namespace) -> None:
     """Watch vault directories for changes (continuous sync)."""
     try:
-        from watchdog.observers import Observer
         from watchdog.events import FileSystemEventHandler
+        from watchdog.observers import Observer
     except ImportError:
         log.error(
-            "watchdog not installed. Install with: pip install watchdog"
+            "watchdog not installed. Install with: pip install watchdog",
         )
         sys.exit(1)
 
-    from .config import load_config, get_source_dirs
+    from .config import get_source_dirs, load_config
     from .sync import run_import
 
     config = load_config()
@@ -100,7 +100,7 @@ def cmd_watch(args: argparse.Namespace) -> None:
 
 def cmd_status(args: argparse.Namespace) -> None:
     """Show sync status."""
-    from .config import load_config, get_source_dirs
+    from .config import get_source_dirs, load_config
     from .sync import scan_vault
 
     config = load_config()
@@ -192,9 +192,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.command == "import":
-        if args.source:
-            cmd_import(args)
-        elif args.all:
+        if args.source or args.all:
             cmd_import(args)
         else:
             print("Use --all to import all vaults, or --source NAME for a specific vault")

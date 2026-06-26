@@ -3,11 +3,12 @@
 
 from __future__ import annotations
 
-from app.core.settings import settings
 import argparse
 import os
 import subprocess
 from pathlib import Path
+
+from app.core.settings import settings
 
 LABEL = "com.udos.ucore-menu"
 PLIST_PATH = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"

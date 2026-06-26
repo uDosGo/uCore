@@ -31,7 +31,7 @@ class WorkflowPersistenceTest(unittest.TestCase):
                 workflow_id="wf-test-001",
                 name="Test Workflow",
                 steps=[
-                    {"type": "skill", "skill_id": "hello-world", "params": {}}
+                    {"type": "skill", "skill_id": "hello-world", "params": {}},
                 ],
                 description="A test workflow",
             )
@@ -55,7 +55,7 @@ class WorkflowPersistenceTest(unittest.TestCase):
                 workflow_id="wf-log-test",
                 name="Log Test",
                 steps=[
-                    {"type": "skill", "skill_id": "test", "params": {}}
+                    {"type": "skill", "skill_id": "test", "params": {}},
                 ],
             )
             manager1.record_log(
@@ -81,7 +81,7 @@ class WorkflowPersistenceTest(unittest.TestCase):
                 workflow_id="wf-run-test",
                 name="Run Test",
                 steps=[
-                    {"type": "skill", "skill_id": "test", "params": {}}
+                    {"type": "skill", "skill_id": "test", "params": {}},
                 ],
             )
             manager1.save_run(

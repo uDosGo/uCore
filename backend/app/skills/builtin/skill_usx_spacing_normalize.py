@@ -16,7 +16,9 @@ Context-aware replacements:
   - padding on badge/button classes → var(--usx-badge/button-padding-*)
 """
 from __future__ import annotations
-import re, logging
+
+import logging
+import re
 from pathlib import Path
 
 log = logging.getLogger("ucore.skills.usx_spacing_normalize")

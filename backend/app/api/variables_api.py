@@ -1,5 +1,4 @@
-"""
-Variables API — user, installation, and system variable store.
+"""Variables API — user, installation, and system variable store.
 Extends /api/config with editable user variables and installation metadata.
 
 Endpoints:
@@ -15,7 +14,7 @@ import os
 import platform
 import socket
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from aiohttp import web
@@ -25,7 +24,7 @@ _VARIABLE_STORE_DIR = Path(
     os.environ.get(
         "UCORE_DATA_DIR",
         os.path.expanduser("~/.ucore/data"),
-    )
+    ),
 )
 _VARIABLE_STORE_FILE = _VARIABLE_STORE_DIR / "variables.json"
 _INSTALL_META_FILE = _VARIABLE_STORE_DIR / "install_meta.json"
@@ -40,7 +39,7 @@ def _ensure_store() -> None:
             "role": "developer",
             "location": "unknown",
             "timezone": str(
-                datetime.now(timezone.utc).astimezone().tzinfo
+                datetime.now(UTC).astimezone().tzinfo,
             ) or "UTC",
             "uid": str(uuid.uuid4()),
         }
@@ -56,14 +55,14 @@ def _ensure_store() -> None:
             "architecture": platform.machine(),
             "processor": platform.processor(),
             "python_version": platform.python_version(),
-            "install_date": datetime.now(timezone.utc).isoformat(),
+            "install_date": datetime.now(UTC).isoformat(),
             "udos_root": str(
                 Path(
                     os.environ.get(
                         "UDOS_ROOT",
                         os.path.expanduser("~/Code"),
-                    )
-                ).resolve()
+                    ),
+                ).resolve(),
             ),
         }
         _INSTALL_META_FILE.write_text(json.dumps(install_meta, indent=2))

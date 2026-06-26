@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
 from app.api.metadata import _get_tray_state, system_info_handler
 
 
@@ -72,7 +71,7 @@ def test_get_tray_state_stale_lock(monkeypatch, tmp_path):
     monkeypatch.setattr(mod, "POPCORN_PID_FILE", pid_file)
 
     def fake_kill(_pid: int, _sig: int):
-        raise ProcessLookupError()
+        raise ProcessLookupError
 
     monkeypatch.setattr(mod.os, "kill", fake_kill)
 

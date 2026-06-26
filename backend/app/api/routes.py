@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+
 from aiohttp import web
 
 log = logging.getLogger("ucore")
@@ -9,84 +10,104 @@ log = logging.getLogger("ucore")
 
 def register_routes(app: web.Application) -> None:
     """Register all non-core API routes and surface extensions."""
-    from .metadata import system_info_handler, maintenance_status_handler, workflow_status_handler
-    from .surfaces import register_surface_routes
-    from .snacks import register_snack_routes
-    from .containers import register_container_routes
-    from .github import register_github_routes
-    from .exec import handle_exec
-    from .docker import handle_docker_ps
-    from .chat import handle_chat, handle_chat_prompts, handle_models
-    from .skills import handle_run_skill, handle_run_named_skill, handle_list_skills
-    from .tools import handle_list_tools, handle_tool_status
-    from .agents import handle_list_agents, handle_agents_stats
-    from .mcp import (
-        handle_mcp_discover, handle_mcp_call,
-    )
-    from .secret_store_api import (
-        handle_list_secrets, handle_get_secret, handle_set_secret,
-        handle_delete_secret, handle_list_env_vars, handle_import_from_env,
-        handle_export_to_env, handle_secret_audit, handle_sync_github,
-    )
-    from .config_api import handle_get_config
-    from .variables_api import (
-        handle_get_variables,
-        handle_get_user_variables,
-        handle_update_user_variables,
-        handle_get_install_variables,
-    )
+    from .agents import handle_agents_stats, handle_list_agents
     from .budget_api import (
+        handle_budget_reload,
         handle_budget_status,
         handle_budget_usage,
-        handle_budget_reload,
     )
+    from .chat import handle_chat, handle_chat_prompts, handle_models
+    from .config_api import handle_get_config
+    from .containers import register_container_routes
     from .developer_api import (
-        handle_list_repos,
-        handle_list_repo_files,
-        handle_get_repo_file_preview,
-        handle_update_repo_file,
+        handle_commit_repo_files,
         handle_get_repo_file_diff,
+        handle_get_repo_file_preview,
+        handle_list_repo_files,
         handle_list_repo_review,
+        handle_list_repos,
         handle_stage_repo_file,
         handle_unstage_repo_file,
-        handle_commit_repo_files,
+        handle_update_repo_file,
     )
-    from .knowledge import (
-        handle_list_workspaces, handle_list_documents,
-        handle_get_document, handle_get_document_content, handle_search,
-        handle_mission_task_binder,
-        handle_local_databases, handle_local_tables, handle_local_query,
-        handle_local_export,
-        handle_af_import, handle_af_sync, handle_af_status,
-        handle_af_index_status,
-    )
-    from .workflows import (
-        handle_import_status, handle_index_coverage,
-        handle_get_task, handle_update_task,
-        handle_board_health,
-        handle_create_workflow,
-        handle_list_workflows,
-        handle_run_workflow,
-        handle_workflow_logs,
-        handle_workflow_runs,
-    )
-    from .handlers import (
-        handle_ollama_status,
-        handle_ollama_models_available,
-        handle_ollama_performance,
-        handle_agents_spec_list,
-        handle_agents_spec_get,
-        handle_agents_spec_plan,
-        handle_agents_spec_route,
-        handle_agents_spec_capability,
-    )
+    from .docker import handle_docker_ps
+    from .exec import handle_exec
+    from .github import register_github_routes
     from .gridsmith_api import (
+        handle_gridsmith_grid_create,
+        handle_gridsmith_import_basic,
+        handle_gridsmith_latlon_to_ucode,
         handle_gridsmith_status,
         handle_gridsmith_tools,
-        handle_gridsmith_grid_create,
-        handle_gridsmith_latlon_to_ucode,
         handle_gridsmith_ucode_to_latlon,
-        handle_gridsmith_import_basic,
+    )
+    from .handlers import (
+        handle_agents_spec_capability,
+        handle_agents_spec_get,
+        handle_agents_spec_list,
+        handle_agents_spec_plan,
+        handle_agents_spec_route,
+        handle_ollama_models_available,
+        handle_ollama_performance,
+        handle_ollama_status,
+    )
+    from .knowledge import (
+        handle_af_import,
+        handle_af_index_status,
+        handle_af_status,
+        handle_af_sync,
+        handle_get_document,
+        handle_get_document_content,
+        handle_list_documents,
+        handle_list_workspaces,
+        handle_local_databases,
+        handle_local_export,
+        handle_local_query,
+        handle_local_tables,
+        handle_mission_task_binder,
+        handle_search,
+    )
+    from .mcp import (
+        handle_mcp_call,
+        handle_mcp_discover,
+    )
+    from .metadata import (
+        maintenance_status_handler,
+        system_info_handler,
+        workflow_status_handler,
+    )
+    from .secret_store_api import (
+        handle_delete_secret,
+        handle_export_to_env,
+        handle_get_secret,
+        handle_import_from_env,
+        handle_list_env_vars,
+        handle_list_secrets,
+        handle_secret_audit,
+        handle_set_secret,
+        handle_sync_github,
+    )
+    from .skills import handle_list_skills, handle_run_named_skill, handle_run_skill
+    from .snacks import register_snack_routes
+    from .surfaces import register_surface_routes
+    from .tools import handle_list_tools, handle_tool_status
+    from .variables_api import (
+        handle_get_install_variables,
+        handle_get_user_variables,
+        handle_get_variables,
+        handle_update_user_variables,
+    )
+    from .workflows import (
+        handle_board_health,
+        handle_create_workflow,
+        handle_get_task,
+        handle_import_status,
+        handle_index_coverage,
+        handle_list_workflows,
+        handle_run_workflow,
+        handle_update_task,
+        handle_workflow_logs,
+        handle_workflow_runs,
     )
 
     # Knowledge (AppFlowy bridge)
@@ -189,7 +210,7 @@ def register_routes(app: web.Application) -> None:
     app.router.add_post("/api/skills/{skill_id}/run", handle_run_skill)
     app.router.add_post("/api/skills/run", handle_run_named_skill)
     # Health and skill state endpoints
-    from .skills import handle_skill_state, handle_health
+    from .skills import handle_health, handle_skill_state
     app.router.add_get("/api/skills/state", handle_skill_state)
     app.router.add_get("/api/health", handle_health)
     register_surface_routes(app)
@@ -246,7 +267,7 @@ def register_routes(app: web.Application) -> None:
 
     # ── Tasker API (backend data for Kanban) ─────────────────────────
     try:
-        from .tasker_api import register_tasker_routes, handle_workflow_tasks
+        from .tasker_api import handle_workflow_tasks, register_tasker_routes
         register_tasker_routes(app)
         # Workflow-specific filtered task endpoint
         app.router.add_get("/api/workflow/tasks", handle_workflow_tasks)

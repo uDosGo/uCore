@@ -52,15 +52,15 @@ DEFAULT_JOBS = (
 )
 
 
-_scheduler: "MaintenanceScheduler | None" = None
+_scheduler: MaintenanceScheduler | None = None
 
 
-def get_maintenance_scheduler() -> "MaintenanceScheduler | None":
+def get_maintenance_scheduler() -> MaintenanceScheduler | None:
     return _scheduler
 
 
 def set_maintenance_scheduler(
-    scheduler: "MaintenanceScheduler | None",
+    scheduler: MaintenanceScheduler | None,
 ) -> None:
     global _scheduler
     _scheduler = scheduler
@@ -108,10 +108,10 @@ class MaintenanceScheduler:
                     "time": job.time_hhmm,
                     "params": job.params,
                     "last_run": self._state.get("last_run", {}).get(
-                        job.skill_id
+                        job.skill_id,
                     ),
                     "last_result": self._state.get("last_result", {}).get(
-                        job.skill_id
+                        job.skill_id,
                     ),
                 }
                 for job in self.jobs

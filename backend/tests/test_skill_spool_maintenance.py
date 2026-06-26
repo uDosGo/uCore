@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -25,7 +25,7 @@ async def test_spool_maintenance_rotates_and_prunes(
     rotated_3 = tmp_path / "snackbar.log.3"
     rotated_3.write_text("old-3", encoding="utf-8")
 
-    old_ts = (datetime.now(timezone.utc) - timedelta(days=30)).timestamp()
+    old_ts = (datetime.now(UTC) - timedelta(days=30)).timestamp()
     rotated_3.touch()
     rotated_3.chmod(0o644)
     import os

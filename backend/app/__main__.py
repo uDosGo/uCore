@@ -10,8 +10,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
-from .core.settings import settings
+
 from .core.logging import log
+from .core.settings import settings
 
 
 def main():

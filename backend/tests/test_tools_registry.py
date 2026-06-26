@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 import pytest
-
-from app.tools.registry import list_tools, get_tool, check_tool
+from app.tools.registry import check_tool, get_tool, list_tools
 
 
 @pytest.mark.asyncio

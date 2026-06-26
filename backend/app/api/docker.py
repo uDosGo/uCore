@@ -7,6 +7,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+
 from aiohttp import web
 
 log = logging.getLogger("ucore.docker")
@@ -24,7 +25,7 @@ async def handle_docker_ps(request: web.Request) -> web.Response:
             stderr=asyncio.subprocess.PIPE,
         )
         stdout, stderr = await asyncio.wait_for(
-            proc.communicate(), timeout=10
+            proc.communicate(), timeout=10,
         )
 
         if proc.returncode != 0:
@@ -48,7 +49,7 @@ async def handle_docker_ps(request: web.Request) -> web.Response:
             "containers": containers,
             "count": len(containers),
         })
-    except asyncio.TimeoutError:
+    except TimeoutError:
         return web.json_response({
             "containers": [],
             "count": 0,

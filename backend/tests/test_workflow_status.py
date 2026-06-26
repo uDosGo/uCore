@@ -45,7 +45,7 @@ def test_build_workflow_status_includes_guardrails(
             "status": "ok",
             "jobs": [{"skill_id": "brain_sync"}],
             "tray": {"status": "running", "pid": 1234},
-        }
+        },
     )
 
     assert result["engine"]["name"] == "Cline Kanban"

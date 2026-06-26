@@ -9,7 +9,11 @@ from __future__ import annotations
 import argparse
 import time
 
-from app.menu.clipboard_buffer import add_clipboard_item, cleanup_history, read_clipboard_text
+from app.menu.clipboard_buffer import (
+    add_clipboard_item,
+    cleanup_history,
+    read_clipboard_text,
+)
 
 
 def main() -> int:

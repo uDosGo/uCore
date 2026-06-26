@@ -8,13 +8,11 @@ Usage:
 """
 from __future__ import annotations
 
-import json
 import logging
-import os
 import shutil
-import subprocess
 from datetime import datetime
 from pathlib import Path
+
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 log = logging.getLogger("ucore.skills.daily_backup")

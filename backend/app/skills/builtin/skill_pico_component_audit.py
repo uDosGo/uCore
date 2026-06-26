@@ -13,9 +13,10 @@ Scans JSX/TSX and CSS files to find opportunities for:
 Reports: filename, pattern found, suggested Pico class/pattern, confidence
 """
 from __future__ import annotations
+
 import re
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 SRC_DIR = Path(__file__).parent.parent.parent.parent.parent / "frontend" / "src"
 
@@ -88,11 +89,11 @@ def run(target: str = "", dry_run: bool = False) -> dict:
     results["total_opportunities"] = sum(len(v) for v in results["patterns_found"].values())
     if results["total_opportunities"] > 0:
         results["recommendations"].append(
-            f"Found {results['total_opportunities']} opportunities for Pico integration"
+            f"Found {results['total_opportunities']} opportunities for Pico integration",
         )
         for pattern, hits in results["patterns_found"].items():
             results["recommendations"].append(
-                f"  {pattern}: {len(hits)} files — see {PICO_PATTERNS[pattern]['docs']}"
+                f"  {pattern}: {len(hits)} files — see {PICO_PATTERNS[pattern]['docs']}",
             )
 
     return {
@@ -133,4 +134,4 @@ def _get_css_files(target: str = "") -> list[Path]:
 if __name__ == "__main__":
     import json
     result = run(dry_run=True)
-    print(json.dumps(result, indent=2, default=lambda x: dict(x) if hasattr(x, '__dict__') else str(x)))
+    print(json.dumps(result, indent=2, default=lambda x: dict(x) if hasattr(x, "__dict__") else str(x)))

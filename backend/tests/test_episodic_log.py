@@ -4,7 +4,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from app.services.episodic_store import (
     append_entry,
     read_entries,
@@ -147,7 +146,7 @@ async def test_episodic_log_skill_writes_entry(tmp_path: Path, monkeypatch):
     log_path = tmp_path / "corrections.jsonl"
     monkeypatch.setattr(store_mod, "EPISODIC_LOG", log_path)
     monkeypatch.setattr(
-        store_mod, "EPISODIC_DIR", tmp_path
+        store_mod, "EPISODIC_DIR", tmp_path,
     )
 
     skill = skill_mod.EpisodicLog()
@@ -190,7 +189,7 @@ async def test_episodic_log_skill_requires_description(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_episodic_log_accepts_comma_separated_tags(
-    tmp_path: Path, monkeypatch
+    tmp_path: Path, monkeypatch,
 ):
     import app.services.episodic_store as store_mod
     import app.skills.builtin.episodic_log as skill_mod
@@ -219,7 +218,7 @@ async def test_brain_sync_includes_episodic_summary(tmp_path: Path):
     backend_dir = project_root / "backend"
     backend_dir.mkdir(parents=True)
     (backend_dir / "service.py").write_text(
-        "print('backend')\n", encoding="utf-8"
+        "print('backend')\n", encoding="utf-8",
     )
 
     log_path = tmp_path / "corrections.jsonl"

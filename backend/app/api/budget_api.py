@@ -27,7 +27,7 @@ async def handle_budget_status(request: web.Request) -> web.Response:
                 "guarded_endpoints": policy.guarded_endpoints,
                 "per_model_limits": policy.per_model_limits,
             },
-        }
+        },
     )
 
 
@@ -54,5 +54,5 @@ async def handle_budget_reload(request: web.Request) -> web.Response:
                 "guarded_endpoints": policy.guarded_endpoints,
                 "per_model_limits": policy.per_model_limits,
             },
-        }
+        },
     )

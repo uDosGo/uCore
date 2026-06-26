@@ -14,12 +14,12 @@ import os
 import sqlite3
 import subprocess
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 BASE_DIR = Path(
-    os.getenv("UCORE_CLIPBOARD_DIR", "~/Library/Application Support/Snackbar")
+    os.getenv("UCORE_CLIPBOARD_DIR", "~/Library/Application Support/Snackbar"),
 ).expanduser()
 JSONL_PATH = BASE_DIR / "clipboard.jsonl"
 SQLITE_PATH = BASE_DIR / "clipboard.db"
@@ -30,11 +30,11 @@ DEFAULT_MAX_DAYS = int(os.getenv("UCORE_CLIPBOARD_MAX_DAYS", "30"))
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _new_id() -> str:
-    return f"clip_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+    return f"clip_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
 
 def _ensure_storage() -> None:
@@ -53,13 +53,13 @@ def _ensure_storage() -> None:
                 pinned INTEGER NOT NULL DEFAULT 0,
                 deleted INTEGER NOT NULL DEFAULT 0
             )
-            """
+            """,
         )
         conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_clip_timestamp ON clipboard_items(timestamp DESC)"
+            "CREATE INDEX IF NOT EXISTS idx_clip_timestamp ON clipboard_items(timestamp DESC)",
         )
         conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_clip_pinned ON clipboard_items(pinned, deleted)"
+            "CREATE INDEX IF NOT EXISTS idx_clip_pinned ON clipboard_items(pinned, deleted)",
         )
 
 
@@ -229,8 +229,8 @@ def cleanup_history(max_items: int = DEFAULT_MAX_ITEMS, max_days: int = DEFAULT_
     with _db() as conn:
         # Age cleanup for non-pinned items.
         if max_days > 0:
-            cutoff = datetime.now(timezone.utc).timestamp() - (max_days * 86400)
-            cutoff_iso = datetime.fromtimestamp(cutoff, tz=timezone.utc).isoformat()
+            cutoff = datetime.now(UTC).timestamp() - (max_days * 86400)
+            cutoff_iso = datetime.fromtimestamp(cutoff, tz=UTC).isoformat()
             cur = conn.execute(
                 """
                 UPDATE clipboard_items
@@ -248,7 +248,7 @@ def cleanup_history(max_items: int = DEFAULT_MAX_ITEMS, max_days: int = DEFAULT_
                 SELECT id FROM clipboard_items
                 WHERE deleted = 0 AND pinned = 0
                 ORDER BY timestamp DESC
-                """
+                """,
             ).fetchall()
             ids = [r["id"] for r in rows]
             if len(ids) > max_items:
@@ -269,7 +269,7 @@ def cleanup_history(max_items: int = DEFAULT_MAX_ITEMS, max_days: int = DEFAULT_
             "removed_overflow": removed_overflow,
             "max_items": max_items,
             "max_days": max_days,
-        }
+        },
     )
     return {"removed_age": removed_age, "removed_overflow": removed_overflow}
 
@@ -285,7 +285,7 @@ def clear_history(include_pinned: bool = False) -> int:
             cur = conn.execute("UPDATE clipboard_items SET deleted = 1 WHERE deleted = 0")
         else:
             cur = conn.execute(
-                "UPDATE clipboard_items SET deleted = 1 WHERE deleted = 0 AND pinned = 0"
+                "UPDATE clipboard_items SET deleted = 1 WHERE deleted = 0 AND pinned = 0",
             )
         conn.commit()
         count = max(0, cur.rowcount)
@@ -296,7 +296,7 @@ def clear_history(include_pinned: bool = False) -> int:
             "timestamp": _utc_now(),
             "include_pinned": include_pinned,
             "count": count,
-        }
+        },
     )
     return count
 

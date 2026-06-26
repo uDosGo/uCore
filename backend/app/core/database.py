@@ -11,22 +11,20 @@ Usage:
 """
 from __future__ import annotations
 
-import os
 import json
 import sqlite3
 import threading
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional, Any
-from datetime import datetime, timezone
+from typing import Any
 
 from .settings import settings
-from .logging import log
 
 # ─── Connection Management ───────────────────────────────────────
 
 _local = threading.local()
-_db_path: Optional[Path] = None
+_db_path: Path | None = None
 
 
 def get_db_path() -> Path:
@@ -183,7 +181,7 @@ def migrate_db() -> dict:
 
 def now_iso() -> str:
     """Get current UTC time as ISO string."""
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def to_json(obj: Any) -> str:

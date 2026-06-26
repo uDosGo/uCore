@@ -4,7 +4,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from app.services.tasker_bridge import export_rows_to_tasker
 
 
@@ -16,7 +15,7 @@ def test_export_rows_to_tasker_writes_markdown(tmp_path: Path):
             "status": "todo",
             "description": "Export markdown tasks from AppFlowy.",
             "notes": "Keep it local-first.",
-        }
+        },
     ]
     result = export_rows_to_tasker(rows, tasker_dir=str(tmp_path / ".tasker"), board="inbox")
 
@@ -39,7 +38,7 @@ async def test_tasker_sync_skill_exports_query_rows(tmp_path: Path, monkeypatch)
         "run_query",
         lambda db_path, sql, params, write: {
             "rows": [
-                {"id": "abc", "title": "Wire workflow UI", "status": "doing", "description": "Connect S300."}
+                {"id": "abc", "title": "Wire workflow UI", "status": "doing", "description": "Connect S300."},
             ],
             "count": 1,
         },

@@ -1,12 +1,10 @@
-"""
-Unified Configuration for uCore (Python)
+"""Unified Configuration for uCore (Python)
 Merges Cline settings, Secret Store values, and Environment Variables.
 """
 from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -35,8 +33,8 @@ class LoggingConfig:
 
 @dataclass
 class ClineConfig:
-    operating_principles: Optional[list[str]] = field(default=None)
-    mcp_usage: Optional[list[str]] = field(default=None)
+    operating_principles: list[str] | None = field(default=None)
+    mcp_usage: list[str] | None = field(default=None)
 
     def __post_init__(self):
         if self.operating_principles is None:
@@ -57,11 +55,11 @@ class ClineConfig:
 
 @dataclass
 class AppConfig:
-    github: Optional[GitHubConfig] = field(default=None)
-    mcp: Optional[MCPConfig] = field(default=None)
-    database: Optional[DatabaseConfig] = field(default=None)
-    logging: Optional[LoggingConfig] = field(default=None)
-    cline: Optional[ClineConfig] = field(default=None)
+    github: GitHubConfig | None = field(default=None)
+    mcp: MCPConfig | None = field(default=None)
+    database: DatabaseConfig | None = field(default=None)
+    logging: LoggingConfig | None = field(default=None)
+    cline: ClineConfig | None = field(default=None)
 
     def __post_init__(self):
         if self.github is None:

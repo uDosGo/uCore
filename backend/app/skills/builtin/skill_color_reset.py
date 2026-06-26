@@ -16,6 +16,7 @@ Context-aware replacement:
   - border-color: #30363d → border-color: var(--pico-border-color)
 """
 from __future__ import annotations
+
 import re
 from pathlib import Path
 
@@ -109,7 +110,7 @@ def _fix_colors(content: str, rel: str, results: dict) -> str:
                     rf"#{hex_color}",
                     f"var(--{var_name})",
                     line,
-                    flags=re.IGNORECASE
+                    flags=re.IGNORECASE,
                 )
                 if new_line != original_line:
                     results["replacements"].append({

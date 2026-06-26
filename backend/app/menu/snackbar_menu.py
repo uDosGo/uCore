@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-uDos Snackbar Menu — macOS menu bar app for Snackbar snacks v1.0.
+"""uDos Snackbar Menu — macOS menu bar app for Snackbar snacks v1.0.
 
 Shows a hamburger icon in the menu bar:
   🍔 green = snackbar running
@@ -15,48 +14,47 @@ Menu items:
 Depends on: PyObjC (included with macOS Python)
 """
 
-import os
-import sys
 import json
-import time
+import logging
+import os
 import subprocess
 import threading
-import logging
-import urllib.request
+import time
 import urllib.error
 import urllib.parse
+import urllib.request
 
 try:
     import objc
-    from Foundation import NSObject, NSRunLoop, NSDate, NSURL, NSIndexSet
     from AppKit import (
-        NSApplication,
-        NSStatusBar,
-        NSVariableStatusItemLength,
-        NSMenu,
-        NSMenuItem,
-        NSImage,
-        NSFont,
-        NSColor,
-        NSWorkspace,
         NSAlert,
         NSApp,
-        NSTextField,
-        NSSearchField,
-        NSScrollView,
-        NSTableView,
-        NSTableColumn,
-        NSPanel,
-        NSButton,
+        NSApplication,
         NSBackingStoreBuffered,
-        NSWindowStyleMaskTitled,
-        NSWindowStyleMaskClosable,
-        NSWindowStyleMaskUtilityWindow,
-        NSFloatingWindowLevel,
+        NSButton,
+        NSColor,
         NSEvent,
         NSEventMaskKeyDown,
         NSEventModifierFlagCommand,
+        NSFloatingWindowLevel,
+        NSFont,
+        NSImage,
+        NSMenu,
+        NSMenuItem,
+        NSPanel,
+        NSScrollView,
+        NSSearchField,
+        NSStatusBar,
+        NSTableColumn,
+        NSTableView,
+        NSTextField,
+        NSVariableStatusItemLength,
+        NSWindowStyleMaskClosable,
+        NSWindowStyleMaskTitled,
+        NSWindowStyleMaskUtilityWindow,
+        NSWorkspace,
     )
+    from Foundation import NSURL, NSIndexSet, NSObject
     from PyObjCTools import AppHelper
     _MAC = True
 except Exception:
@@ -80,7 +78,7 @@ LEGACY_LABEL = "com.udos.snackbar-server"
 # ─── Global Shortcut Config ───────────────────────────────────────────
 
 CLIPBOARD_SHORTCUT = os.environ.get(
-    "UCORE_CLIPBOARD_SHORTCUT", "ctrl+cmd+v"
+    "UCORE_CLIPBOARD_SHORTCUT", "ctrl+cmd+v",
 ).lower().strip()
 UCORE_PLIST = os.path.expanduser("~/Library/LaunchAgents/com.udos.ucore-server.plist")
 try:
@@ -216,7 +214,7 @@ def enable_start_at_login():
 
         subprocess.run(
             ["launchctl", "bootstrap", f"gui/{uid}", UCORE_PLIST],
-            capture_output=True, timeout=10
+            capture_output=True, timeout=10,
         )
         log.info("Start at login enabled")
         return True
@@ -232,7 +230,7 @@ def disable_start_at_login():
         for label in (UCORE_LABEL, LEGACY_LABEL):
             subprocess.run(
                 ["launchctl", "bootout", f"gui/{uid}/{label}"],
-                capture_output=True, timeout=10
+                capture_output=True, timeout=10,
             )
         if os.path.exists(UCORE_PLIST):
             os.remove(UCORE_PLIST)
@@ -272,14 +270,14 @@ def _register_global_shortcut(delegate) -> object | None:
             actual = int(event.modifierFlags()) & MOD_ALL
             if actual == wanted_mods and int(event.keyCode()) == wanted_key:
                 delegate.performSelectorOnMainThread_withObject_waitUntilDone_(
-                    "showClipboardPopover:", None, False
+                    "showClipboardPopover:", None, False,
                 )
         except Exception as exc:
             log.debug("Global shortcut handler error: %s", exc)
 
     try:
         token = NSEvent.addGlobalMonitorForEventsMatchingMask_handler_(
-            NSEventMaskKeyDown, _handler
+            NSEventMaskKeyDown, _handler,
         )
         log.info(
             "Global clipboard shortcut registered: %s (%s)",
@@ -409,7 +407,7 @@ class SnackbarMenuDelegate(NSObject):
 
         # ── Header ──────────────────────────────────────────────
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🍔 Snackbar Menu", None, ""
+            "🍔 Snackbar Menu", None, "",
         )
         item.setEnabled_(False)
         self._menu.addItem_(item)
@@ -419,7 +417,7 @@ class SnackbarMenuDelegate(NSObject):
         # ── Clipboard Buffer ───────────────────────────────────
         total_clip = len(self._clipboard_recent) + len(self._clipboard_saved)
         clip_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            f"📋 Clipboard Buffer ({total_clip})", None, ""
+            f"📋 Clipboard Buffer ({total_clip})", None, "",
         )
         clip_title.setEnabled_(False)
         self._menu.addItem_(clip_title)
@@ -435,20 +433,20 @@ class SnackbarMenuDelegate(NSObject):
         self._menu.addItem_(search_item)
 
         search_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🔍 Search...", "searchClipboard:", "f"
+            "🔍 Search...", "searchClipboard:", "f",
         )
         search_item.setTarget_(self)
         self._menu.addItem_(search_item)
 
         capture_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "➕ Capture Current Clipboard", "captureClipboard:", ""
+            "➕ Capture Current Clipboard", "captureClipboard:", "",
         )
         capture_item.setTarget_(self)
         self._menu.addItem_(capture_item)
 
         if self._clipboard_saved:
             saved_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                f"📌 Saved Items ({len(self._clipboard_saved)})", None, ""
+                f"📌 Saved Items ({len(self._clipboard_saved)})", None, "",
             )
             saved_title.setEnabled_(False)
             self._menu.addItem_(saved_title)
@@ -457,7 +455,7 @@ class SnackbarMenuDelegate(NSObject):
                 if len(preview) > 50:
                     preview = preview[:47] + "..."
                 item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                    f"📌 {preview or '(empty)'}", "pasteClipboardItem:", ""
+                    f"📌 {preview or '(empty)'}", "pasteClipboardItem:", "",
                 )
                 item.setTarget_(self)
                 item.setRepresentedObject_(item_data.get("id"))
@@ -465,7 +463,7 @@ class SnackbarMenuDelegate(NSObject):
 
         if self._clipboard_recent:
             recent_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                "📄 Recent", None, ""
+                "📄 Recent", None, "",
             )
             recent_title.setEnabled_(False)
             self._menu.addItem_(recent_title)
@@ -474,7 +472,7 @@ class SnackbarMenuDelegate(NSObject):
                 if len(preview) > 54:
                     preview = preview[:51] + "..."
                 item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                    f"📄 {preview or '(empty)'}", "pasteClipboardItem:", ""
+                    f"📄 {preview or '(empty)'}", "pasteClipboardItem:", "",
                 )
                 item.setTarget_(self)
                 item.setRepresentedObject_(item_data.get("id"))
@@ -483,13 +481,13 @@ class SnackbarMenuDelegate(NSObject):
         self._menu.addItem_(NSMenuItem.separatorItem())
 
         clear_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🗑️ Clear History", "clearClipboardHistory:", ""
+            "🗑️ Clear History", "clearClipboardHistory:", "",
         )
         clear_item.setTarget_(self)
         self._menu.addItem_(clear_item)
 
         clear_all_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🧨 Clear All (Including Saved)", "clearClipboardAll:", ""
+            "🧨 Clear All (Including Saved)", "clearClipboardAll:", "",
         )
         clear_all_item.setTarget_(self)
         self._menu.addItem_(clear_all_item)
@@ -498,7 +496,7 @@ class SnackbarMenuDelegate(NSObject):
 
         # ── Open UI Hub ─────────────────────────────────────────
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🍒 Open UI Hub", "openUIHub:", "o"
+            "🍒 Open UI Hub", "openUIHub:", "o",
         )
         item.setTarget_(self)
         self._menu.addItem_(item)
@@ -507,7 +505,7 @@ class SnackbarMenuDelegate(NSObject):
 
         # ── Snacks (fruit-themed) ──────────────────────────────
         snacks_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "😋 Snacks", None, ""
+            "😋 Snacks", None, "",
         )
         snacks_title.setEnabled_(False)
         self._menu.addItem_(snacks_title)
@@ -523,7 +521,7 @@ class SnackbarMenuDelegate(NSObject):
                     count = self._system_badges.get(s.get("id"), "?")
                     label = f"{label} ({count})"
                 item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                    label, "runSnack:", ""
+                    label, "runSnack:", "",
                 )
                 item.setTarget_(self)
                 item.setRepresentedObject_(json.dumps({
@@ -536,7 +534,7 @@ class SnackbarMenuDelegate(NSObject):
                 if s.get("kind") == "multi-action":
                     for action_name in s.get("actions", []):
                         sub = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                            f"   ↳ {action_name}", "runSnack:", ""
+                            f"   ↳ {action_name}", "runSnack:", "",
                         )
                         sub.setTarget_(self)
                         sub.setRepresentedObject_(json.dumps({
@@ -549,7 +547,7 @@ class SnackbarMenuDelegate(NSObject):
         else:
             item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
                 "(snackbar offline)" if not self._connected else "(no snacks)",
-                None, ""
+                None, "",
             )
             item.setEnabled_(False)
             self._menu.addItem_(item)
@@ -558,26 +556,26 @@ class SnackbarMenuDelegate(NSObject):
 
         # ── Surfaces (Open in Browser) ──────────────────────
         surfaces_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🖥️ Open Surface", None, ""
+            "🖥️ Open Surface", None, "",
         )
         surfaces_title.setEnabled_(False)
         self._menu.addItem_(surfaces_title)
 
         # Define the 8 surfaces
         surfaces = [
-            ('uCode', 'http://localhost:5173/ucode', '🎨'),
-            ('GridUI', 'http://localhost:5173/gridui', '📊'),
-            ('Server', 'http://localhost:5173/server', '⚙️'),
-            ('AssistUI', 'http://localhost:5173/assistui', '🤖'),
-            ('Documentation', 'http://localhost:5173/documentation', '📚'),
-            ('System Tools', 'http://localhost:5173/system-tools', '🔧'),
-            ('BrowserUI', 'http://localhost:5173/browserui', '🌐'),
-            ('Developer', 'http://localhost:5173/developer', '👨‍💻'),
+            ("uCode", "http://localhost:5173/ucode", "🎨"),
+            ("GridUI", "http://localhost:5173/gridui", "📊"),
+            ("Server", "http://localhost:5173/server", "⚙️"),
+            ("AssistUI", "http://localhost:5173/assistui", "🤖"),
+            ("Documentation", "http://localhost:5173/documentation", "📚"),
+            ("System Tools", "http://localhost:5173/system-tools", "🔧"),
+            ("BrowserUI", "http://localhost:5173/browserui", "🌐"),
+            ("Developer", "http://localhost:5173/developer", "👨‍💻"),
         ]
 
         for name, url, icon in surfaces:
             item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                f"{icon} {name}", "openSurface:", ""
+                f"{icon} {name}", "openSurface:", "",
             )
             item.setTarget_(self)
             item.setRepresentedObject_(url)
@@ -586,7 +584,7 @@ class SnackbarMenuDelegate(NSObject):
         self._menu.addItem_(NSMenuItem.separatorItem())
         state = "✓" if self._start_at_login else "  "
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            f"{state} Start at Login", "toggleStartAtLogin:", ""
+            f"{state} Start at Login", "toggleStartAtLogin:", "",
         )
         item.setTarget_(self)
         self._menu.addItem_(item)
@@ -595,19 +593,19 @@ class SnackbarMenuDelegate(NSObject):
 
         # ── Services ────────────────────────────────────────
         services_title = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "⚙️ Services", None, ""
+            "⚙️ Services", None, "",
         )
         services_title.setEnabled_(False)
         self._menu.addItem_(services_title)
 
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "↻ Restart uCore", "restartUcore:", ""
+            "↻ Restart uCore", "restartUcore:", "",
         )
         item.setTarget_(self)
         self._menu.addItem_(item)
 
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🌐 Restart Frontend Dev Server", "restartFrontendDevServer:", ""
+            "🌐 Restart Frontend Dev Server", "restartFrontendDevServer:", "",
         )
         item.setTarget_(self)
         self._menu.addItem_(item)
@@ -616,7 +614,7 @@ class SnackbarMenuDelegate(NSObject):
 
         # ── Quit ───────────────────────────────────────────────
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🔥 Quit", "quitApp:", "q"
+            "🔥 Quit", "quitApp:", "q",
         )
         item.setTarget_(self)
         self._menu.addItem_(item)
@@ -626,7 +624,7 @@ class SnackbarMenuDelegate(NSObject):
         url = sender.representedObject()
         if not url:
             return
-        
+
         # Try to auto-start backend if not running
         if not is_ucore_alive():
             log.info("Backend not running. Attempting to start...")
@@ -642,7 +640,7 @@ class SnackbarMenuDelegate(NSObject):
                 time.sleep(2)  # Give it time to start
             except Exception as e:
                 log.warning(f"Failed to auto-start backend: {e}")
-        
+
         # Open the surface URL in browser
         open_url(url)
 
@@ -690,7 +688,7 @@ class SnackbarMenuDelegate(NSObject):
 
         # Update UI on main thread
         self.performSelectorOnMainThread_withObject_waitUntilDone_(
-            "updateUI:", None, False
+            "updateUI:", None, False,
         )
 
     def updateUI_(self, sender):
@@ -726,7 +724,7 @@ class SnackbarMenuDelegate(NSObject):
         self._clipboard_table.reloadData()
         if self._clipboard_panel_items:
             self._clipboard_table.selectRowIndexes_byExtendingSelection_(
-                NSIndexSet.indexSetWithIndex_(0), False
+                NSIndexSet.indexSetWithIndex_(0), False,
             )
 
     def _position_clipboard_panel(self) -> None:
@@ -861,7 +859,7 @@ class SnackbarMenuDelegate(NSObject):
         self._clipboard_panel.makeFirstResponder_(self._clipboard_table)
         if self._clipboard_panel_items and self._clipboard_table.selectedRow() < 0:
             self._clipboard_table.selectRowIndexes_byExtendingSelection_(
-                NSIndexSet.indexSetWithIndex_(0), False
+                NSIndexSet.indexSetWithIndex_(0), False,
             )
 
     # ─── Actions ───────────────────────────────────────────────
@@ -1020,12 +1018,12 @@ class SnackbarMenuDelegate(NSObject):
             mapping[key] = item_data.get("id")
 
         script = (
-            'set theItems to {'
+            "set theItems to {"
             + ", ".join([json.dumps(x) for x in options])
-            + '}\n'
+            + "}\n"
             + 'set chosen to choose from list theItems with prompt "Select clipboard item"\n'
             + 'if chosen is false then return ""\n'
-            + 'return item 1 of chosen\n'
+            + "return item 1 of chosen\n"
         )
         try:
             selected = _run_osascript(script)
@@ -1114,7 +1112,7 @@ def acquire_lock() -> bool:
     try:
         result = subprocess.run(
             ["pgrep", "-f", "snackbar_menu.py"],
-            capture_output=True, text=True, timeout=5
+            capture_output=True, text=True, timeout=5,
         )
         for pid_str in result.stdout.strip().splitlines():
             pid = pid_str.strip()

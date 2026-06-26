@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from app.services.chat_cache import ChatCache
 from app.services.provider_router import ProviderConfig, ProviderRouter
 
@@ -85,7 +84,7 @@ async def test_provider_router_chat_uses_cache(tmp_path: Path, monkeypatch):
             base_url="http://localhost:11434",
             default_model="qwen2.5-coder:7b-instruct-q4_K_M",
             priority=1,
-        )
+        ),
     }
 
     calls = {"count": 0}

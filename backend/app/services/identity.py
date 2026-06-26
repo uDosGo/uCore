@@ -1,5 +1,4 @@
-"""
-Identity Module — uDos Identity System
+"""Identity Module — uDos Identity System
 =======================================
 Every running instance needs a unique identity so services, surfaces, and skills
 know who they're talking to.
@@ -24,9 +23,8 @@ import json
 import os
 import socket
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
 
 CONFIG_DIR = Path.home() / ".config" / "udos"
 LOCAL_DIR = Path.home() / ".local" / "share" / "udos"
@@ -35,14 +33,13 @@ SESSION_FILE = LOCAL_DIR / "session.json"
 
 
 def generate_udos_id() -> str:
-    """
-    Generate a uDos format User ID:
+    """Generate a uDos format User ID:
       UDOS-YYYYMMDD-XXXXXX
 
     Where XXXXXX is a 6-char hex fingerprint derived from hostname + machine.
     Deterministic for a given device.
     """
-    today = datetime.now(timezone.utc).strftime("%Y%m%d")
+    today = datetime.now(UTC).strftime("%Y%m%d")
     hostname = socket.gethostname().lower()
     machine = __import__("platform").machine().lower()
     fingerprint = hashlib.sha256(f"{hostname}-{machine}".encode()).hexdigest()[:6].upper()
@@ -73,7 +70,7 @@ class Identity:
         return {"user_id": self.user_id, "codeword": self.codeword, "install_id": self.install_id}
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Identity":
+    def from_dict(cls, data: dict) -> Identity:
         return cls(user_id=data.get("user_id", ""), codeword=data.get("codeword", ""), install_id=data.get("install_id", ""))
 
     def is_valid(self) -> bool:
@@ -91,7 +88,7 @@ class Session:
         return {"session_id": self.session_id, "started_at": self.started_at}
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Session":
+    def from_dict(cls, data: dict) -> Session:
         return cls(session_id=data.get("session_id", ""), started_at=data.get("started_at", ""))
 
 
@@ -115,7 +112,7 @@ def save_identity(identity: Identity) -> bool:
         return False
 
 
-def load_session() -> Optional[Session]:
+def load_session() -> Session | None:
     if not SESSION_FILE.exists():
         return None
     try:
@@ -134,7 +131,7 @@ def save_session(session: Session) -> bool:
 
 
 def create_session() -> Session:
-    return Session(session_id=str(uuid.uuid4()), started_at=datetime.now(timezone.utc).isoformat())
+    return Session(session_id=str(uuid.uuid4()), started_at=datetime.now(UTC).isoformat())
 
 
 def get_or_create_session() -> Session:
@@ -186,14 +183,14 @@ def cmd_show() -> None:
     session = get_or_create_session()
     import platform as _platform
     print(f"\n{'─' * 50}")
-    print(f"  uDos Identity")
+    print("  uDos Identity")
     print(f"{'─' * 50}")
     if identity.is_valid():
         print(f"  User ID:         {identity.user_id}")
         print(f"  Codeword:        {identity.codeword or '(not set)'}")
         print(f"  Installation ID: {identity.install_id}")
     else:
-        print(f"  ⚠️  Not initialized. Run: system.identity")
+        print("  ⚠️  Not initialized. Run: system.identity")
     print(f"  Session ID:      {session.session_id}")
     print(f"  Started At:      {session.started_at}")
     print(f"  Hostname:        {socket.gethostname()}")

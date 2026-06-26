@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import sqlite3
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from app.core.settings import settings
@@ -56,7 +56,7 @@ class WorkflowManager:
                     created_at TEXT NOT NULL,
                     steps TEXT NOT NULL
                 )
-                """
+                """,
             )
             conn.execute(
                 """
@@ -73,7 +73,7 @@ class WorkflowManager:
                     FOREIGN KEY (workflow_id)
                         REFERENCES workflows(id)
                 )
-                """
+                """,
             )
             conn.execute(
                 """
@@ -88,7 +88,7 @@ class WorkflowManager:
                     FOREIGN KEY (workflow_id)
                         REFERENCES workflows(id)
                 )
-                """
+                """,
             )
             conn.commit()
 
@@ -101,7 +101,7 @@ class WorkflowManager:
         schedule: str = "manual",
     ) -> dict[str, Any]:
         """Create a new workflow definition."""
-        created_at = datetime.now(timezone.utc).isoformat()
+        created_at = datetime.now(UTC).isoformat()
         steps_json = json.dumps(steps)
 
         with self._connect() as conn:
@@ -179,7 +179,7 @@ class WorkflowManager:
                 SELECT id, name, description, schedule, created_at, steps
                 FROM workflows
                 ORDER BY created_at DESC
-                """
+                """,
             ).fetchall()
 
         workflows = []
@@ -194,7 +194,7 @@ class WorkflowManager:
                     "created_at": row["created_at"],
                     "steps": steps,
                     "step_count": len(steps),
-                }
+                },
             )
         return workflows
 
@@ -209,7 +209,7 @@ class WorkflowManager:
         skill_id: str = "",
     ) -> None:
         """Record a workflow log entry."""
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
         with self._connect() as conn:
             conn.execute(
                 """
@@ -360,7 +360,7 @@ class WorkflowManager:
                     "finished_at": row["finished_at"],
                     "status": row["status"],
                     "steps": steps,
-                }
+                },
             )
         return runs
 
@@ -394,6 +394,6 @@ class WorkflowManager:
                     "finished_at": row["finished_at"],
                     "status": row["status"],
                     "steps": steps,
-                }
+                },
             )
         return runs

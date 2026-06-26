@@ -1,6 +1,9 @@
 from __future__ import annotations
+
 from typing import Any
+
 from pydantic import BaseModel
+
 
 class SkillParam(BaseModel):
     name: str; type: str = "string"; description: str = ""

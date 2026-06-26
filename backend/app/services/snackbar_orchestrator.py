@@ -5,11 +5,9 @@ Supports both in-memory and SQLite persistence backends.
 from __future__ import annotations
 
 import json
-from typing import Optional
-from datetime import datetime, timezone
 
-from app.models.snack import Snack, SnackType, SnackPriority, SnackStatus
-from app.core.database import get_db, snack_from_row, now_iso
+from app.core.database import get_db, snack_from_row
+from app.models.snack import Snack, SnackPriority, SnackStatus, SnackType
 
 
 class SnackbarOrchestrator:
@@ -31,7 +29,7 @@ class SnackbarOrchestrator:
             )
         with get_db() as db:
             cursor = db.execute(
-                "SELECT * FROM snacks WHERE status = 'queued' ORDER BY priority ASC, timestamp ASC"
+                "SELECT * FROM snacks WHERE status = 'queued' ORDER BY priority ASC, timestamp ASC",
             )
             return [Snack(**snack_from_row(row)) for row in cursor.fetchall()]
 
@@ -41,7 +39,7 @@ class SnackbarOrchestrator:
             return self._history_cache.copy()
         with get_db() as db:
             cursor = db.execute(
-                "SELECT * FROM snacks WHERE status IN ('delivered', 'failed') ORDER BY timestamp DESC"
+                "SELECT * FROM snacks WHERE status IN ('delivered', 'failed') ORDER BY timestamp DESC",
             )
             return [Snack(**snack_from_row(row)) for row in cursor.fetchall()]
 
@@ -97,11 +95,11 @@ class SnackbarOrchestrator:
     def queue_snack(
         self,
         type: SnackType = SnackType.MESSAGE,
-        content: Optional[dict] = None,
+        content: dict | None = None,
         priority: SnackPriority = SnackPriority.NORMAL,
         source: str = "system",
-        target: Optional[str] = None,
-        timeout_seconds: Optional[int] = None,
+        target: str | None = None,
+        timeout_seconds: int | None = None,
     ) -> Snack:
         """Create a snack and add it to the queue."""
         snack = Snack(
@@ -119,7 +117,7 @@ class SnackbarOrchestrator:
         """Return the queue sorted by priority (critical first) then timestamp."""
         return self._load_queue_from_db()
 
-    def deliver_next(self) -> Optional[Snack]:
+    def deliver_next(self) -> Snack | None:
         """Deliver the highest-priority queued snack."""
         queue = self.get_queue()
         if not queue:
@@ -129,7 +127,7 @@ class SnackbarOrchestrator:
         self._move_to_history_db(snack)
         return snack
 
-    def deliver_snack(self, snack_id: str) -> Optional[Snack]:
+    def deliver_snack(self, snack_id: str) -> Snack | None:
         """Deliver a specific snack by ID."""
         if self._persist:
             snack = self._load_one(snack_id)
@@ -141,14 +139,14 @@ class SnackbarOrchestrator:
         self._move_to_history_db(snack)
         return snack
 
-    def _load_one(self, snack_id: str) -> Optional[Snack]:
+    def _load_one(self, snack_id: str) -> Snack | None:
         """Load a single snack by ID from DB."""
         with get_db() as db:
             cursor = db.execute("SELECT * FROM snacks WHERE id = ?", (snack_id,))
             row = cursor.fetchone()
             return Snack(**snack_from_row(row)) if row else None
 
-    def fail_snack(self, snack_id: str) -> Optional[Snack]:
+    def fail_snack(self, snack_id: str) -> Snack | None:
         """Mark a snack as failed and move to history."""
         if self._persist:
             snack = self._load_one(snack_id)
@@ -160,7 +158,7 @@ class SnackbarOrchestrator:
         self._move_to_history_db(snack)
         return snack
 
-    def retry_snack(self, snack_id: str) -> Optional[Snack]:
+    def retry_snack(self, snack_id: str) -> Snack | None:
         """Re-queue a failed snack if retries remain."""
         history = self._load_history_from_db()
         for snack in history:
@@ -178,7 +176,7 @@ class SnackbarOrchestrator:
                 return None
         return None
 
-    def get_history(self, limit: Optional[int] = None) -> list[Snack]:
+    def get_history(self, limit: int | None = None) -> list[Snack]:
         """Return delivery history, optionally limited to last N entries."""
         history = self._load_history_from_db()
         if limit is not None:

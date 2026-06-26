@@ -18,10 +18,11 @@ import logging
 import re
 import sqlite3
 import time
-import yaml
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 log = logging.getLogger("ucore.af_manager.sync")
 
@@ -116,7 +117,7 @@ def scan_vault(
             "frontmatter": fm,
             "body": body[:100000],  # cap at 100KB for body
             "size": stat.st_size,
-            "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
+            "modified": datetime.fromtimestamp(stat.st_mtime, tz=UTC).isoformat(),
         })
 
     log.info("Scanned %s: %d files found", source_dir, len(records))
@@ -163,7 +164,7 @@ def import_file_to_appflowy(
     }
     has_id_col = "id" in columns
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     # Check if already exists
     cur.execute(
@@ -278,7 +279,7 @@ def _ensure_local_index_tables(conn: sqlite3.Connection) -> None:
             modified TEXT,
             indexed_at TEXT NOT NULL
         )
-        """
+        """,
     )
     conn.execute(
         """
@@ -291,7 +292,7 @@ def _ensure_local_index_tables(conn: sqlite3.Connection) -> None:
             source_name,
             rel_path
         )
-        """
+        """,
     )
 
 
@@ -314,7 +315,7 @@ def _upsert_local_index(
         clean_tags = [str(tag) for tag in tags]
         tags_json = json.dumps(clean_tags, default=str)
         tags_text = " ".join(clean_tags)
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         conn.execute(
             """
@@ -385,7 +386,7 @@ def _discover_workspace_catalog(data_dir: str) -> dict[str, dict[str, str]]:
             try:
                 conn = sqlite3.connect(str(db_path))
                 cur = conn.execute(
-                    "SELECT id, name FROM user_workspace_table LIMIT 1"
+                    "SELECT id, name FROM user_workspace_table LIMIT 1",
                 )
                 row = cur.fetchone()
                 conn.close()
@@ -485,7 +486,7 @@ def run_import(
 
     Returns a summary dict with counts per source.
     """
-    from .config import get_source_dirs, get_appflowy_data_dir
+    from .config import get_appflowy_data_dir, get_source_dirs
 
     data_dir = get_appflowy_data_dir(config)
     sources = get_source_dirs(config)
@@ -494,7 +495,7 @@ def run_import(
     default_workspace = str(
         appflowy_cfg.get("default_workspace")
         or appflowy_cfg.get("default_workspace_id")
-        or ""
+        or "",
     ).strip()
 
     # Find the database
@@ -648,7 +649,7 @@ def run_import(
         "total_imported": total_imported,
         "total_updated": total_updated,
         "total_errors": total_errors,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
     log.info("Import complete: %d created, %d updated, %d errors", total_imported, total_updated, total_errors)
@@ -697,7 +698,7 @@ def _source_index_stats(
 
 def get_index_coverage(config: dict[str, Any]) -> dict[str, Any]:
     """Compute per-source import/index coverage for vault sources."""
-    from .config import get_source_dirs, get_appflowy_data_dir
+    from .config import get_appflowy_data_dir, get_source_dirs
 
     data_dir = get_appflowy_data_dir(config)
     sources = get_source_dirs(config)
@@ -705,7 +706,7 @@ def get_index_coverage(config: dict[str, Any]) -> dict[str, Any]:
     default_workspace = str(
         appflowy_cfg.get("default_workspace")
         or appflowy_cfg.get("default_workspace_id")
-        or ""
+        or "",
     ).strip()
 
     db_paths = list(Path(data_dir).expanduser().rglob(APPFLOWY_DB_NAME))
@@ -765,7 +766,7 @@ def get_index_coverage(config: dict[str, Any]) -> dict[str, Any]:
                 "indexed_count": indexed_count,
                 "coverage_pct": coverage_pct,
                 "last_indexed_at": indexed.get("last_indexed_at"),
-            }
+            },
         )
 
     total_pct = (
@@ -780,5 +781,5 @@ def get_index_coverage(config: dict[str, Any]) -> dict[str, Any]:
         "indexed_total": indexed_total,
         "expected_total": expected_total,
         "coverage_pct": total_pct,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }

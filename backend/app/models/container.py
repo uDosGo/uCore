@@ -1,16 +1,17 @@
 """Container model — a runtime environment in uCore."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
 import uuid
-from typing import Any, Optional
+from datetime import UTC, datetime
+from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 
 class ContainerRuntime(str, Enum):
     """Supported container runtimes."""
+
     PYTHON = "python"
     NODE = "node"
     BASH = "bash"
@@ -21,6 +22,7 @@ class ContainerRuntime(str, Enum):
 
 class ContainerStatus(str, Enum):
     """Lifecycle states for a container."""
+
     CREATED = "created"
     STARTING = "starting"
     RUNNING = "running"
@@ -37,27 +39,28 @@ class Container(BaseModel):
     environment variables, and lifecycle management. They are the execution
     context for snacks, surfaces, and services.
     """
+
     id: str = Field(default_factory=lambda: f"ctn_{uuid.uuid4().hex[:12]}")
     name: str
     runtime: ContainerRuntime = ContainerRuntime.PYTHON
     status: ContainerStatus = ContainerStatus.CREATED
-    image: Optional[str] = None
+    image: str | None = None
     dependencies: list[str] = Field(default_factory=list)
     env_vars: dict[str, str] = Field(default_factory=dict)
     ports: dict[str, int] = Field(default_factory=dict)
     volumes: list[str] = Field(default_factory=list)
-    command: Optional[str] = None
+    command: str | None = None
     logs: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    started_at: Optional[datetime] = None
-    stopped_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    started_at: datetime | None = None
+    stopped_at: datetime | None = None
 
     def start(self) -> Container:
         """Transition to running state."""
         self.status = ContainerStatus.RUNNING
-        self.started_at = datetime.now(timezone.utc)
+        self.started_at = datetime.now(UTC)
         self.updated_at = self.started_at
         self.logs.append(f"[{self.started_at.isoformat()}] Started")
         return self
@@ -65,12 +68,12 @@ class Container(BaseModel):
     def stop(self) -> Container:
         """Transition to stopped state."""
         self.status = ContainerStatus.STOPPED
-        self.stopped_at = datetime.now(timezone.utc)
+        self.stopped_at = datetime.now(UTC)
         self.updated_at = self.stopped_at
         self.logs.append(f"[{self.stopped_at.isoformat()}] Stopped")
         return self
 
-    def get_logs(self, tail: Optional[int] = None) -> list[str]:
+    def get_logs(self, tail: int | None = None) -> list[str]:
         """Return container logs, optionally only the last N lines."""
         if tail is not None:
             return self.logs[-tail:]

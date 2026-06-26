@@ -1,14 +1,15 @@
 """uCore API — metadata endpoints (system info, etc.)"""
 from __future__ import annotations
 
-import time as time_mod
 import os
-from pathlib import Path
-from aiohttp import web
-from ..core.settings import settings
 import platform as plat
 import subprocess
+import time as time_mod
+from pathlib import Path
 
+from aiohttp import web
+
+from ..core.settings import settings
 
 POPCORN_PID_FILE = Path.home() / ".ucore" / "ucore-popcorn.pid"
 
@@ -245,7 +246,7 @@ async def maintenance_status_handler(request: web.Request) -> web.Response:
             status=503,
         )
     return web.json_response(
-        {"status": "ok", "tray": tray, **scheduler.status()}
+        {"status": "ok", "tray": tray, **scheduler.status()},
     )
 
 
@@ -260,5 +261,5 @@ async def workflow_status_handler(request: web.Request) -> web.Response:
     if scheduler is not None:
         maintenance = {"status": "ok", "tray": tray, **scheduler.status()}
     return web.json_response(
-        {"status": "ok", **build_workflow_status(maintenance=maintenance)}
+        {"status": "ok", **build_workflow_status(maintenance=maintenance)},
     )

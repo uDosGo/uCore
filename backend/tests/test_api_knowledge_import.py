@@ -5,7 +5,6 @@ import asyncio
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
 from app.api.knowledge import handle_af_import
 
 
@@ -33,8 +32,8 @@ class KnowledgeImportAPITest(AioHTTPTestCase):
                         "local_path": "~/Vault",
                         "enabled": True,
                         "tags": [],
-                    }
-                ]
+                    },
+                ],
             }
 
         def fake_run_import(config, progress_callback=None, ingest_context=None):
@@ -93,8 +92,8 @@ class KnowledgeImportAPITest(AioHTTPTestCase):
                         "local_path": "~/Vault",
                         "enabled": True,
                         "tags": [],
-                    }
-                ]
+                    },
+                ],
             }
 
         def fake_run_import(config, progress_callback=None, ingest_context=None):

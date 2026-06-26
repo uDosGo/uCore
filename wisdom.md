@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-06-25T22:20:00Z
+Date: 2026-06-25T20:29:32Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -20,26 +20,26 @@ Status: Refreshed by brain_sync
 - **`except` nesting bug in snackbar_menu.py**: A `release_lock()` function had a bare `except` nested inside `try:` at the wrong indentation level, causing `SyntaxError: invalid syntax` on line 1122. Always run `flake8` or `py_compile` on changed files; this error only surfaced in `stderr.log` after launchd restart.
 
 ## Recent Change Scan
-- frontend/src/styles/usx/usx-typography-prose.css
-- frontend/src/styles/surfaces/developer.css
-- frontend/src/styles/usx/usx-typography-scale.css
-- frontend/src/styles/surfaces/ucode.css
-- frontend/src/styles/system/story-forms.css
-- frontend/src/styles/vault-sidebar.css
-- frontend/src/styles/assistui.css
-- frontend/src/styles/usx/usx-pico-reset.css
-- frontend/src/surfaces/developer/DeveloperSurface.tsx
-- frontend/src/surfaces/system/USystemSurface.tsx
-- frontend/src/surfaces/browserui/styles/browserui.css
-- frontend/src/surfaces/assistui/AssistUISurface.tsx
-- frontend/src/surfaces/browserui/BrowserUISurface.tsx
-- .tasker/workflow-usx-alignment-report.md
-- frontend/src/surfaces/userver/UServerSurface.tsx
-- frontend/src/styles/userver.css
-- frontend/src/surfaces/workflow/WorkflowSurface.tsx
-- frontend/src/styles/surfaces/workflow.css
-- frontend/dist/assets/C64_User_Mono_v1.0-STYLE-BsBxhfAV.ttf
-- frontend/dist/assets/index-DCVJNXgl.js
+- backend/app/surfaces/ceefax.py
+- backend/app/tools/ollama_tool.py
+- backend/app/surfaces/dashboard.py
+- backend/app/tools/node_tool.py
+- backend/app/tools/github_cli_tool.py
+- backend/app/tools/docker_tool.py
+- backend/app/tools/git_tool.py
+- backend/app/tools/base.py
+- backend/app/tools/__init__.py
+- backend/app/tools/python_tool.py
+- backend/app/ui/popcorn.py
+- backend/app/tools/registry.py
+- backend/app/tools/vscode_tool.py
+- backend/app/skills/builtin/route_task.py
+- backend/app/services/mcp/__init__.py
+- backend/app/services/mcp/github_tools.py
+- backend/app/services/mcp/github_client.py
+- backend/app/services/identity.py
+- backend/app/services/maintenance_scheduler.py
+- backend/app/services/gridsmith_bridge.py
 
 ## Memory Architecture
 - Short-term: active AI/chat session context.
@@ -69,36 +69,36 @@ Warnings: 0
 - popcorn: 500 entries (0 errors)
 
 ### Recent Activity
-- ℹ️ 2026-06-25T10:04:59  popcorn  Opening UI Hub (with auto-start)
-- ℹ️ 2026-06-25T10:04:59  popcorn  Opening UI Hub (with auto-start)
-- ℹ️ 2026-06-25T10:04:58  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:58  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:53  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:53  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:48  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:48  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:43  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:43  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:38  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:38  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:33  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:33  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:28  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:28  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:22  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:22  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:17  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:17  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:12  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:12  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:07  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:07  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:02  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:04:02  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:03:57  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:03:57  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:03:52  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
-- ℹ️ 2026-06-25T10:03:52  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T04:29:29  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T04:29:29  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T04:00:55  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T04:00:55  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T02:32:52  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T02:32:52  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T01:50:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T01:50:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:48:52  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:48:52  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:04:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:04:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:04:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:04:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:03:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:03:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:03:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:03:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:02:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:02:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:02:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:02:20  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:01:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:01:50  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:01:19  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:01:19  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:00:49  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:00:49  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:00:19  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
+- ℹ️ 2026-06-26T00:00:19  popcorn  Ollama status: running, models: ['qwen2.5-coder:0.5b', 'codegemma:2b', 'qwen2.5-coder:3b', 'qwen2.5-
 
 ## Test Failure Signals (last 24h)
 

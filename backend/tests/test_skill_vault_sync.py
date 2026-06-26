@@ -23,7 +23,7 @@ async def test_vault_sync_no_config(tmp_path: Path, monkeypatch):
 @pytest.mark.asyncio
 async def test_vault_sync_no_script(tmp_path: Path, monkeypatch):
     """Should error when script doesn't exist."""
-    from app.skills.builtin.vault_sync import VaultSync, SCRIPT_PATH
+    from app.skills.builtin.vault_sync import VaultSync
 
     # Point to a non-existent script
     fake_script = tmp_path / "nonexistent_script.py"

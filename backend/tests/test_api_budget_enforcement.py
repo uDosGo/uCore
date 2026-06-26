@@ -5,7 +5,6 @@ from dataclasses import dataclass
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
 from app.core.snackbar import budget_middleware
 
 
@@ -57,7 +56,7 @@ class _FakeBudgetManager:
                 "blocked": blocked,
                 "provider": provider,
                 "model": model,
-            }
+            },
         )
 
 

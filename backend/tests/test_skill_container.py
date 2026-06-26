@@ -2,10 +2,9 @@
 from __future__ import annotations
 
 import pytest
-
+from app.services.container_manager import ContainerManager
 from app.skills.builtin.container_start import ContainerStart
 from app.skills.builtin.container_stop import ContainerStop
-from app.services.container_manager import ContainerManager
 
 
 @pytest.mark.asyncio

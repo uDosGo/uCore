@@ -5,13 +5,12 @@ import json
 from pathlib import Path
 
 import pytest
-
 from app.knowledge.local_first import (
     discover_databases,
-    run_query,
-    list_tables,
-    spool_event,
     export_to_vault,
+    list_tables,
+    run_query,
+    spool_event,
 )
 
 
@@ -146,7 +145,7 @@ def test_spool_event(tmp_path: Path, monkeypatch):
 
 def test_export_to_vault_no_databases(tmp_path: Path, monkeypatch):
     """export_to_vault with no databases returns empty exports."""
-    monkeypatch.setattr("app.knowledge.local_first.discover_databases", lambda: {})
+    monkeypatch.setattr("app.knowledge.local_first.discover_databases", dict)
     monkeypatch.setattr("app.knowledge.local_first.SPOOL_PATH", tmp_path / "replies.jsonl")
 
     result = export_to_vault(vault_dir=str(tmp_path / "vault"))

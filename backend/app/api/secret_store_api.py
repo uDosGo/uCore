@@ -4,10 +4,10 @@ from __future__ import annotations
 import json
 import logging
 import os
-from pathlib import Path
 import re
 import shutil
 import subprocess
+from pathlib import Path
 
 from aiohttp import web
 
@@ -179,8 +179,7 @@ def _parse_dotenv_file(path: Path) -> dict[str, str]:
             line = raw_line.strip()
             if not line or line.startswith("#"):
                 continue
-            if line.startswith("export "):
-                line = line[len("export "):]
+            line = line.removeprefix("export ")
             if "=" not in line:
                 continue
             key, val = line.split("=", 1)
@@ -516,5 +515,5 @@ async def handle_sync_github(request: web.Request) -> web.Response:
                 "GitHub secret plaintext values are not retrievable; "
                 "import requires payload/env values."
             ),
-        }
+        },
     )

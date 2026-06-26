@@ -26,7 +26,7 @@ async def handle_gridsmith_grid_create(request: web.Request) -> web.Response:
     rows = int(body.get("rows", 24))
     bridge = get_gridsmith_bridge()
     return web.json_response(
-        await bridge.run("grid", "create", "--cols", str(cols), "--rows", str(rows))
+        await bridge.run("grid", "create", "--cols", str(cols), "--rows", str(rows)),
     )
 
 
@@ -53,7 +53,7 @@ async def handle_gridsmith_latlon_to_ucode(request: web.Request) -> web.Response
             str(lon),
             "--level",
             str(level),
-        )
+        ),
     )
 
 
@@ -69,7 +69,7 @@ async def handle_gridsmith_ucode_to_latlon(request: web.Request) -> web.Response
 
     bridge = get_gridsmith_bridge()
     return web.json_response(
-        await bridge.run("location", "ucode-to-latlon", "--coord", coord)
+        await bridge.run("location", "ucode-to-latlon", "--coord", coord),
     )
 
 
@@ -93,5 +93,5 @@ async def handle_gridsmith_import_basic(request: web.Request) -> web.Response:
             program,
             "--world-name",
             world_name,
-        )
+        ),
     )

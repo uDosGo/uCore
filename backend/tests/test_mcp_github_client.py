@@ -6,7 +6,6 @@ import subprocess
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from app.services.mcp.github_client import GitHubClient
 
 
@@ -130,7 +129,7 @@ def test_list_workflow_runs(client):
     """list_workflow_runs parses gh CLI JSON output."""
     with patch.object(client, "run_gh_cli") as mock_run:
         mock_run.return_value = {"success": True, "stdout": json.dumps([
-            {"databaseId": 123, "status": "completed", "conclusion": "success", "name": "CI", "headBranch": "main"}
+            {"databaseId": 123, "status": "completed", "conclusion": "success", "name": "CI", "headBranch": "main"},
         ])}
         runs = client.list_workflow_runs("repo")
         assert len(runs) == 1
@@ -149,7 +148,7 @@ def test_list_issues(client):
     """list_issues parses gh CLI JSON output."""
     with patch.object(client, "run_gh_cli") as mock_run:
         mock_run.return_value = {"success": True, "stdout": json.dumps([
-            {"number": 1, "title": "Bug: crash on start", "labels": [], "author": {"login": "user"}}
+            {"number": 1, "title": "Bug: crash on start", "labels": [], "author": {"login": "user"}},
         ])}
         issues = client.list_issues("repo")
         assert len(issues) == 1

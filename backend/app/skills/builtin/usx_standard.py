@@ -8,9 +8,11 @@ Layer 5: Duplicate surface layout classes → use USX equivalents
 Layer 6: TSX inline style audit
 """
 from __future__ import annotations
+
 import logging
 import re
 from pathlib import Path
+
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 log = logging.getLogger("ucore.skills.usx_standard")
@@ -101,15 +103,15 @@ class UsxStandardSkill(BaseSkill):
 
         if action == "audit":
             return self._deep_audit(target)
-        elif action == "repair":
+        if action == "repair":
             return self._repair(target, dry_run)
-        elif action == "consolidate":
+        if action == "consolidate":
             return {
                 "success": True,
                 "action": "consolidate",
                 "message": "Extract shared patterns into usx-base.css",
             }
-        elif action == "report":
+        if action == "report":
             audit = self._deep_audit(target)
             return {
                 "success": True,
@@ -117,8 +119,7 @@ class UsxStandardSkill(BaseSkill):
                 "report": audit,
                 "recommendations": self._recommendations(audit),
             }
-        else:
-            return {"success": False, "error": f"Unknown action: {action}"}
+        return {"success": False, "error": f"Unknown action: {action}"}
 
     def _deep_audit(self, target: str = "") -> dict:
         """Multi-layer CSS audit."""
@@ -152,7 +153,7 @@ class UsxStandardSkill(BaseSkill):
             fonts = self._check_hardcoded_font_sizes(content, css_file.name)
             if fonts:
                 findings["font_sizes"].append(
-                    {"file": rel, "issues": fonts[:10]}
+                    {"file": rel, "issues": fonts[:10]},
                 )
                 file_issues += len(fonts)
 
@@ -160,7 +161,7 @@ class UsxStandardSkill(BaseSkill):
             icon_violations = self._check_icon_sizing(content, rel)
             if icon_violations:
                 findings["icon_rules"].append(
-                    {"file": rel, "issues": icon_violations}
+                    {"file": rel, "issues": icon_violations},
                 )
                 file_issues += len(icon_violations)
 
@@ -168,7 +169,7 @@ class UsxStandardSkill(BaseSkill):
             usx_dupes = self._check_usx_duplicates(content, rel)
             if usx_dupes:
                 findings["usx_duplicates"].append(
-                    {"file": rel, "issues": usx_dupes}
+                    {"file": rel, "issues": usx_dupes},
                 )
                 file_issues += len(usx_dupes)
 
@@ -176,7 +177,7 @@ class UsxStandardSkill(BaseSkill):
             layout_issues = self._check_surface_layout(content, rel)
             if layout_issues:
                 findings["surface_layout"].append(
-                    {"file": rel, "issues": layout_issues}
+                    {"file": rel, "issues": layout_issues},
                 )
                 file_issues += len(layout_issues)
 
@@ -192,7 +193,7 @@ class UsxStandardSkill(BaseSkill):
             headings = self._check_unscoped_headings(content)
             if headings:
                 findings["unscoped_headings"].append(
-                    {"file": rel, "issues": headings}
+                    {"file": rel, "issues": headings},
                 )
                 file_issues += len(headings)
 
@@ -291,13 +292,13 @@ class UsxStandardSkill(BaseSkill):
             for match in re.findall(r"color:\s*#[0-9a-fA-F]{3,8}", stripped):
                 issues.append(
                     f"Hardcoded color: '{match}' → use"
-                    " var(--pico-*)"
+                    " var(--pico-*)",
                 )
                 break
         return issues
 
     def _check_hardcoded_font_sizes(
-        self, content: str, filename: str
+        self, content: str, filename: str,
     ) -> list[str]:
         if "gridui-terminal" in filename:
             return []
@@ -314,7 +315,7 @@ class UsxStandardSkill(BaseSkill):
         if "opsz" in content:
             issues.append(
                 "Has 'opsz' font-variation-setting — removes cap so"
-                " icons scale with font-size"
+                " icons scale with font-size",
             )
 
         # Check for display: inline-block on icons (needs inline-flex for
@@ -325,13 +326,13 @@ class UsxStandardSkill(BaseSkill):
         ):
             issues.append(
                 "Uses display: inline-block on icons — should be"
-                " inline-flex for heading alignment"
+                " inline-flex for heading alignment",
             )
 
         # Check for competing font-size rules on icons
         for match in re.finditer(
             r"\.material-symbols-outlined[\s\S]*?\{[^}]*font-size[^}]*\}",
-            content
+            content,
         ):
             if (
                 "font-size: 1em" not in match.group()
@@ -343,7 +344,7 @@ class UsxStandardSkill(BaseSkill):
                         issues.append(
                             f"Competing icon font-size:"
                             f" '{line.strip()}' → remove, let"
-                            " usx-icons.css handle it"
+                            " usx-icons.css handle it",
                         )
         return issues
 
@@ -363,7 +364,7 @@ class UsxStandardSkill(BaseSkill):
                 for match in re.finditer(rf"{re.escape(cls)}\s*\{{", content):
                     issues.append(
                         f"Duplicates USX class '{cls}' → import"
-                        " from usx-base.css instead"
+                        " from usx-base.css instead",
                     )
         return issues
 
@@ -372,7 +373,7 @@ class UsxStandardSkill(BaseSkill):
         for old_cls, new_cls in SURFACE_LAYOUT_MAP.items():
             if old_cls in content:
                 issues.append(
-                    f"Uses '{old_cls}' instead of canonical '{new_cls}'"
+                    f"Uses '{old_cls}' instead of canonical '{new_cls}'",
                 )
         return issues
 
@@ -380,11 +381,11 @@ class UsxStandardSkill(BaseSkill):
         issues: list[str] = []
         for h in ["h1", "h2", "h3", "h4", "h5", "h6"]:
             unscoped = re.findall(
-                rf"(?:^|(?<={{))[\s]*{h}\s*\{{", content, re.MULTILINE
+                rf"(?:^|(?<={{))[\s]*{h}\s*\{{", content, re.MULTILINE,
             )
             if unscoped:
                 issues.append(
-                    f"Unscoped '{h}' selector → scope under a class"
+                    f"Unscoped '{h}' selector → scope under a class",
                 )
         return issues
 
@@ -550,6 +551,6 @@ class UsxStandardSkill(BaseSkill):
             if findings.get(key):
                 files = set(f["file"] for f in findings[key])
                 recs.append(
-                    f"Fix {label} in: {', '.join(sorted(files))}"
+                    f"Fix {label} in: {', '.join(sorted(files))}",
                 )
         return recs

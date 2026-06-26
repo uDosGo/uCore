@@ -6,7 +6,12 @@ from __future__ import annotations
 
 from aiohttp import web
 
-from app.services.identity import get_full_identity, ensure_identity, load_identity, save_identity
+from app.services.identity import (
+    ensure_identity,
+    get_full_identity,
+    load_identity,
+    save_identity,
+)
 
 
 async def handle_get_identity(request: web.Request) -> web.Response:

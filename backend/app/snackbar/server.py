@@ -28,26 +28,9 @@ Usage:
     python3 server.py --uninstall
 """
 
-import os
 import sys
-import json
-import time
-import signal
-import shutil
-import uuid
-import asyncio
-import subprocess
-import logging
-import platform
-import re
-from pathlib import Path
-from typing import Optional
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone, timedelta
 
 # ─── Provider Router ──────────────────────────────────────────────
-from provider_router import ProviderRouter, get_router
-from svg_bridge import convert_svg, generate_svg, describe_svg
 
 try:
     import yaml
@@ -62,31 +45,31 @@ except ImportError:
 
 # ─── Submodule imports (split by file-splitter) ───────────────────
 
-from server_identity import *  # identity
-from server_surfaces import *  # surfaces
-from server_other import *  # other
-from server_snacks import *  # snacks
-from server_skills import *  # skills
-from server_scheduler import *  # scheduler
-from server_containers import *  # containers
-from server_udos import *  # udos
-from server_ceefax import *  # ceefax
-from server_pages import *  # pages
-from server_maintenance import *  # maintenance
-from server_health import *  # health
-from server_chat import *  # chat
-from server_bbcsdl import *  # bbcsdl
-from server_events import *  # events
-from server_dashboard import *  # dashboard
-from server_peers import *  # peers
-from server_ingest import *  # ingest
-from server_vibe import *  # vibe
-from server_map import *  # map
 from server_approval import *  # approval
-from server_mission_control import *  # mission_control
-from server_developer import *  # devstudio
-from server_vault import *  # vault
-from server_process import *  # process
+from server_bbcsdl import *  # bbcsdl
 from server_bridge import *  # bridge
+from server_ceefax import *  # ceefax
+from server_chat import *  # chat
+from server_containers import *  # containers
+from server_dashboard import *  # dashboard
+from server_developer import *  # devstudio
+from server_events import *  # events
+from server_health import *  # health
+from server_identity import *  # identity
+from server_ingest import *  # ingest
+from server_maintenance import *  # maintenance
+from server_map import *  # map
 from server_mcp import *  # mcp
+from server_mission_control import *  # mission_control
+from server_other import *  # other
+from server_pages import *  # pages
+from server_peers import *  # peers
+from server_process import *  # process
+from server_scheduler import *  # scheduler
+from server_skills import *  # skills
+from server_snacks import *  # snacks
+from server_surfaces import *  # surfaces
 from server_svg import *  # svg
+from server_udos import *  # udos
+from server_vault import *  # vault
+from server_vibe import *  # vibe

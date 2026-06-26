@@ -9,10 +9,11 @@ Scans git repositories in the workspace for common structural issues:
 - Non-conventional commit messages
 """
 from __future__ import annotations
+
 import asyncio
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
@@ -22,7 +23,7 @@ log = logging.getLogger("ucore.skills.git_maintenance")
 # ── constants ──────────────────────────────────────────────────────
 CONVENTIONAL_PATTERN = re.compile(
     r"^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)"
-    r"(\(.+?\))?!?:\s.+"
+    r"(\(.+?\))?!?:\s.+",
 )
 STALE_DAYS = 14
 ORPHANED_DAYS = 7
@@ -85,7 +86,7 @@ async def _list_branches(repo: Path) -> list[dict]:
     # Get branch list with timestamps
     rc, out, _ = await _git_async(
         repo, "for-each-ref", "--format=%(refname:short)|%(committerdate:unix)|%(HEAD)",
-        "refs/heads/"
+        "refs/heads/",
     )
     if rc != 0 or not out:
         return branches
@@ -99,13 +100,13 @@ async def _list_branches(repo: Path) -> list[dict]:
         is_head = len(parts) > 2 and parts[2] == "*"
 
         try:
-            ts = datetime.fromtimestamp(int(ts_str), tz=timezone.utc)
+            ts = datetime.fromtimestamp(int(ts_str), tz=UTC)
         except (ValueError, OSError):
-            ts = datetime.now(timezone.utc)
+            ts = datetime.now(UTC)
 
         # Check if merged to default branch
         rc2, _, _ = await _git_async(
-            repo, "branch", "--merged", default, "--list", name
+            repo, "branch", "--merged", default, "--list", name,
         )
         merged_to_default = rc2 == 0 and name != default
 
@@ -114,7 +115,7 @@ async def _list_branches(repo: Path) -> list[dict]:
         if name != default:
             rc3, out3, _ = await _git_async(
                 repo, "rev-list", "--left-right", "--count",
-                f"{name}...{default}"
+                f"{name}...{default}",
             )
             if rc3 == 0 and out3:
                 parts2 = out3.split()
@@ -125,7 +126,7 @@ async def _list_branches(repo: Path) -> list[dict]:
             "name": name,
             "is_current": is_head,
             "commit_date": ts.isoformat(),
-            "age_days": (datetime.now(timezone.utc) - ts).days,
+            "age_days": (datetime.now(UTC) - ts).days,
             "ahead": ahead,
             "behind": behind,
             "merged_to_default": merged_to_default,
@@ -202,7 +203,7 @@ async def _check_interrupted_operations(repo: Path) -> list[dict]:
 async def _check_commit_messages(repo: Path, max_count: int = 30) -> list[dict]:
     """Check recent commit messages for conventional commit format."""
     rc, out, _ = await _git_async(
-        repo, "log", f"--max-count={max_count}", "--format=%H|%s"
+        repo, "log", f"--max-count={max_count}", "--format=%H|%s",
     )
     if rc != 0 or not out:
         return []
@@ -442,13 +443,13 @@ class GitMaintenance(BaseSkill):
         summary_lines = [
             f"Scanned {len(repos)} repo(s). "
             f"Found {len(all_issues)} issue(s): "
-            f"{len(errors)} error(s), {len(warnings)} warning(s), {len(infos)} info(s)."
+            f"{len(errors)} error(s), {len(warnings)} warning(s), {len(infos)} info(s).",
         ]
         if all_repairs:
             applied = sum(1 for r in all_repairs if r.get("success"))
             failed = sum(1 for r in all_repairs if not r.get("success"))
             summary_lines.append(
-                f"Applied {applied} repair(s), {failed} failed."
+                f"Applied {applied} repair(s), {failed} failed.",
             )
 
         # Breakdown by type

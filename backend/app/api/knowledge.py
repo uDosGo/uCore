@@ -1,22 +1,27 @@
 """Knowledge API — AppFlowy bridge endpoints."""
 from __future__ import annotations
 
+import logging
+
 from aiohttp import web
+
 from app.knowledge.appflowy import (
-    list_workspaces, list_documents, get_document,
-    get_document_content, semantic_search,
+    get_document,
+    get_document_content,
+    list_documents,
+    list_workspaces,
+    semantic_search,
 )
 from app.knowledge.local_first import (
     discover_databases,
+    export_to_vault,
     list_tables,
     run_query,
-    export_to_vault,
 )
 from app.services.mission_task_binder_adapter import (
     project_mission_task_binder,
 )
 
-import logging
 log = logging.getLogger("ucore.api.knowledge")
 
 
@@ -282,7 +287,7 @@ async def handle_af_status(request: web.Request) -> web.Response:
 
     Returns file counts for each configured source vault.
     """
-    from app.af_manager.config import load_config, get_source_dirs
+    from app.af_manager.config import get_source_dirs, load_config
     from app.af_manager.sync import scan_vault
 
     config = load_config()

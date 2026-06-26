@@ -55,7 +55,8 @@ class ErrorHandlingTest(AioHTTPTestCase):
 
     async def test_method_not_allowed_returns_405(self):
         """GET on a POST-only route should return 405 (if router rejects)
-        or 404 (if route doesn't exist for that method)."""
+        or 404 (if route doesn't exist for that method).
+        """
         resp = await self.client.get("/api/test-endpoint")
         # Could be 404 or 405 depending on router
         assert resp.status in (404, 405)

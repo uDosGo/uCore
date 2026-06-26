@@ -1,12 +1,12 @@
 """Unit tests for GitHub MCP Tools (autonomous workflow automation)."""
 from __future__ import annotations
 
+from datetime import UTC
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-from app.services.mcp.github_tools import GitHubTools
 from app.services.mcp.github_client import GitHubClient
+from app.services.mcp.github_tools import GitHubTools
 
 
 @pytest.fixture
@@ -157,8 +157,8 @@ def test_heal_issues_auto_labels(tools):
 
 def test_heal_issues_stale_closing(tools):
     """Auto-close stale issues."""
-    from datetime import datetime, timedelta, timezone
-    stale_date = (datetime.now(timezone.utc) - timedelta(days=60)).isoformat()
+    from datetime import datetime, timedelta
+    stale_date = (datetime.now(UTC) - timedelta(days=60)).isoformat()
     tools.client.list_issues.return_value = [
         {"number": 5, "title": "Old issue", "labels": [], "updatedAt": stale_date},
     ]

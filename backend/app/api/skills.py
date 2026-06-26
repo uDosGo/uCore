@@ -5,24 +5,25 @@ POST /api/skills/run — run a skill by directory path
 """
 from __future__ import annotations
 
-from app.core.settings import settings
 import asyncio
-import json
 import logging
 import os
 from pathlib import Path
+
 from aiohttp import web
+
+from app.core.settings import settings
 
 log = logging.getLogger("ucore.skills")
 
 # Default skill paths — try Python registry first, then filesystem
-from app.skills.registry import get_skill, run_skill_by_id
-from app.skills.state import read_state
 from app.services.health import get_health_summary
+from app.skills.registry import get_skill
+from app.skills.state import read_state
 
 SKILL_PATHS = [
     Path(__file__).parent.parent / "skills" / "builtin",  # backend/app/skills/builtin/
-    
+
     settings.udos_root / "uCore/skills",
     Path("/usr/local/share/udos/skills"),
 ]
@@ -56,7 +57,7 @@ async def handle_run_named_skill(request: web.Request) -> web.Response:
 
 
 async def _run_skill_by_id(
-    skill_id: str, request: web.Request, body: dict | None = None
+    skill_id: str, request: web.Request, body: dict | None = None,
 ) -> web.Response:
     """Internal: find and execute a skill (tries Python registry first)."""
     if body is None:
@@ -80,9 +81,7 @@ async def _run_skill_by_id(
         requires_confirm = getattr(skill.meta, "requires_confirmation", False) or skill.meta.category in ("mutating", "destructive", "write")
         # Confirmation can be provided via JSON body {"confirm": true} or header X-User-Confirm: true
         confirmed = False
-        if isinstance(body, dict) and body.get("confirm") is True:
-            confirmed = True
-        elif request.headers.get("X-User-Confirm", "").lower() == "true":
+        if (isinstance(body, dict) and body.get("confirm") is True) or request.headers.get("X-User-Confirm", "").lower() == "true":
             confirmed = True
 
         if requires_confirm and not confirmed:
@@ -129,7 +128,7 @@ async def _run_skill_by_id(
             cwd=str(skill_dir),
         )
         stdout, stderr = await asyncio.wait_for(
-            proc.communicate(), timeout=timeout
+            proc.communicate(), timeout=timeout,
         )
         stdout_str = stdout.decode("utf-8", errors="replace") if stdout else ""
         stderr_str = stderr.decode("utf-8", errors="replace") if stderr else ""
@@ -144,7 +143,7 @@ async def _run_skill_by_id(
             "skill_id": skill_id,
             "script": str(script),
         })
-    except asyncio.TimeoutError:
+    except TimeoutError:
         log.warning("Skill timed out: %s", skill_id)
         return web.json_response({
             "error": f"Skill timed out after {timeout}s",

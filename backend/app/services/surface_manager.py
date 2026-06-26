@@ -5,12 +5,11 @@ Use SQLite by enabling the `persist=True` flag (default).
 """
 from __future__ import annotations
 
-from typing import Optional
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from app.core.database import get_db, surface_from_row
 from app.models.surface import Surface, SurfaceState, SurfaceType
-from app.core.database import get_db, surface_from_row, now_iso
 
 
 class SurfaceManager:
@@ -22,7 +21,7 @@ class SurfaceManager:
 
     # ─── SQL Helpers ─────────────────────────────────────────────
 
-    def _load_from_db(self, surface_id: str) -> Optional[Surface]:
+    def _load_from_db(self, surface_id: str) -> Surface | None:
         """Load a single surface from the database."""
         if not self._persist:
             return self._cache.get(surface_id)
@@ -81,9 +80,9 @@ class SurfaceManager:
         self,
         name: str,
         type: SurfaceType = SurfaceType.PROSE,
-        metadata: Optional[dict] = None,
-        parent_id: Optional[str] = None,
-        position: Optional[int] = None,
+        metadata: dict | None = None,
+        parent_id: str | None = None,
+        position: int | None = None,
     ) -> Surface:
         """Create a new surface and persist it."""
         surface = Surface(
@@ -97,7 +96,7 @@ class SurfaceManager:
         self._save_to_db(surface)
         return surface
 
-    def get_surface(self, surface_id: str) -> Optional[Surface]:
+    def get_surface(self, surface_id: str) -> Surface | None:
         """Retrieve a surface by ID."""
         return self._load_from_db(surface_id)
 
@@ -112,10 +111,10 @@ class SurfaceManager:
     def update_surface(
         self,
         surface_id: str,
-        name: Optional[str] = None,
-        metadata: Optional[dict] = None,
-        position: Optional[int] = None,
-    ) -> Optional[Surface]:
+        name: str | None = None,
+        metadata: dict | None = None,
+        position: int | None = None,
+    ) -> Surface | None:
         """Update mutable fields on an existing surface."""
         surface = self._load_from_db(surface_id)
         if surface is None:
@@ -126,11 +125,11 @@ class SurfaceManager:
             surface.metadata.update(metadata)
         if position is not None:
             surface.position = position
-        surface.updated_at = datetime.now(timezone.utc)
+        surface.updated_at = datetime.now(UTC)
         self._save_to_db(surface)
         return surface
 
-    def transition_state(self, surface_id: str, new_state: SurfaceState) -> Optional[Surface]:
+    def transition_state(self, surface_id: str, new_state: SurfaceState) -> Surface | None:
         """Transition a surface to a new lifecycle state."""
         surface = self._load_from_db(surface_id)
         if surface is None:

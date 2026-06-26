@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-from pathlib import Path
 
 from app.core.settings import settings
 
@@ -31,7 +30,7 @@ class GridSmithBridge:
     async def run(self, *args: str) -> dict:
         if not self.cli_path.exists():
             raise FileNotFoundError(
-                f"GridSmith CLI not built: {self.cli_path}. Run npm build in uCode/agents/gridsmith."
+                f"GridSmith CLI not built: {self.cli_path}. Run npm build in uCode/agents/gridsmith.",
             )
 
         proc = await asyncio.create_subprocess_exec(

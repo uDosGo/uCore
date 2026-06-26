@@ -8,9 +8,10 @@ With Icon.tsx now using Lucide icons, this skill:
 4. Suggests Lucide equivalents for unmapped icons
 """
 from __future__ import annotations
+
 import re
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 SRC_DIR = Path(__file__).parent.parent.parent.parent.parent / "frontend" / "src"
 
@@ -81,11 +82,11 @@ def run(target: str = "", dry_run: bool = False) -> dict:
     # Warnings for low coverage
     if results["coverage"] < 100:
         results["warnings"].append(
-            f"Icon coverage: {results['coverage']:.1f}% ({mapped_unique}/{total_unique})"
+            f"Icon coverage: {results['coverage']:.1f}% ({mapped_unique}/{total_unique})",
         )
         if results["unmapped_icons"]:
             results["warnings"].append(
-                f"Found {len(results['unmapped_icons'])} unmapped icon usages"
+                f"Found {len(results['unmapped_icons'])} unmapped icon usages",
             )
 
     return {
@@ -107,4 +108,4 @@ def _get_jsx_files(target: str = "") -> list[Path]:
 if __name__ == "__main__":
     import json
     result = run(dry_run=True)
-    print(json.dumps(result, indent=2, default=lambda x: dict(x) if hasattr(x, '__dict__') else str(x)))
+    print(json.dumps(result, indent=2, default=lambda x: dict(x) if hasattr(x, "__dict__") else str(x)))

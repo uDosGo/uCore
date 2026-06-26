@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import json
 import time
 from pathlib import Path
@@ -16,7 +17,7 @@ def read_state() -> dict:
     if not _STATE_FILE.exists():
         return {}
     try:
-        with open(_STATE_FILE, "r", encoding="utf-8") as f:
+        with open(_STATE_FILE, encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return {}

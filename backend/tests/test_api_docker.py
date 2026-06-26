@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
 from app.api.docker import handle_docker_ps
 
 

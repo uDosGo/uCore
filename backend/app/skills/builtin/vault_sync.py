@@ -9,8 +9,8 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
-from app.core.settings import settings
 
+from app.core.settings import settings
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 PROJECT_ROOT = settings.udos_root / "uCore"

@@ -1,15 +1,16 @@
 """Configuration Manager for AppFlowy sync — reads sync_config.yaml."""
 from __future__ import annotations
 
-import yaml
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
+
+import yaml
 
 DEFAULT_CONFIG_PATH = Path("~/.ucore/sync_config.yaml").expanduser()
 FALLBACK_CONFIG_PATH = Path(__file__).parent / "sync_config.yaml"
 
 
-def load_config(config_path: Optional[str] = None) -> dict[str, Any]:
+def load_config(config_path: str | None = None) -> dict[str, Any]:
     """Load sync configuration from YAML file.
 
     Searches in order:

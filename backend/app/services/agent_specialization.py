@@ -12,11 +12,12 @@ Each agent has:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Optional
-import os
-import yaml  # type: ignore[import-untyped]
 import logging
+import os
+from dataclasses import dataclass, field
+from typing import Any
+
+import yaml  # type: ignore[import-untyped]
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ log = logging.getLogger(__name__)
 @dataclass
 class AgentSpecialization:
     """Configuration for a specialized agent."""
+
     id: str
     name: str
     description: str
@@ -62,7 +64,7 @@ class WorkflowTemplate:
 class SpecializedAgentRegistry:
     """Load and manage specialized agent configurations."""
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: str | None = None):
         self.agents: dict[str, AgentSpecialization] = {}
         self.routing_map: dict[tuple[str, str], str] = {}
         self.surface_taxonomy: dict[str, dict[str, Any]] = {}
@@ -172,7 +174,7 @@ class SpecializedAgentRegistry:
         self.surface_taxonomy = {}
         self.workflow_templates = {}
 
-    def get_agent(self, agent_id: str) -> Optional[AgentSpecialization]:
+    def get_agent(self, agent_id: str) -> AgentSpecialization | None:
         """Get an agent by ID."""
         return self.agents.get(agent_id)
 
@@ -185,8 +187,7 @@ class SpecializedAgentRegistry:
         task_type: str,
         complexity: str = "medium",
     ) -> AgentSpecialization:
-        """
-        Route task to most appropriate agent based on type and complexity.
+        """Route task to most appropriate agent based on type and complexity.
 
         Args:
             task_type: Task type (e.g., 'implement', 'review', 'design')
@@ -194,6 +195,7 @@ class SpecializedAgentRegistry:
 
         Returns:
             Best-matching AgentSpecialization
+
         """
         # Try exact routing match
         agent_id = self.routing_map.get((task_type, complexity))
@@ -233,7 +235,7 @@ class SpecializedAgentRegistry:
         self,
         task_type: str,
         task_summary: str = "",
-    ) -> Optional[WorkflowTemplate]:
+    ) -> WorkflowTemplate | None:
         """Find the best workflow template for a task."""
         summary = task_summary.lower()
         for workflow in self.workflow_templates.values():

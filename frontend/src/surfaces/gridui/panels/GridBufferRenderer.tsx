@@ -66,7 +66,13 @@ export const GridBufferRenderer: React.FC<GridBufferRendererProps> = ({
   const resolvedFont = fontFamily || FONT_FAMILIES[gridFont]
   // Per-font scale adjustments
   const fontScale = FONT_CELL_SCALE[gridFont]
-  const adjFontSize = cellHeight * fontScale.fontSizeScale
+  const adjFontSizeUnclamped = cellHeight * fontScale.fontSizeScale
+
+  // Clamp cell sizes and font sizes to avoid sub-pixel collapse
+  const MIN_CELL_PX = 4
+  const clampedCellWidth = Math.max(MIN_CELL_PX, Math.round(cellWidth))
+  const clampedCellHeight = Math.max(MIN_CELL_PX, Math.round(cellHeight))
+  const adjFontSize = Math.max(MIN_CELL_PX, Math.round(adjFontSizeUnclamped))
 
   const cells = useMemo(() => {
     const result: React.ReactNode[] = []
@@ -83,9 +89,9 @@ export const GridBufferRenderer: React.FC<GridBufferRendererProps> = ({
             key={key}
             style={{
               display: 'inline-block',
-              width: cellWidth,
-              height: cellHeight,
-              lineHeight: cellHeight + 'px',
+              width: `${clampedCellWidth}px`,
+              height: `${clampedCellHeight}px`,
+              lineHeight: `${clampedCellHeight}px`,
               textAlign: 'center',
               verticalAlign: 'top',
               color: fgColor,
@@ -93,7 +99,7 @@ export const GridBufferRenderer: React.FC<GridBufferRendererProps> = ({
               fontWeight: cell.bold ? 'bold' : 'normal',
               opacity: cell.flash ? undefined : 1,
               animation: cell.flash ? 'teletext-flash 1s step-end infinite' : undefined,
-              fontSize: adjFontSize,
+              fontSize: `${adjFontSize}px`,
               fontFamily: resolvedFont,
               overflow: 'hidden',
               boxSizing: 'border-box',
@@ -110,13 +116,16 @@ export const GridBufferRenderer: React.FC<GridBufferRendererProps> = ({
 
 
   // Use CSS grid to guarantee no gaps between cells
+  const totalWidth = cols * clampedCellWidth
+  const totalHeight = rows * clampedCellHeight
+
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: `repeat(${cols}, ${cellWidth}px)`,
-      gridTemplateRows: `repeat(${rows}, ${cellHeight}px)`,
-      width: cols * cellWidth,
-      height: rows * cellHeight,
+      gridTemplateColumns: `repeat(${cols}, ${clampedCellWidth}px)`,
+      gridTemplateRows: `repeat(${rows}, ${clampedCellHeight}px)`,
+      width: totalWidth,
+      height: totalHeight,
       lineHeight: 0,
       fontSize: 0,
     }}>

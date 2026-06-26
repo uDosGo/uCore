@@ -2,18 +2,12 @@
 from __future__ import annotations
 
 from aiohttp import web
-from app.models.snack import SnackType, SnackPriority
-from app.services.snackbar_orchestrator import SnackbarOrchestrator
-from app.menu.system_snacks import (
-    list_system_snacks,
-    read_system_badges,
-    run_system_snack,
-)
+
 from app.menu.clipboard_buffer import (
     add_clipboard_item,
     capture_current_clipboard,
-    clear_history,
     cleanup_history,
+    clear_history,
     copy_text_to_clipboard,
     delete_item,
     get_item_by_id,
@@ -21,6 +15,13 @@ from app.menu.clipboard_buffer import (
     pin_item,
     search_items,
 )
+from app.menu.system_snacks import (
+    list_system_snacks,
+    read_system_badges,
+    run_system_snack,
+)
+from app.models.snack import SnackPriority, SnackType
+from app.services.snackbar_orchestrator import SnackbarOrchestrator
 
 # Shared service instance
 _orch = SnackbarOrchestrator()
@@ -295,5 +296,5 @@ async def clear_clipboard(request: web.Request) -> web.Response:
     include_pinned = bool(body.get("include_pinned", False))
     count = clear_history(include_pinned=include_pinned)
     return web.json_response(
-        {"status": "ok", "cleared": count, "include_pinned": include_pinned}
+        {"status": "ok", "cleared": count, "include_pinned": include_pinned},
     )

@@ -12,10 +12,10 @@ Usage:
 from __future__ import annotations
 
 import json
-import time
-import os
-import uuid
 import logging
+import os
+import time
+import uuid
 from pathlib import Path
 from typing import Optional
 from urllib.parse import urljoin
@@ -72,10 +72,10 @@ class SnackmachineTransport:
 
     def __init__(self, config: dict):
         self.commands_path = Path(
-            config.get("commands_path", "~/.local/share/snackmachine/commands.jsonl")
+            config.get("commands_path", "~/.local/share/snackmachine/commands.jsonl"),
         ).expanduser()
         self.replies_path = Path(
-            config.get("replies_path", "~/.local/share/snackmachine/replies.jsonl")
+            config.get("replies_path", "~/.local/share/snackmachine/replies.jsonl"),
         ).expanduser()
         self.poll_interval = config.get("poll_interval", 0.5)
         self.poll_timeout = config.get("poll_timeout", 60)
@@ -90,7 +90,7 @@ class SnackmachineTransport:
         log.debug("Wrote command %s to %s", correlation_id, self.commands_path)
         return correlation_id
 
-    def poll_for_reply(self, correlation_id: str, timeout: float | None = None) -> Optional[dict]:
+    def poll_for_reply(self, correlation_id: str, timeout: float | None = None) -> dict | None:
         timeout = timeout or self.poll_timeout
         deadline = time.time() + timeout
         last_size = 0
@@ -144,9 +144,9 @@ class SnackmachineTransport:
 class MCPBridge:
     """Cross-machine MCP tool and skill execution bridge."""
 
-    def __init__(self, peers: Optional[dict] = None):
+    def __init__(self, peers: dict | None = None):
         self.peers = peers or DEFAULT_PEERS.copy()
-        self._session: Optional[ClientSession] = None
+        self._session: ClientSession | None = None
         self._timeout = ClientTimeout(total=30) if ClientTimeout else None
         self._snackmachine_transports: dict[str, SnackmachineTransport] = {}
 
@@ -161,7 +161,7 @@ class MCPBridge:
         if self._session and not self._session.closed:
             await self._session.close()
 
-    def _get_snackmachine_transport(self, peer_id: str) -> Optional[SnackmachineTransport]:
+    def _get_snackmachine_transport(self, peer_id: str) -> SnackmachineTransport | None:
         if peer_id not in self._snackmachine_transports:
             peer = self.peers.get(peer_id)
             if not peer or "snackmachine" not in peer:
@@ -174,7 +174,7 @@ class MCPBridge:
     def get_peers(self) -> dict:
         return self.peers
 
-    def get_peer(self, peer_id: str) -> Optional[dict]:
+    def get_peer(self, peer_id: str) -> dict | None:
         return self.peers.get(peer_id)
 
     def set_peer_status(self, peer_id: str, status: str):
@@ -192,9 +192,8 @@ class MCPBridge:
             if sm and sm.check_health():
                 self.peers[peer_id]["status"] = "online"
                 return {"peer": peer_id, "status": "online", "transport": "snackmachine", "latency_ms": 0}
-            else:
-                self.peers[peer_id]["status"] = "offline"
-                return {"peer": peer_id, "status": "offline", "transport": "snackmachine", "error": "Snackmachine replies file not found"}
+            self.peers[peer_id]["status"] = "offline"
+            return {"peer": peer_id, "status": "offline", "transport": "snackmachine", "error": "Snackmachine replies file not found"}
 
         endpoint = peer["endpoint"]
         try:
@@ -209,9 +208,8 @@ class MCPBridge:
                     data = await resp.json()
                     self.peers[peer_id]["status"] = "online"
                     return {"peer": peer_id, "status": "online", "latency_ms": latency_ms, "version": data.get("version", "unknown")}
-                else:
-                    self.peers[peer_id]["status"] = "offline"
-                    return {"peer": peer_id, "status": "offline", "error": f"HTTP {resp.status}"}
+                self.peers[peer_id]["status"] = "offline"
+                return {"peer": peer_id, "status": "offline", "error": f"HTTP {resp.status}"}
         except Exception as e:
             self.peers[peer_id]["status"] = "offline"
             return {"peer": peer_id, "status": "offline", "error": str(e)}
@@ -252,7 +250,7 @@ class MCPBridge:
         reply = sm.poll_for_reply(correlation_id)
         latency_ms = int((time.time() - start) * 1000)
         if reply is None:
-            return {"success": False, "error": f"Timeout waiting for Snackmachine reply", "peer": peer_id, "latency_ms": latency_ms}
+            return {"success": False, "error": "Timeout waiting for Snackmachine reply", "peer": peer_id, "latency_ms": latency_ms}
         return {"success": reply.get("status") == "success", "result": {"output": reply.get("output", ""), "error": reply.get("error", ""), "status": reply.get("status", "unknown")}, "peer": peer_id, "latency_ms": latency_ms}
 
     async def _call_tool_http(self, peer_id: str, tool: str, params: dict | None = None) -> dict:
@@ -273,9 +271,8 @@ class MCPBridge:
                 if resp.status == 200:
                     result = await resp.json()
                     return {"success": True, "result": result.get("result", result), "peer": peer_id, "latency_ms": latency_ms}
-                else:
-                    error_text = await resp.text()
-                    return {"success": False, "error": f"Remote error (HTTP {resp.status}): {error_text}", "peer": peer_id, "latency_ms": latency_ms}
+                error_text = await resp.text()
+                return {"success": False, "error": f"Remote error (HTTP {resp.status}): {error_text}", "peer": peer_id, "latency_ms": latency_ms}
         except Exception as e:
             self.peers[peer_id]["status"] = "offline"
             return {"success": False, "error": str(e), "peer": peer_id}
@@ -303,8 +300,7 @@ class MCPBridge:
                 if resp.status == 200:
                     tools = await resp.json()
                     return {"success": True, "peer": peer_id, "tools": tools.get("tools", tools)}
-                else:
-                    return {"success": False, "error": f"HTTP {resp.status}", "peer": peer_id}
+                return {"success": False, "error": f"HTTP {resp.status}", "peer": peer_id}
         except Exception as e:
             return {"success": False, "error": str(e), "peer": peer_id}
 
@@ -343,7 +339,7 @@ class MCPBridge:
             reply = sm.poll_for_reply(correlation_id)
             duration_ms = int((time.time() - start) * 1000)
             if reply is None:
-                return {"success": False, "error": f"Timeout waiting for Snackmachine reply", "peer": peer_id, "duration_ms": duration_ms}
+                return {"success": False, "error": "Timeout waiting for Snackmachine reply", "peer": peer_id, "duration_ms": duration_ms}
             return {"success": reply.get("status") == "success", "output": reply.get("output", ""), "error": reply.get("error", ""), "peer": peer_id, "duration_ms": duration_ms}
         if peer["status"] == "offline":
             health = await self.check_peer_health(peer_id)
@@ -359,9 +355,8 @@ class MCPBridge:
                 if resp.status == 200:
                     result = await resp.json()
                     return {"success": True, "output": result.get("output", result), "peer": peer_id, "duration_ms": duration_ms}
-                else:
-                    error_text = await resp.text()
-                    return {"success": False, "error": f"Remote error (HTTP {resp.status}): {error_text}", "peer": peer_id, "duration_ms": duration_ms}
+                error_text = await resp.text()
+                return {"success": False, "error": f"Remote error (HTTP {resp.status}): {error_text}", "peer": peer_id, "duration_ms": duration_ms}
         except Exception as e:
             self.peers[peer_id]["status"] = "offline"
             return {"success": False, "error": str(e), "peer": peer_id}
@@ -376,7 +371,7 @@ class MCPBridge:
 
 # ─── Singleton ─────────────────────────────────────────────────────
 
-_bridge_instance: Optional[MCPBridge] = None
+_bridge_instance: MCPBridge | None = None
 
 
 def get_bridge() -> MCPBridge:

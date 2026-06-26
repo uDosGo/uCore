@@ -55,9 +55,9 @@ def test_render_ai_context_compacts_doclang_fields():
                     "heading": "Summary",
                     "content": "Useful context for AI.",
                     "level": 2,
-                }
+                },
             ],
-        }
+        },
     }
 
     context = render_ai_context(envelope)

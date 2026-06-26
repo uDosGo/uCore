@@ -11,9 +11,10 @@ Deep audit of surface CSS files:
 7. Dark mode support
 """
 from __future__ import annotations
+
 import re
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 CSS_DIR = Path(__file__).parent.parent.parent.parent.parent / "frontend" / "src" / "styles"
 SURFACES_DIR = CSS_DIR / "surfaces"
@@ -64,7 +65,7 @@ def run(target: str = "", dry_run: bool = False) -> dict:
 
         # Check for custom button styles (should use Pico)
         custom_buttons = re.findall(r"\.(?:btn|button)[^{]*{", content)
-        if custom_buttons and not "var(--pico" in content:
+        if custom_buttons and "var(--pico" not in content:
             results["issues"]["custom_button_styles"].append({
                 "file": rel,
                 "count": len(custom_buttons),

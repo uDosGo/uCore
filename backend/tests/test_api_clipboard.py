@@ -5,7 +5,6 @@ from pathlib import Path
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
 from app.api.snacks import register_snack_routes
 
 
@@ -17,8 +16,8 @@ class ClipboardAPITest(AioHTTPTestCase):
 
     async def asyncSetUp(self):
         await super().asyncSetUp()
-        import app.menu.clipboard_buffer as cb
         import app.api.snacks as snacks_api
+        import app.menu.clipboard_buffer as cb
 
         self.tmp = Path("/tmp/ucore_clipboard_tests")
         if self.tmp.exists():
@@ -51,8 +50,8 @@ class ClipboardAPITest(AioHTTPTestCase):
         snacks_api.copy_text_to_clipboard = fake_copy
 
     async def asyncTearDown(self):
-        import app.menu.clipboard_buffer as cb
         import app.api.snacks as snacks_api
+        import app.menu.clipboard_buffer as cb
 
         cb.copy_text_to_clipboard = self._orig_copy
         cb.read_clipboard_text = self._orig_read

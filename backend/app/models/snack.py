@@ -1,16 +1,17 @@
 """Snack model — a deterministic message/task in the uCore feed-spool."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
 import uuid
-from typing import Any, Optional
+from datetime import UTC, datetime
+from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 
 class SnackType(str, Enum):
     """Types of snacks."""
+
     TASK = "task"             # Executable task
     MESSAGE = "message"       # Informational message
     COMMAND = "command"       # Shell command
@@ -21,6 +22,7 @@ class SnackType(str, Enum):
 
 class SnackPriority(int, Enum):
     """Priority levels — lower = higher priority."""
+
     CRITICAL = 0
     HIGH = 1
     NORMAL = 2
@@ -30,6 +32,7 @@ class SnackPriority(int, Enum):
 
 class SnackStatus(str, Enum):
     """Delivery status."""
+
     QUEUED = "queued"
     DELIVERING = "delivering"
     DELIVERED = "delivered"
@@ -44,23 +47,24 @@ class Snack(BaseModel):
     messages between surfaces, system events, etc. All delivery is
     deterministic and ordered by priority + timestamp.
     """
+
     id: str = Field(default_factory=lambda: f"snk_{uuid.uuid4().hex[:12]}")
     type: SnackType = SnackType.MESSAGE
     priority: SnackPriority = SnackPriority.NORMAL
     status: SnackStatus = SnackStatus.QUEUED
     content: dict[str, Any] = Field(default_factory=dict)
     source: str = "system"
-    target: Optional[str] = None
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    delivered_at: Optional[datetime] = None
+    target: str | None = None
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    delivered_at: datetime | None = None
     retry_count: int = 0
     max_retries: int = 3
-    timeout_seconds: Optional[int] = None
+    timeout_seconds: int | None = None
 
     def deliver(self) -> Snack:
         """Mark the snack as delivered."""
         self.status = SnackStatus.DELIVERED
-        self.delivered_at = datetime.now(timezone.utc)
+        self.delivered_at = datetime.now(UTC)
         return self
 
     def queue(self) -> Snack:
@@ -72,7 +76,7 @@ class Snack(BaseModel):
     def fail(self) -> Snack:
         """Mark the snack as failed."""
         self.status = SnackStatus.FAILED
-        self.delivered_at = datetime.now(timezone.utc)
+        self.delivered_at = datetime.now(UTC)
         return self
 
     def to_json(self) -> str:

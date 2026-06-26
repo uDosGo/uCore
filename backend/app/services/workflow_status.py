@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import os
-from app.core.settings import settings
 from pathlib import Path
 from typing import Any
+
+from app.core.settings import settings
 
 
 def default_tasker_dir() -> Path:
@@ -11,7 +12,7 @@ def default_tasker_dir() -> Path:
         os.getenv(
             "UCORE_TASKER_DIR",
             str(settings.udos_root / "uCore/.tasker"),
-        )
+        ),
     ).expanduser()
 
 
@@ -28,7 +29,7 @@ def scan_tasker_boards(tasker_dir: Path | None = None) -> dict[str, Any]:
                     "path": str(board_dir),
                     "count": len(files),
                     "items": [f.name for f in files[:10]],
-                }
+                },
             )
 
     return {

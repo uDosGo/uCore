@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import os
+import socket
 from dataclasses import dataclass
 from pathlib import Path
-import socket
 
 
 @dataclass
@@ -29,19 +29,19 @@ class Settings:
 
     # ── Paths ────────────────────────────────────────────────
     data_dir: Path = Path(
-        os.environ.get("UCORE_DATA_DIR", os.path.expanduser("~/.ucore/data"))
+        os.environ.get("UCORE_DATA_DIR", os.path.expanduser("~/.ucore/data")),
     )
     config_dir: Path = Path(
         os.environ.get(
             "UCORE_CONFIG_DIR",
             os.path.expanduser("~/.ucore/config"),
-        )
+        ),
     )
     logs_dir: Path = Path(
-        os.environ.get("UCORE_LOGS_DIR", os.path.expanduser("~/.ucore/logs"))
+        os.environ.get("UCORE_LOGS_DIR", os.path.expanduser("~/.ucore/logs")),
     )
     secrets_dir: Path = Path(
-        os.environ.get("UCORE_SECRETS_DIR", os.path.expanduser("~/.ucore"))
+        os.environ.get("UCORE_SECRETS_DIR", os.path.expanduser("~/.ucore")),
     )
 
     # ── Snackbar ─────────────────────────────────────────────
@@ -80,24 +80,24 @@ class Settings:
                 "ROOT",
                 os.environ.get("UDOS_CODE", os.path.expanduser("~/Code")),
             ),
-        )
+        ),
     ).expanduser()
 
     # ── Ollama / AI ──────────────────────────────────────────
     ollama_base_url: str = os.environ.get(
-        "UCORE_OLLAMA_URL", "http://localhost:11434"
+        "UCORE_OLLAMA_URL", "http://localhost:11434",
     )
     ollama_default_model: str = os.environ.get(
-        "UCORE_OLLAMA_MODEL", "qwen2.5-coder:3b"
+        "UCORE_OLLAMA_MODEL", "qwen2.5-coder:3b",
     )
     ollama_fallback_model: str = os.environ.get(
-        "UCORE_OLLAMA_FALLBACK_MODEL", "qwen2.5-coder:7b-instruct-q4_K_M"
+        "UCORE_OLLAMA_FALLBACK_MODEL", "qwen2.5-coder:7b-instruct-q4_K_M",
     )
     ollama_timeout: int = int(os.environ.get("UCORE_OLLAMA_TIMEOUT", "60"))
 
     # ── Tray / Shortcuts ──────────────────────────────────────
     clipboard_shortcut: str = os.environ.get(
-        "UCORE_CLIPBOARD_SHORTCUT", "ctrl+cmd+v"
+        "UCORE_CLIPBOARD_SHORTCUT", "ctrl+cmd+v",
     )
 
     @property

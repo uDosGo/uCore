@@ -5,7 +5,6 @@ from pathlib import Path
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
 from app.api.workflows import (
     handle_board_health,
     handle_get_task,
@@ -61,7 +60,7 @@ class Phase9WorkflowApiTest(AioHTTPTestCase):
                     "## Summary",
                     "- Verify workflow endpoints",
                     "",
-                ]
+                ],
             ),
             encoding="utf-8",
         )
@@ -72,13 +71,13 @@ class Phase9WorkflowApiTest(AioHTTPTestCase):
                     "- status: blocked",
                     "- source_id: blocked-task",
                     "",
-                ]
+                ],
             ),
             encoding="utf-8",
         )
 
         import app.api.workflows as workflows_api
-        import app.services.workflow_status as workflow_status
+        from app.services import workflow_status
 
         self._original_api_default_tasker_dir = (
             workflows_api.default_tasker_dir
@@ -91,7 +90,7 @@ class Phase9WorkflowApiTest(AioHTTPTestCase):
 
     async def asyncTearDown(self):
         import app.api.workflows as workflows_api
-        import app.services.workflow_status as workflow_status
+        from app.services import workflow_status
 
         workflows_api.default_tasker_dir = (
             self._original_api_default_tasker_dir

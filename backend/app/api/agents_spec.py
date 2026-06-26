@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
+
 from fastapi import APIRouter, HTTPException  # type: ignore[import-not-found]
 
 from app.services.agent_specialization import SpecializedAgentRegistry
@@ -34,7 +34,7 @@ async def list_specialized_agents():
                     "priority": agent.priority,
                 }
                 for agent in agents
-            ]
+            ],
         }
     except Exception as e:
         log.error(f"Failed to list agents: {e}")
@@ -77,13 +77,12 @@ async def get_agent(agent_id: str):
 async def route_to_specialized_agent(
     task_type: str,
     complexity: str = "medium",
-    messages: Optional[list[dict]] = None,
+    messages: list[dict] | None = None,
     task: str = "",
-    workflow_stage: Optional[str] = None,
+    workflow_stage: str | None = None,
     plan_only: bool = False,
 ):
-    """
-    Route a task to the best specialized agent and execute it.
+    """Route a task to the best specialized agent and execute it.
 
     Args:
         task_type: Type of task (design, implement, review, debug, document)
@@ -92,6 +91,7 @@ async def route_to_specialized_agent(
 
     Returns:
         Agent response with routing metadata
+
     """
     try:
         if not messages:
@@ -156,7 +156,7 @@ async def plan_specialized_workflow(
     task_type: str,
     complexity: str = "medium",
     task: str = "",
-    workflow_stage: Optional[str] = None,
+    workflow_stage: str | None = None,
 ):
     """Build a workflow plan without executing any provider call."""
     try:

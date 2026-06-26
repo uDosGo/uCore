@@ -17,15 +17,14 @@ Usage:
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from xml.etree import ElementTree
 
 from app.core.settings import settings
-
-from app.skills.base import BaseSkill, SkillMeta, SkillParam
 from app.services.episodic_store import summarize_entries as summarize_episodic
 from app.services.spool_reader import read_spool, summarize_spool
+from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 PROJECT_ROOT = settings.udos_root / "uCore"
 WISDOM_PATH = PROJECT_ROOT / "wisdom.md"
@@ -107,7 +106,7 @@ class BrainSync(BaseSkill):
         include_appflowy = bool(kwargs.get("include_appflowy", True))
         include_test_failures = bool(kwargs.get("include_test_failures", True))
         include_episodic = bool(kwargs.get("include_episodic", True))
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff = datetime.now(UTC) - timedelta(hours=hours)
 
         recent_files = self._collect_recent_files(cutoff=cutoff, limit=limit)
         existing_sections = self._load_existing_sections()
@@ -180,7 +179,7 @@ class BrainSync(BaseSkill):
                     continue
                 modified = datetime.fromtimestamp(
                     path.stat().st_mtime,
-                    tz=timezone.utc,
+                    tz=UTC,
                 )
                 if modified >= cutoff:
                     matches.append((path.stat().st_mtime, path))
@@ -268,7 +267,7 @@ class BrainSync(BaseSkill):
                     continue
                 modified = datetime.fromtimestamp(
                     report.stat().st_mtime,
-                    tz=timezone.utc,
+                    tz=UTC,
                 )
                 if modified < cutoff:
                     continue
@@ -329,7 +328,7 @@ class BrainSync(BaseSkill):
         episodic_summary: str | None = None,
         hours: int = 24,
     ) -> str:
-        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         recent_lines = [
             f"- {path.relative_to(PROJECT_ROOT)}" for path in recent_files
         ] or ["- No files changed in the selected window."]

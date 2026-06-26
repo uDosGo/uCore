@@ -1,24 +1,24 @@
 from __future__ import annotations
+
 import glob
-import os
 from pathlib import Path
-from typing import Dict, List
+
 from app.skills.state import read_state
 
 
-def _tail_lines(path: Path, max_lines: int = 200) -> List[str]:
+def _tail_lines(path: Path, max_lines: int = 200) -> list[str]:
     try:
-        with open(path, "r", encoding="utf-8", errors="replace") as f:
+        with open(path, encoding="utf-8", errors="replace") as f:
             lines = f.readlines()
             return [l.rstrip("\n") for l in lines[-max_lines:]]
     except Exception:
         return []
 
 
-def recent_errors_from_logs(log_dir: Path | None = None, max_entries: int = 50) -> List[Dict]:
+def recent_errors_from_logs(log_dir: Path | None = None, max_entries: int = 50) -> list[dict]:
     if log_dir is None:
         log_dir = Path.home() / ".ucore" / "logs"
-    out: List[Dict] = []
+    out: list[dict] = []
     if not log_dir.exists():
         return out
     # examine all .log and .err files
@@ -36,7 +36,7 @@ def recent_errors_from_logs(log_dir: Path | None = None, max_entries: int = 50) 
     return out
 
 
-def get_health_summary() -> Dict:
+def get_health_summary() -> dict:
     """Return a small health summary combining skill-state and recent errors."""
     state = read_state()
     errors = recent_errors_from_logs()

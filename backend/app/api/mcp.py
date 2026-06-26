@@ -12,22 +12,25 @@ import logging
 from typing import Any
 
 from aiohttp import web
-from app.skills.registry import (
-    get_skill,
-    list_skills as _list_skills,
-)
+
 from app.menu.clipboard_buffer import (
     capture_current_clipboard,
     delete_item,
     get_item_by_id,
     get_recent_items,
 )
+from app.services.gridsmith_bridge import get_gridsmith_bridge
 from app.services.tasker_ops import (
     list_tasker_boards,
     read_task_markdown,
     write_task_markdown,
 )
-from app.services.gridsmith_bridge import get_gridsmith_bridge
+from app.skills.registry import (
+    get_skill,
+)
+from app.skills.registry import (
+    list_skills as _list_skills,
+)
 
 log = logging.getLogger("ucore.api.mcp")
 
@@ -58,7 +61,7 @@ async def handle_mcp_discover(request: web.Request) -> web.Response:
                     "query": {
                         "type": "string",
                         "description": f"Parameters for {skill['name']}",
-                    }
+                    },
                 },
                 "required": ["query"],
             },
@@ -145,7 +148,7 @@ async def handle_mcp_discover(request: web.Request) -> web.Response:
                 "item_id": {
                     "type": "string",
                     "description": "Clipboard item id to delete",
-                }
+                },
             },
             "required": ["item_id"],
         },
@@ -159,7 +162,7 @@ async def handle_mcp_discover(request: web.Request) -> web.Response:
                 "tasker_dir": {
                     "type": "string",
                     "description": "Optional .tasker directory override",
-                }
+                },
             },
         },
     })
@@ -367,8 +370,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(result, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(result, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -410,8 +413,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(results, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(results, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -423,8 +426,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(ws, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(ws, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -438,8 +441,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(docs, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(docs, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -459,8 +462,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(item, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(item, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -496,8 +499,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
                     {
                         "type": "text",
                         "text": json.dumps(payload, indent=2),
-                    }
-                ]
+                    },
+                ],
             },
             "id": body.get("id"),
         })
@@ -534,7 +537,7 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
                         {"status": "deleted", "id": item_id},
                         indent=2,
                     ),
-                }]
+                }],
             },
             "id": body.get("id"),
         })
@@ -545,8 +548,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(payload, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(payload, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -575,8 +578,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(payload, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(payload, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -587,8 +590,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(payload, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(payload, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -606,8 +609,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(payload, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(payload, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -633,8 +636,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(payload, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(payload, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -657,8 +660,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(payload, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(payload, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -684,8 +687,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(payload, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(payload, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -733,8 +736,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(payload, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(payload, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })
@@ -756,8 +759,8 @@ async def handle_mcp_call(request: web.Request) -> web.Response:
             "jsonrpc": "2.0",
             "result": {
                 "content": [
-                    {"type": "text", "text": json.dumps(result, indent=2)}
-                ]
+                    {"type": "text", "text": json.dumps(result, indent=2)},
+                ],
             },
             "id": body.get("id"),
         })

@@ -3,11 +3,10 @@ from __future__ import annotations
 
 from typing import Any, cast
 
+import app.api.mcp as mcp_api
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
-from app.api.mcp import handle_mcp_discover, handle_mcp_call
-import app.api.mcp as mcp_api
+from app.api.mcp import handle_mcp_call, handle_mcp_discover
 
 
 class MCPAPITest(AioHTTPTestCase):
@@ -173,7 +172,7 @@ class MCPAPITest(AioHTTPTestCase):
             mcp_api.delete_item = old_delete
 
     async def test_mcp_call_knowledge_list_workspaces(self):
-        import app.knowledge.appflowy as appflowy
+        from app.knowledge import appflowy
 
         def fake_list_workspaces():
             return [{"id": "ws_1", "name": "Workspace 1"}]
@@ -194,7 +193,7 @@ class MCPAPITest(AioHTTPTestCase):
             appflowy.list_workspaces = old_list_workspaces
 
     async def test_mcp_call_knowledge_list_documents(self):
-        import app.knowledge.appflowy as appflowy
+        from app.knowledge import appflowy
 
         def fake_list_documents(workspace_id: str | None = None):
             assert workspace_id == "ws_abc"
@@ -216,7 +215,7 @@ class MCPAPITest(AioHTTPTestCase):
             appflowy.list_documents = old_list_documents
 
     async def test_mcp_call_knowledge_search(self):
-        import app.knowledge.appflowy as appflowy
+        from app.knowledge import appflowy
 
         def fake_semantic_search(
             query: str,
@@ -377,7 +376,7 @@ class MCPAPITest(AioHTTPTestCase):
 
         def fake_get_skill(skill_id: str):
             if skill_id == "tasker_sync":
-                return cast(Any, FakeSkill())
+                return cast("Any", FakeSkill())
             return None
 
         old_get_skill = mcp_api.get_skill

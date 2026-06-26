@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +15,7 @@ def default_cache_path() -> Path:
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 class ChatCache:
@@ -49,13 +49,13 @@ class ChatCache:
                     accessed_at TEXT NOT NULL,
                     hit_count INTEGER NOT NULL DEFAULT 0
                 )
-                """
+                """,
             )
             conn.execute(
                 """
                 CREATE INDEX IF NOT EXISTS idx_chat_cache_prompt_model
                 ON chat_cache(prompt_hash, model)
-                """
+                """,
             )
             conn.commit()
 
@@ -174,7 +174,7 @@ class ChatCache:
                     COALESCE(SUM(hit_count), 0) AS total_hits,
                     MAX(accessed_at) AS last_accessed_at
                 FROM chat_cache
-                """
+                """,
             ).fetchone()
 
         requests = int(self._stats["requests"])
@@ -190,7 +190,7 @@ class ChatCache:
             "writes": int(self._stats["writes"]),
             "hit_ratio": hit_ratio,
             "persisted_hits": int(
-                row["total_hits"] if row is not None else 0
+                row["total_hits"] if row is not None else 0,
             ),
             "last_accessed_at": (
                 row["last_accessed_at"] if row is not None else None

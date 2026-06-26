@@ -6,14 +6,14 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from aiohttp import web
 
-from app.services.workflow_status import default_tasker_dir, scan_tasker_boards
 from app.services.tasker_bridge import slugify
+from app.services.workflow_status import default_tasker_dir, scan_tasker_boards
 
 log = logging.getLogger("ucore.api.workflows")
 
@@ -46,7 +46,7 @@ def record_import_job(
         "status": status,
         "progress": progress,
         "message": message,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
     # Keep only the last 50 jobs
     if len(_import_jobs) > 50:
@@ -63,6 +63,7 @@ async def handle_import_status(request: web.Request) -> web.Response:
 
     Returns:
       { "jobs": [{id, status, progress, message, timestamp}] }
+
     """
     jobs = list(_import_jobs.values())
     # Sort newest first
@@ -79,6 +80,7 @@ async def handle_index_coverage(request: web.Request) -> web.Response:
         "total_docs": int,
         "coverage_pct": float
       }
+
     """
     from app.af_manager.config import load_config
     from app.af_manager.sync import get_index_coverage
@@ -184,7 +186,7 @@ def _parse_task_markdown(path: Path) -> dict[str, Any] | None:
 
 def _render_task_markdown(task: dict[str, Any]) -> str:
     """Render a task dict back into .tasker markdown format."""
-    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    ts = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     tags = task.get("tags", [])
     tags_line = f"- source: {tags[0]}" if tags else ""
 
@@ -274,6 +276,7 @@ async def handle_board_health(request: web.Request) -> web.Response:
 
     Returns:
       { status, issues, warning_count, task_count }
+
     """
     board_id = request.match_info.get("board_id", "")
     if not board_id:
@@ -391,7 +394,7 @@ async def handle_create_workflow(request: web.Request) -> web.Response:
                 {
                     "error": (
                         "each step must be type=skill with skill_id/target"
-                    )
+                    ),
                 },
                 status=400,
             )
@@ -435,7 +438,7 @@ async def handle_run_workflow(request: web.Request) -> web.Response:
         return web.json_response({"error": "Workflow not found"}, status=404)
 
     run_id = f"run-{uuid.uuid4().hex[:10]}"
-    run_started = datetime.now(timezone.utc).isoformat()
+    run_started = datetime.now(UTC).isoformat()
     run_rows: list[dict[str, Any]] = []
     failed = False
 
@@ -452,7 +455,7 @@ async def handle_run_workflow(request: web.Request) -> web.Response:
     for idx, step in enumerate(workflow.get("steps", []), start=1):
         skill_id = step.get("skill_id", "")
         params = step.get("params") or {}
-        step_started = datetime.now(timezone.utc).isoformat()
+        step_started = datetime.now(UTC).isoformat()
         try:
             result = await run_skill_by_id(str(skill_id), **params)
             success = bool(result.get("success", True))
@@ -461,7 +464,7 @@ async def handle_run_workflow(request: web.Request) -> web.Response:
                 "type": "skill",
                 "skill_id": skill_id,
                 "started_at": step_started,
-                "finished_at": datetime.now(timezone.utc).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
                 "success": success,
                 "result": result,
             }
@@ -490,7 +493,7 @@ async def handle_run_workflow(request: web.Request) -> web.Response:
                 "type": "skill",
                 "skill_id": skill_id,
                 "started_at": step_started,
-                "finished_at": datetime.now(timezone.utc).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
                 "success": False,
                 "error": str(exc),
             }
@@ -514,7 +517,7 @@ async def handle_run_workflow(request: web.Request) -> web.Response:
         workflow_id=workflow_id,
         workflow_name=workflow.get("name", ""),
         started_at=run_started,
-        finished_at=datetime.now(timezone.utc).isoformat(),
+        finished_at=datetime.now(UTC).isoformat(),
         status=status,
         steps=run_rows,
     )
@@ -554,7 +557,7 @@ async def handle_workflow_logs(request: web.Request) -> web.Response:
             "run_history": runs,
             "log_count": len(logs),
             "run_count": len(runs),
-        }
+        },
     )
 
 
@@ -572,5 +575,5 @@ async def handle_workflow_runs(request: web.Request) -> web.Response:
         {
             "runs": runs,
             "count": len(runs),
-        }
+        },
     )

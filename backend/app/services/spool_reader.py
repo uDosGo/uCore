@@ -9,8 +9,8 @@ Spec: docs/SPOOL_SPEC.md
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -87,12 +87,12 @@ def parse_line(line: str, source: str = "unknown") -> SpoolEntry | None:
             # Parse without timezone, assume UTC for logs
             parsed = datetime.fromisoformat(raw)
             if parsed.tzinfo is None:
-                parsed = parsed.replace(tzinfo=timezone.utc)
+                parsed = parsed.replace(tzinfo=UTC)
             ts = parsed.isoformat()
         except Exception:
-            ts = datetime.now(timezone.utc).isoformat()
+            ts = datetime.now(UTC).isoformat()
     else:
-        ts = datetime.now(timezone.utc).isoformat()
+        ts = datetime.now(UTC).isoformat()
     level_match = LOG_LEVEL_RE.search(line)
     level = level_match.group(1) if level_match else "INFO"
     module = "unknown"
@@ -170,7 +170,7 @@ def read_spool(log_dir: str | Path | None = None, max_entries: int = 500,
 
 def summarize_spool(log_dir: str | Path | None = None, hours: int = 24, max_lines: int = 30) -> str:
     from datetime import timedelta
-    cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    cutoff = (datetime.now(UTC) - timedelta(hours=hours)).isoformat()
     entries = read_spool(log_dir, max_entries=500, since=cutoff)
     if not entries:
         # If no entries found for the strict time window, fall back to scanning

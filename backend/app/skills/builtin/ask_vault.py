@@ -9,10 +9,13 @@ Usage:
 """
 from __future__ import annotations
 
-from app.skills.base import BaseSkill, SkillMeta, SkillParam
 from app.knowledge.appflowy import (
-    list_workspaces, list_documents, get_document_content, semantic_search,
+    get_document_content,
+    list_documents,
+    list_workspaces,
+    semantic_search,
 )
+from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 
 class AskVault(BaseSkill):

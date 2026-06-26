@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +21,7 @@ def render_task_markdown(
     body: str,
     metadata: dict[str, Any],
 ) -> str:
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines = [
         f"# {title}",
         "",
@@ -100,7 +100,7 @@ def export_rows_to_tasker(
                 "status": status,
                 "source_id": source_id,
                 "file": str(path),
-            }
+            },
         )
 
     return {

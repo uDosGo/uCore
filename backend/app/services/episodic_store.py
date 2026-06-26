@@ -9,7 +9,7 @@ Default store: <PROJECT_ROOT>/.episodic/corrections.jsonl
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -20,13 +20,13 @@ EPISODIC_DIR = PROJECT_ROOT / ".episodic"
 EPISODIC_LOG = EPISODIC_DIR / "corrections.jsonl"
 
 ENTRY_TYPES = frozenset(
-    {"correction", "lesson", "decision", "observation"}
+    {"correction", "lesson", "decision", "observation"},
 )
 SEVERITIES = frozenset({"low", "medium", "high"})
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def append_entry(
@@ -43,12 +43,12 @@ def append_entry(
     if entry_type not in ENTRY_TYPES:
         raise ValueError(
             f"Invalid type '{entry_type}'; "
-            f"must be one of {sorted(ENTRY_TYPES)}"
+            f"must be one of {sorted(ENTRY_TYPES)}",
         )
     if severity not in SEVERITIES:
         raise ValueError(
             f"Invalid severity '{severity}'; "
-            f"must be one of {sorted(SEVERITIES)}"
+            f"must be one of {sorted(SEVERITIES)}",
         )
     entry: dict[str, Any] = {
         "timestamp": _utc_now(),
@@ -78,7 +78,7 @@ def read_entries(
     if not target.exists():
         return []
     cutoff = (
-        datetime.now(timezone.utc) - timedelta(hours=hours)
+        datetime.now(UTC) - timedelta(hours=hours)
     ).isoformat()
     entries: list[dict[str, Any]] = []
     with target.open(encoding="utf-8", errors="replace") as f:

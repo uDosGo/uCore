@@ -14,15 +14,14 @@ import os
 import shutil
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from app.menu.clipboard_buffer import add_clipboard_item, copy_text_to_clipboard
 
-
 SPOOL_PATH = Path(
-    os.getenv("UCORE_SNACKS_REPLIES", "~/.local/share/snackmachine/replies.jsonl")
+    os.getenv("UCORE_SNACKS_REPLIES", "~/.local/share/snackmachine/replies.jsonl"),
 ).expanduser()
 
 MARKDOWN_SNACK_DIR = Path(__file__).resolve().parents[2] / "tools" / "markdown_snack"
@@ -64,7 +63,7 @@ SYSTEM_SNACKS: tuple[SystemSnack, ...] = (
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _append_spool(payload: dict[str, Any]) -> None:
@@ -106,19 +105,19 @@ def _snack_by_id(snack_id: str) -> SystemSnack | None:
 def _read_badge(snack_id: str) -> dict[str, Any]:
     if snack_id == "reminders":
         output = _run_osascript(
-            'tell application "Reminders" to count (reminders whose completed is false)'
+            'tell application "Reminders" to count (reminders whose completed is false)',
         )
         return {"count": int(output or "0")}
 
     if snack_id == "mail-vip":
         output = _run_osascript(
-            'tell application "Mail" to count (messages of inbox whose vip status is true and read status is false)'
+            'tell application "Mail" to count (messages of inbox whose vip status is true and read status is false)',
         )
         return {"count": int(output or "0")}
 
     if snack_id == "contacts-vip":
         output = _run_osascript(
-            'tell application "Contacts" to get name of every person whose organization is false and note contains "VIP"'
+            'tell application "Contacts" to get name of every person whose organization is false and note contains "VIP"',
         )
         names = [line.strip() for line in output.split(",") if line.strip()] if output else []
         return {"count": len(names), "names": names[:20]}

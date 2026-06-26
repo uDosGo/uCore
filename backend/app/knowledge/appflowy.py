@@ -13,7 +13,6 @@ import json
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 log = logging.getLogger("ucore.knowledge.appflowy")
 
@@ -39,7 +38,7 @@ def _collab_count(db_path: Path) -> int:
         return -1
 
 
-def _find_database(workspace_id: str | None = None) -> Optional[Path]:
+def _find_database(workspace_id: str | None = None) -> Path | None:
     """Find the AppFlowy database path."""
     best_candidate: Path | None = None
     best_count = -1
@@ -64,7 +63,7 @@ def _find_database(workspace_id: str | None = None) -> Optional[Path]:
     return best_candidate
 
 
-def _get_db() -> Optional[sqlite3.Connection]:
+def _get_db() -> sqlite3.Connection | None:
     path = _find_database()
     if not path:
         return None
@@ -85,7 +84,7 @@ def list_workspaces() -> list[dict]:
                 try:
                     conn = sqlite3.connect(str(db_path))
                     cur = conn.execute(
-                        "SELECT id, name, icon, member_count FROM user_workspace_table LIMIT 10"
+                        "SELECT id, name, icon, member_count FROM user_workspace_table LIMIT 10",
                     )
                     for row in cur.fetchall():
                         results.append({
@@ -112,7 +111,7 @@ def list_documents(workspace_id: str | None = None) -> list[dict]:
         "SELECT object_id, title, collab_type, timestamp, data "
         "FROM collab_snapshot "
         "WHERE collab_type IN ('document', 'database', 'folder') "
-        "ORDER BY timestamp DESC LIMIT 100"
+        "ORDER BY timestamp DESC LIMIT 100",
     )
     docs = []
     for row in cur.fetchall():
@@ -141,7 +140,7 @@ def list_documents(workspace_id: str | None = None) -> list[dict]:
     return docs
 
 
-def get_document(object_id: str, workspace_id: str | None = None) -> Optional[dict]:
+def get_document(object_id: str, workspace_id: str | None = None) -> dict | None:
     """Get a single document's content from AppFlowy."""
     db_path = _find_database(workspace_id)
     if not db_path:
@@ -238,7 +237,7 @@ def semantic_search(query: str, workspace_id: str | None = None, limit: int = 10
     return results[:limit]
 
 
-def get_document_content(object_id: str, workspace_id: str | None = None) -> Optional[str]:
+def get_document_content(object_id: str, workspace_id: str | None = None) -> str | None:
     """Extract text content from a collab snapshot blob.
     
     AppFlowy stores content as protobuf (protobuf) binary data.
@@ -247,25 +246,25 @@ def get_document_content(object_id: str, workspace_id: str | None = None) -> Opt
     doc = get_document(object_id, workspace_id)
     if not doc:
         return None
-    
+
     db_path = _find_database(workspace_id)
     conn = sqlite3.connect(str(db_path))
     cur = conn.execute("SELECT data FROM collab_snapshot WHERE object_id = ?", (object_id,))
     row = cur.fetchone()
     conn.close()
-    
+
     if not row or not row[0]:
         return None
-    
+
     data = row[0]
-    
+
     # Try to extract UTF-8 strings from binary protobuf
     try:
         text = data.decode("utf-8", errors="ignore")
         # Strip non-printable chars, keep reasonable text
         import re
-        text = re.sub(r'[^\x20-\x7E\x0A\x0D\u00A0-\u024F\u0400-\u04FF\u4E00-\u9FFF]', ' ', text)
-        text = re.sub(r'\s+', ' ', text).strip()
+        text = re.sub(r"[^\x20-\x7E\x0A\x0D\u00A0-\u024F\u0400-\u04FF\u4E00-\u9FFF]", " ", text)
+        text = re.sub(r"\s+", " ", text).strip()
         return text[:10000] if text else "(empty content)"
     except Exception:
         return "(binary content — rendering not supported)"

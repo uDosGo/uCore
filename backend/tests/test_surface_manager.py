@@ -1,8 +1,7 @@
 """Tests for SurfaceManager service."""
 from __future__ import annotations
 
-import pytest
-from app.models.surface import SurfaceType, SurfaceState
+from app.models.surface import SurfaceState, SurfaceType
 from app.services.surface_manager import SurfaceManager
 
 

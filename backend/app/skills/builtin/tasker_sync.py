@@ -14,9 +14,7 @@ Usage:
 """
 from __future__ import annotations
 
-from pathlib import Path
 from app.core.settings import settings
-
 from app.knowledge.local_first import discover_databases, run_query
 from app.services.tasker_bridge import export_rows_to_tasker
 from app.skills.base import BaseSkill, SkillMeta, SkillParam

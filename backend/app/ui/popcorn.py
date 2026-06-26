@@ -16,7 +16,10 @@ Menu items:
 Depends on: PyObjC (included with macOS Python)
 """
 
+# ruff: noqa
+
 import os
+import contextlib
 import sys
 import json
 import time
@@ -532,7 +535,7 @@ class PopcornDelegate(NSObject):
 
     # ─── Actions ───────────────────────────────────────────────
 
-    def openUIHub_(self, sender):
+    def openUIHub_(self, _sender: object) -> None:
         """Open UI Hub in browser."""
         log.info("Opening UI Hub (with auto-start)")
         if ensure_uihub_running():
@@ -547,7 +550,7 @@ class PopcornDelegate(NSObject):
         )
         alert.runModal()
 
-    def checkHealth_(self, sender):
+    def checkHealth_(self, _sender: object) -> None:
         """Run basic health checks and show a quick summary."""
         backend_ok = ensure_ucore_running()
         health = api_get("/api/health") if backend_ok else None
@@ -568,7 +571,7 @@ class PopcornDelegate(NSObject):
         alert.setInformativeText_("\n".join(lines))
         alert.runModal()
 
-    def restartBackend_(self, sender):
+    def restartBackend_(self, _sender: object) -> None:
         """Restart the uCore backend daemon."""
         log.info("Restarting backend daemon from popcorn menu...")
         try:
@@ -602,7 +605,7 @@ class PopcornDelegate(NSObject):
         except Exception as e:
             log.error(f"Backend restart error: {e}")
 
-    def restartUIHub_(self, sender):
+    def restartUIHub_(self, _sender: object) -> None:
         """Restart the UI Hub frontend."""
         log.info("Restarting UI Hub from popcorn menu...")
         if not ensure_ucore_running():
@@ -615,7 +618,7 @@ class PopcornDelegate(NSObject):
         _ = api_post_json("/api/surfaces/ui-hub/restart")
         log.info("UI Hub restart requested")
 
-    def healUIHub_(self, sender):
+    def healUIHub_(self, _sender: object) -> None:
         """Try repair/restart/start flow for UI Hub and open it on success."""
         if not ensure_ucore_running():
             alert = NSAlert.alloc().init()
@@ -634,18 +637,18 @@ class PopcornDelegate(NSObject):
 
         open_s190_fallback("uihub-heal-failed")
 
-    def openS190Diagnostics_(self, sender):
+    def openS190Diagnostics_(self, _sender: object) -> None:
         """Open local S190 diagnostics fallback page immediately."""
         open_s190_fallback("manual-s190-diagnostics")
 
-    def openSurface_(self, sender):
+    def openSurface_(self, _sender: object) -> None:
         """Open a surface URL in the browser."""
-        url = sender.representedObject()
+        url = _sender.representedObject()
         if url and url != "#":
-            log.info(f"Opening surface: {url}")
+            log.info("Opening surface: %s", url)
             subprocess.Popen(["open", url])
 
-    def quitApp_(self, sender):
+    def quitApp_(self, _sender: object) -> None:
         """Quit the popcorn menu app."""
         log.info("Quitting popcorn")
         if self._refresh_timer:
@@ -654,34 +657,34 @@ class PopcornDelegate(NSObject):
 
     # ── Ollama Actions ─────────────────────────────────────────────
 
-    def startOllama_(self, sender):
+    def startOllama_(self, _sender: object) -> None:
         """Start Ollama server explicitly (only called from popcorn menu)."""
         log.info("Starting Ollama from popcorn menu...")
         try:
             # Remove disable flag so watchdog doesn't kill it
-            disable_file = os.path.expanduser("~/.ucore/ollama_disabled")
-            if os.path.exists(disable_file):
-                os.remove(disable_file)
+            disable_file = Path("~/.ucore/ollama_disabled").expanduser()
+            if disable_file.exists():
+                disable_file.unlink()
 
             # Start ollama serve as a standalone process (not via launchd)
             proc = subprocess.Popen(
                 ["ollama", "serve"],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                preexec_fn=os.setsid,
+                start_new_session=True,
             )
-            log.info(f"Ollama started (PID {proc.pid})")
+            log.info("Ollama started (PID %s)", proc.pid)
             time.sleep(2)
-            self._ollama_status = 'checking'
+            self._ollama_status = "checking"
             self._refresh()
         except Exception as e:
-            log.error(f"Failed to start Ollama: {e}")
+            log.exception("Failed to start Ollama: %s", e)
             alert = NSAlert.alloc().init()
             alert.setMessageText_("Failed to Start Ollama")
             alert.setInformativeText_(str(e))
             alert.runModal()
 
-    def stopOllama_(self, sender):
+    def stopOllama_(self, _sender: object) -> None:
         """Stop Ollama server — kills it AND prevents auto-restart.
 
         Sets a disable flag so no watchdog re-launches it.
@@ -692,7 +695,10 @@ class PopcornDelegate(NSObject):
             # 1. Kill all ollama processes with extreme prejudice
             result = subprocess.run(
                 ["pgrep", "-f", "ollama"],
-                capture_output=True, text=True, timeout=5
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
             )
             pids = [int(p) for p in result.stdout.strip().splitlines() if p.strip()]
             # Filter out our own pgrep command
@@ -701,83 +707,96 @@ class PopcornDelegate(NSObject):
             if pids:
                 # SIGKILL immediately — no graceful shutdown needed for resource reclaim
                 for pid in pids:
-                    try:
+                    with contextlib.suppress(ProcessLookupError, OSError):
                         os.kill(pid, signal.SIGKILL)
-                    except (ProcessLookupError, OSError):
-                        pass
-                log.info(f"Killed Ollama PIDs: {pids}")
+                log.info("Killed Ollama PIDs: %s", pids)
                 time.sleep(0.5)
 
             # 2. Unload any launchd agent that might respawn Ollama
             for plist in ["homebrew.mxcl.ollama", "ollama", "com.ollama.ollama"]:
-                try:
+                with contextlib.suppress(Exception):
                     subprocess.run(
-                        ["launchctl", "unload", f"/Library/LaunchAgents/{plist}.plist"],
-                        capture_output=True, timeout=5,
+                        [
+                            "launchctl",
+                            "unload",
+                            f"/Library/LaunchAgents/{plist}.plist",
+                        ],
+                        capture_output=True,
+                        timeout=5,
+                        check=False,
                     )
-                except Exception:
-                    pass
-                try:
+                with contextlib.suppress(Exception):
                     subprocess.run(
-                        ["launchctl", "unload", f"~/Library/LaunchAgents/{plist}.plist"],
-                        capture_output=True, timeout=5,
+                        [
+                            "launchctl",
+                            "unload",
+                            str(Path.home() / "Library" / "LaunchAgents" / f"{plist}.plist"),
+                        ],
+                        capture_output=True,
+                        timeout=5,
+                        check=False,
                     )
-                except Exception:
-                    pass
 
             # 3. Set disable flag so no auto-restart
-            disable_file = os.path.expanduser("~/.ucore/ollama_disabled")
-            os.makedirs(os.path.dirname(disable_file), exist_ok=True)
-            with open(disable_file, "w") as f:
-                f.write(f"disabled by popcorn at {time.time()}")
+            disable_file = Path("~/.ucore/ollama_disabled").expanduser()
+            disable_file.parent.mkdir(parents=True, exist_ok=True)
+            disable_file.write_text(f"disabled by popcorn at {time.time()}")
 
             # 4. Also kill any leftover ollama runner processes
             for leftover in ["ollama_llama_server", "ollama-runner"]:
-                try:
-                    subprocess.run(["pkill", "-9", leftover], capture_output=True, timeout=3)
-                except Exception:
-                    pass
+                with contextlib.suppress(Exception):
+                    subprocess.run(
+                        ["pkill", "-9", leftover],
+                        capture_output=True,
+                        timeout=3,
+                        check=False,
+                    )
 
-            self._ollama_status = 'stopped'
+            self._ollama_status = "stopped"
             self._ollama_models = []
             self._refresh()
-            log.info("Ollama fully stopped and disabled. Only popcorn menu can restart.")
+            log.info(
+                "Ollama fully stopped and disabled. Only popcorn menu can restart."
+            )
         except Exception as e:
-            log.error(f"Failed to stop Ollama: {e}")
+            log.exception("Failed to stop Ollama: %s", e)
             alert = NSAlert.alloc().init()
             alert.setMessageText_("Failed to Stop Ollama")
             alert.setInformativeText_(str(e))
             alert.runModal()
 
-    def restartOllama_(self, sender):
+    def restartOllama_(self, _sender: object) -> None:
         """Restart Ollama (stop then start)."""
         log.info("Restarting Ollama...")
-        self.stopOllama_(sender)
+        self.stopOllama_(_sender)
         time.sleep(2)
-        self.startOllama_(sender)
+        self.startOllama_(_sender)
 
 
 # ─── Lockfile (prevent duplicate instances) ──────────────────────────
 
-POPCORN_LOCKFILE = os.path.expanduser("~/.ucore/ucore-popcorn.pid")
+POPCORN_LOCKFILE = str(Path("~/.ucore/ucore-popcorn.pid").expanduser())
 
 
 def acquire_lock() -> bool:
     """Acquire a PID lockfile — kills ALL existing popcorn instances first."""
-    lock_dir = os.path.dirname(POPCORN_LOCKFILE)
-    os.makedirs(lock_dir, exist_ok=True)
+    lock_dir = Path(POPCORN_LOCKFILE).parent
+    lock_dir.mkdir(parents=True, exist_ok=True)
 
     # Kill any existing popcorn processes by name (handles launchd + manual dups)
     try:
-        result = subprocess.run(
-            ["pgrep", "-f", "popcorn.py"],
-            capture_output=True, text=True, timeout=5
-        )
+            result = subprocess.run(
+                ["pgrep", "-f", "popcorn.py"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
         for pid_str in result.stdout.strip().splitlines():
             pid = pid_str.strip()
             if pid and int(pid) != os.getpid():
                 try:
-                    log.info(f"Killing existing Popcorn instance (PID {pid})")
+                    log.info("Killing existing Popcorn instance (PID %s)", pid)
                     os.kill(int(pid), 15)
                 except (ProcessLookupError, OSError):
                     pass
@@ -795,20 +814,19 @@ def acquire_lock() -> bool:
     except Exception:
         pass
 
-    with open(POPCORN_LOCKFILE, "w") as f:
-        f.write(str(os.getpid()))
-    log.info(f"Lockfile acquired (PID {os.getpid()})")
+    Path(POPCORN_LOCKFILE).write_text(str(os.getpid()))
+    log.info("Lockfile acquired (PID %s)", os.getpid())
     return True
 
 
 def release_lock():
     """Remove the lockfile if it belongs to us."""
     try:
-        if os.path.exists(POPCORN_LOCKFILE):
-            with open(POPCORN_LOCKFILE) as f:
-                stored_pid = int(f.read().strip())
+        lock_path = Path(POPCORN_LOCKFILE)
+        if lock_path.exists():
+            stored_pid = int(lock_path.read_text().strip())
             if stored_pid == os.getpid():
-                os.remove(POPCORN_LOCKFILE)
+                lock_path.unlink()
                 log.info("Lockfile released")
     except (ValueError, OSError):
         pass

@@ -1,12 +1,10 @@
 """GitHub API Client — wrapper for GitHub operations"""
 from __future__ import annotations
 
-import os
-import logging
-from typing import Optional, Any
-from pathlib import Path
-import subprocess
 import json
+import logging
+import os
+import subprocess
 
 try:
     from github import Github, GithubException
@@ -19,19 +17,20 @@ log = logging.getLogger("ucore.github")
 
 class GitHubClient:
     """GitHub API client for uCore MCP tools."""
-    
-    def __init__(self, token: Optional[str] = None, org: str = "uDosGo"):
+
+    def __init__(self, token: str | None = None, org: str = "uDosGo"):
         """Initialize GitHub client.
         
         Args:
             token: GitHub Personal Access Token (defaults to env GITHUB_TOKEN)
             org: GitHub organization name
+
         """
         self.token = token or os.getenv("GITHUB_TOKEN", "")
         self.org = org
         self._gh = None
         self._org_obj = None
-        
+
         if HAS_PYGITHUB and self.token:
             try:
                 from github import Auth
@@ -41,7 +40,7 @@ class GitHubClient:
                 log.info(f"GitHub client initialized for org: {self.org}")
             except GithubException as e:
                 log.error(f"Failed to initialize GitHub client: {e}")
-    
+
     def is_authenticated(self) -> bool:
         """Check if GitHub authentication is valid."""
         if not self._gh:
@@ -51,7 +50,7 @@ class GitHubClient:
             return True
         except Exception:
             return False
-    
+
     def run_gh_cli(self, args: list[str]) -> dict:
         """Execute GitHub CLI command.
         
@@ -60,6 +59,7 @@ class GitHubClient:
             
         Returns:
             dict with success, stdout, stderr
+
         """
         try:
             result = subprocess.run(
@@ -67,19 +67,19 @@ class GitHubClient:
                 capture_output=True,
                 text=True,
                 timeout=30,
-                env={**os.environ, "GITHUB_TOKEN": self.token}
+                env={**os.environ, "GITHUB_TOKEN": self.token},
             )
             return {
                 "success": result.returncode == 0,
                 "stdout": result.stdout.strip(),
                 "stderr": result.stderr.strip(),
-                "returncode": result.returncode
+                "returncode": result.returncode,
             }
         except subprocess.TimeoutExpired:
             return {"success": False, "error": "Command timeout"}
         except Exception as e:
             return {"success": False, "error": str(e)}
-    
+
     def list_repos(self) -> list[dict]:
         """List all repositories in the organization."""
         if self._org_obj:
@@ -96,7 +96,7 @@ class GitHubClient:
                 return repos
             except Exception as e:
                 log.error(f"Failed to list repos: {e}")
-        
+
         # Fallback to gh CLI
         result = self.run_gh_cli(["repo", "list", self.org, "--json", "name,url"])
         if result["success"]:
@@ -105,7 +105,7 @@ class GitHubClient:
             except json.JSONDecodeError:
                 return []
         return []
-    
+
     def get_repo(self, repo_name: str):
         """Get repository object."""
         if self._org_obj:
@@ -114,8 +114,8 @@ class GitHubClient:
             except Exception as e:
                 log.error(f"Failed to get repo {repo_name}: {e}")
         return None
-    
-    def create_release(self, repo_name: str, tag: str, name: str, 
+
+    def create_release(self, repo_name: str, tag: str, name: str,
                        body: str, draft: bool = False) -> dict:
         """Create a GitHub release.
         
@@ -128,6 +128,7 @@ class GitHubClient:
             
         Returns:
             dict with success, release_url
+
         """
         repo = self.get_repo(repo_name)
         if repo:
@@ -136,36 +137,36 @@ class GitHubClient:
                     tag=tag,
                     name=name,
                     message=body,
-                    draft=draft
+                    draft=draft,
                 )
                 return {
                     "success": True,
                     "release_url": release.html_url,
-                    "tag": tag
+                    "tag": tag,
                 }
             except Exception as e:
                 return {"success": False, "error": str(e)}
-        
+
         # Fallback to gh CLI
         args = [
             "release", "create", tag,
             "--repo", f"{self.org}/{repo_name}",
             "--title", name,
-            "--notes", body
+            "--notes", body,
         ]
         if draft:
             args.append("--draft")
-        
+
         result = self.run_gh_cli(args)
         if result["success"]:
             return {
                 "success": True,
                 "tag": tag,
-                "output": result["stdout"]
+                "output": result["stdout"],
             }
         return {"success": False, "error": result.get("stderr", "Unknown error")}
-    
-    def create_pr(self, repo_name: str, title: str, body: str, 
+
+    def create_pr(self, repo_name: str, title: str, body: str,
                   head: str, base: str = "main") -> dict:
         """Create a pull request.
         
@@ -178,6 +179,7 @@ class GitHubClient:
             
         Returns:
             dict with success, pr_url, pr_number
+
         """
         repo = self.get_repo(repo_name)
         if repo:
@@ -186,16 +188,16 @@ class GitHubClient:
                     title=title,
                     body=body,
                     head=head,
-                    base=base
+                    base=base,
                 )
                 return {
                     "success": True,
                     "pr_url": pr.html_url,
-                    "pr_number": pr.number
+                    "pr_number": pr.number,
                 }
             except Exception as e:
                 return {"success": False, "error": str(e)}
-        
+
         # Fallback to gh CLI
         result = self.run_gh_cli([
             "pr", "create",
@@ -203,46 +205,46 @@ class GitHubClient:
             "--title", title,
             "--body", body,
             "--head", head,
-            "--base", base
+            "--base", base,
         ])
-        
+
         if result["success"]:
             return {
                 "success": True,
-                "output": result["stdout"]
+                "output": result["stdout"],
             }
         return {"success": False, "error": result.get("stderr", "Unknown error")}
-    
+
     def list_workflow_runs(self, repo_name: str, limit: int = 10) -> list[dict]:
         """List recent workflow runs."""
         result = self.run_gh_cli([
             "run", "list",
             "--repo", f"{self.org}/{repo_name}",
             "--limit", str(limit),
-            "--json", "databaseId,status,conclusion,name,headBranch,createdAt"
+            "--json", "databaseId,status,conclusion,name,headBranch,createdAt",
         ])
-        
+
         if result["success"]:
             try:
                 return json.loads(result["stdout"])
             except json.JSONDecodeError:
                 return []
         return []
-    
-    def list_issues(self, repo_name: str, state: str = "open", 
-                    labels: Optional[list[str]] = None) -> list[dict]:
+
+    def list_issues(self, repo_name: str, state: str = "open",
+                    labels: list[str] | None = None) -> list[dict]:
         """List issues in repository."""
         args = [
             "issue", "list",
             "--repo", f"{self.org}/{repo_name}",
             "--state", state,
-            "--json", "number,title,labels,createdAt,updatedAt,author"
+            "--json", "number,title,labels,createdAt,updatedAt,author",
         ]
-        
+
         if labels:
             for label in labels:
                 args.extend(["--label", label])
-        
+
         result = self.run_gh_cli(args)
         if result["success"]:
             try:
@@ -252,6 +254,6 @@ class GitHubClient:
         return []
 
 
-def get_github_client(token: Optional[str] = None, org: str = "uDosGo") -> GitHubClient:
+def get_github_client(token: str | None = None, org: str = "uDosGo") -> GitHubClient:
     """Get or create singleton GitHub client."""
     return GitHubClient(token=token, org=org)

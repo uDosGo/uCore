@@ -4,11 +4,8 @@ Supports both in-memory and SQLite persistence backends.
 """
 from __future__ import annotations
 
-from typing import Optional
-from datetime import datetime, timezone
-
+from app.core.database import container_from_row, get_db, to_json
 from app.models.container import Container, ContainerRuntime, ContainerStatus
-from app.core.database import get_db, container_from_row, now_iso, to_json, from_json
 
 
 class ContainerManager:
@@ -20,7 +17,7 @@ class ContainerManager:
 
     # ─── SQL Helpers ─────────────────────────────────────────────
 
-    def _load_from_db(self, container_id: str) -> Optional[Container]:
+    def _load_from_db(self, container_id: str) -> Container | None:
         if not self._persist:
             return self._cache.get(container_id)
         with get_db() as db:
@@ -28,7 +25,7 @@ class ContainerManager:
             row = cursor.fetchone()
             return Container(**container_from_row(row)) if row else None
 
-    def _load_all_from_db(self, status: Optional[ContainerStatus] = None) -> list[Container]:
+    def _load_all_from_db(self, status: ContainerStatus | None = None) -> list[Container]:
         if not self._persist:
             containers = list(self._cache.values())
             if status:
@@ -92,10 +89,10 @@ class ContainerManager:
         self,
         name: str,
         runtime: ContainerRuntime = ContainerRuntime.PYTHON,
-        image: Optional[str] = None,
-        dependencies: Optional[list[str]] = None,
-        env_vars: Optional[dict[str, str]] = None,
-        command: Optional[str] = None,
+        image: str | None = None,
+        dependencies: list[str] | None = None,
+        env_vars: dict[str, str] | None = None,
+        command: str | None = None,
     ) -> Container:
         container = Container(
             name=name,
@@ -108,13 +105,13 @@ class ContainerManager:
         self._save_to_db(container)
         return container
 
-    def get_container(self, container_id: str) -> Optional[Container]:
+    def get_container(self, container_id: str) -> Container | None:
         return self._load_from_db(container_id)
 
-    def list_containers(self, status: Optional[ContainerStatus] = None) -> list[Container]:
+    def list_containers(self, status: ContainerStatus | None = None) -> list[Container]:
         return self._load_all_from_db(status)
 
-    def start_container(self, container_id: str) -> Optional[Container]:
+    def start_container(self, container_id: str) -> Container | None:
         container = self._load_from_db(container_id)
         if container is None:
             return None
@@ -122,7 +119,7 @@ class ContainerManager:
         self._save_to_db(container)
         return container
 
-    def stop_container(self, container_id: str) -> Optional[Container]:
+    def stop_container(self, container_id: str) -> Container | None:
         container = self._load_from_db(container_id)
         if container is None:
             return None
@@ -133,7 +130,7 @@ class ContainerManager:
     def delete_container(self, container_id: str) -> bool:
         return self._delete_from_db(container_id)
 
-    def get_container_logs(self, container_id: str, tail: Optional[int] = None) -> Optional[list[str]]:
+    def get_container_logs(self, container_id: str, tail: int | None = None) -> list[str] | None:
         container = self._load_from_db(container_id)
         if container is None:
             return None

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+
 from aiohttp import web
 
 log = logging.getLogger("ucore")
@@ -61,7 +62,7 @@ async def handle_agents_spec_list(request: web.Request) -> web.Response:
                     "priority": agent.priority,
                 }
                 for agent in agents
-            ]
+            ],
         })
     except Exception as e:
         log.error(f"Failed to list agents: {e}")
@@ -131,7 +132,7 @@ async def handle_agents_spec_route(request: web.Request) -> web.Response:
             requested_stage=workflow_stage,
         )
         active_agent = registry.get_agent(
-            workflow["active_stage"]["agent"]["id"]
+            workflow["active_stage"]["agent"]["id"],
         )
         if active_agent is None:
             active_agent = registry.get_best_agent_for_task(
@@ -147,7 +148,7 @@ async def handle_agents_spec_route(request: web.Request) -> web.Response:
 
         log.info(
             f"Routing task (type={task_type}, complexity={complexity}) "
-            f"to agent {active_agent.id}"
+            f"to agent {active_agent.id}",
         )
 
         router = get_router()

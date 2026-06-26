@@ -179,7 +179,7 @@ class RouteTask(BaseSkill):
                 "provider": "openrouter",
                 "model": "google/gemini-2.5-flash-001",
                 "cost": "~$0.005/100K tokens (cheap for large context)",
-                "reason": f"Large context — use Gemini for 1M token window",
+                "reason": "Large context — use Gemini for 1M token window",
                 "tokens_per_second": "~50",
             }
 

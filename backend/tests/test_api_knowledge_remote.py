@@ -1,19 +1,18 @@
 """Integration tests for Knowledge (AppFlowy Remote) API endpoints."""
 from __future__ import annotations
 
+import app.api.knowledge as knowledge_api
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
 from app.api.knowledge import (
-    handle_list_workspaces,
-    handle_list_documents,
+    handle_af_index_status,
     handle_get_document,
     handle_get_document_content,
-    handle_search,
+    handle_list_documents,
+    handle_list_workspaces,
     handle_mission_task_binder,
-    handle_af_index_status,
+    handle_search,
 )
-import app.api.knowledge as knowledge_api
 
 
 class KnowledgeRemoteAPITest(AioHTTPTestCase):
@@ -121,10 +120,10 @@ class KnowledgeRemoteAPITest(AioHTTPTestCase):
         knowledge_api.list_documents = fake_list_documents
         try:
             resp = await self.client.get(
-                (
+
                     "/api/knowledge/adapter/mission-task-binder"
-                    "?workspace_id=ws_abc"
-                )
+                    "?workspace_id=ws_abc",
+
             )
             assert resp.status == 200
             data = await resp.json()
@@ -139,7 +138,7 @@ class KnowledgeRemoteAPITest(AioHTTPTestCase):
 
     async def test_mission_task_binder_invalid_limit(self):
         resp = await self.client.get(
-            "/api/knowledge/adapter/mission-task-binder?limit=bad"
+            "/api/knowledge/adapter/mission-task-binder?limit=bad",
         )
         assert resp.status == 400
         data = await resp.json()
@@ -164,16 +163,16 @@ class KnowledgeRemoteAPITest(AioHTTPTestCase):
                     "properties": {
                         "mission": "Properties Mission",
                     },
-                }
+                },
             ]
 
         knowledge_api.list_documents = fake_list_documents
         try:
             resp = await self.client.get(
-                (
+
                     "/api/knowledge/adapter/mission-task-binder"
-                    "?workspace_id=ws_meta"
-                )
+                    "?workspace_id=ws_meta",
+
             )
             assert resp.status == 200
             data = await resp.json()

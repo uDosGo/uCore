@@ -32,7 +32,7 @@ async def test_backup_creates_file(tmp_path: Path, monkeypatch):
 @pytest.mark.asyncio
 async def test_daily_backup_full(tmp_path: Path, monkeypatch):
     """Daily backup runs without error."""
-    from app.skills.builtin.daily_backup import DailyBackup, BACKUP_DIR
+    from app.skills.builtin.daily_backup import DailyBackup
 
     monkeypatch.setattr("app.skills.builtin.daily_backup.BACKUP_DIR", tmp_path / "backups")
     monkeypatch.setattr("app.skills.builtin.daily_backup.RETENTION_DAYS", 999)
@@ -45,7 +45,7 @@ async def test_daily_backup_full(tmp_path: Path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_daily_backup_database_only(tmp_path: Path, monkeypatch):
-    from app.skills.builtin.daily_backup import DailyBackup, BACKUP_DIR
+    from app.skills.builtin.daily_backup import DailyBackup
 
     monkeypatch.setattr("app.skills.builtin.daily_backup.BACKUP_DIR", tmp_path / "backups")
 

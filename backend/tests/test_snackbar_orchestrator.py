@@ -1,8 +1,7 @@
 """Tests for SnackbarOrchestrator service."""
 from __future__ import annotations
 
-import pytest
-from app.models.snack import SnackType, SnackPriority, SnackStatus
+from app.models.snack import SnackPriority, SnackStatus, SnackType
 from app.services.snackbar_orchestrator import SnackbarOrchestrator
 
 

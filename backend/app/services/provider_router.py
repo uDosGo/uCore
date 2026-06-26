@@ -17,12 +17,14 @@ import logging
 import os
 import re
 import time
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, AsyncGenerator, Optional
+from typing import Any
 
 import aiohttp
 import yaml  # type: ignore[import-untyped]
+
 from app.services.chat_cache import ChatCache
 
 log = logging.getLogger("snackbar.provider_router")
@@ -53,7 +55,7 @@ def _load_env_file(path: Path) -> None:
                 if not line or line.startswith("#"):
                     continue
                 match = re.match(
-                    r'^export\s+([A-Za-z_][A-Za-z0-9_]*)=(.*)$',
+                    r"^export\s+([A-Za-z_][A-Za-z0-9_]*)=(.*)$",
                     line,
                 )
                 if match:
@@ -72,10 +74,11 @@ def _load_env_file(path: Path) -> None:
 @dataclass
 class ProviderConfig:
     """Configuration for a single provider."""
+
     name: str
     type: str  # "ollama", "openrouter", "oklocal"
     base_url: str
-    api_key: Optional[str] = None
+    api_key: str | None = None
     default_model: str = ""
     priority: int = 10
     enabled: bool = True
@@ -109,9 +112,9 @@ class ProviderRouter:
       3. Environment variables for API keys
     """
 
-    def __init__(self, config_dir: Optional[str] = None):
+    def __init__(self, config_dir: str | None = None):
         self.config_dir = Path(
-            config_dir or os.path.expanduser("~/.config/udos")
+            config_dir or os.path.expanduser("~/.config/udos"),
         )
         self.providers: dict[str, ProviderConfig] = {}
         self.cache = ChatCache()
@@ -263,7 +266,7 @@ class ProviderRouter:
                 if name in self.providers:
                     self.providers[name].priority = priority
 
-    def get_provider(self, name: Optional[str] = None) -> ProviderConfig:
+    def get_provider(self, name: str | None = None) -> ProviderConfig:
         """Get a provider by name, or the highest priority enabled provider."""
         if name and name in self.providers:
             return self.providers[name]
@@ -316,14 +319,15 @@ class ProviderRouter:
     async def chat(
         self,
         messages: list[dict],
-        provider: Optional[str] = None,
-        model: Optional[str] = None,
-        timeout: Optional[int] = None,
+        provider: str | None = None,
+        model: str | None = None,
+        timeout: int | None = None,
     ) -> dict:
         """Send a chat request to the specified provider.
 
         Returns:
             dict with keys: content, model, provider, error (optional)
+
         """
         started_at = time.perf_counter()
         self._metrics["requests"] += 1
@@ -479,14 +483,15 @@ class ProviderRouter:
     async def chat_stream(
         self,
         messages: list[dict],
-        provider: Optional[str] = None,
-        model: Optional[str] = None,
-    ) -> AsyncGenerator[tuple[Optional[str], Optional[dict]], None]:
+        provider: str | None = None,
+        model: str | None = None,
+    ) -> AsyncGenerator[tuple[str | None, dict | None], None]:
         """Stream a chat response token by token.
 
         Yields:
             (token, None) for each token
             (None, final_dict) for the final response
+
         """
         prov = self.get_provider(provider)
         model_id = model or prov.default_model
@@ -526,27 +531,26 @@ class ProviderRouter:
             "stream": False,
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                url,
-                json=payload,
-                timeout=aiohttp.ClientTimeout(total=timeout),
-            ) as resp:
-                if resp.status != 200:
-                    text = await resp.text()
-                    return {
-                        "error": f"Ollama error {resp.status}: {text[:200]}"
-                    }
-                data = await resp.json()
+        async with aiohttp.ClientSession() as session, session.post(
+            url,
+            json=payload,
+            timeout=aiohttp.ClientTimeout(total=timeout),
+        ) as resp:
+            if resp.status != 200:
+                text = await resp.text()
                 return {
-                    "content": data.get("message", {}).get("content", ""),
-                    "model": data.get("model", model),
-                    "provider": prov.name,
+                    "error": f"Ollama error {resp.status}: {text[:200]}",
                 }
+            data = await resp.json()
+            return {
+                "content": data.get("message", {}).get("content", ""),
+                "model": data.get("model", model),
+                "provider": prov.name,
+            }
 
     async def _stream_ollama(
         self, prov: ProviderConfig, messages: list[dict], model: str,
-    ) -> AsyncGenerator[tuple[Optional[str], Optional[dict]], None]:
+    ) -> AsyncGenerator[tuple[str | None, dict | None], None]:
         """Stream from Ollama API."""
         url = f"{prov.base_url.rstrip('/')}/api/chat"
         payload = {
@@ -560,7 +564,7 @@ class ProviderRouter:
                 if resp.status != 200:
                     text = await resp.text()
                     yield None, {
-                        "error": f"Ollama error {resp.status}: {text[:200]}"
+                        "error": f"Ollama error {resp.status}: {text[:200]}",
                     }
                     return
 
@@ -605,31 +609,30 @@ class ProviderRouter:
             "Content-Type": "application/json",
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                url,
-                json=payload,
-                headers=headers,
-                timeout=aiohttp.ClientTimeout(total=timeout),
-            ) as resp:
-                if resp.status != 200:
-                    text = await resp.text()
-                    return {
-                        "error": (
-                            f"OpenRouter error {resp.status}: {text[:200]}"
-                        )
-                    }
-                data = await resp.json()
-                choice = data.get("choices", [{}])[0]
+        async with aiohttp.ClientSession() as session, session.post(
+            url,
+            json=payload,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=timeout),
+        ) as resp:
+            if resp.status != 200:
+                text = await resp.text()
                 return {
-                    "content": choice.get("message", {}).get("content", ""),
-                    "model": data.get("model", model),
-                    "provider": prov.name,
+                    "error": (
+                        f"OpenRouter error {resp.status}: {text[:200]}"
+                    ),
                 }
+            data = await resp.json()
+            choice = data.get("choices", [{}])[0]
+            return {
+                "content": choice.get("message", {}).get("content", ""),
+                "model": data.get("model", model),
+                "provider": prov.name,
+            }
 
     async def _stream_openrouter(
         self, prov: ProviderConfig, messages: list[dict], model: str,
-    ) -> AsyncGenerator[tuple[Optional[str], Optional[dict]], None]:
+    ) -> AsyncGenerator[tuple[str | None, dict | None], None]:
         """Stream from OpenRouter API."""
         if not prov.api_key:
             yield None, {"error": "OpenRouter API key not configured"}
@@ -647,51 +650,50 @@ class ProviderRouter:
             "Content-Type": "application/json",
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                url,
-                json=payload,
-                headers=headers,
-            ) as resp:
-                if resp.status != 200:
-                    text = await resp.text()
-                    yield None, {
-                        "error": (
-                            f"OpenRouter error {resp.status}: {text[:200]}"
-                        )
-                    }
-                    return
+        async with aiohttp.ClientSession() as session, session.post(
+            url,
+            json=payload,
+            headers=headers,
+        ) as resp:
+            if resp.status != 200:
+                text = await resp.text()
+                yield None, {
+                    "error": (
+                        f"OpenRouter error {resp.status}: {text[:200]}"
+                    ),
+                }
+                return
 
-                full_content = ""
-                async for raw_line in resp.content:
-                    if raw_line:
-                        line_text = raw_line.decode().strip()
-                        if line_text.startswith("data: "):
-                            data_str = line_text[6:]
-                            if data_str == "[DONE]":
-                                yield None, {
-                                    "content": full_content,
-                                    "model": model,
-                                    "provider": prov.name,
-                                }
-                                return
-                            try:
-                                data = json.loads(data_str)
-                                delta = data.get("choices", [{}])[0].get(
-                                    "delta",
-                                    {},
-                                )
-                                token = delta.get("content", "")
-                                if token:
-                                    full_content += token
-                                    yield token, None
-                            except json.JSONDecodeError:
-                                continue
+            full_content = ""
+            async for raw_line in resp.content:
+                if raw_line:
+                    line_text = raw_line.decode().strip()
+                    if line_text.startswith("data: "):
+                        data_str = line_text[6:]
+                        if data_str == "[DONE]":
+                            yield None, {
+                                "content": full_content,
+                                "model": model,
+                                "provider": prov.name,
+                            }
+                            return
+                        try:
+                            data = json.loads(data_str)
+                            delta = data.get("choices", [{}])[0].get(
+                                "delta",
+                                {},
+                            )
+                            token = delta.get("content", "")
+                            if token:
+                                full_content += token
+                                yield token, None
+                        except json.JSONDecodeError:
+                            continue
 
 
 # ─── Convenience ────────────────────────────────────────────────
 
-_router: Optional[ProviderRouter] = None
+_router: ProviderRouter | None = None
 
 
 def get_router() -> ProviderRouter:

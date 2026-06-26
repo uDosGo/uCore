@@ -11,18 +11,18 @@ import re
 import shutil
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 SPOOL_PATH = Path(
-    os.getenv("UCORE_SNACKS_REPLIES", "~/.local/share/snackmachine/replies.jsonl")
+    os.getenv("UCORE_SNACKS_REPLIES", "~/.local/share/snackmachine/replies.jsonl"),
 ).expanduser()
 BACKUP_DIR = Path(os.getenv("UCORE_APPFLOWY_BACKUPS", "~/.ucore/backups/appflowy")).expanduser()
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @contextmanager
@@ -44,9 +44,8 @@ def _spool_lock_file():
 def spool_event(event: dict[str, Any]) -> None:
     SPOOL_PATH.parent.mkdir(parents=True, exist_ok=True)
     payload = {"timestamp": _utc_now(), **event}
-    with _spool_lock_file():
-        with SPOOL_PATH.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(payload, ensure_ascii=True) + "\n")
+    with _spool_lock_file(), SPOOL_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(payload, ensure_ascii=True) + "\n")
 
 
 def discover_databases() -> dict[str, str]:
@@ -96,7 +95,7 @@ def _connect(db_path: str) -> sqlite3.Connection:
 def list_tables(db_path: str) -> list[str]:
     with _connect(db_path) as conn:
         rows = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
         ).fetchall()
         return [r["name"] for r in rows]
 
@@ -114,7 +113,7 @@ def _is_safe_write_sql(sql: str) -> bool:
 def _backup_db(db_path: str) -> str:
     src = Path(db_path)
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     dst = BACKUP_DIR / f"{src.stem}-{stamp}{src.suffix}"
     shutil.copy2(src, dst)
     return str(dst)
@@ -126,9 +125,8 @@ def run_query(db_path: str, sql: str, params: list[Any] | None = None, write: bo
     if write:
         if not _is_safe_write_sql(sql):
             raise ValueError("Only INSERT/UPDATE/DELETE statements are allowed in write mode")
-    else:
-        if not _is_safe_read_sql(sql):
-            raise ValueError("Only SELECT/PRAGMA/WITH statements are allowed in read mode")
+    elif not _is_safe_read_sql(sql):
+        raise ValueError("Only SELECT/PRAGMA/WITH statements are allowed in read mode")
 
     backup_file = None
     with _connect(db_path) as conn:
@@ -153,7 +151,7 @@ def run_query(db_path: str, sql: str, params: list[Any] | None = None, write: bo
             "params": params,
             "result_count": result.get("count", result.get("rowcount", 0)),
             "backup": backup_file,
-        }
+        },
     )
     return result
 
@@ -177,7 +175,7 @@ def export_to_vault(vault_dir: str = "~/vault/@appflowy", limit_per_table: int =
 
         with _connect(db_path) as conn:
             for table in tables:
-                rows = conn.execute(f"SELECT * FROM \"{table}\" LIMIT ?", (limit_per_table,)).fetchall()
+                rows = conn.execute(f'SELECT * FROM "{table}" LIMIT ?', (limit_per_table,)).fetchall()
                 out_file = db_out / f"{table}.jsonl"
                 with out_file.open("w", encoding="utf-8") as f:
                     for row in rows:
@@ -188,7 +186,7 @@ def export_to_vault(vault_dir: str = "~/vault/@appflowy", limit_per_table: int =
                         "table": table,
                         "rows": len(rows),
                         "file": str(out_file),
-                    }
+                    },
                 )
 
     spool_event(
@@ -197,7 +195,7 @@ def export_to_vault(vault_dir: str = "~/vault/@appflowy", limit_per_table: int =
             "status": "success",
             "vault_dir": str(out_base),
             "count": len(exported),
-        }
+        },
     )
 
     return {"vault_dir": str(out_base), "exports": exported, "count": len(exported)}

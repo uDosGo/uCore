@@ -1,20 +1,15 @@
 from __future__ import annotations
 
-import os
-import sys
-import json
-import time
-import uuid
 import asyncio
-from contextlib import suppress
+import json
 import platform as plat_module
+import sys
+import time
+from contextlib import suppress
 from pathlib import Path
-from typing import Optional
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone, timedelta
 
-from .settings import settings
 from .logging import log
+from .settings import settings
 
 try:
     import yaml
@@ -87,7 +82,7 @@ async def budget_middleware(request: web.Request, handler):
                     payload.get("provider")
                     or payload.get("vendor")
                     or payload.get("engine")
-                    or ""
+                    or "",
                 ).strip()
             if not model:
                 params = payload.get("params")
@@ -95,13 +90,13 @@ async def budget_middleware(request: web.Request, handler):
                     model = str(
                         params.get("model")
                         or params.get("model_name")
-                        or ""
+                        or "",
                     ).strip()
                 if not model:
                     model = str(
                         payload.get("model")
                         or payload.get("model_name")
-                        or ""
+                        or "",
                     ).strip()
 
     allowed, reason, _usage = manager.check_budget(
@@ -324,7 +319,7 @@ def create_app() -> web.Application:
     # Run database migration on startup
     from app.core.database import migrate_db
     migration = migrate_db()
-    log.info('Database migration: v%s (%s tables)', migration['version'], 'surfaces, snacks, containers')
+    log.info("Database migration: v%s (%s tables)", migration["version"], "surfaces, snacks, containers")
 
     # Register API module routes (non-overlapping with core)
     try:

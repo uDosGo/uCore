@@ -7,7 +7,6 @@ from typing import Any
 
 from app.af_manager.sync import scan_vault
 
-
 WIKI_LINK_RE = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 
@@ -33,7 +32,7 @@ def extract_wiki_links(markdown: str) -> list[dict[str, str | None]]:
             {
                 "target": match.group(1).strip(),
                 "label": match.group(2).strip() if match.group(2) else None,
-            }
+            },
         )
     return links
 
@@ -56,7 +55,7 @@ def split_markdown_sections(markdown: str) -> list[dict[str, Any]]:
                 "heading": current_heading,
                 "level": current_level,
                 "content": content,
-            }
+            },
         )
         buffer = []
 
@@ -78,7 +77,7 @@ def split_markdown_sections(markdown: str) -> list[dict[str, Any]]:
                 "heading": None,
                 "level": 0,
                 "content": markdown.strip(),
-            }
+            },
         )
 
     return sections
@@ -102,12 +101,12 @@ def build_doclang_document(
     tags = list(
         dict.fromkeys(
             _as_list(frontmatter.get("tags"))
-            + _as_list(record.get("tags"))
-        )
+            + _as_list(record.get("tags")),
+        ),
     )
     aliases = _as_list(frontmatter.get("aliases"))
     body_markdown = str(
-        record.get("body") or record.get("body_markdown") or ""
+        record.get("body") or record.get("body_markdown") or "",
     )
     wiki_links = extract_wiki_links(body_markdown)
     document_id = (

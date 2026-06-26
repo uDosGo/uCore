@@ -4,9 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from app.services.chat_cache import ChatCache
-from app.services.provider_router import ProviderRouter, ProviderConfig
+from app.services.provider_router import ProviderConfig, ProviderRouter
 
 
 class TestProviderRouter:
@@ -333,7 +332,7 @@ async def test_provider_router_stats_include_latency_and_cache(
             type="ollama",
             base_url="http://localhost:11434",
             default_model="qwen2.5-coder:7b-instruct-q4_K_M",
-        )
+        ),
     }
 
     async def fake_chat_ollama(prov, messages, model, timeout):

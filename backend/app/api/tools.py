@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 from aiohttp import web
-from app.tools.registry import list_tools as lt, check_tool as ct
+
+from app.tools.registry import check_tool as ct
+from app.tools.registry import list_tools as lt
 
 
 async def handle_list_tools(request: web.Request) -> web.Response:

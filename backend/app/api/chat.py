@@ -8,7 +8,7 @@ Provides:
 from __future__ import annotations
 
 import logging
-from typing import Optional
+
 from aiohttp import web
 
 from ..services.provider_router import ProviderRouter
@@ -16,7 +16,7 @@ from ..services.provider_router import ProviderRouter
 log = logging.getLogger("ucore.chat")
 
 # Shared router instance
-_router: Optional[ProviderRouter] = None
+_router: ProviderRouter | None = None
 
 
 def get_router() -> ProviderRouter:
@@ -127,7 +127,7 @@ async def handle_models(request: web.Request) -> web.Response:
     """
     try:
         router = get_router()
-        providers = router.list_providers() if hasattr(router, 'list_providers') else []
+        providers = router.list_providers() if hasattr(router, "list_providers") else []
 
         if not providers:
             # Fallback: return hardcoded list

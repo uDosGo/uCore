@@ -2,9 +2,8 @@
 from __future__ import annotations
 
 import pytest
-
-from app.skills.builtin.surface_repair import SurfaceRepair
 from app.services.surface_manager import SurfaceManager
+from app.skills.builtin.surface_repair import SurfaceRepair
 
 
 @pytest.mark.asyncio

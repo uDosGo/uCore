@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
+
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
 from app.secret.store import SecretStore
 
 
@@ -15,14 +15,17 @@ class SecretsAPITest(AioHTTPTestCase):
         self._store = SecretStore()
         self._store._secrets = {}
         self._store._dirty = False
-        import app.api.secret_store_api as mod
         import app.secret.store as store_mod
         store_mod._store = self._store
 
         from app.api.secret_store_api import (
-            handle_list_secrets, handle_get_secret, handle_set_secret,
-            handle_delete_secret, handle_list_env_vars, handle_import_from_env,
+            handle_delete_secret,
             handle_export_to_env,
+            handle_get_secret,
+            handle_import_from_env,
+            handle_list_env_vars,
+            handle_list_secrets,
+            handle_set_secret,
         )
 
         app = web.Application()
@@ -150,8 +153,8 @@ class SecretsAPITest(AioHTTPTestCase):
             assert data["added_count"] >= 2
 
             content = target.read_text(encoding="utf-8")
-            assert "OPENAI_API_KEY=\"sk-test-openai\"" in content
-            assert "GITHUB_OAUTH_CLIENT_ID=\"gh-client-id\"" in content
+            assert 'OPENAI_API_KEY="sk-test-openai"' in content
+            assert 'GITHUB_OAUTH_CLIENT_ID="gh-client-id"' in content
             mod.settings.config_dir = original_config_dir
 
     async def test_export_to_env_only_missing_does_not_overwrite(self):
@@ -160,7 +163,7 @@ class SecretsAPITest(AioHTTPTestCase):
             original_config_dir = mod.settings.config_dir
             mod.settings.config_dir = Path(tmpdir)
             target = Path(tmpdir) / ".env"
-            target.write_text("OPENAI_API_KEY=\"existing\"\n", encoding="utf-8")
+            target.write_text('OPENAI_API_KEY="existing"\n', encoding="utf-8")
 
             await self.client.post(
                 "/api/secrets/OPENAI_API_KEY",
@@ -174,5 +177,5 @@ class SecretsAPITest(AioHTTPTestCase):
             assert resp.status == 200
 
             content = target.read_text(encoding="utf-8")
-            assert "OPENAI_API_KEY=\"existing\"" in content
+            assert 'OPENAI_API_KEY="existing"' in content
             mod.settings.config_dir = original_config_dir

@@ -46,12 +46,27 @@ export function GridViewportWidget({
 
     const scale = Math.min(availableW / contentW, availableH / contentH, 4)
 
+    // Prevent collapse to sub-pixel sizes on small viewports or high DPR.
+    // Choose a sensible minimum so teletext/terminal cells remain visible.
+    const MIN_CELL_PX = 4
+
+    const rawScaledCellW = cellWidth * scale
+    const rawScaledCellH = cellHeight * scale
+
+    const scaledCellW = Math.max(MIN_CELL_PX, Math.round(rawScaledCellW))
+    const scaledCellH = Math.max(MIN_CELL_PX, Math.round(rawScaledCellH))
+
+    // Adjust total width/height to reflect clamped cell sizes so the
+    // renderer and layout remain consistent.
+    const width = cols * scaledCellW
+    const height = rows * scaledCellH
+
     return {
       scale,
-      scaledCellW: cellWidth * scale,
-      scaledCellH: cellHeight * scale,
-      width: contentW * scale,
-      height: contentH * scale,
+      scaledCellW,
+      scaledCellH,
+      width,
+      height,
       paddingX: containerWidth * borderPadFraction,
       paddingY: containerHeight * borderPadFraction,
     }
@@ -84,8 +99,8 @@ export function GridViewportWidget({
     >
       <div
         style={{
-          width: metrics.width,
-          height: metrics.height,
+          width: `${metrics.width}px`,
+          height: `${metrics.height}px`,
           position: 'relative',
           ...displayModeStyle,
         }}

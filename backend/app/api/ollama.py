@@ -1,11 +1,10 @@
 """Ollama Model Management API — List models, get stats, manage downloads."""
 from __future__ import annotations
 
-import os
-import json
-from datetime import datetime, timedelta
-import httpx
 import logging
+from datetime import datetime, timedelta
+
+import httpx
 
 log = logging.getLogger(__name__)
 
@@ -52,8 +51,7 @@ async def get_ollama_status() -> dict:
 
 
 async def get_ollama_model_performance() -> dict:
-    """
-    Get performance statistics for each model from the activity spool.
+    """Get performance statistics for each model from the activity spool.
     """
     try:
         from app.services.spool_reader import read_spool_entries

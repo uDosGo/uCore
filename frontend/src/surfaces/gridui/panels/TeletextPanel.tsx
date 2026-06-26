@@ -397,10 +397,14 @@ export function TeletextPanel() {
   const scaleY = availableH / contentH
   const scale = Math.min(scaleX, scaleY, 4)
   // Render cells at their final scaled size so fonts are crisp (no blurry CSS scaling)
-  const scaledCellW = cellW * scale
-  const scaledCellH = cellH * scale
-  const zoomedW = contentW * scale
-  const zoomedH = contentH * scale
+  const rawScaledCellW = cellW * scale
+  const rawScaledCellH = cellH * scale
+  // Prevent sub-pixel collapse: round and clamp to sensible minimum
+  const MIN_CELL_PX = 4
+  const scaledCellW = Math.max(MIN_CELL_PX, Math.round(rawScaledCellW))
+  const scaledCellH = Math.max(MIN_CELL_PX, Math.round(rawScaledCellH))
+  const zoomedW = vp.cols * scaledCellW
+  const zoomedH = vp.rows * scaledCellH
 
   const displayModeFilter: React.CSSProperties =
     store.displayMode === 'mono' ? { filter: 'grayscale(100%)' } :
@@ -561,14 +565,14 @@ export function TeletextPanel() {
           {editorMode && (
             <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
               {Array.from({ length: vp.rows }).map((_, row) => (
-                <div key={row} style={{ display: 'flex', height: scaledCellH }}>
+                <div key={row} style={{ display: 'flex', height: `${scaledCellH}px` }}>
                   {Array.from({ length: vp.cols }).map((_, col) => (
                     <div
                       key={col}
                       onClick={() => handleCellClick(row, col)}
                       style={{
-                        width: scaledCellW,
-                        height: scaledCellH,
+                        width: `${scaledCellW}px`,
+                        height: `${scaledCellH}px`,
                         cursor: 'pointer',
                       }}
                       title={`(${col}, ${row})`}

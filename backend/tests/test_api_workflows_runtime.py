@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-
 from app.api.workflows import (
     handle_create_workflow,
     handle_list_workflows,

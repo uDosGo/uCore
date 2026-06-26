@@ -22,7 +22,7 @@ def test_projection_prefers_metadata_over_other_sources():
                 "task": "Property Task",
                 "binder": "checklist",
             },
-        }
+        },
     )
 
     assert row["mission"] == "Meta Mission"
@@ -41,7 +41,7 @@ def test_projection_uses_properties_when_metadata_missing():
                 "task": "Rotate Keys",
                 "binder": "security",
             },
-        }
+        },
     )
 
     assert row["mission"] == "Ops"
@@ -56,7 +56,7 @@ def test_projection_splits_title_when_structured_fields_absent():
             "workspace_id": "ws-2",
             "title": "Mission A: Ship Adapter",
             "type": "task",
-        }
+        },
     )
 
     assert row["mission"] == "Mission A"

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import sqlite3
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from app.core.settings import settings
@@ -96,7 +96,7 @@ class BudgetManager:
                     status_code INTEGER NOT NULL,
                     blocked INTEGER NOT NULL DEFAULT 0
                 )
-                """
+                """,
             )
             conn.commit()
 
@@ -104,7 +104,7 @@ class BudgetManager:
         return self._policy.default_estimated_cost
 
     def _month_bounds(self) -> tuple[str, str]:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         if now.month == 12:
             next_start = now.replace(
@@ -223,7 +223,7 @@ class BudgetManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    datetime.now(timezone.utc).isoformat(),
+                    datetime.now(UTC).isoformat(),
                     endpoint,
                     provider,
                     model,

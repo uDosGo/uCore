@@ -1,16 +1,12 @@
 """Tests for spool_reader — unified activity feed."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from pathlib import Path
-
-import pytest
 
 from app.services.spool_reader import (
     parse_line,
     read_spool,
     summarize_spool,
-    SpoolEntry,
 )
 
 
@@ -88,7 +84,7 @@ class TestReadSpool:
         log_file.write_text(
             "2026-06-21 10:00:00 [INFO] tests: Starting test\n"
             "2026-06-21 10:01:00 [ERROR] tests: Something broke\n"
-            "2026-06-21 10:02:00 [INFO] tests: Finished with 3 results\n"
+            "2026-06-21 10:02:00 [INFO] tests: Finished with 3 results\n",
         )
         entries = read_spool(log_dir=tmp_path, max_entries=10)
         assert len(entries) == 3
@@ -103,7 +99,7 @@ class TestReadSpool:
         log_file = tmp_path / "test.log"
         log_file.write_text(
             "2026-06-21 10:00:00 [INFO] tests: Info message\n"
-            "2026-06-21 10:01:00 [WARNING] tests: Warning message\n"
+            "2026-06-21 10:01:00 [WARNING] tests: Warning message\n",
         )
         entries = read_spool(log_dir=tmp_path, levels=["WARNING"])
         assert len(entries) == 1
@@ -113,7 +109,7 @@ class TestReadSpool:
         log_file = tmp_path / "test.log"
         log_file.write_text(
             "2026-06-21 10:00:00 [INFO] backup: Running full backup\n"
-            "2026-06-21 10:01:00 [INFO] sync: Running vault sync\n"
+            "2026-06-21 10:01:00 [INFO] sync: Running vault sync\n",
         )
         entries = read_spool(log_dir=tmp_path, search="backup")
         assert len(entries) == 1
@@ -123,7 +119,7 @@ class TestReadSpool:
         log_file = tmp_path / "test.log"
         log_file.write_text(
             "2026-06-21 10:00:00 [INFO] tests: Old\n"
-            "2026-06-21 12:00:00 [INFO] tests: New\n"
+            "2026-06-21 12:00:00 [INFO] tests: New\n",
         )
         # The timestamp format uses "T" not space in since filter
         entries = read_spool(log_dir=tmp_path, since="2026-06-21T11:00:00")
@@ -150,7 +146,7 @@ class TestSummarizeSpool:
         log_file.write_text(
             "2026-06-21 10:00:00 [INFO] tests: Running\n"
             "2026-06-21 10:01:00 [ERROR] tests: Failed\n"
-            "2026-06-21 10:02:00 [INFO] tests: Complete\n"
+            "2026-06-21 10:02:00 [INFO] tests: Complete\n",
         )
         summary = summarize_spool(log_dir=tmp_path, hours=24)
         assert "3 entries" in summary

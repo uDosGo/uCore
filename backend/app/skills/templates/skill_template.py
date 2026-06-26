@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
+
 
 class MySkill(BaseSkill):
     meta = SkillMeta(id="my_skill", name="My Skill",

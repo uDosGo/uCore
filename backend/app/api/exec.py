@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+
 from aiohttp import web
 
 log = logging.getLogger("ucore.exec")
@@ -68,7 +69,7 @@ async def handle_exec(request: web.Request) -> web.Response:
             stderr=asyncio.subprocess.PIPE,
         )
         stdout, stderr = await asyncio.wait_for(
-            proc.communicate(), timeout=timeout
+            proc.communicate(), timeout=timeout,
         )
         stdout_str = stdout.decode("utf-8", errors="replace") if stdout else ""
         stderr_str = stderr.decode("utf-8", errors="replace") if stderr else ""
@@ -82,7 +83,7 @@ async def handle_exec(request: web.Request) -> web.Response:
             "exit_code": exit_code,
             "command": command,
         })
-    except asyncio.TimeoutError:
+    except TimeoutError:
         log.warning("Command timed out: %s", command[:100])
         return web.json_response({
             "error": f"Command timed out after {timeout}s",

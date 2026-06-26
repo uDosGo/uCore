@@ -25,7 +25,7 @@ def test_semantic_search_falls_back_to_local_index(
             source_name,
             rel_path
         )
-        """
+        """,
     )
     conn.execute(
         """
@@ -72,7 +72,7 @@ def test_list_documents_reads_workspace_metadata(tmp_path: Path, monkeypatch):
             timestamp TEXT,
             data BLOB
         )
-        """
+        """,
     )
     conn.execute(
         """

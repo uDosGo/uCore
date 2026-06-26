@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
+
 from aiohttp import web
-from app.models.surface import SurfaceType, SurfaceState
+
+from app.models.surface import SurfaceState, SurfaceType
 from app.services.surface_manager import SurfaceManager
 from app.services.surface_runtime import get_surface_runtime_manager
 
@@ -214,17 +216,17 @@ async def restart_surface(request: web.Request) -> web.Response:
                 "action": "restart",
             }
             return web.json_response(payload, status=status)
-    
+
     stopped = _surfaces.transition_state(surface_id, SurfaceState.STOPPED)
     if stopped is None:
         return web.json_response({"error": "Surface not found during restart"}, status=404)
-    
+
     await asyncio.sleep(0.5)
-    
+
     started = _surfaces.transition_state(surface_id, SurfaceState.RUNNING)
     if started is None:
         return web.json_response({"error": "Surface not found during restart"}, status=404)
-    
+
     log.info("Surface %s restarted", surface_id)
     return web.json_response({
         **started.model_dump(mode="json"),

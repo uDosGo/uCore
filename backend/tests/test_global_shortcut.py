@@ -114,6 +114,7 @@ class TestSettings:
     def test_clipboard_shortcut_env_override(self, monkeypatch):
         monkeypatch.setenv("UCORE_CLIPBOARD_SHORTCUT", "cmd+shift+v")
         import importlib
+
         import app.core.settings as mod
         importlib.reload(mod)
         assert mod.settings.clipboard_shortcut == "cmd+shift+v"

@@ -21,7 +21,7 @@ def _init_workspace_db(
             icon TEXT,
             member_count INTEGER
         )
-        """
+        """,
     )
     conn.execute("DELETE FROM user_workspace_table")
     conn.execute(
@@ -41,7 +41,7 @@ def _init_workspace_db(
             timestamp TEXT,
             data BLOB
         )
-        """
+        """,
     )
     conn.commit()
     conn.close()
@@ -71,10 +71,10 @@ def test_import_file_to_appflowy_updates_local_index(tmp_path: Path):
 
     conn = sqlite3.connect(str(db_path))
     idx_count = conn.execute(
-        "SELECT COUNT(*) FROM ucore_vault_index"
+        "SELECT COUNT(*) FROM ucore_vault_index",
     ).fetchone()[0]
     fts_count = conn.execute(
-        "SELECT COUNT(*) FROM ucore_vault_index_fts"
+        "SELECT COUNT(*) FROM ucore_vault_index_fts",
     ).fetchone()[0]
     conn.close()
 
@@ -103,7 +103,7 @@ def test_run_import_routes_source_to_named_workspace(
                 "tags": ["public"],
                 "modified": "2026-06-22T00:00:00Z",
                 "path": str(Path(source_dir) / "public/post.md"),
-            }
+            },
         ]
 
     monkeypatch.setattr("app.af_manager.sync.scan_vault", fake_scan_vault)
@@ -120,7 +120,7 @@ def test_run_import_routes_source_to_named_workspace(
                 "tags": ["public"],
                 "workspace": "Public Vault",
                 "enabled": True,
-            }
+            },
         ],
     }
 
@@ -133,13 +133,13 @@ def test_run_import_routes_source_to_named_workspace(
 
     conn_a = sqlite3.connect(str(db_a))
     count_a = conn_a.execute(
-        "SELECT COUNT(*) FROM collab_snapshot"
+        "SELECT COUNT(*) FROM collab_snapshot",
     ).fetchone()[0]
     conn_a.close()
 
     conn_b = sqlite3.connect(str(db_b))
     count_b = conn_b.execute(
-        "SELECT COUNT(*) FROM collab_snapshot"
+        "SELECT COUNT(*) FROM collab_snapshot",
     ).fetchone()[0]
     conn_b.close()
 
