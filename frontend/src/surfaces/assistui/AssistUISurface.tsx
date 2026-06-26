@@ -809,7 +809,7 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
                     onClick={() => setActiveAgent(agent.id)}
                     title={agent.desc}
                   >
-                    <Icon name={agent.icon} size={14} />
+                    <Icon name={agent.icon} className="assistui-topbar-icon" />
                     <span>{agent.label}</span>
                   </button>
                 ))}
@@ -822,9 +822,9 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
                   onClick={() => setModelPickerOpen(!modelPickerOpen)}
                   title="Select model"
                 >
-                  <Icon name="smart_toy" size={14} />
+                  <Icon name="smart_toy" className="assistui-topbar-icon" />
                   <span>{models.find(m => m.id === selectedModel)?.name || selectedModel}</span>
-                  <Icon name="expand_more" size={14} />
+                  <Icon name="expand_more" className="assistui-topbar-icon" />
                 </button>
 
                 {modelPickerOpen && (
@@ -837,7 +837,7 @@ export default function AssistUISurface({ hideToolbar, floating }: AssistUISurfa
                       >
                         <span className="assistui-model-provider">{model.provider}</span>
                         <span className="assistui-model-name">{model.name}</span>
-                        {selectedModel === model.id && <Icon name="check" size={14} />}
+                        {selectedModel === model.id && <Icon name="check" className="assistui-topbar-icon" />}
                       </button>
                     ))}
                   </div>

@@ -21,6 +21,14 @@
   border-bottom: 1px solid var(--pico-border-color, #30363d);
   gap: var(--usx-spacing-md);
   flex-wrap: wrap;
+  font-size: var(--usx-font-size-body);
+}
+
+/* Topbar icon sizing — proportional to body font (responsive) */
+.assistui-topbar-icon {
+  font-size: var(--usx-icon-size-body) !important;
+  width: var(--usx-icon-size-body) !important;
+  height: var(--usx-icon-size-body) !important;
 }
 
 /* Agent pills */

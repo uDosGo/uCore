@@ -31,19 +31,19 @@
   /* ─── 10-FOOT PROFILE (Base/Default for all viewports) ──────────── */
   /* This is the "ideal" large display size — readable at 10 feet away.
      Used by default on desktop (1025px+) and explicitly set smaller sizes below. */
-  --usx-font-size-display: 44px;
+  --usx-font-size-display: 48px;
   --usx-line-height-display: 1.2;
 
-  --usx-font-size-h1: 32px;
+  --usx-font-size-h1: 34px;
   --usx-line-height-h1: 1.25;
 
-  --usx-font-size-h2: 24px;
+  --usx-font-size-h2: 26px;
   --usx-line-height-h2: 1.33;
 
-  --usx-font-size-h3: 20px;
+  --usx-font-size-h3: 22px;
   --usx-line-height-h3: 1.4;
 
-  --usx-font-size-body: 14px;
+  --usx-font-size-body: 16px;
   --usx-line-height-body: 1.6;
 
   /* Meta = 0.8em relative to Body */
@@ -80,12 +80,12 @@
 /* Scale down for mobile devices — tablet and desktop keep base/0.8x respectively */
 @media (max-width: 767px) {
   :root:not([data-typography-scale]) {
-    --usx-font-size-display: calc(44px * 0.65);
-    --usx-font-size-h1: calc(32px * 0.65);
-    --usx-font-size-h2: calc(24px * 0.65);
-    --usx-font-size-h3: calc(20px * 0.65);
-    --usx-font-size-body: calc(14px * 0.65);
-    --usx-font-size-meta: calc(14px * 0.65 * 0.8);
+    --usx-font-size-display: calc(48px * 0.65);
+    --usx-font-size-h1: calc(34px * 0.65);
+    --usx-font-size-h2: calc(26px * 0.65);
+    --usx-font-size-h3: calc(22px * 0.65);
+    --usx-font-size-body: calc(16px * 0.65);
+    --usx-font-size-meta: calc(16px * 0.65 * 0.8);
   }
 }
 
@@ -93,30 +93,30 @@
 /* These allow forcing a specific scale regardless of viewport size */
 
 :root[data-typography-scale="10-foot"] {
-  --usx-font-size-display: 44px;
-  --usx-font-size-h1: 32px;
-  --usx-font-size-h2: 24px;
-  --usx-font-size-h3: 20px;
-  --usx-font-size-body: 14px;
-  --usx-font-size-meta: calc(14px * 0.8);
+  --usx-font-size-display: 48px;
+  --usx-font-size-h1: 34px;
+  --usx-font-size-h2: 26px;
+  --usx-font-size-h3: 22px;
+  --usx-font-size-body: 16px;
+  --usx-font-size-meta: calc(16px * 0.8);
 }
 
 :root[data-typography-scale="desktop-compact"] {
-  --usx-font-size-display: calc(44px * 0.8);
-  --usx-font-size-h1: calc(32px * 0.8);
-  --usx-font-size-h2: calc(24px * 0.8);
-  --usx-font-size-h3: calc(20px * 0.8);
-  --usx-font-size-body: calc(14px * 0.8);
-  --usx-font-size-meta: calc(14px * 0.8 * 0.8);
+  --usx-font-size-display: calc(48px * 0.8);
+  --usx-font-size-h1: calc(34px * 0.8);
+  --usx-font-size-h2: calc(26px * 0.8);
+  --usx-font-size-h3: calc(22px * 0.8);
+  --usx-font-size-body: calc(16px * 0.8);
+  --usx-font-size-meta: calc(16px * 0.8 * 0.8);
 }
 
 :root[data-typography-scale="mobile-compact"] {
-  --usx-font-size-display: calc(44px * 0.65);
-  --usx-font-size-h1: calc(32px * 0.65);
-  --usx-font-size-h2: calc(24px * 0.65);
-  --usx-font-size-h3: calc(20px * 0.65);
-  --usx-font-size-body: calc(14px * 0.65);
-  --usx-font-size-meta: calc(14px * 0.65 * 0.8);
+  --usx-font-size-display: calc(48px * 0.65);
+  --usx-font-size-h1: calc(34px * 0.65);
+  --usx-font-size-h2: calc(26px * 0.65);
+  --usx-font-size-h3: calc(22px * 0.65);
+  --usx-font-size-body: calc(16px * 0.65);
+  --usx-font-size-meta: calc(16px * 0.65 * 0.8);
 }
 
 /* ─── Typography Utility Classes ────────────────────────────────── */
