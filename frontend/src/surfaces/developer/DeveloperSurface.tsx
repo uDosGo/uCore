@@ -26,9 +26,11 @@ import TypographySettingsPanel from './TypographySettingsPanel'
 import { USXSettingsPanel } from './USXSettingsPanel'
 import { GridCoreSettingsPanel } from './GridCoreSettingsPanel'
 import USystemSettingsPanel from './uSystemSettingsPanel'
+import { TOONStatsPanel } from './TOONStatsPanel'
+import { RoutingAnalyticsPanel } from './RoutingAnalyticsPanel'
 
 // ─── Types ──────────────────────────────────────────────────────────
-type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings' | 'gridsmith' | 'skills' | 'usx' | 'usx-settings' | 'gridcore-settings' | 'usystem-settings' | 'rules' | 'surfaces'
+type DeveloperTab = 'models' | 'agents' | 'kanban' | 'repos' | 'review' | 'settings' | 'gridsmith' | 'skills' | 'usx' | 'usx-settings' | 'gridcore-settings' | 'usystem-settings' | 'rules' | 'surfaces' | 'toon-stats' | 'routing-analytics'
 
 interface WorkflowRun {
   run_id: string
@@ -101,7 +103,7 @@ const SAMPLE_REPOS: RepoInfo[] = [
 ]
 
 const SNACKBAR_API = 'http://localhost:8484'
-const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'skills', 'usx', 'usx-settings', 'gridcore-settings', 'usystem-settings', 'surfaces', 'kanban', 'gridsmith', 'repos', 'review', 'rules', 'settings']
+const DEVELOPER_TABS: DeveloperTab[] = ['models', 'agents', 'skills', 'usx', 'usx-settings', 'gridcore-settings', 'usystem-settings', 'surfaces', 'kanban', 'gridsmith', 'repos', 'review', 'rules', 'toon-stats', 'routing-analytics', 'settings']
 
 // ─── Sample Review Entries ──────────────────────────────────────────
 const SAMPLE_REVIEWS: ReviewEntry[] = [
@@ -1061,6 +1063,8 @@ export default function DeveloperSurface() {
     { id: 'repos', icon: 'folder_open', label: 'Repos', active: activeTab === 'repos', onClick: () => setTabAndRoute('repos') },
     { id: 'review', icon: 'visibility', label: 'Review', active: activeTab === 'review', onClick: () => setTabAndRoute('review') },
     { id: 'rules', icon: 'gavel', label: 'Rules', active: activeTab === 'rules', onClick: () => setTabAndRoute('rules') },
+    { id: 'toon-stats', icon: 'compress', label: 'TOON Stats', active: activeTab === 'toon-stats', onClick: () => setTabAndRoute('toon-stats') },
+    { id: 'routing-analytics', icon: 'trending_up', label: 'Routing', active: activeTab === 'routing-analytics', onClick: () => setTabAndRoute('routing-analytics') },
     { id: 'settings', icon: 'settings', label: 'Settings', active: activeTab === 'settings', onClick: () => setTabAndRoute('settings') },
   ]
 
@@ -1224,6 +1228,8 @@ export default function DeveloperSurface() {
           fetchFileDiff(selectedRepoId, filePath)
         }} onStageFile={handleStageFile} onUnstageFile={handleUnstageFile} stagedFiles={stagedFiles} />}
         {activeTab === 'rules' && <RulesPanel />}
+        {activeTab === 'toon-stats' && <TOONStatsPanel />}
+        {activeTab === 'routing-analytics' && <RoutingAnalyticsPanel />}
         {activeTab === 'settings' && <SettingsPanel />}
         </main>
 
