@@ -116,12 +116,25 @@
   line-height: var(--usx-line-height-body);
 }
 
-/* ─── Prose: Container with 72ch Measure ───────────────────────── */
-/* Prose containers maintain optimal line length across all viewports */
+/* ─── Prose Measure Enforcement (72ch = ~500px at 16px body) ────── */
 .prose {
   max-width: 72ch;
-  font-size: inherit;
-  line-height: inherit;
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+}
+
+/* Tablet: 65 characters per line */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .prose {
+    max-width: 65ch;
+  }
+}
+
+/* Mobile: 50 characters per line */
+@media (max-width: 767px) {
+  .prose {
+    max-width: 50ch;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
