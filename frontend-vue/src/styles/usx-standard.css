@@ -773,7 +773,7 @@ button[type="submit"]:hover {
   transition: color var(--usx-transition-fast);
   width: var(--usx-touch-min);
   height: var(--usx-touch-min);
-  font-size: 1.25em;
+  font-size: 1.35em;
   line-height: 1;
 }
 

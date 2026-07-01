@@ -100,12 +100,19 @@ const editorColumnClass = computed(() => {
   gap: 0;
 }
 
-/* ─── Main Panel ──────────────────────────────────────────────────── */
+/* ─── Main Panel — fill full height ──────────────────────────── */
 .workflow-panel {
   flex: 1;
   min-width: 0;
   overflow-y: auto;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-panel > * {
+  flex: 1;
+  min-height: 0;
 }
 
 /* When editor is open, main panel gets less space */
@@ -117,7 +124,7 @@ const editorColumnClass = computed(() => {
 .workflow-editor {
   flex-shrink: 0;
   overflow: hidden;
-  border-left: 1px solid var(--pico-border-color);
+  border-left: var(--usx-border-width) solid var(--usx-color-border);
   display: flex;
   flex-direction: column;
 }
@@ -128,10 +135,10 @@ const editorColumnClass = computed(() => {
   min-width: 320px;
 }
 
-/* Both panes: wider column for the 2-pane editor split inside */
+/* Both panes: 50-50 even split with main panel */
 .workflow-editor--wide {
-  width: 60%;
-  min-width: 520px;
+  width: 50%;
+  min-width: 420px;
 }
 
 /* ─── Empty editor state ──────────────────────────────────────────── */
@@ -142,7 +149,7 @@ const editorColumnClass = computed(() => {
   justify-content: center;
   gap: var(--usx-spacing-md);
   padding: var(--usx-spacing-2xl);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   text-align: center;
 }
 </style>

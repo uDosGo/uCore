@@ -237,6 +237,7 @@ async function compileBinder(): Promise<void> {
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-lg);
+  height: 100%;
 }
 
 /* Launchpad drop-zone */

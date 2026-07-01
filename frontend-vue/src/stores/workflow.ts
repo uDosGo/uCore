@@ -108,7 +108,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
   const selectedTask = ref<WorkflowTask | null>(null)
   const editorOpen = ref(false)
   const showEditorPane = ref(false)
-  const paneLayout = ref<'split' | 'stacked'>('split')
+  const paneLayout = ref<'split' | 'stacked'>('stacked')
 
   // Backend-fetched state
   const loading = ref(false)

@@ -154,6 +154,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-lg);
+  height: 100%;
 }
 
 .wf-stats {
