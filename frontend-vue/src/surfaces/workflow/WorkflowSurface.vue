@@ -6,6 +6,7 @@
         <!-- Left/Main panel: the active tab content -->
         <div v-if="wf.activeTab !== 'editor'" class="workflow-panel" :class="{ 'workflow-panel--narrow': wf.editorOpen }">
           <MissionControlPanel v-if="wf.activeTab === 'mission-control'" />
+          <BinderPanel v-else-if="wf.activeTab === 'binder'" />
           <TasksPanel v-else-if="wf.activeTab === 'tasks'" />
           <PublishPanel v-else-if="wf.activeTab === 'publish'" />
         </div>
@@ -58,6 +59,7 @@ import { computed } from 'vue'
 import { useWorkflowStore } from '../../stores/workflow'
 import MissionControlPanel from './panels/MissionControlPanel.vue'
 import MissionsPanel from './panels/MissionsPanel.vue'
+import BinderPanel from './panels/BinderPanel.vue'
 import TasksPanel from './panels/TasksPanel.vue'
 import PublishPanel from './panels/PublishPanel.vue'
 import { EditorPanel } from '../../skills'

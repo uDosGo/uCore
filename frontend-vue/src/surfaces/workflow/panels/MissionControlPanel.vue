@@ -105,19 +105,35 @@
       </div>
     </div>
 
-    <!-- Binder Cross-Reference section (embedded from BinderPanel) -->
-    <BinderPanel />
+    <!-- Mini Binder Launchpad widget -->
+    <div class="wf-section">
+      <div class="wf-mini-binder">
+        <div class="wf-mini-binder-header">
+          <UIcon name="folder" />
+          <span>Binder Launchpad</span>
+          <button class="usx-button" @click="openFullBinder">
+            <UIcon name="open_in_new" /> Open Binder
+          </button>
+        </div>
+        <p class="wf-mini-binder-desc">Drop files here to quickly compile a binder, or open the full Binder tab.</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 import { useWorkflowStore } from '../../../stores/workflow'
-import BinderPanel from './BinderPanel.vue'
 
 const wf = useWorkflowStore()
+const router = useRouter()
+
+function openFullBinder() {
+  router.push('/workflow?tab=binder')
+}
 
 function formatTime(iso: string): string {
   if (!iso) return ''
@@ -324,5 +340,32 @@ onMounted(() => {
   color: var(--pico-muted-color);
   font-size: var(--usx-font-size-xs);
   font-family: var(--usx-font-family-mono);
+}
+
+/* ─── Mini Binder Launchpad widget ───────────────────────────────── */
+.wf-mini-binder {
+  padding: var(--usx-spacing-md);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
+}
+
+.wf-mini-binder-header {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  font-weight: var(--usx-font-weight-semibold);
+  margin-bottom: var(--usx-spacing-xs);
+}
+
+.wf-mini-binder-header .usx-button {
+  margin-left: auto;
+  font-size: var(--usx-font-size-sm);
+}
+
+.wf-mini-binder-desc {
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
+  margin: 0;
 }
 </style>

@@ -1,7 +1,9 @@
 <template>
-  <div class="wf-section">
-    <h4 class="wf-section-title">Binder Cross-Reference</h4>
-    <p class="wf-section-desc">Mission/task/binder cross-reference from knowledge index</p>
+  <div class="wf-panel">
+    <div class="surface__panel">
+      <h3 class="surface__panel-title">Binder</h3>
+      <p class="surface__panel-description">Mission/task/binder cross-reference from knowledge index</p>
+    </div>
 
     <!-- Launchpad — drop files to compile into a Binder -->
     <div class="wf-launchpad">
@@ -231,6 +233,13 @@ async function compileBinder(): Promise<void> {
 </script>
 
 <style scoped>
+.wf-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-lg);
+}
+
+/* Launchpad drop-zone */
 .wf-launchpad {
   flex-shrink: 0;
 }

@@ -7,7 +7,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export type WorkflowTab = 'mission-control' | 'tasks' | 'editor' | 'publish'
+export type WorkflowTab = 'mission-control' | 'tasks' | 'binder' | 'editor' | 'publish'
 
 export interface WorkflowTask {
   id: string
@@ -76,6 +76,7 @@ export interface WorkflowStatus {
 
 export const WORKFLOW_TABS: { id: WorkflowTab; label: string; icon: string }[] = [
   { id: 'mission-control', label: 'Missions', icon: 'dashboard' },
+  { id: 'binder', label: 'Binder', icon: 'folder' },
   { id: 'tasks', label: 'Tasks', icon: 'task' },
   { id: 'editor', label: 'Editor', icon: 'article' },
   { id: 'publish', label: 'Publish', icon: 'publish' },
