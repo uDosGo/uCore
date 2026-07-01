@@ -17,38 +17,37 @@
         </span>
       </div>
       <div class="editor-panel__toolbar-right">
-        <UButton
-          size="sm"
-          variant="ghost"
-          icon="edit"
+        <button
+          class="editor-panel__nav-btn"
+          :class="{ 'editor-panel__nav-btn--active': showEditor }"
           :title="showEditor ? 'Hide edit pane' : 'Show edit pane'"
-          :class="{ 'editor-panel__toggle--active': showEditor }"
           @click="emit('toggle-editor')"
-        />
-        <UButton
+        >
+          <UIcon name="edit" />
+        </button>
+        <button
           v-if="showEditor"
-          size="sm"
-          variant="ghost"
-          :icon="paneLayout === 'split' ? 'view_column' : 'view_day'"
+          class="editor-panel__nav-btn"
           :title="paneLayout === 'split' ? 'Switch to stacked layout' : 'Switch to side-by-side layout'"
           @click="emit('toggle-layout')"
-        />
-        <UButton
-          v-if="!readOnly"
-          size="sm"
-          variant="primary"
-          icon="save"
-          @click="handleSave"
         >
-          Save
-        </UButton>
-        <UButton
-          size="sm"
-          variant="ghost"
-          icon="close"
+          <UIcon :name="paneLayout === 'split' ? 'view_column' : 'view_day'" />
+        </button>
+        <button
+          v-if="!readOnly"
+          class="editor-panel__nav-btn editor-panel__nav-btn--save"
+          @click="handleSave"
+          title="Save"
+        >
+          <UIcon name="save" />
+        </button>
+        <button
+          class="editor-panel__nav-btn"
           title="Close editor"
           @click="emit('close')"
-        />
+        >
+          <UIcon name="close" />
+        </button>
       </div>
     </div>
 
@@ -107,7 +106,6 @@
  */
 import { ref, watch, withDefaults } from 'vue'
 import UIcon from '../atoms/UIcon.vue'
-import UButton from '../atoms/UButton.vue'
 import MarkdownEditor from '../molecules/editor/MarkdownEditor.vue'
 import MarkdownPreview from '../molecules/editor/MarkdownPreview.vue'
 
@@ -174,15 +172,16 @@ function handleSave() {
   background: var(--usx-color-background);
 }
 
-/* ─── Unified Toolbar — full-size icons, pane indicators ──────────── */
+/* ─── Unified Toolbar — nav-link buttons, compact height ─────────── */
 .editor-panel__toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--usx-spacing-xs) var(--usx-spacing-md);
+  padding: 0 var(--usx-spacing-md);
   border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   flex-shrink: 0;
-  min-height: var(--usx-touch-min, 48px);
+  min-height: var(--usx-touch-min-sm, 40px);
+  gap: var(--usx-spacing-sm);
 }
 
 .editor-panel__toolbar-left {
@@ -190,7 +189,7 @@ function handleSave() {
   align-items: center;
   gap: var(--usx-spacing-sm);
   min-width: 0;
-  font-size: 1.15em;
+  font-size: 1.25em;
 }
 
 .editor-panel__title {
@@ -212,7 +211,7 @@ function handleSave() {
   display: flex;
   align-items: center;
   gap: var(--usx-spacing-xs);
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-medium);
   color: var(--usx-color-on-surface-muted);
   padding: var(--usx-spacing-2) var(--usx-spacing-sm);
@@ -226,7 +225,43 @@ function handleSave() {
 .editor-panel__toolbar-right {
   display: flex;
   align-items: center;
-  gap: var(--usx-spacing-xs);
+  gap: var(--usx-spacing-2);
+}
+
+/* ─── Nav-link buttons — no borders, transparent bg, hover only ── */
+.editor-panel__nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--usx-radius-sm);
+  background: transparent;
+  color: var(--usx-color-on-surface-muted);
+  cursor: pointer;
+  font-size: 1.25em;
+  transition: color var(--usx-transition-fast), background var(--usx-transition-fast);
+}
+
+.editor-panel__nav-btn:hover {
+  background: var(--usx-color-surface-hover);
+  color: var(--usx-color-on-surface);
+}
+
+.editor-panel__nav-btn--active {
+  color: var(--usx-color-primary);
+  background: var(--usx-color-primary-disabled);
+}
+
+.editor-panel__nav-btn--save {
+  color: var(--usx-color-primary);
+}
+
+.editor-panel__nav-btn--save:hover {
+  background: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
 }
 
 .editor-panel__toggle--active {
@@ -267,12 +302,11 @@ function handleSave() {
   border-top: var(--usx-border-width) solid var(--usx-color-border);
 }
 
-/* ─── Pane body ──────────────────────────────────────────────────── */
+/* ─── Pane body — content fills full height, no extra padding ── */
 .editor-panel__pane-body {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: var(--usx-spacing-sm);
 }
 </style>

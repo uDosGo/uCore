@@ -41,11 +41,13 @@ const markdown = useMarkdownStore()
 <style scoped>
 .markdown-preview {
   width: 100%;
-  padding: var(--usx-spacing-md);
+  height: 100%;
   overflow-y: auto;
+  background: var(--usx-color-surface);
 }
 
 :deep(.md-editor-preview) {
   line-height: 1.7;
+  padding: var(--usx-spacing-md);
 }
 </style>
