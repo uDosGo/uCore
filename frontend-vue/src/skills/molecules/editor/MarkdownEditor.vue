@@ -117,7 +117,7 @@ function handleUploadImg(files: File[], callback: (urls: string[]) => void) {
   right: 0;
   bottom: 0;
   z-index: 9999;
-  background: var(--pico-background-color);
+  background: var(--usx-color-surface);
 }
 
 /* Ensure md-editor-v3 fills container */

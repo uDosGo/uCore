@@ -57,7 +57,7 @@ onUnmounted(() => {
   margin: 0 auto;
   padding: var(--usx-spacing-xl, 24px);
   line-height: var(--usx-line-height-relaxed, 1.8);
-  color: var(--pico-color, #c2c7d0);
+  color: var(--usx-color-on-surface);
   width: 100%;
 }
 
@@ -85,7 +85,7 @@ onUnmounted(() => {
 }
 
 .prose-viewer__content :deep(a) {
-  color: var(--pico-primary, #58a6ff);
+  color: var(--usx-color-primary);
   text-decoration: none;
 }
 
@@ -94,16 +94,16 @@ onUnmounted(() => {
 }
 
 .prose-viewer__content :deep(code) {
-  background: var(--pico-code-background-color, #1a2332);
+  background: var(--usx-color-surface-variant);
   padding: 0.2em 0.4em;
   border-radius: 3px;
   font-size: 0.9em;
 }
 
 .prose-viewer__content :deep(pre) {
-  background: var(--pico-code-background-color, #1a2332);
-  padding: var(--usx-spacing-lg, 16px);
-  border-radius: var(--usx-border-radius-md, 6px);
+  background: var(--usx-color-surface-variant);
+  padding: var(--usx-spacing-lg);
+  border-radius: var(--usx-radius-md);
   overflow-x: auto;
   margin-bottom: 1em;
 }
@@ -117,7 +117,7 @@ onUnmounted(() => {
   border-left: 3px solid var(--pico-primary, #58a6ff);
   padding-left: var(--usx-spacing-lg, 16px);
   margin-left: 0;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .prose-viewer__content :deep(ul),

@@ -169,9 +169,9 @@ function handleSave() {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: var(--pico-background-color);
-  border-radius: var(--usx-border-radius-md);
-  border: 1px solid var(--pico-border-color);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-md);
+  border: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 /* ─── Shared Toolbar ──────────────────────────────────────────────── */
@@ -180,9 +180,9 @@ function handleSave() {
   align-items: center;
   justify-content: space-between;
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  border-bottom: 1px solid var(--pico-border-color);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   flex-shrink: 0;
-  min-height: 36px;
+  min-height: var(--usx-touch-min-sm, 40px);
 }
 
 .editor-panel__toolbar-left {
@@ -195,7 +195,7 @@ function handleSave() {
 .editor-panel__title {
   font-size: var(--usx-font-size-sm);
   font-weight: 600;
-  color: var(--pico-color);
+  color: var(--usx-color-on-surface);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -208,8 +208,8 @@ function handleSave() {
 }
 
 .editor-panel__toggle--active {
-  color: var(--pico-primary);
-  background: rgba(88, 166, 255, 0.1);
+  color: var(--usx-color-primary);
+  background: var(--usx-color-primary-disabled);
 }
 
 /* ─── Panes container — horizontal row by default ──────────────── */
@@ -248,12 +248,12 @@ function handleSave() {
 }
 
 .editor-panel__panes--split .editor-panel__edit-pane {
-  border-left: 1px solid var(--pico-border-color);
+  border-left: var(--usx-border-width) solid var(--usx-color-border);
   min-width: 0;
 }
 
 .editor-panel__panes--stacked .editor-panel__edit-pane {
-  border-bottom: 1px solid var(--pico-border-color);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 /* ─── Pane header ────────────────────────────────────────────────── */
@@ -264,8 +264,8 @@ function handleSave() {
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   font-size: var(--usx-font-size-xs);
   font-weight: 500;
-  color: var(--pico-muted-color);
-  border-bottom: 1px solid var(--pico-border-color);
+  color: var(--usx-color-on-surface-muted);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   flex-shrink: 0;
 }
 

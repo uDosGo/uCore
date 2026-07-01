@@ -139,7 +139,7 @@ defineExpose({
   padding: 2px 8px;
   font-family: monospace;
   font-size: 11px;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--usx-color-on-surface-muted);
   background: rgba(0, 0, 0, 0.3);
   border-radius: 2px;
 }
@@ -149,6 +149,6 @@ defineExpose({
 }
 
 .gridcore-ui__cell-info {
-  color: var(--pico-primary, #58a6ff);
+  color: var(--usx-color-primary);
 }
 </style>

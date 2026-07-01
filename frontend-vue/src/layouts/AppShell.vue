@@ -85,7 +85,7 @@ const currentTabs = computed(() => {
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
-  padding: var(--usx-spacing-xl);
+  padding: 0;
   background: var(--usx-color-background);
   min-height: 0;
 }

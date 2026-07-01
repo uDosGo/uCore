@@ -42,7 +42,7 @@
 
   /* ===== SURFACE PLATE ===== */
   --usx-surface-header-padding: var(--usx-spacing-lg) var(--usx-spacing-xl);
-  --usx-surface-content-padding: var(--usx-spacing-xl);
+  --usx-surface-content-padding: var(--usx-spacing-md);
   --usx-surface-tab-bar-padding: 0 var(--usx-spacing-lg);
   --usx-surface-topbar-height: 48px;
   --usx-surface-topbar-padding: 0 var(--usx-spacing-xl);
