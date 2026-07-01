@@ -4,7 +4,7 @@
     <div class="surface__content">
       <div class="workflow-layout">
         <!-- Left/Main panel: the active tab content -->
-        <div v-if="wf.activeTab !== 'editor'" class="workflow-panel" :class="{ 'workflow-panel--narrow': wf.editorOpen }">
+        <div v-if="wf.activeTab !== 'editor'" class="workflow-panel">
           <MissionControlPanel v-if="wf.activeTab === 'mission-control'" />
           <BinderPanel v-else-if="wf.activeTab === 'binder'" />
           <TasksPanel v-else-if="wf.activeTab === 'tasks'" />
@@ -49,8 +49,8 @@
  *
  * Editor layout:
  *   - No editor: [Main Panel 100%]
- *   - Editor open, edit pane visible: [Main Panel 50%] | [Edit 25% | Preview 25%]
- *   - Editor open, edit pane hidden:  [Main Panel 50%] | [Preview 50%]
+ *   - Preview only: [Main Panel 2/3] | [Preview 1/3]
+ *   - Both panes:  [Main Panel 1/3] | [Edit 1/3 | Preview 1/3]
  *
  * @category surfaces
  * @usage Routed at '/workflow?tab=mission-control'
@@ -97,7 +97,7 @@ const editorColumnClass = computed(() => {
   display: flex;
   flex-direction: row;
   height: 100%;
-  gap: 0;
+  gap: var(--usx-spacing-md);
 }
 
 /* ─── Main Panel — fill full height ──────────────────────────── */
@@ -115,30 +115,25 @@ const editorColumnClass = computed(() => {
   min-height: 0;
 }
 
-/* When editor is open, main panel gets less space */
-.workflow-panel--narrow {
-  /* flex: 1 still applies — the editor column takes the rest */
-}
-
 /* ─── Editor Column — right sidebar, full height ──────────────── */
 .workflow-editor {
   flex-shrink: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border-left: var(--usx-border-width) solid var(--usx-color-border);
   background: var(--usx-color-background);
 }
 
-/* Single pane: 50-50 split with main panel */
+/* Preview only: editor takes 1/3, main panel takes 2/3 */
 .workflow-editor--single {
-  width: 50%;
-  min-width: 360px;
+  width: 33.33%;
+  min-width: 320px;
 }
 
-/* Both panes: 50-50 even split with main panel */
+/* Both edit + preview: editor takes 2/3, main panel takes 1/3,
+   then edit/preview split evenly inside = 1/3 each of full width */
 .workflow-editor--wide {
-  width: 55%;
+  width: 66.66%;
   min-width: 480px;
 }
 

@@ -1,10 +1,20 @@
 <template>
   <div class="editor-panel">
-    <!-- Single shared toolbar -->
+    <!-- Unified toolbar — full-size icons, pane indicators inline -->
     <div class="editor-panel__toolbar">
       <div class="editor-panel__toolbar-left">
         <UIcon name="article" />
         <span class="editor-panel__title">{{ title || 'Untitled' }}</span>
+      </div>
+      <div class="editor-panel__toolbar-center">
+        <span v-if="showEditor" class="editor-panel__pane-tab" :class="{ 'editor-panel__pane-tab--active': true }">
+          <UIcon name="edit" />
+          <span>Edit</span>
+        </span>
+        <span class="editor-panel__pane-tab editor-panel__pane-tab--active">
+          <UIcon name="visibility" />
+          <span>Preview</span>
+        </span>
       </div>
       <div class="editor-panel__toolbar-right">
         <UButton
@@ -42,9 +52,7 @@
       </div>
     </div>
 
-    <!-- Panes: side-by-side (split) when editing, stacked when layout toggled.
-         Order: Edit (left) | Preview (right) when split.
-               Preview (top) | Edit (bottom) when stacked. -->
+    <!-- Panes — no individual headers, all controls are in the unified toolbar -->
     <div
       class="editor-panel__panes"
       :class="{
@@ -54,10 +62,6 @@
     >
       <!-- Editing Pane — appears on the left when pencil is toggled -->
       <div v-if="showEditor" class="editor-panel__edit-pane">
-        <div class="editor-panel__pane-header">
-          <UIcon name="edit" />
-          <span>Edit</span>
-        </div>
         <div class="editor-panel__pane-body">
           <MarkdownEditor
             v-model="localContent"
@@ -71,10 +75,6 @@
 
       <!-- Preview Pane — always visible, stays on the right -->
       <div class="editor-panel__preview-pane">
-        <div class="editor-panel__pane-header">
-          <UIcon name="visibility" />
-          <span>Preview</span>
-        </div>
         <div class="editor-panel__pane-body">
           <MarkdownPreview
             :content="localContent"
@@ -171,20 +171,18 @@ function handleSave() {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: var(--usx-color-surface);
-  border-radius: var(--usx-radius-md);
-  border: var(--usx-border-width) solid var(--usx-color-border);
+  background: var(--usx-color-background);
 }
 
-/* ─── Shared Toolbar ──────────────────────────────────────────────── */
+/* ─── Unified Toolbar — full-size icons, pane indicators ──────────── */
 .editor-panel__toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-md);
   border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   flex-shrink: 0;
-  min-height: var(--usx-touch-min-sm, 40px);
+  min-height: var(--usx-touch-min, 48px);
 }
 
 .editor-panel__toolbar-left {
@@ -196,12 +194,33 @@ function handleSave() {
 }
 
 .editor-panel__title {
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   font-weight: 600;
   color: var(--usx-color-on-surface);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.editor-panel__toolbar-center {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-md);
+}
+
+.editor-panel__pane-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  font-size: var(--usx-font-size-sm);
+  font-weight: var(--usx-font-weight-medium);
+  color: var(--usx-color-on-surface-muted);
+  padding: var(--usx-spacing-2) var(--usx-spacing-sm);
+  border-radius: var(--usx-radius-sm);
+}
+
+.editor-panel__pane-tab--active {
+  color: var(--usx-color-primary);
 }
 
 .editor-panel__toolbar-right {
@@ -215,65 +234,37 @@ function handleSave() {
   background: var(--usx-color-primary-disabled);
 }
 
-/* ─── Panes container — horizontal row by default ──────────────── */
+/* ─── Panes container ─────────────────────────────────────────────── */
 .editor-panel__panes {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
-/* Side-by-side (default): left = preview, right = edit */
 .editor-panel__panes--split {
   flex-direction: row;
 }
 
-/* Stacked: preview on top, edit on bottom */
 .editor-panel__panes--stacked {
   flex-direction: column-reverse;
 }
 
-/* ─── Preview Pane — always visible, takes full width when alone ── */
-.editor-panel__preview-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
-}
-
-/* ─── Edit Pane — appears alongside/above preview when toggled ──── */
+.editor-panel__preview-pane,
 .editor-panel__edit-pane {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
   min-height: 0;
 }
 
 .editor-panel__panes--split .editor-panel__edit-pane {
   border-right: var(--usx-border-width) solid var(--usx-color-border);
-  min-width: 0;
 }
 
 .editor-panel__panes--stacked .editor-panel__edit-pane {
   border-top: var(--usx-border-width) solid var(--usx-color-border);
-}
-
-/* ─── Pane header ────────────────────────────────────────────────── */
-.editor-panel__pane-header {
-  display: flex;
-  align-items: center;
-  gap: var(--usx-spacing-xs);
-  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  font-size: var(--usx-font-size-sm);
-  font-weight: 500;
-  color: var(--usx-color-on-surface-muted);
-  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
-  flex-shrink: 0;
-}
-
-.editor-panel__pane-header span {
-  flex: 1;
 }
 
 /* ─── Pane body ──────────────────────────────────────────────────── */
