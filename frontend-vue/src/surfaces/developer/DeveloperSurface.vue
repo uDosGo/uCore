@@ -9,8 +9,7 @@
         <ReviewPanel v-else-if="dev.activeTab === 'review'" />
         <SkillsPanel v-else-if="dev.activeTab === 'skills'" />
         <FeedPanel v-else-if="dev.activeTab === 'feed'" />
-        <SurfacesPanel v-else-if="dev.activeTab === 'surfaces'" />
-        <CoursesPanel v-else-if="dev.activeTab === 'courses'" />
+        <RegistryPanel v-else-if="dev.activeTab === 'registry'" />
         <WorkflowsPanel v-else-if="dev.activeTab === 'workflows'" />
         <MCPServersPanel v-else-if="dev.activeTab === 'mcp-servers'" />
         <SettingsPanel v-else-if="dev.activeTab === 'settings'" />
@@ -37,8 +36,7 @@ import ReposPanel from './panels/ReposPanel.vue'
 import ReviewPanel from './panels/ReviewPanel.vue'
 import SkillsPanel from './panels/SkillsPanel.vue'
 import FeedPanel from './panels/FeedPanel.vue'
-import SurfacesPanel from './panels/SurfacesPanel.vue'
-import CoursesPanel from './panels/CoursesPanel.vue'
+import RegistryPanel from './panels/RegistryPanel.vue'
 import WorkflowsPanel from './panels/WorkflowsPanel.vue'
 import MCPServersPanel from './panels/MCPServersPanel.vue'
 import SettingsPanel from './panels/SettingsPanel.vue'

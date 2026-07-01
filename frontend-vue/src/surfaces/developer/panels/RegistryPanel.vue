@@ -18,9 +18,20 @@
         </button>
       </div>
 
+      <!-- Repo Filter -->
+      <div class="registry-sidebar__filter">
+        <select v-model="repoFilter" style="width: 100%; min-height: var(--usx-touch-min-sm); padding: 0 var(--usx-spacing-sm); border: var(--usx-border-width) solid var(--usx-color-border); border-radius: var(--usx-radius-sm); background: var(--usx-color-surface); color: var(--usx-color-on-surface); font-size: var(--usx-font-size-sm); font-family: var(--usx-font-family-sans)">
+          <option value="">All Repos</option>
+          <option v-for="repo in repos" :key="repo" :value="repo">{{ repo }}</option>
+        </select>
+      </div>
+
       <div class="registry-sidebar__summary">
         <span style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">
           Total: {{ totalItems }} items across {{ subTabs.length }} registries
+        </span>
+        <span v-if="repoFilter" style="font-size: var(--usx-font-size-xs); color: var(--usx-color-primary); display: block" class="usx-mt-sm">
+          Filtered: {{ repoFilter }}
         </span>
       </div>
     </div>
@@ -316,8 +327,11 @@ const runtimes = ref<Record<string, RuntimeItem>>({})
 
 const activeSubTab = ref('skills')
 const searchQuery = ref('')
+const repoFilter = ref('')
 const routePage = ref(1)
 const pageSize = 20
+
+const repos = computed(() => ['uCore', 'uCode', 'HomeNest'])
 
 const subTabs = computed(() => [
   { id: 'skills', label: 'Skills', icon: 'extension', count: filteredSkills.value.length },

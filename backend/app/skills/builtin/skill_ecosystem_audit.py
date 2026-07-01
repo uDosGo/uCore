@@ -25,6 +25,22 @@ log = logging.getLogger("ucore.skills.ecosystem_audit")
 ROOT_DIR = Path(__file__).parent.parent.parent.parent.parent
 BACKEND_DIR = ROOT_DIR / "backend" / "app"
 SKILLS_DIR = BACKEND_DIR / "skills" / "builtin"
+UCODE_DIR = ROOT_DIR.parent / "uCode"
+HOMENEST_DIR = ROOT_DIR.parent / "HomeNest"
+REPO_MAP = {
+    str(ROOT_DIR): "uCore",
+    str(ROOT_DIR.parent / "uCode"): "uCode",
+    str(ROOT_DIR.parent / "HomeNest"): "HomeNest",
+}
+
+
+def _repo_for(path: Path) -> str:
+    """Determine which repo a path belongs to."""
+    sp = str(path)
+    for root, name in REPO_MAP.items():
+        if sp.startswith(root):
+            return name
+    return "unknown"
 API_DIR = BACKEND_DIR / "api"
 ROUTES_FILE = API_DIR / "routes.py"
 MCP_CONFIG_FILE = ROOT_DIR / "config" / "mcp_config.json"
