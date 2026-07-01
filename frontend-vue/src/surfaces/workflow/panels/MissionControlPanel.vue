@@ -84,23 +84,29 @@
       </div>
     </div>
 
-    <!-- Recent runs from backend -->
+    <!-- Recent runs from backend — card style matching mission cards -->
     <div v-if="wf.workflowRuns.length > 0" class="wf-section">
       <h4 class="wf-section-title">Recent Workflow Runs</h4>
-      <div class="wf-run-list">
+      <div class="wf-run-grid">
         <div
           v-for="run in wf.workflowRuns.slice(0, 5)"
           :key="run.run_id"
-          class="wf-run-row"
+          class="wf-run-card"
         >
+          <div class="wf-run-card-icon">
+            <UIcon :name="run.status === 'completed' ? 'check_circle' : run.status === 'failed' ? 'error' : 'schedule'" />
+          </div>
+          <div class="wf-run-card-content">
+            <span class="wf-run-card-name">{{ run.workflow_name || run.workflow_id }}</span>
+            <span class="wf-run-card-time">{{ formatTime(run.started_at) }}</span>
+          </div>
           <UBadge
             :type="run.status === 'completed' ? 'success' : run.status === 'failed' ? 'error' : 'warning'"
             size="sm"
+            pill
           >
             {{ run.status }}
           </UBadge>
-          <span class="wf-run-name">{{ run.workflow_name || run.workflow_id }}</span>
-          <span class="wf-run-time">{{ formatTime(run.started_at) }}</span>
         </div>
       </div>
     </div>
@@ -316,30 +322,61 @@ onMounted(() => {
   margin-left: auto;
 }
 
-.wf-run-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--usx-spacing-xs);
+.wf-run-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--usx-spacing-md);
 }
 
-.wf-run-row {
+.wf-run-card {
   display: flex;
   align-items: center;
-  gap: var(--usx-spacing-sm);
-  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-md);
-  font-size: var(--usx-font-size-sm);
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
+  transition: border-color var(--usx-transition-fast), transform var(--usx-transition-fast);
 }
 
-.wf-run-name {
+.wf-run-card:hover {
+  border-color: var(--usx-color-primary);
+  transform: translateY(-2px);
+}
+
+.wf-run-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
+  border-radius: var(--usx-radius-md);
+  background: var(--usx-color-surface-variant);
+  color: var(--usx-color-primary);
+  flex-shrink: 0;
+  font-size: var(--usx-icon-size-lg);
+}
+
+.wf-run-card-content {
   flex: 1;
-  font-weight: 500;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-2);
 }
 
-.wf-run-time {
-  color: var(--pico-muted-color);
+.wf-run-card-name {
+  font-size: var(--usx-font-size-sm);
+  font-weight: var(--usx-font-weight-semibold);
+  color: var(--usx-color-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-run-card-time {
   font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
   font-family: var(--usx-font-family-mono);
 }
 

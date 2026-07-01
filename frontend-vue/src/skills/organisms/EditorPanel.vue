@@ -190,6 +190,7 @@ function handleSave() {
   align-items: center;
   gap: var(--usx-spacing-sm);
   min-width: 0;
+  font-size: 1.15em;
 }
 
 .editor-panel__title {
@@ -262,7 +263,7 @@ function handleSave() {
   align-items: center;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   font-weight: 500;
   color: var(--usx-color-on-surface-muted);
   border-bottom: var(--usx-border-width) solid var(--usx-color-border);

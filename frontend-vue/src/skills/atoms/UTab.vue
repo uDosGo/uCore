@@ -80,14 +80,14 @@ const emit = defineEmits<{
   border-bottom-color: var(--pico-primary);
 }
 
-/* Icon inherits font-size from parent (14px via --usx-font-size-sm) */
+/* Icon inherits font-size from parent */
 .u-tab__icon {
   flex-shrink: 0;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35em;
+  font-size: 1.5em;
 }
 
 .u-tab__label {
