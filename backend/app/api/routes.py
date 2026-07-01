@@ -261,7 +261,7 @@ def register_routes(app: web.Application) -> None:
     # Health and skill state endpoints
     from .skills import handle_health, handle_skill_state
     app.router.add_get("/api/skills/state", handle_skill_state)
-    app.router.add_get("/api/health", handle_health)
+    app.router.add_get("/api/skills/health", handle_health)
     register_surface_routes(app)
     register_snack_routes(app)
     register_container_routes(app)

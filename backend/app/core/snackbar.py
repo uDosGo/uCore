@@ -64,7 +64,11 @@ async def budget_middleware(request: web.Request, handler):
         return await handler(request)
 
     path = request.path
-    if path not in manager.policy.guarded_endpoints:
+    try:
+        guarded = manager.policy.guarded_endpoints
+    except AttributeError:
+        guarded = []
+    if path not in guarded:
         return await handler(request)
 
     estimated_cost = manager.estimate_for_path(path)
