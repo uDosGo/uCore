@@ -1,0 +1,362 @@
+/* ═══════════════════════════════════════════════════════════════════
+   usx-pico-reset.css — Pico CSS Standardization & Reset
+   
+   Enforces Pico CSS tokens across all surfaces and resets conflicting
+   old colors/sizes. Import after pico.min.css and usx-spacing-scale.css.
+   
+   This file:
+   1. Establishes Pico token consistency
+   2. Removes hardcoded color overrides
+   3. Standardizes common component patterns
+   4. Fixes nested div nesting issues
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Global Reset: Enforce Pico Tokens ──────────────────────────── */
+
+:root {
+  /* Ensure Pico variables exist (fallback if not loaded) */
+  --pico-background-color: var(--pico-background-color, #0d1117);
+  --pico-card-background-color: var(--pico-card-background-color, #161b22);
+  --pico-card-sectioning-background-color: var(--pico-card-sectioning-background-color, #1c2128);
+  --pico-color: var(--pico-color, #c9d1d9);
+  --pico-muted-color: var(--pico-muted-color, #8b949e);
+  --pico-border-color: var(--pico-border-color, #30363d);
+  --pico-primary: var(--pico-primary, #58a6ff);
+  --pico-primary-hover: var(--pico-primary-hover, #3b82f6);
+  --pico-ins-color: var(--pico-ins-color, #3fb950);
+  --pico-del-color: var(--pico-del-color, #f85149);
+  --pico-font-family: var(--pico-font-family, system-ui, -apple-system, sans-serif);
+  --pico-font-size: var(--pico-font-size, 1rem);
+  
+  /* Surface token mapping (for backward compatibility) */
+  --surface-bg: var(--pico-background-color);
+  --surface-card: var(--pico-card-background-color);
+  --surface-card-high: var(--pico-card-sectioning-background-color);
+  --surface-text: var(--pico-color);
+  --surface-text-muted: var(--pico-muted-color);
+  --surface-border: var(--pico-border-color);
+  --surface-accent: var(--pico-primary);
+  --surface-success: var(--pico-ins-color);
+  --surface-error: var(--pico-del-color);
+}
+
+/* ─── Reset Hardcoded Colors ──────────────────────────────────────── */
+
+/* Override old uCode surface colors */
+[class*="ucode"] {
+  /* All backgrounds should use Pico variables */
+  --ucode-bg-dark: var(--pico-background-color);
+  --ucode-bg-card: var(--pico-card-background-color);
+  --ucode-bg-high: var(--pico-card-sectioning-background-color);
+  --ucode-text: var(--pico-color);
+  --ucode-text-muted: var(--pico-muted-color);
+  --ucode-border: var(--pico-border-color);
+}
+
+/* Reset any inline hex colors in old code */
+.ucode-main-viewport {
+  background: var(--pico-background-color, #0d1117) !important;
+  border-color: var(--pico-border-color, #30363d) !important;
+}
+
+.ucode-main-viewport-header {
+  background: var(--pico-card-sectioning-background-color, #1c2128) !important;
+  border-bottom-color: var(--pico-border-color, #30363d) !important;
+}
+
+.ucode-dashboard {
+  background: var(--pico-card-sectioning-background-color, #1c2128) !important;
+  border-color: var(--pico-border-color, #30363d) !important;
+}
+
+.ucode-dashboard-header {
+  border-bottom-color: var(--pico-border-color, #30363d) !important;
+}
+
+.ucode-pill {
+  background: var(--pico-background-color, #0d1117) !important;
+  border-color: var(--pico-border-color, #30363d) !important;
+  color: var(--pico-muted-color, #8b949e) !important;
+}
+
+.ucode-pill--accent {
+  border-color: var(--pico-primary, #58a6ff) !important;
+  color: var(--pico-primary, #58a6ff) !important;
+}
+
+/* ─── Standardize Common Components ─────────────────────────────── */
+
+/* Cards: standardize across all surfaces */
+[class*="card"],
+[class*="Card"] {
+  background: var(--pico-card-background-color, #161b22);
+  border-color: var(--pico-border-color, #30363d);
+  color: var(--pico-color, #c9d1d9);
+}
+
+/* Card headers */
+[class*="card-header"],
+[class*="Card-header"] {
+  background: transparent;
+  border-bottom-color: var(--pico-border-color, #30363d);
+}
+
+/* Badges: consistent across surfaces */
+[class*="badge"],
+[class*="Badge"] {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-muted-color, #8b949e);
+  border-color: var(--pico-border-color, #30363d);
+}
+
+/* Badge active state */
+[class*="badge"][class*="active"],
+[class*="badge"][class*="--active"],
+[class*="Badge--active"] {
+  background: rgba(88, 166, 255, 0.15);
+  color: var(--pico-primary, #58a6ff);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+/* ─── Fix Nested Div Double-Padding ──────────────────────────────── */
+
+/* Panel patterns: ensure padding doesn't accumulate */
+[class*="panel"] {
+  padding: var(--usx-spacing-lg, 16px);
+}
+
+[class*="panel-title"],
+[class*="panel-header"] {
+  margin: 0;
+  padding: 0;  /* Don't add extra padding */
+}
+
+[class*="panel-content"],
+[class*="panel-body"] {
+  margin: 0;
+  padding: 0;  /* Content should inherit parent padding */
+}
+
+/* Section patterns: prevent margin accumulation */
+[class*="section"] {
+  margin: 0;  /* Reset default margins */
+  padding: var(--usx-spacing-lg, 16px);
+}
+
+[class*="section-header"] {
+  margin: 0 0 var(--usx-spacing-sm, 8px) 0;
+  padding: 0;
+}
+
+[class*="section-content"],
+[class*="section-body"] {
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Normalize Button Padding ────────────────────────────────────── */
+
+button,
+[role="button"],
+[class*="btn"],
+[class*="button"] {
+  padding: var(--usx-button-padding-vertical, 8px) var(--usx-button-padding-horizontal, 16px);
+  font-family: var(--pico-font-family);
+  border-radius: 6px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-background-color, #161b22);
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+button:hover,
+[role="button"]:hover,
+[class*="btn"]:hover,
+[class*="button"]:hover {
+  border-color: var(--pico-primary, #58a6ff);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+/* Primary buttons */
+button[class*="primary"],
+[role="button"][class*="primary"],
+[class*="btn--primary"],
+[class*="button--primary"] {
+  background: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary-inverse, #fff);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+button[class*="primary"]:hover,
+[role="button"][class*="primary"]:hover,
+[class*="btn--primary"]:hover,
+[class*="button--primary"]:hover {
+  background: var(--pico-primary-hover, #3b82f6);
+  border-color: var(--pico-primary-hover, #3b82f6);
+}
+
+/* ─── Normalize Input Fields ──────────────────────────────────────── */
+
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+textarea,
+select {
+  background: var(--pico-background-color, #0d1117);
+  border-color: var(--pico-border-color, #30363d);
+  color: var(--pico-color, #c9d1d9);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-family: var(--pico-font-family);
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--pico-primary, #58a6ff);
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.2);
+}
+
+input[type="text"]::placeholder,
+input[type="search"]::placeholder,
+input[type="email"]::placeholder,
+input[type="url"]::placeholder,
+input[type="number"]::placeholder,
+textarea::placeholder {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Standardize Lists ─────────────────────────────────────────── */
+
+ul, ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+li {
+  margin: var(--usx-spacing-xs, 4px) 0;
+  padding: 0;
+}
+
+/* ─── Text Color Reset ────────────────────────────────────────────── */
+
+body {
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+  font-family: var(--pico-font-family);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--pico-color, #c9d1d9);
+  margin: 0 0 var(--usx-spacing-md, 12px) 0;
+}
+
+p {
+  margin: 0 0 var(--usx-spacing-sm, 8px) 0;
+}
+
+a {
+  color: var(--pico-primary, #58a6ff);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ─── Code Block Standardization ──────────────────────────────────── */
+
+code {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-color, #c9d1d9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'SFMono-Regular', 'SF Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+pre {
+  background: var(--pico-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
+  color: var(--pico-color, #c9d1d9);
+  padding: 12px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: var(--usx-spacing-md, 12px) 0;
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* ─── Status Indicators ───────────────────────────────────────────── */
+
+[class*="status"] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs, 4px);
+}
+
+[class*="status--active"],
+[class*="status"][class*="active"] {
+  color: var(--pico-ins-color, #3fb950);
+  background: rgba(63, 185, 80, 0.1);
+}
+
+[class*="status--error"],
+[class*="status"][class*="error"] {
+  color: var(--pico-del-color, #f85149);
+  background: rgba(248, 81, 73, 0.1);
+}
+
+[class*="status--warning"],
+[class*="status"][class*="warning"] {
+  color: var(--pico-warning-color, #d29922);
+  background: rgba(210, 153, 34, 0.1);
+}
+
+/* ─── Scrollbar Standardization ───────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pico-border-color, #30363d);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pico-border-color, #30363d);
+}
+
+/* ─── Focus State Standardization ────────────────────────────────── */
+
+*:focus-visible {
+  outline: 1px solid var(--pico-primary, #58a6ff);
+  outline-offset: 1px;
+}
+
+/* ─── Reduced Motion Support ─────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

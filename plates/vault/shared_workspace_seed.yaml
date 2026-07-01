@@ -1,0 +1,39 @@
+plate:
+  id: "vault.shared_workspace_seed"
+  version: "1.0.0"
+  domain: "vault"
+  description: "Seed structure for shared team vaults at ~/Shared/"
+  vault_layer: "shared"
+  vault_path: "~/Shared/"
+  structure:
+    - path: "{workspace_name}/"
+      description: "Workspace root"
+    - path: "{workspace_name}/Projects/"
+      description: "Team projects"
+    - path: "{workspace_name}/Knowledge/"
+      description: "Shared knowledge base"
+    - path: "{workspace_name}/Assets/"
+      description: "Shared assets and media"
+    - path: "{workspace_name}/Archive/"
+      description: "Archived workspaces"
+  source: "builtin"
+  checksum: ""
+  dependencies: []
+  lessons:
+    - "Shared vaults are team-oriented, not personal"
+    - "Each workspace gets its own subdirectory under ~/Shared/"
+    - "Archive old workspaces rather than deleting them"
+  destroy:
+    salvage_keys:
+      - vault_layer
+      - vault_path
+      - workspace_name
+    rebuild_command: "echo Rebuilding shared workspace $workspace_name at $vault_path"
+    backup_before_destroy: true
+    spool_archive:
+      enabled: true
+      spool_dir: "~/.ucore/logs"
+      compress_metadata: true
+      include_source: false
+      include_lessons: true
+      max_spool_age_days: 365

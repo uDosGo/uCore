@@ -1,0 +1,38 @@
+# uCore Budget Configuration
+# Copy to ~/.ucore/config/budget.yaml and adjust
+
+# Session budget (resets on restart)
+session_budget_usd: 5.0
+
+# Daily budget (resets at midnight)
+daily_budget_usd: 10.0
+
+# Monthly budget (resets on 1st)
+monthly_budget_usd: 50.0
+
+# Circuit breaker: when remaining < threshold * budget, only free tier
+circuit_breaker_threshold: 0.10
+
+# Per-agent budget caps
+per_agent:
+  dev:
+    daily_budget_usd: 2.0
+    max_per_task_usd: 0.10
+  reviewer:
+    daily_budget_usd: 3.0
+    max_per_task_usd: 0.50
+  architect:
+    daily_budget_usd: 4.0
+    max_per_task_usd: 1.00
+  debugger:
+    daily_budget_usd: 1.0
+    max_per_task_usd: 0.05
+  docgen:
+    daily_budget_usd: 1.0
+    max_per_task_usd: 0.05
+  gridsmith-dev:
+    daily_budget_usd: 1.0
+    max_per_task_usd: 0.05
+
+# When budget is exhausted, only use free tier models
+free_tier_only_when_exhausted: true

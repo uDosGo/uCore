@@ -1,0 +1,22 @@
+{
+  "name": "mcp-ucore-core",
+  "version": "1.0.0",
+  "description": "Core MCP server for uCore: surface repair/restart, backups, spool maintenance, and coordination",
+  "tools": [
+    "ucore_surface_repair",
+    "ucore_surface_restart",
+    "ucore_spool_maintenance",
+    "ucore_daily_backup",
+    "ucore_brain_sync",
+    "ucore_secret_get",
+    "ucore_secret_list",
+    "ucore_lint_fix"
+  ],
+  "transport": "stdio",
+  "health_check": "/health",
+  "protocolVersion": "0.1.0",
+  "serverInfo": {
+    "name": "uCore MCP",
+    "version": "4.0.0"
+  }
+}

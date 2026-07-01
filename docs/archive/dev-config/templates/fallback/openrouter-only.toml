@@ -1,0 +1,27 @@
+[metadata]
+name = "openrouter-fallback"
+version = "1.0.0"
+description = "Direct OpenRouter API access - no Hivemind, no Roundtable"
+
+[openrouter]
+api_key = "${OPENROUTER_API_KEY}"
+base_url = "https://openrouter.ai/api/v1"
+timeout = 120
+max_retries = 3
+
+[models]
+default = "openai/gpt-oss-20b"
+coding = "meta-llama/llama-3.3-70b-instruct"
+reasoning = "deepseek/deepseek-v4-pro"
+fallback = "nvidia/nemotron-3-super"
+
+[routing]
+strategy = "cost-first"
+max_cost_per_request = 0.05
+free_tier_first = true
+provider_fallbacks = true
+
+[features]
+prompt_caching = true
+reasoning_effort = "medium"
+streaming = false

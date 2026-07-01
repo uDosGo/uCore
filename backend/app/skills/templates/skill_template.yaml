@@ -1,0 +1,15 @@
+# Skill Metadata Template
+name: my-custom-skill
+description: What this skill does
+category: general  # general, surfaces, containers, data, maintenance, examples
+timeout: 60
+params:
+  - name: input_param
+    type: string        # string, number, boolean, object, array
+    description: Description of this parameter
+    required: true
+    default: null
+  - name: optional_param
+    type: number
+    required: false
+    default: 42

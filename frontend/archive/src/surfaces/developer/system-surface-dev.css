@@ -1,0 +1,80 @@
+/* system-surface-dev.css — uSystemSettingsPanel Styling */
+.usystem-settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.usystem-settings-info {
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 5%, transparent);
+  border: 1px solid var(--pico-primary, #58a6ff);
+  border-radius: 6px;
+  font-size: var(--pico-font-size, 1rem);
+  color: var(--pico-muted-color, #8b949e);
+  line-height: 1.6;
+}
+
+.usystem-settings-info p { margin: 0; }
+
+.usystem-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.usystem-settings-section-title {
+  font-size: var(--pico-font-size, 1rem);
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.usystem-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.usystem-settings-field label {
+  font-size: var(--pico-font-size-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.usystem-settings-help {
+  font-size: var(--pico-font-size-xs, 0.75rem);
+  color: var(--pico-muted-color, #8b949e);
+  margin: 0;
+}
+
+.usystem-settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  font-size: var(--pico-font-size-sm, 0.875rem);
+}
+
+.usystem-settings-toggle-row:last-child { border-bottom: none; }
+
+.usystem-settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.usystem-settings-toggle input[type=checkbox] {
+  cursor: pointer;
+  accent-color: var(--pico-primary, #58a6ff);
+}
+
+.usystem-settings-toggle span {
+  font-size: var(--pico-font-size-xs, 0.75rem);
+  color: var(--pico-muted-color, #8b949e);
+}

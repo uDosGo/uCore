@@ -1,0 +1,10 @@
+{
+  "surface_id": "mysurface",
+  "surface_title": "My Chat Surface",
+  "surface_description": "AI-powered chat surface",
+  "surface_icon": "chat",
+  "surface_color": "#a855f7",
+  "route_path": "/mysurface",
+  "dev_only": false,
+  "author": "uCore"
+}

@@ -1,0 +1,60 @@
+{
+  "name": "feed-pod",
+  "version": "1.0.0",
+  "schema": "~/.ucore/schemas/activity.schema.sql",
+  "sources": {
+    "browser": {
+      "enabled": true,
+      "paths": {
+        "chrome": "~/Library/Application Support/Google/Chrome/Default/History",
+        "arc": "~/Library/Application Support/Arc/User Data/Default/History",
+        "safari": "~/Library/Safari/History.db"
+      }
+    },
+    "email": {
+      "enabled": true,
+      "path": "~/Library/Mail/V9/MailData/"
+    },
+    "messages": {
+      "enabled": true,
+      "path": "~/Library/Messages/chat.db"
+    },
+    "contacts": {
+      "enabled": true,
+      "path": "~/Library/Application Support/AddressBook/Sources/"
+    },
+    "search": {
+      "enabled": true,
+      "sources": ["chrome", "safari", "duckduckgo"]
+    },
+    "alerts": {
+      "enabled": true,
+      "sources": ["macos_notifications", "terminal_bell"]
+    },
+    "calendar": {
+      "enabled": true,
+      "path": "~/Library/Calendars/"
+    },
+    "clipboard": {
+      "enabled": false,
+      "note": "Disabled by default for privacy; enable via settings"
+    }
+  },
+  "nugget": "feed-processor",
+  "initial_data": {
+    "contacts": [
+      {
+        "name": "uCode Team",
+        "organization": "uCode",
+        "notes": "Primary development team"
+      }
+    ]
+  },
+  "config": {
+    "auto_ingest": true,
+    "sync_interval_seconds": 300,
+    "max_importance_default": 0.5,
+    "suggestion_min_confidence": 0.5,
+    "activity_retention_days": 90
+  }
+}

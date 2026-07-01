@@ -1,0 +1,37 @@
+plate:
+  id: "vault.public_publishing_framework"
+  version: "1.0.0"
+  domain: "vault"
+  description: "Framework for publishing doc sites to ~/Public/doc-sites/"
+  vault_layer: "public"
+  vault_path: "~/Public/doc-sites/"
+  structure:
+    - path: "{site_name}/"
+      description: "Site root"
+    - path: "{site_name}/docs/"
+      description: "Documentation pages"
+    - path: "{site_name}/assets/"
+      description: "Site assets (images, CSS)"
+    - path: "{site_name}/_config.yml"
+      description: "Site configuration"
+  source: "builtin"
+  checksum: ""
+  dependencies: []
+  lessons:
+    - "Public doc sites should be statically generated for performance"
+    - "Each site gets its own subdirectory under ~/Public/doc-sites/"
+    - "Assets should be optimized before publishing"
+  destroy:
+    salvage_keys:
+      - vault_layer
+      - vault_path
+      - site_name
+    rebuild_command: "echo Rebuilding doc site $site_name at $vault_path"
+    backup_before_destroy: true
+    spool_archive:
+      enabled: true
+      spool_dir: "~/.ucore/logs"
+      compress_metadata: true
+      include_source: false
+      include_lessons: true
+      max_spool_age_days: 365

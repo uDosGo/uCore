@@ -1,0 +1,67 @@
+# Source definitions for uCore distribution packages
+# Used by DistributionSystem and PackageManager
+
+sources:
+  ucore-core:
+    type: github
+    url: https://github.com/uDosGo/uCore.git
+    ref: main
+    subpath: backend/
+    description: Core backend services (menu bar, API, surfaces, hivemind)
+
+  ucore-frontend:
+    type: github
+    url: https://github.com/uDosGo/uCore.git
+    ref: main
+    subpath: frontend-vue/
+    description: Vue 3 frontend UI
+
+  ucore-plates:
+    type: github
+    url: https://github.com/uDosGo/uCore.git
+    ref: main
+    subpath: plates/
+    description: Canonical plates — DESTROY/REBUILD blueprints
+
+  snackmachine:
+    type: pip
+    url: https://github.com/uDosGo/snackmachine.git
+    ref: main
+    description: Snack registry, scheduler, spool, MCP knowledge conduit
+
+  udos-budget:
+    type: pip
+    url: https://github.com/uDosGo/udos-budget.git
+    ref: main
+    description: Spending limits with circuit breaker for AI workflows
+
+  udos-agents:
+    type: pip
+    url: https://github.com/uDosGo/udos-agents.git
+    ref: main
+    description: Task-to-agent routing with config loading
+
+  udos-identity:
+    type: pip
+    url: https://github.com/uDosGo/udos-identity.git
+    ref: main
+    description: UDos unique identity system
+
+  litellm:
+    type: pip
+    url: https://github.com/BerriAI/litellm.git
+    ref: main
+    description: Multi-provider LLM routing (replaces provider_router)
+
+  langgraph:
+    type: pip
+    url: https://github.com/langchain-ai/langgraph.git
+    ref: main
+    description: Multi-agent orchestration (replaces Hivemind agent execution)
+
+  ucore-vendor:
+    type: github
+    url: https://github.com/uDosGo/uCore.git
+    ref: main
+    subpath: vendor/
+    description: Vendor distribution packages

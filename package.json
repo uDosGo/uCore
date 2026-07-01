@@ -1,0 +1,23 @@
+{
+  "name": "ucore",
+  "version": "4.0.1",
+  "private": true,
+  "description": "uCore — unified daemon combining uServer + uConnect backend with MCP support",
+  "scripts": {
+    "install:root": "bash scripts/install-root.sh",
+    "dev": "pnpm --filter @udos/ui-hub-vue run dev",
+    "dev:backend": "cd backend && python -m app.main",
+    "build": "pnpm --filter @udos/ui-hub-vue run build",
+    "test": "cd backend && pytest -q",
+    "lint": "cd backend && ruff check .",
+    "mcp:diagnostics": "cd backend && python -m mcp.mcp_diagnostics",
+    "mcp:start": "cd backend && python -m app.main"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "mcp-hivemind",
+  "version": "1.0.0",
+  "description": "Multi-agent orchestration MCP server: agent routing, consensus engine, LLM routing, and workflow execution",
+  "tools": [
+    "hivemind_list_agents",
+    "hivemind_get_agent",
+    "hivemind_route_task",
+    "hivemind_list_workflows",
+    "hivemind_get_workflow",
+    "hivemind_propose",
+    "hivemind_vote",
+    "hivemind_proposal_status",
+    "hivemind_list_proposals",
+    "hivemind_chat",
+    "hivemind_llm_health",
+    "hivemind_run_workflow"
+  ],
+  "transport": "http",
+  "port": 8490,
+  "health_check": "/health",
+  "protocolVersion": "0.1.0",
+  "serverInfo": {
+    "name": "Hivemind MCP Server",
+    "version": "1.0.0"
+  }
+}

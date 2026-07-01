@@ -1,0 +1,272 @@
+/* ═══════════════════════════════════════════════════════════════════
+   usx-typography-responsive.css — USX Typography Responsive Standard
+   ═══════════════════════════════════════════════════════════════════
+   
+   USX Standard 002.4: Responsive Typography & Layout System
+   
+   Ensures consistent typography and icon scaling across all USX surfaces:
+   - **Prose/Missions**: Prose containers (72ch), body text consistency
+   - **GridCore**: Panel headers, grid typography alignment
+   - **System**: Sidebar navigation, buttons, badges
+   
+   Implements:
+   1. Icon scaling — proportional em-based sizing (scales with font)
+   2. Sidebar/Navigation — matches body font size on all breakpoints
+   3. Prose containers — maintains 72ch measure across viewports
+   4. Breakpoint alignment — unified Small (0.65x) / Medium (0.8x) / Large (1x)
+   
+   Extends usx-typography-scale.css with component-level standardization.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Global Typography & Icon Variables ────────────────────────── */
+:root {
+  /* Icon size multipliers based on context — scales with font-size */
+  --usx-icon-size-small: 0.8em;      /* Meta/breadcrumb icons */
+  --usx-icon-size-body: 1em;         /* Standard body text icons */
+  --usx-icon-size-large: 1.4em;      /* Headers/buttons/prominent */
+  --usx-icon-size-xlarge: 1.8em;     /* Display/hero icons */
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SYSTEM SURFACE STYLES — Navigation, Sidebar, Controls
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── System: Sidebar Navigation Typography ────────────────────── */
+/* Sidebar must use body font size + appropriate meta styling (all breakpoints) */
+.vault-sidebar {
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+}
+
+.vault-sidebar-mode-btn {
+  font-size: var(--usx-font-size-meta);
+  line-height: 1.2;
+}
+
+.vault-sidebar-server-item {
+  font-size: var(--usx-font-size-body);
+  line-height: 1.4;
+}
+
+.vault-sidebar-binder-label {
+  font-size: var(--usx-font-size-body);
+}
+
+.vault-sidebar-binder-dropdown {
+  font-size: var(--usx-font-size-body);
+}
+
+.vault-sidebar-file-item {
+  font-size: var(--usx-font-size-body);
+}
+
+/* File list text should be slightly smaller (meta) */
+.vault-sidebar-file-name {
+  font-size: var(--usx-font-size-meta);
+}
+
+.vault-sidebar-file-size {
+  font-size: var(--usx-font-size-meta);
+}
+
+/* ─── Icon Sizing (responsive to font scale) ────────────────────── */
+/* Instead of hard-coded px, use em for proportional scaling */
+
+/* Sidebar icons — match body size */
+.vault-sidebar-server-item .material-symbols-outlined {
+  font-size: var(--usx-icon-size-body) !important;
+  width: var(--usx-icon-size-body) !important;
+  height: var(--usx-icon-size-body) !important;
+}
+
+.vault-sidebar-binder-btn .material-symbols-outlined {
+  font-size: var(--usx-icon-size-body) !important;
+  width: var(--usx-icon-size-body) !important;
+  height: var(--usx-icon-size-body) !important;
+}
+
+.vault-sidebar-file-icon .material-symbols-outlined {
+  font-size: var(--usx-icon-size-body) !important;
+  width: var(--usx-icon-size-body) !important;
+  height: var(--usx-icon-size-body) !important;
+}
+
+/* Mode switch icons — slightly smaller */
+.vault-sidebar-mode-btn .material-symbols-outlined {
+  font-size: var(--usx-icon-size-small) !important;
+  width: var(--usx-icon-size-small) !important;
+  height: var(--usx-icon-size-small) !important;
+}
+
+/* Dropdown toggle icons */
+.vault-sidebar-binder-dropdown-toggle .material-symbols-outlined {
+  font-size: var(--usx-icon-size-small) !important;
+  width: var(--usx-icon-size-small) !important;
+  height: var(--usx-icon-size-small) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PROSE/MISSIONS SURFACE STYLES — Content, Articles, Markdown
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Prose: Main Content Area Typography ──────────────────────── */
+/* Ensure main content area respects prose column spec and body sizing */
+.usx-surface-main {
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+}
+
+/* ─── Prose Measure Enforcement (72ch = ~500px at 16px body) ────── */
+.prose {
+  max-width: 72ch;
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+}
+
+/* Tablet: 65 characters per line */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .prose {
+    max-width: 65ch;
+  }
+}
+
+/* Mobile: 50 characters per line */
+@media (max-width: 767px) {
+  .prose {
+    max-width: 50ch;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   GRIDCORE SURFACE STYLES — Developer, Admin, Data Panels
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── GridCore: Panel Typography Standardization ────────────────– */
+.developer-panel {
+  font-size: var(--usx-font-size-body);
+}
+
+.developer-panel-header {
+  font-size: var(--usx-font-size-body);
+}
+
+.developer-panel-title {
+  font-size: var(--usx-font-size-h3);
+  line-height: var(--usx-line-height-h3);
+}
+
+.developer-panel-count {
+  font-size: var(--usx-font-size-meta);
+  line-height: 1.2;
+}
+
+/* ─── Button & Control Typography ───────────────────────────────── */
+button,
+input,
+textarea,
+select {
+  font-size: var(--usx-font-size-body);
+  line-height: var(--usx-line-height-body);
+}
+
+/* ─── BREAKPOINT VERIFICATION (Small/Medium/Large) ─────────────── */
+
+/* SMALL DESKTOP (< 768px) — 0.65x scale */
+/* Body: 9.1px, Meta: 7.28px, Icons: 9.1px/7.28px */
+@media (max-width: 767px) {
+  :root:not([data-typography-scale]) {
+    /* Ensure sidebar inherits properly on mobile */
+    --usx-icon-size-small: 0.75em;
+    --usx-icon-size-body: 0.95em;
+  }
+}
+
+/* MEDIUM DESKTOP (768px - 1024px) — 0.8x scale */
+/* Body: 11.2px, Meta: 8.96px, Icons: 11.2px/8.96px */
+@media (min-width: 768px) and (max-width: 1024px) {
+  :root:not([data-typography-scale]) {
+    /* Maintain proportions on tablet */
+    --usx-icon-size-small: 0.8em;
+    --usx-icon-size-body: 1em;
+  }
+}
+
+/* LARGE DESKTOP (> 1024px) — 1x scale (10-foot base) */
+/* Body: 14px, Meta: 11.2px, Icons: 14px/11.2px */
+@media (min-width: 1025px) {
+  :root:not([data-typography-scale]) {
+    /* Full scale on large displays */
+    --usx-icon-size-small: 0.8em;
+    --usx-icon-size-body: 1em;
+    --usx-icon-size-large: 1.4em;
+  }
+}
+
+/* ─── Column Width Enforcement ──────────────────────────────────── */
+/* Ensure readable prose width across all contexts */
+@media (max-width: 767px) {
+  .prose {
+    /* On mobile, use tighter column for readability */
+    max-width: 60ch;
+    padding: 0 1rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .prose {
+    /* On tablet, maintain good measure */
+    max-width: 68ch;
+    padding: 0 1rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .prose {
+    /* On desktop, full measure */
+    max-width: 72ch;
+    padding: 0;
+  }
+}
+
+/* ─── Font Family Consistency ───────────────────────────────────── */
+/* Ensure all UI uses system fonts properly */
+body,
+button,
+input,
+textarea,
+select {
+  font-family: var(--pico-font-family);
+}
+
+/* Code/monospace contexts */
+code,
+pre,
+kbd {
+  font-family: var(--usx-font-family-mono);
+}
+
+/* ─── Line Height & Spacing Consistency ────────────────────────── */
+/* Ensure consistent spacing throughout */
+.usx-surface-main > * {
+  margin-top: 1.2em;
+  margin-bottom: 1.2em;
+}
+
+.usx-surface-main > :first-child {
+  margin-top: 0;
+}
+
+.usx-surface-main > :last-child {
+  margin-bottom: 0;
+}
+
+/* Sidebar items should have consistent spacing */
+.vault-sidebar-server-item {
+  padding: 0.5em 0.5em;
+  margin: 0.2em 0;
+}
+
+.vault-sidebar-file-item {
+  padding: 0.4em 0.5em;
+  margin: 0.15em 0;
+}

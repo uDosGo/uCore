@@ -1,0 +1,67 @@
+# OpenRouter Configuration for uCore Hivemind
+# Copy to ~/.ucore/config/openrouter.yaml and set API key
+
+version: "1.0.0"
+
+# OpenRouter API Configuration
+openrouter:
+  base_url: "https://openrouter.ai/api/v1"
+  api_key: "${OPENROUTER_API_KEY}"  # Set via env var or ~/.config/hivemind/.env
+
+# Model Routing Tiers
+tiers:
+  free:
+    description: "Free models, no cost"
+    models:
+      - "cognitivecomputations/dolphin-mixtral-8x7b"
+      - "microsoft/phi-3-medium-128k-instruct"
+    max_daily_requests: 100
+
+  ultra-cheap:
+    description: "Under $0.10 per million tokens"
+    models:
+      - "deepseek/deepseek-chat"
+      - "mistralai/mistral-7b-instruct"
+    max_daily_requests: 500
+
+  budget:
+    description: "Under $1.00 per million tokens"
+    models:
+      - "anthropic/claude-3.5-haiku"
+      - "google/gemini-2.0-flash-001"
+    max_daily_requests: 200
+
+  mid-range:
+    description: "Under $5.00 per million tokens"
+    models:
+      - "anthropic/claude-sonnet-4-20250514"
+      - "openai/gpt-4o"
+    max_daily_requests: 100
+
+  premium:
+    description: "Premium models, highest quality"
+    models:
+      - "anthropic/claude-opus-4-20250514"
+      - "openai/gpt-4.5-preview"
+    max_daily_requests: 50
+
+# Agent-to-Tier Mapping
+agent_tiers:
+  dev:
+    tier: "free"
+    fallback_tier: "ultra-cheap"
+  reviewer:
+    tier: "mid-range"
+    fallback_tier: "budget"
+  architect:
+    tier: "premium"
+    fallback_tier: "mid-range"
+  debugger:
+    tier: "ultra-cheap"
+    fallback_tier: "free"
+  docgen:
+    tier: "budget"
+    fallback_tier: "free"
+  gridsmith-dev:
+    tier: "free"
+    fallback_tier: "free"

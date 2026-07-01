@@ -1,0 +1,21 @@
+{
+  "name": "mcp-knowledge-conduit",
+  "version": "1.0.0",
+  "description": "Knowledge conduit MCP server: vault search, AI-ranked retrieval, doclang parsing, multi-agent shared memory",
+  "tools": [
+    "knowledge_search",
+    "knowledge_ask",
+    "knowledge_list_sources",
+    "knowledge_extract_links",
+    "knowledge_summarize",
+    "knowledge_publish",
+    "knowledge_query_memory"
+  ],
+  "transport": "http",
+  "health_check": "/api/mcp/status",
+  "protocolVersion": "0.1.0",
+  "serverInfo": {
+    "name": "SnackMachine Knowledge Conduit",
+    "version": "1.0.0"
+  }
+}

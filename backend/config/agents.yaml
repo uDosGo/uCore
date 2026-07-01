@@ -1,0 +1,246 @@
+# uCore Specialized Agent Configuration
+# Maps task types to specialized AI agents with model, provider, and capabilities
+
+agents:
+  architect:
+    id: architect
+    name: Architecture Agent
+    description: Large-scale system design, refactoring, repo analysis
+    model: glm-5.1
+    provider: openrouter
+    system_prompt: |
+      You are an expert software architect specializing in:
+      - System design and scalability decisions
+      - Large-scale refactoring strategies
+      - Architectural patterns and best practices
+      - Code organization and module boundaries
+      - Long-horizon planning for complex projects
+      
+      Your approach:
+      1. Ask clarifying questions about constraints
+      2. Propose multiple architectural options
+      3. Compare tradeoffs (complexity vs. scalability)
+      4. Provide implementation roadmap
+    capabilities: [design, refactoring, analysis, architecture, information-architecture, surface-taxonomy]
+    cost_per_task: 0.08
+    timeout: 120
+    priority: 1
+
+  dev:
+    id: dev
+    name: Developer Agent
+    description: Feature implementation, frontend/backend integration, surface refactors, and code improvement
+    model: qwen2.5-coder:3b
+    provider: ollama
+    system_prompt: |
+      You are a full-stack developer specializing in:
+      - Feature implementation and API design
+      - Frontend surface restructuring and route cleanup
+      - Bug fixes and debugging
+      - Code quality improvement
+      - Test writing and coverage
+      - Performance optimization at module level
+      
+      Your approach:
+      1. Understand requirements and context
+      2. Implement changes following existing patterns
+      3. Keep UI ownership boundaries clear across surfaces
+      3. Write tests for new functionality
+      4. Optimize for readability and maintainability
+    capabilities: [implementation, debugging, testing, optimization, frontend, integration, surface-refactor, workflow-ui]
+    cost_per_task: 0.0
+    timeout: 60
+    priority: 2
+
+  reviewer:
+    id: reviewer
+    name: Code Reviewer Agent
+    description: PR review, security audit, quality assurance
+    model: claude-opus-4.7
+    provider: openrouter
+    system_prompt: |
+      You are an expert code reviewer with deep focus on:
+      - Logic correctness and edge cases
+      - Security vulnerabilities and best practices
+      - Performance implications and bottlenecks
+      - Code style consistency and readability
+      - Test coverage and quality
+      - Design patterns and architectural fit
+      
+      Your approach:
+      1. Review code systematically (security → performance → style)
+      2. Identify critical issues vs. style suggestions
+      3. Suggest concrete fixes with examples
+      4. Validate changes against requirements
+    capabilities: [review, security, quality, testing]
+    cost_per_task: 0.05
+    timeout: 90
+    priority: 3
+
+  debugger:
+    id: debugger
+    name: Debugger Agent
+    description: Error analysis, test failure diagnosis, root cause analysis
+    model: deepseek-v4-flash
+    provider: openrouter
+    system_prompt: |
+      You are an expert debugger specialized in:
+      - Root cause analysis from stack traces
+      - Test failure diagnosis and fix strategies
+      - Logic errors in complex code flows
+      - Performance issue investigation
+      - Memory leak detection
+      
+      Your approach:
+      1. Parse error messages and stack traces
+      2. Identify most likely causes
+      3. Suggest minimal reproduction steps
+      4. Provide targeted fixes
+    capabilities: [debugging, analysis, testing]
+    cost_per_task: 0.01
+    timeout: 45
+    priority: 4
+
+  docgen:
+    id: docgen
+    name: Documentation Agent
+    description: Documentation writing, comments, README generation
+    model: qwen3.6-27b
+    provider: openrouter
+    system_prompt: |
+      You are an expert technical writer specializing in:
+      - Clear, comprehensive API documentation
+      - Well-structured README and guides
+      - Inline code comments for complex logic
+      - Architecture decision records (ADRs)
+      - User-facing guides and tutorials
+      
+      Your approach:
+      1. Understand the code thoroughly
+      2. Write for the intended audience
+      3. Use examples and visual structure
+      4. Maintain consistency with existing docs
+    capabilities: [documentation, writing, clarity]
+    cost_per_task: 0.02
+    timeout: 60
+    priority: 5
+
+  gridsmith-dev:
+    id: gridsmith-dev
+    name: GridSmith Dev Agent
+    description: Grid world-building, BASIC/AMOS import, layer planning, and uCode spatial workflows
+    model: qwen2.5-coder:3b
+    provider: ollama
+    system_prompt: |
+      You are GridSmith, a specialized world-building agent for the uCode/GridCore stack.
+      Focus on:
+      - grid world composition and map layout
+      - BASIC and AMOS import planning
+      - layer organization (terrain, details, collision, entities)
+      - uCode coordinate logic and teletext-friendly world design
+      - practical next actions for grid assets and rendering integration
+
+      Keep recommendations concrete and aligned to the live uCode/uCore workspace.
+    capabilities: [worldbuild, grid, spatial, basic-import, amos-import]
+    cost_per_task: 0.0
+    timeout: 60
+    priority: 2
+
+surface_taxonomy:
+  developer:
+    name: Developer Surface
+    lane: build
+    owns: [repos, review, skills, models, dev-agents, kanban, tasks, dev-flow, run-history, benchmarks, dev-settings]
+    excludes: [service-health, logs, secrets, global-settings, system-pages-registry]
+  server:
+    name: Server Surface
+    lane: runtime-ops
+    owns: [dashboard, services, logs, secrets, budget, ingest, runtime-agents, automation, snacks, runtime-settings]
+    excludes: [system-pages-browser, generic-tools-browser, dev-tasks, kanban, repo-review]
+  system-tools:
+    name: System Tools Surface
+    lane: admin-registry
+    owns: [pages, tools, shared-admin-settings, system-page-discovery, system-page-launch]
+    excludes: [runtime-operations, developer-workflow]
+
+workflows:
+  surface-ownership-refactor:
+    name: Surface Ownership Refactor
+    description: Canonicalize Developer, Server, and System Tools ownership before implementation.
+    ownership_model: surface_taxonomy
+    task_types: [surface-restructure, surface-taxonomy, workflow-orchestration]
+    match_any:
+      - surface ownership
+      - ownership model
+      - taxonomy
+      - information architecture
+      - developer surface
+      - server surface
+      - system tools
+      - navigation refactor
+      - workflow orchestration
+    stages:
+      - role: architect
+        title: Define canonical ownership
+        description: Lock the target taxonomy, migration order, and compatibility boundaries.
+        capabilities: [information-architecture, surface-taxonomy]
+      - role: dev
+        title: Implement the refactor
+        description: Update routes, tabs, labels, and compatibility shims to match the approved taxonomy.
+        capabilities: [implementation, frontend, surface-refactor, workflow-ui]
+      - role: reviewer
+        title: Verify regressions and naming drift
+        description: Audit the changed surfaces for regressions, overlap, and ownership drift.
+        capabilities: [review, quality, testing]
+
+# Task routing: maps (task_type, complexity) → agent_id
+routing:
+  design:
+    high: architect
+    medium: architect
+    low: dev
+  
+  implement:
+    high: dev
+    medium: dev
+    low: dev
+  
+  review:
+    high: reviewer
+    medium: reviewer
+    low: dev
+  
+  debug:
+    high: debugger
+    medium: debugger
+    low: debugger
+  
+  document:
+    high: docgen
+    medium: docgen
+    low: docgen
+
+  worldbuild:
+    high: gridsmith-dev
+    medium: gridsmith-dev
+    low: gridsmith-dev
+
+  surface-restructure:
+    high: architect
+    medium: architect
+    low: dev
+
+  surface-taxonomy:
+    high: architect
+    medium: architect
+    low: architect
+
+  workflow-orchestration:
+    high: architect
+    medium: architect
+    low: dev
+
+  frontend-refactor:
+    high: dev
+    medium: dev
+    low: dev

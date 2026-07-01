@@ -1,0 +1,767 @@
+/* ═══════════════════════════════════════════════════════════════════
+   story-forms.css — Story Forms & Story Builder USX styles
+   ═══════════════════════════════════════════════════════════════════
+   Uses Pico CSS variables throughout — no hardcoded font-size or
+   font-family overrides. Relies on Pico cascade for typography.
+   Padding and spacing are consistent with USX conventions.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Story Builder Layout ────────────────────────────────────── */
+.story-builder {
+  --story-accent: var(--sys-accent, #58a6ff);
+  --story-bg: var(--pico-background-color, #010409);
+  --story-surface: var(--pico-card-background-color, #161b22);
+  --story-border: var(--pico-border-color, #30363d);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* ─── Mode Toggle ─────────────────────────────────────────────── */
+.story-mode-toggle {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-md) var(--pico-spacing);
+  border-bottom: 1px solid var(--story-border);
+  background: var(--story-surface);
+}
+
+.story-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-compact-gap) var(--usx-card-padding-vertical);
+  border: 1px solid var(--story-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-muted-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.story-mode-btn:hover {
+  border-color: var(--story-accent);
+  color: var(--story-accent);
+}
+
+.story-mode-btn--active {
+  background: color-mix(in srgb, var(--story-accent) 15%, transparent);
+  border-color: var(--story-accent);
+  color: var(--story-accent);
+}
+
+/* ─── Story Content Area ──────────────────────────────────────── */
+.story-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ─── Typeform Mode ───────────────────────────────────────────── */
+.story-typeform {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-xl);
+}
+
+/* ─── Step Progress ───────────────────────────────────────────── */
+.story-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) 0;
+}
+
+.story-progress-step {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--story-border);
+  transition: all 0.2s ease;
+}
+
+.story-progress-step--active {
+  background: var(--story-accent);
+  box-shadow: 0 0 6px var(--story-accent);
+}
+
+.story-progress-step--done {
+  background: color-mix(in srgb, var(--story-accent) 50%, transparent);
+}
+
+.story-progress-line {
+  flex: 1;
+  height: 2px;
+  background: var(--story-border);
+  border-radius: 1px;
+}
+
+.story-progress-line--done {
+  background: var(--story-accent);
+}
+
+/* ─── Story Step Card ─────────────────────────────────────────── */
+.story-step-card {
+  background: var(--story-surface);
+  border: 1px solid var(--story-border);
+  border-radius: 10px;
+  padding: var(--pico-spacing-lg);
+  animation: storyFadeIn 0.3s ease;
+}
+
+@keyframes storyFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.story-step-title {
+  font-weight: 600;
+  margin: 0 0 var(--usx-spacing-md) 0;
+  color: var(--pico-color);
+}
+
+.story-step-desc {
+  color: var(--pico-muted-color);
+  margin: 0 0 var(--usx-section-separator) 0;
+  line-height: 1.6;
+}
+
+.story-step-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pico-spacing);
+}
+
+.story-step-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-compact-gap);
+}
+
+.story-step-label {
+  font-weight: 500;
+  color: var(--pico-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.story-step-input {
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: 1px solid var(--story-border);
+  border-radius: 6px;
+  background: var(--story-bg);
+  color: var(--pico-color);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.story-step-input:focus {
+  border-color: var(--story-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--story-accent) 20%, transparent);
+}
+
+.story-step-select {
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: 1px solid var(--story-border);
+  border-radius: 6px;
+  background: var(--story-bg);
+  color: var(--pico-color);
+  outline: none;
+  cursor: pointer;
+}
+
+/* ─── Step Navigation ─────────────────────────────────────────── */
+.story-step-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--usx-spacing-md);
+  margin-top: var(--usx-spacing-2xl);
+}
+
+.story-step-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-sm) var(--usx-section-separator);
+  border: 1px solid var(--story-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-color);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.story-step-btn .material-symbols-outlined {
+  font-size: 1em;
+}
+
+.story-step-btn:hover:not(:disabled) {
+  border-color: var(--story-accent);
+  color: var(--story-accent);
+}
+
+.story-step-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.story-step-btn--primary {
+  background: var(--story-accent);
+  color: var(--pico-color-inverse, #fff);
+  border-color: var(--story-accent);
+}
+
+.story-step-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+/* ─── Slide Navigation ──────────────────────────────────────────── */
+.story-slide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
+  border: 1px solid var(--story-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.story-slide-btn .material-symbols-outlined {
+  font-size: 1em;
+}
+
+.story-slide-btn:hover:not(:disabled) {
+  border-color: var(--story-accent);
+  color: var(--story-accent);
+}
+
+.story-slide-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Variable Badge ──────────────────────────────────────────── */
+.story-var-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8em;
+  background: color-mix(in srgb, var(--story-accent) 15%, transparent);
+  color: var(--story-accent);
+  border: 1px solid color-mix(in srgb, var(--story-accent) 30%, transparent);
+}
+
+/* ─── Marp / Slide Mode ───────────────────────────────────────── */
+.story-marp {
+  margin: 0 auto;
+}
+
+.story-slide {
+  background: var(--story-surface);
+  border: 1px solid var(--story-border);
+  border-radius: 10px;
+  padding: 48px;
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.story-slide-header {
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--story-accent);
+  line-height: 1.2;
+}
+
+.story-slide-subtitle {
+  color: var(--pico-muted-color);
+  margin-bottom: 24px;
+  font-weight: 400;
+}
+
+.story-slide-body {
+  line-height: 1.6;
+  color: var(--pico-color);
+  flex: 1;
+}
+
+.story-slide-footer {
+  position: absolute;
+  bottom: 16px;
+  right: 24px;
+  color: var(--pico-muted-color);
+  font-family: var(--pico-font-family-monospace);
+}
+
+.story-slide-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--usx-spacing-lg);
+  padding: var(--usx-spacing-sm) 0;
+}
+
+/* ─── Story Library Grid ──────────────────────────────────────── */
+.story-library {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--usx-spacing-lg);
+  padding: 16px 0;
+}
+
+.story-card {
+  background: var(--story-surface);
+  border: 1px solid var(--story-border);
+  border-radius: 8px;
+  padding: var(--usx-section-separator);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.story-card:hover {
+  border-color: var(--story-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--story-accent) 15%, transparent);
+}
+
+.story-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.story-card-title {
+  font-weight: 600;
+  color: var(--pico-color);
+  margin: 0;
+}
+
+.story-card-badge {
+  display: inline-flex;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8em;
+}
+
+.story-card-desc {
+  color: var(--pico-muted-color);
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.story-card-meta {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+  color: var(--pico-muted-color);
+  font-size: 0.8em;
+}
+
+/* ─── Story Editor Controls ───────────────────────────────────── */
+.story-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-lg);
+}
+
+.story-editor-header {
+  display: flex;
+  gap: var(--usx-spacing-md);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.story-editor-title-input {
+  flex: 1;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: 1px solid var(--story-border);
+  border-radius: 6px;
+  background: var(--story-bg);
+  color: var(--pico-color);
+  font-weight: 600;
+  outline: none;
+  min-width: 200px;
+}
+
+.story-editor-title-input:focus {
+  border-color: var(--story-accent);
+}
+
+/* ─── Variable Tag ────────────────────────────────────────────── */
+.story-var-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8em;
+  background: color-mix(in srgb, var(--pico-primary) 15%, transparent);
+  color: var(--pico-primary);
+  border: 1px solid color-mix(in srgb, var(--pico-primary) 30%, transparent);
+}
+
+/* ─── Variable Cards Grid ──────────────────────────────────────── */
+.sys-page-variables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--usx-spacing-md);
+  padding: 8px 0;
+}
+
+.sys-var-card {
+  display: flex;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-card-padding-vertical);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
+  border-radius: 8px;
+  align-items: flex-start;
+}
+
+.sys-var-card-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--sys-accent, #58a6ff) 15%, transparent);
+  flex-shrink: 0;
+}
+
+.sys-var-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sys-var-card-label {
+  font-weight: 600;
+  color: var(--pico-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.sys-var-card-value {
+  font-family: var(--pico-font-family-monospace);
+  color: var(--pico-color);
+  word-break: break-all;
+}
+
+.sys-var-card-desc {
+  color: var(--pico-muted-color);
+  margin-top: 4px;
+}
+
+.sys-var-input {
+  width: 100%;
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
+  border: 1px solid var(--pico-border-color);
+  border-radius: 4px;
+  background: var(--pico-background-color);
+  color: var(--pico-color);
+  outline: none;
+}
+
+.sys-var-input:focus {
+  border-color: var(--pico-primary);
+}
+
+/* ─── Variable Scope Tabs ─────────────────────────────────────── */
+.sys-var-scope-tabs {
+  display: flex;
+  gap: var(--usx-spacing-xs);
+  margin-bottom: 16px;
+  padding: var(--usx-spacing-xs);
+  background: var(--pico-card-sectioning-background-color);
+  border-radius: 6px;
+}
+
+.sys-var-scope-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-compact-gap) var(--usx-card-padding-vertical);
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--pico-muted-color);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.sys-var-scope-tab:hover { color: var(--pico-color); }
+
+.sys-var-scope-tab--active {
+  background: var(--pico-card-background-color);
+  color: var(--pico-primary);
+}
+
+.sys-var-actions {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.sys-var-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  color: var(--pico-muted-color);
+  margin-left: auto;
+}
+
+/* ─── System Page Container — full-screen fallback ────────────── */
+.sys-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--pico-background-color);
+}
+
+.sys-page-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--pico-spacing);
+  padding: 40px 24px;
+}
+
+.sys-page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--usx-spacing-md) var(--usx-spacing-xl);
+  border-top: 1px solid var(--pico-border-color);
+  background: var(--pico-card-sectioning-background-color);
+  gap: var(--usx-spacing-sm);
+}
+
+.sys-page-footer kbd + kbd::before {
+  content: "\00B7";
+  margin: 0 6px;
+  color: var(--pico-muted-color);
+}
+
+/* ─── System Page Section ─────────────────────────────────────── */
+.sys-page-section {
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
+  border-radius: 8px;
+  margin: 0 0 16px 0;
+}
+
+.sys-page-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--pico-spacing);
+  border-bottom: 1px solid var(--pico-border-color);
+}
+
+.sys-page-section-header h3 {
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+}
+
+.sys-page-section-badge {
+  margin-left: auto;
+  font-family: var(--pico-font-family-monospace);
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--pico-primary) 15%, transparent);
+  color: var(--pico-primary);
+  border: 1px solid color-mix(in srgb, var(--pico-primary) 30%, transparent);
+}
+
+.sys-page-section-desc {
+  margin: 0;
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
+  color: var(--pico-muted-color);
+  line-height: 1.5;
+  border-bottom: 1px solid var(--pico-border-color);
+}
+
+.sys-page-loading {
+  padding: var(--usx-spacing-xl);
+  text-align: center;
+  color: var(--pico-muted-color);
+}
+
+/* ─── Status Messages ─────────────────────────────────────────── */
+.sys-msg {
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  margin: var(--pico-spacing) var(--pico-spacing);
+  border-radius: 6px;
+}
+
+.sys-msg--success {
+  background: color-mix(in srgb, var(--pico-ins-color) 20%, transparent);
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.sys-msg--error {
+  background: color-mix(in srgb, var(--pico-del-color) 20%, transparent);
+  color: var(--pico-del-color, #f85149);
+}
+
+/* ─── System Page Browser ─────────────────────────────────────── */
+.sys-page-browser {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--usx-spacing-sm);
+  padding: var(--pico-spacing);
+}
+
+.sys-page-browser-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-card-padding-vertical);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sys-page-browser-card:hover {
+  border-color: var(--pico-primary);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--pico-primary) 12%, transparent);
+}
+
+.sys-page-browser-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+}
+
+.sys-page-browser-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sys-page-browser-card-title {
+  font-weight: 600;
+  color: var(--pico-color);
+  margin: 0;
+}
+
+.sys-page-browser-card-desc {
+  color: var(--pico-muted-color);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.sys-page-browser-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sys-page-browser-card-code {
+  font-family: var(--pico-font-family-monospace);
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--pico-card-sectioning-background-color);
+  color: var(--pico-muted-color);
+}
+
+.sys-page-browser-card-status {
+  font-family: var(--pico-font-family-monospace);
+  color: var(--pico-muted-color);
+}
+
+/* ─── System Pages Filter ─────────────────────────────────────── */
+.sys-page-filter {
+  display: flex;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-sm) var(--pico-spacing);
+  border-bottom: 1px solid var(--pico-border-color);
+  flex-wrap: wrap;
+}
+
+.sys-page-filter-btn {
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border: 1px solid var(--pico-border-color);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--pico-muted-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sys-page-filter-btn:hover {
+  border-color: var(--pico-primary);
+  color: var(--pico-primary);
+}
+
+.sys-page-filter-btn--active {
+  background: color-mix(in srgb, var(--pico-primary) 15%, transparent);
+  border-color: var(--pico-primary);
+  color: var(--pico-primary);
+}
+
+.sys-page-search {
+  flex: 1;
+  min-width: 150px;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border: 1px solid var(--pico-border-color);
+  border-radius: 4px;
+  background: var(--pico-background-color);
+  color: var(--pico-color);
+  outline: none;
+}
+
+.sys-page-search:focus {
+  border-color: var(--pico-primary);
+}
+
+/* ─── System Pages Stats ──────────────────────────────────────── */
+.sys-page-stats {
+  display: flex;
+  gap: var(--pico-spacing);
+  padding: var(--usx-spacing-sm) var(--pico-spacing);
+  border-bottom: 1px solid var(--pico-border-color);
+  color: var(--pico-muted-color);
+}
+
+.sys-page-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+}
+
+.sys-page-stat-value {
+  font-weight: 600;
+  color: var(--pico-color);
+}

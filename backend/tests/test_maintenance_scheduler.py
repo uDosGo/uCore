@@ -1,0 +1,112 @@
+"""Focused tests for maintenance scheduler and vault sync skill."""
+from __future__ import annotations
+
+from datetime import datetime
+from pathlib import Path
+
+import pytest
+
+
+@pytest.mark.asyncio
+async def test_maintenance_scheduler_runs_jobs_once_in_order(
+    tmp_path: Path,
+    monkeypatch,
+):
+    import app.services.maintenance_scheduler as mod
+
+    calls: list[str] = []
+
+    async def fake_run_skill_by_id(skill_id: str, **kwargs):
+        calls.append(skill_id)
+        return {"success": True, "skill_id": skill_id, "params": kwargs}
+
+    monkeypatch.setattr(mod, "run_skill_by_id", fake_run_skill_by_id)
+
+    jobs = (
+        mod.MaintenanceJob("daily_backup", "03:00", {"type": "full"}),
+        mod.MaintenanceJob("vault_sync", "04:00", {"summary_only": True}),
+        mod.MaintenanceJob(
+            "tasker_sync",
+            "04:05",
+            {"db": "database", "board": "inbox"},
+        ),
+        mod.MaintenanceJob("brain_sync", "04:15", {"hours": 24}),
+        mod.MaintenanceJob(
+            "clipboard_maintenance",
+            "04:30",
+            {"capture_current": True},
+        ),
+        mod.MaintenanceJob(
+            "spool_maintenance",
+            "04:35",
+            {"max_age_days": 14},
+        ),
+    )
+    scheduler = mod.MaintenanceScheduler(
+        state_path=tmp_path / "maintenance-state.json",
+        jobs=jobs,
+        interval_seconds=60,
+    )
+
+    first = await scheduler.run_due(now=datetime(2026, 6, 21, 4, 35))
+    second = await scheduler.run_due(now=datetime(2026, 6, 21, 4, 59))
+
+    assert [entry["skill_id"] for entry in first] == [
+        "daily_backup",
+        "vault_sync",
+        "tasker_sync",
+        "brain_sync",
+        "clipboard_maintenance",
+        "spool_maintenance",
+    ]
+    assert second == []
+    assert calls == [
+        "daily_backup",
+        "vault_sync",
+        "tasker_sync",
+        "brain_sync",
+        "clipboard_maintenance",
+        "spool_maintenance",
+    ]
+
+
+def test_default_jobs_include_tasker_sync():
+    import app.services.maintenance_scheduler as mod
+
+    assert any(job.skill_id == "tasker_sync" for job in mod.DEFAULT_JOBS)
+
+
+def test_default_jobs_include_clipboard_maintenance():
+    import app.services.maintenance_scheduler as mod
+
+    assert any(
+        job.skill_id == "clipboard_maintenance" for job in mod.DEFAULT_JOBS
+    )
+
+
+def test_default_jobs_include_spool_maintenance():
+    import app.services.maintenance_scheduler as mod
+
+    assert any(
+        job.skill_id == "spool_maintenance" for job in mod.DEFAULT_JOBS
+    )
+
+
+@pytest.mark.asyncio
+async def test_vault_sync_skips_without_config(tmp_path: Path, monkeypatch):
+    import app.skills.builtin.vault_sync as mod
+
+    script = tmp_path / "appflowy_vault_sync.py"
+    script.write_text("print('ok')\n", encoding="utf-8")
+    monkeypatch.setattr(mod, "SCRIPT_PATH", script)
+    monkeypatch.setattr(mod, "PROJECT_ROOT", tmp_path)
+
+    missing_config = tmp_path / "missing.yaml"
+    result = await mod.VaultSync().run(
+        config=str(missing_config),
+        summary_only=True,
+    )
+
+    assert result["success"] is True
+    assert result["status"] == "skipped"
+    assert "config not found" in result["reason"]

@@ -1,0 +1,45 @@
+plate:
+  id: "vault.transport_pipeline"
+  version: "1.0.0"
+  domain: "vault"
+  description: "Operational transport pipeline at ~/Public/#transport/ for file staging and delivery"
+  vault_layer: "public"
+  vault_path: "~/Public/#transport/"
+  structure:
+    - path: "incoming/"
+      description: "Files arriving into the system (from external sources)"
+    - path: "queue/"
+      description: "Files queued for processing"
+    - path: "outgoing/"
+      description: "Files ready for delivery or export"
+    - path: "processed/"
+      description: "Successfully processed files (audit trail)"
+    - path: "failed/"
+      description: "Files that failed processing (with error context)"
+
+  seed_files:
+    - path: "README.md"
+      content: "# #transport — File Transport Pipeline\n\nOperational pipeline at ~/Public/#transport/ for staging, processing, and delivering files.\n\n## Pipeline Stages\n\n```\nincoming/  →  queue/  →  processing  →  outgoing/  →  delivered\n                ↓                          ↓\n           failed/                    processed/\n```\n\n## Directory Roles\n\n| Directory | Purpose |\n|-----------|---------|\n| `incoming/` | Files arriving from external sources (email, web, API) |\n| `queue/` | Files waiting to be processed |\n| `outgoing/` | Files ready for delivery or export |\n| `processed/` | Successfully processed files (audit trail) |\n| `failed/` | Files that failed processing (with error logs) |\n\n## Usage\n\nThis pipeline is used by:\n- Scripts that download/ingest files\n- Export workflows that stage files for delivery\n- Automation that processes files in stages\n\n## Lifecycle\n\n1. File arrives in `incoming/`\n2. Moved to `queue/` for processing\n3. Processing reads from queue, writes results to `outgoing/`\n4. On success: file logged to `processed/`\n5. On failure: file moved to `failed/` with error context"
+
+  source: "builtin"
+  checksum: ""
+  dependencies: []
+  lessons:
+    - "#transport is an operational pipeline, not a knowledge vault"
+    - "Files move through stages: incoming → queue → outgoing → processed"
+    - "Failed files are preserved in failed/ with error context for debugging"
+    - "The pipeline is used by scripts and automation, not by users directly"
+    - "Regular cleanup of processed/ and failed/ is recommended"
+  destroy:
+    salvage_keys:
+      - vault_layer
+      - vault_path
+    rebuild_command: "mkdir -p ~/Public/#transport/{incoming,queue,outgoing,processed,failed}"
+    backup_before_destroy: true
+    spool_archive:
+      enabled: true
+      spool_dir: "~/.ucore/logs"
+      compress_metadata: true
+      include_source: false
+      include_lessons: true
+      max_spool_age_days: 365

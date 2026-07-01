@@ -1,0 +1,53 @@
+# Kanban Configuration for uCore
+# Installed globally via npm: npm install -g kanban
+# Runtime URL: http://127.0.0.1:3484
+
+version: "1.0.0"
+
+# Server Configuration
+server:
+  host: "127.0.0.1"
+  port: 3484
+  auto_open: false
+
+# Board Configuration
+board:
+  name: "uCore Development"
+  columns:
+    - name: "Backlog"
+      wip_limit: 0
+    - name: "Ready"
+      wip_limit: 5
+    - name: "In Progress"
+      wip_limit: 3
+    - name: "Review"
+      wip_limit: 3
+    - name: "Done"
+      wip_limit: 0
+
+# Integration with uCore Tasker
+tasker:
+  api_url: "http://127.0.0.1:8484/api/workflow/tasks"
+  sync_interval: 30  # seconds
+  auto_sync: true
+
+# Agent Integration
+agents:
+  - id: "architect"
+    label: "Architecture Agent"
+    color: "#4A90D9"
+  - id: "dev"
+    label: "Developer Agent"
+    color: "#50C878"
+  - id: "reviewer"
+    label: "Reviewer Agent"
+    color: "#FF6B35"
+  - id: "debugger"
+    label: "Debugger Agent"
+    color: "#E74C3C"
+  - id: "docgen"
+    label: "Documentation Agent"
+    color: "#9B59B6"
+  - id: "gridsmith-dev"
+    label: "GridSmith Dev Agent"
+    color: "#1ABC9C"

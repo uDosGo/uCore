@@ -1,0 +1,429 @@
+/* ═══════════════════════════════════════════════════════════════════
+   vault-sidebar.css — VaultSidebar Component Styles
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Wrapper (flex row container) ──────────────────────────────── */
+.vault-sidebar-wrapper {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+/* ─── Sidebar panel (overflow hidden for slide animation) ───────── */
+.vault-sidebar {
+  overflow: hidden;
+  transition: width 200ms ease, opacity 200ms ease;
+  flex-shrink: 0;
+}
+
+.vault-sidebar--open {
+  width: 280px;
+  opacity: 1;
+}
+
+.vault-sidebar--closed {
+  width: 0;
+  opacity: 0;
+}
+
+.vault-sidebar--compact .vault-sidebar-inner {
+  width: 220px;
+}
+
+.vault-sidebar--compact.vault-sidebar--open {
+  width: 220px;
+}
+
+/* ─── Inner (fixed width content holder) ────────────────────────── */
+.vault-sidebar-inner {
+  width: 280px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--pico-card-background-color, #161b22);
+  border-right: 1px solid var(--pico-border-color, #30363d);
+  overflow: hidden;
+}
+
+/* ─── Sidebar Mode Switch (Server/Filepicker) ───────────────────── */
+.vault-sidebar-mode-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  flex-shrink: 0;
+  margin-bottom: var(--usx-spacing-sm);
+}
+
+.vault-sidebar-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  background: var(--pico-background-color-variant, #1c2128);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 999px;
+  color: var(--pico-color, #c9d1d9);
+  font-family: inherit;
+  font-size: 0.78em;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.vault-sidebar-mode-btn:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.vault-sidebar-mode-btn:focus-visible {
+  outline: 2px solid var(--pico-primary, #58a6ff);
+  outline-offset: 1px;
+}
+
+.vault-sidebar-mode-btn.active {
+  background: var(--pico-primary-container, rgba(13, 110, 253, 0.15));
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary, #58a6ff);
+}
+
+.vault-sidebar-mode-btn .material-symbols-outlined {
+  /* Sized by usx-icons.css */
+  width: auto !important;
+  height: auto !important;
+}
+
+.vault-sidebar-content--server {
+  padding: 0 0.5rem;
+}
+
+.vault-sidebar-server-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.vault-sidebar-server-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.4rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-color, #c9d1d9);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.vault-sidebar-server-item:hover {
+  background: var(--pico-background-color-variant, #1c2128);
+}
+
+.vault-sidebar-server-item:focus-visible {
+  outline: 2px solid var(--pico-primary, #58a6ff);
+  outline-offset: 1px;
+}
+
+.vault-sidebar-server-item.active {
+  background: var(--pico-primary-container, rgba(13, 110, 253, 0.15));
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary, #58a6ff);
+}
+
+.vault-sidebar-separator {
+  height: 1px;
+  background: var(--pico-border-color, #30363d);
+  margin: 0.5rem 0;
+}
+
+/* ─── Binder Selector (fixed top) ───────────────────────────────── */
+.vault-sidebar-binder-selector {
+  position: relative;
+  flex-shrink: 0;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-sm) var(--usx-spacing-xs);
+}
+
+.vault-sidebar-binder-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  width: 100%;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-sm);
+  background: var(--pico-background-color-variant, #1c2128);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  color: var(--pico-color, #c9d1d9);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.vault-sidebar-binder-btn:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.vault-sidebar-binder-label {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Binder Dropdown ───────────────────────────────────────────── */
+.vault-sidebar-binder-dropdown {
+  position: absolute;
+  top: 100%;
+  left: var(--usx-spacing-sm);
+  right: var(--usx-spacing-sm);
+  margin-top: var(--usx-spacing-xs);
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 200;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.vault-sidebar-binder-list {
+  display: flex;
+  flex-direction: column;
+  padding: var(--usx-spacing-xs);
+  gap: var(--usx-spacing-xs);
+}
+
+.vault-sidebar-binder-item {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-sm);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 150ms ease;
+  width: 100%;
+}
+
+.vault-sidebar-binder-item:hover {
+  background: var(--pico-background-color-variant, #1c2128);
+}
+
+.vault-sidebar-binder-item.active {
+  background: var(--pico-primary-container, rgba(13, 110, 253, 0.15));
+  color: var(--pico-primary, #58a6ff);
+}
+
+.vault-sidebar-binder-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.vault-sidebar-binder-item-name {
+  font-weight: 500;
+}
+
+.vault-sidebar-binder-item-count {
+  color: var(--pico-muted-color, #8b949e);
+  font-size: 0.8em; /* Meta text 0.8x body */
+}
+
+/* ─── Scrollable Content Area ───────────────────────────────────── */
+.vault-sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+/* ─── Search ────────────────────────────────────────────────────── */
+
+.vault-sidebar-search-input {
+  width: 100%;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  background: color-mix(in srgb, var(--pico-background-color, #0d1117) 78%, #ffffff 2%);
+  color: var(--pico-color, #c9d1d9);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 999px;
+  font-family: inherit;
+  outline: none;
+  font-size: 1em; /* Match body font size */
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.vault-sidebar-search-input::placeholder {
+  color: var(--pico-muted-color, #8b949e);
+  opacity: 0.7;
+}
+
+.vault-sidebar-search-input:focus {
+  border-color: var(--pico-primary, #58a6ff);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.12);
+}
+
+/* ─── File List ─────────────────────────────────────────────────── */
+.vault-sidebar-file-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-xs);
+  overflow-y: auto;
+}
+
+/* ─── Loading State ─────────────────────────────────────────────── */
+.vault-sidebar-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xl) 0;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.vault-sidebar-spin {
+  animation: vaultSidebarSpin 0.8s linear infinite;
+}
+
+@keyframes vaultSidebarSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Empty State ───────────────────────────────────────────────── */
+.vault-sidebar-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 2rem 0.5rem;
+  color: var(--pico-muted-color, #8b949e);
+  text-align: center;
+}
+
+.vault-sidebar-empty-hint {
+  opacity: 0.7;
+  font-size: 0.8em;
+}
+
+/* ─── File Item ─────────────────────────────────────────────────── */
+.vault-sidebar-file-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.vault-sidebar-file-item:hover {
+  background: var(--pico-background-color-variant, #1c2128);
+}
+
+.vault-sidebar-file-icon {
+  flex-shrink: 0;
+  color: var(--pico-primary, #58a6ff);
+  opacity: 0.8;
+}
+
+.vault-sidebar-file-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.vault-sidebar-file-name {
+  font-weight: 500;
+  color: var(--pico-color, #c9d1d9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vault-sidebar-file-meta {
+  color: var(--pico-muted-color, #8b949e);
+  font-size: 0.8em;
+}
+
+.vault-sidebar-file-tag {
+  flex-shrink: 0;
+  padding: 0.1rem 0.35rem;
+  background: var(--pico-primary-container, rgba(13, 110, 253, 0.15));
+  color: var(--pico-primary, #58a6ff);
+  border-radius: 3px;
+  font-weight: 500;
+  font-size: 0.8em;
+}
+
+/* ─── Footer ────────────────────────────────────────────────────── */
+.vault-sidebar-footer {
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.vault-sidebar-new-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  background: var(--pico-primary, #58a6ff);
+  border: none;
+  border-radius: 6px;
+  color: var(--pico-primary-inverse, #ffffff);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.vault-sidebar-new-btn:hover {
+  opacity: 0.9;
+}
+
+/* ─── Toggle Button ─────────────────────────────────────────────── */
+.vault-sidebar-toggle {
+  position: absolute;
+  right: calc(var(--usx-spacing-sm) * -1);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 48px;
+  padding: 0;
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  z-index: 10;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.vault-sidebar-toggle:hover {
+  color: var(--pico-color, #c9d1d9);
+  background: var(--pico-background-color-variant, #1c2128);
+}

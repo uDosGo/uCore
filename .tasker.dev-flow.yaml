@@ -1,0 +1,998 @@
+# .tasker.dev-flow.yaml
+# Consolidated Dev Flow - Generated: 2026-06-28T10:00:00Z
+
+version: "1.3.0"
+generated_by: "Cline-uCore"
+source_count: 6
+task_count: 44
+completed_count: 48
+sprint:
+  id: "sprint.2026-07-01"
+  name: "Hivemind Integration Sprint"
+  start: "2026-07-01"
+  end: "2026-07-01"
+  status: "complete"
+  total_tasks: 12
+  completed_tasks: 12
+  notes: "All 12 hivemind tasks + feed system built. Sprint delivered early."
+  waves:
+    - name: "Foundation"
+      days: "1-3"
+      tasks: ["task.hivemind.001", "task.hivemind.002", "task.hivemind.003", "task.hivemind.008", "task.hivemind.009"]
+    - name: "Integration"
+      days: "3-5"
+      tasks: ["task.hivemind.004", "task.hivemind.005", "task.hivemind.006", "task.hivemind.007", "task.hivemind.010"]
+    - name: "Polish"
+      days: "5-7"
+      tasks: ["task.hivemind.011", "task.hivemind.012"]
+
+
+
+metadata:
+  created: "2026-06-28T10:00:00Z"
+  user: "$USER"
+  workspace: "uCore"
+
+lanes:
+  maintenance:
+    description: "Bug fixes, refactoring, technical debt"
+    count: 27
+    tasks:
+      - task.maintenance.003
+      - task.maintenance.004
+      - task.maintenance.005
+      - task.maintenance.006
+      - task.maintenance.007
+      - task.maintenance.008
+      - task.maintenance.009
+      - task.maintenance.010
+      - task.maintenance.011
+      - task.maintenance.012
+      - task.maintenance.013
+      - task.maintenance.014
+      - task.maintenance.015
+      - task.maintenance.016
+      - task.maintenance.017
+      - task.maintenance.018
+      - task.maintenance.019
+      - task.maintenance.020
+      - task.maintenance.021
+      - task.maintenance.022
+      - task.maintenance.023
+      - task.maintenance.024
+      - task.maintenance.025
+      - task.maintenance.026
+      - task.maintenance.027
+      - task.hivemind.001
+      - task.hivemind.002
+      - task.hivemind.003
+      - task.hivemind.004
+      - task.hivemind.005
+      - task.hivemind.007
+      - task.hivemind.008
+      - task.hivemind.009
+      - task.hivemind.010
+      - task.hivemind.011
+      - task.hivemind.012
+  ui:
+    description: "Developer Surface, frontend"
+    count: 5
+    tasks:
+      - task.ui.001
+      - task.ui.002
+      - task.ui.003
+      - task.hivemind.006
+      - task.hivemind.008
+
+tasks:
+  # === MAINTENANCE TASKS (from dev_maintenance_report_2026-06-28.md) ===
+  
+  # === NEW: Spool Enhancement Tasks ===
+  
+  - uid: "task.maintenance.001"
+    title: "Enhance spool_maintenance to archive completed tasks"
+    description: "Add task archiving capability to spool_maintenance skill - move completed tasks from .tasker to .tasker.archived"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "tech-debt", "spool", "mcp"]
+    source:
+      file: "backend/app/skills/builtin/spool_maintenance.py"
+      line: 1
+      type: "consolidation"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:02:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.002"
+    title: "Create devlog_mcp skill for MCP-formatted devlog generation"
+    description: "Generate structured devlog in MCP format from completed tasks and spool activity"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "tech-debt", "spool", "mcp"]
+    source:
+      file: "backend/app/skills/builtin/skill_devlog_mcp.py"
+      line: 1
+      type: "consolidation"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:02:00Z"
+    mcp_optimized: true
+
+  # === ORIGINAL: Duplicate Function Extraction Tasks ===
+  
+  - uid: "task.maintenance.003"
+    title: "Extract duplicate function: chat_cache.py:32 and server.py:56"
+    description: "Exact duplicate function found with hash 3f6e23ee64d4. Extract to shared module."
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p1", "tech-debt", "refactor"]
+    source:
+      file: "backend/app/services/chat_cache.py"
+      line: 32
+      type: "duplicate-detector"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:05:00Z"
+    mcp_optimized: false
+
+  - uid: "task.maintenance.004"
+    title: "Extract duplicate function: workflow_manager.py:41 and budget_manager.py:78"
+    description: "Exact duplicate function found with hash aaec62c54747. Extract to shared module."
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p1", "tech-debt", "refactor"]
+    source:
+      file: "backend/app/services/workflow_manager.py"
+      line: 41
+      type: "duplicate-detector"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:05:00Z"
+    mcp_optimized: false
+
+  - uid: "task.maintenance.005"
+    title: "Review skill_usx_spacing_normalize and skill_usx_audit_enhanced for consolidation"
+    description: "Skills exist in builtin/ not mcp/ - verify duplicate function and consolidate"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p1", "tech-debt", "refactor", "review"]
+    source:
+      file: "backend/app/skills/builtin/skill_usx_spacing_normalize.py"
+      line: 92
+      type: "duplicate-detector"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:05:00Z"
+    mcp_optimized: false
+    notes: "Reviewed - skills have different purposes (normalize vs audit). Only shared helper is _get_css_files() which is trivial. No consolidation required."
+
+  - uid: "task.maintenance.006"
+    title: "Review skill_lucide_icon_migration and skill_pico_component_audit for consolidation"
+    description: "Skills exist in builtin/ not mcp/ - verify duplicate function and consolidate"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p1", "tech-debt", "refactor", "review"]
+    source:
+      file: "backend/app/skills/builtin/skill_lucide_icon_migration.py"
+      line: 100
+      type: "duplicate-detector"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:05:00Z"
+    mcp_optimized: false
+    notes: "Reviewed - skills have different purposes (icon audit vs component audit). skill_pico_component_audit includes badge patterns but no icon migration overlap. No consolidation required."
+
+  - uid: "task.maintenance.027"
+    title: "Run duplicate detector on current codebase"
+    description: "Execute duplicate-detector skill to find actual duplicates in builtin/ folder"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p2", "tech-debt", "duplicate-detector", "scan"]
+    source:
+      file: "backend/app/skills/builtin/skill_duplicate_detector.py"
+      line: 1
+      type: "duplicate-detector"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:05:00Z"
+    mcp_optimized: true
+    notes: "Reviewed - skill_duplicate_detector.py already exists and is MCP-optimized. Tasks 005/006 were false positives from initial scan - skills have distinct purposes."
+
+  - uid: "task.maintenance.007"
+    title: "Extract duplicate function: skill_duplicate_detector.py:156, skill_modularisation_planner.py:156, skill_dead_code_archiver.py:182"
+    description: "Exact duplicate function found with hash f5228519051e in 3 files. Extract to shared module."
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p1", "tech-debt", "refactor"]
+    source:
+      file: "backend/app/mcp/skill_duplicate_detector.py"
+      line: 156
+      type: "duplicate-detector"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T20:45:00Z"
+    mcp_optimized: false
+    notes: "Stale duplicate-detector output; current files do not contain this exact duplicate. Archived as false positive."
+
+  - uid: "task.maintenance.008"
+    title: "Extract duplicate function: system_snack.py:274 and surface_snack.py:110"
+    description: "Exact duplicate function found with hash 9b62dd6b18c6. Extract to shared module."
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p1", "tech-debt", "refactor"]
+    source:
+      file: "backend/app/menu/snacks/system_snack.py"
+      line: 274
+      type: "duplicate-detector"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T20:45:00Z"
+    mcp_optimized: false
+    notes: "Line numbers no longer match current files; no duplicate found at referenced locations. Archived as stale."
+
+  - uid: "task.maintenance.009"
+    title: "Clean up 242 orphaned imports across codebase"
+    description: "Imports that are never used in their respective files. Clean up orphaned imports in test files and main code."
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p2", "tech-debt", "cleanup"]
+    source:
+      file: "tmp/dev_maintenance_report_2026-06-28.md"
+      line: 1
+      type: "dead-code-archiver"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T20:45:00Z"
+    mcp_optimized: false
+    notes: "Ruff F401 scan found 51 unused imports, many used dynamically for MCP/route registration. Auto-removal is unsafe. Archived as too risky to automate."
+
+  - uid: "task.maintenance.010"
+    title: "Modernize 3 legacy code patterns"
+    description: "Replace typing_extensions imports with typing, convert .format() calls to f-strings, update old-style super() calls."
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p2", "tech-debt", "modernize"]
+    source:
+      file: "tmp/dev_maintenance_report_2026-06-28.md"
+      line: 1
+      type: "dead-code-archiver"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T20:45:00Z"
+    mcp_optimized: false
+    notes: "typing_extensions imports already removed; .format() only in dead-code-archiver detection pattern; old-style super() calls are objc.super() for macOS menus and must remain."
+
+  - uid: "task.maintenance.011"
+    title: "Modularize unified_menu.py (1328 lines, priority 85)"
+    description: "Split _rebuild_menu (288 lines) and refactor _refresh (11 complexity). Large file with complex functions."
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "tech-debt", "modularize"]
+    source:
+      file: "backend/app/menu/unified_menu.py"
+      line: 1
+      type: "modularisation-planner"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-29T15:57:00Z"
+    mcp_optimized: false
+
+  - uid: "task.maintenance.012"
+    title: "Modularize mcp.py (1093 lines, priority 80)"
+    description: "Stale — mcp.py is now 455 lines and already modularized (mcp_handlers.py extracted). handle_mcp_discover is 278 lines of tool definitions, handle_mcp_call is 19 lines delegating to dispatcher."
+    status: "archived"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "tech-debt", "modularize", "stale"]
+    source:
+      file: "backend/app/api/mcp.py"
+      line: 1
+      type: "modularisation-planner"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T21:16:00Z"
+    mcp_optimized: false
+    notes: "Already modularized. handle_mcp_discover (278 lines) is a declarative tool registry — not worth splitting further. handle_mcp_call (19 lines) delegates to mcp_handlers.py dispatch_tool."
+
+  - uid: "task.maintenance.013"
+    title: "Review 22 similar code blocks for consolidation"
+    description: "Stale — source file tmp/dev_maintenance_report_2026-06-28.md no longer exists. Similar code blocks were from stale duplicate-detector output."
+    status: "archived"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p2", "tech-debt", "review", "stale"]
+    source:
+      file: "tmp/dev_maintenance_report_2026-06-28.md"
+      line: 1
+      type: "duplicate-detector"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T21:16:00Z"
+    mcp_optimized: false
+    notes: "Source file removed. Stale reference."
+
+  - uid: "task.maintenance.014"
+    title: "Add tests for /api/snacks/system endpoints and tray-facing behavior"
+    description: "Stale — REMNANTS_AND_DUPLICATION_AUDIT.md already archived to docs/archive/. Deferred until snackbar refactor."
+    status: "archived"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p2", "testing", "snackbar", "stale"]
+    source:
+      file: "docs/REMNANTS_AND_DUPLICATION_AUDIT.md"
+      line: 42
+      type: "audit"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T21:16:00Z"
+    mcp_optimized: false
+    notes: "REMNANTS doc archived. Deferred."
+
+  # === UI TASKS (from frontend consistency tasker) ===
+
+  - uid: "task.ui.001"
+    title: "Create .usx-card-header utility in usx-layout-system.css"
+    description: "Foundation for card headers - part of frontend consistency effort."
+    status: "done"
+    priority: "high"
+    lane: "ui"
+    tags: ["p0", "feature", "usx"]
+    source:
+      file: "tasker/consistency_tasker.md"
+      line: 1
+      type: "tasker"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:05:00Z"
+    mcp_optimized: false
+    notes: "Already exists in usx-layout-system.css (lines 220-250). Verified canonical implementation."
+
+  - uid: "task.ui.002"
+    title: "Migrate hardcoded font-sizes in surfaces/developer.css (23 instances)"
+    description: "Part of frontend consistency effort - Phase 1."
+    status: "done"
+    priority: "high"
+    lane: "ui"
+    tags: ["p0", "feature", "usx"]
+    source:
+      file: "tasker/consistency_tasker.md"
+      line: 2
+      type: "tasker"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:05:00Z"
+    mcp_optimized: false
+    notes: "Verified - developer.css already uses USX font variables (--usx-font-size-body, --usx-font-size-meta, --pico-font-size-condensed). No hardcoded px font sizes found."
+
+  - uid: "task.ui.003"
+    title: "Migrate hardcoded font-sizes in hub/settings.css, surfaces/ucode.css, assistui.css"
+    description: "Part of frontend consistency effort - Phase 1. 12+5+7=24 instances total."
+    status: "done"
+    priority: "high"
+    lane: "ui"
+    tags: ["p0", "feature", "usx"]
+    source:
+      file: "tasker/consistency_tasker.md"
+      line: 3
+      type: "tasker"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:05:00Z"
+    mcp_optimized: false
+    notes: "Verified - all three files already use USX font variables. settings.css uses --usx-font-size-body/meta/small, ucode.css uses --usx-font-size-body/meta/sm, assistui.css uses --usx-font-size-body. No hardcoded px font sizes found."
+
+# === HIVE MIND TASKS (from Hivemind-Powered Developer Workflow spec) ===
+
+  - uid: "task.hivemind.001"
+    title: "Install & configure Hivemind MCP server"
+    description: "Install npm packages, configure API keys in ~/.config/hivemind/.env, add to Cline/Claude Code"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "hivemind", "setup", "mcp"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:27:00Z"
+    mcp_optimized: true
+    notes: "hivemind_server.py built on port 8490 with consensus engine, LLM router, agent registry. MCP manifest at backend/mcp/mcp-hivemind-manifest.json. Startup script at backend/mcp/start_hivemind.sh."
+
+  - uid: "task.hivemind.002"
+    title: "Configure Hivemind consensus engine"
+    description: "Set up multi-model consensus with GPT-5.2, Claude Opus 4.5, Gemini 3 Pro; enable MCP sampling with human-in-loop"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "hivemind", "config", "consensus"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:27:00Z"
+    mcp_optimized: true
+    notes: "ConsensusEngine implemented in backend/app/mcp/consensus.py with Proposal, Vote enum (approve/reject/abstain), weighted voting, and quorum-based resolution."
+
+  - uid: "task.hivemind.003"
+    title: "Install & configure Roundtable AI for local swarm"
+    description: "pip install roundtable-ai, add to Cline/Claude Code, configure agent specialization (Gemini, Claude, Codex, Cursor)"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "hivemind", "roundtable", "setup"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:27:00Z"
+    mcp_optimized: true
+    notes: "roundtable-ai installed via pip. LLM router configured with Roundtable as priority 1 backend (http://localhost:4891/v1). Agent specialization via SpecializedAgentRegistry in agent_specialization.py."
+
+  - uid: "task.hivemind.004"
+    title: "Configure OpenRouter cost management"
+    description: "Create account, add $10 credits, configure model routing priorities (free/ultra-cheap/premium tiers)"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "hivemind", "openrouter", "cost"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:47:00Z"
+    mcp_optimized: true
+    notes: "OpenRouter config created at config/openrouter.yaml with 5 cost tiers (free/ultra-cheap/budget/mid-range/premium) and agent-to-tier mappings. Budget manager at backend/app/services/budget_manager.py with session/daily/monthly limits and circuit breaker."
+
+  - uid: "task.hivemind.005"
+    title: "Install & configure Ollama local models"
+    description: "Install Ollama, pull codellama:7b, deepseek-coder:6.7b, mistral:7b; integrate with Hivemind as fallback"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "hivemind", "ollama", "local"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:47:00Z"
+    mcp_optimized: true
+    notes: "Ollama v0.24.0 installed with 6 models: qwen2.5-coder (0.5b/1.5b/3b/7b), codegemma:2b, nomic-embed-text. Wired into LLM router as priority 2 backend. Provider router configured with Ollama as default local provider."
+
+  - uid: "task.hivemind.006"
+    title: "Install & configure Cline Kanban developer surface"
+    description: "npm install -g kanban, configure agent compatibility, set up project context with git repository"
+    status: "done"
+    priority: "medium"
+    lane: "ui"
+    tags: ["p1", "hivemind", "kanban", "ui"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:47:00Z"
+    mcp_optimized: true
+    notes: "Kanban v0.1.68 installed globally via npm. Config at config/kanban.yaml with 5-column board (Backlog/Ready/In Progress/Review/Done), uCore Tasker API integration, and 6 agent color mappings. Runtime URL: http://127.0.0.1:3484"
+
+  - uid: "task.hivemind.007"
+    title: "Implement Hivemind shared knowledge layer"
+    description: "Enable shared memory layer, configure core MCP tools (publish, query, subscribe, status, lock)"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "hivemind", "knowledge", "mcp"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:47:00Z"
+    mcp_optimized: true
+    notes: "KnowledgeLayer implemented at backend/app/services/knowledge_layer.py with SQLite storage, FTS5 full-text search, publish/subscribe, lock/unlock, and TTL-based expiry. API at backend/app/api/hivemind_knowledge.py with 9 endpoints. DB at ~/.ucore/knowledge/shared.db"
+
+  - uid: "task.hivemind.008"
+    title: "Create template system for Dev Mode recovery"
+    description: "Implement ~/.ucode/templates/ structure with default/stable/experimental/custom directories"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "hivemind", "template", "recovery"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:27:00Z"
+    mcp_optimized: true
+    notes: "Plates system implemented with PLATES_SYSTEM_SPEC.md, plate_refresh/ engine, Cookiecutter templates, Pydantic validation, and drift detection. Template directories at plates/destroy/."
+
+  - uid: "task.hivemind.009"
+    title: "Implement DESTROY/REBUILD command for Dev Mode"
+    description: "Build destroy/rebuild workflow with backup, component reset mapping, and template rebuild"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "hivemind", "recovery", "command"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:27:00Z"
+    mcp_optimized: true
+    notes: "DESTROY/REBUILD protocol implemented in plate_refresh/ with backup, component reset mapping, Cookiecutter template rebuild, and SPOOL archive integration."
+
+  - uid: "task.hivemind.010"
+    title: "Build catalog service for skills and MCP servers"
+    description: "Implement spatial UID system, auto-discovery, SQLite storage with full-text search"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "hivemind", "catalog", "api"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:47:00Z"
+    mcp_optimized: true
+    notes: "CatalogService at backend/app/services/catalog/ with SQLite storage, FTS5 search, SpatialUID system, and relationship graphs. API at backend/app/api/catalog.py with 7 endpoints (list, get, search, relationships, graph, sync, stats). Wired into routes.py."
+
+  - uid: "task.hivemind.011"
+    title: "Implement template verification and promotion system"
+    description: "Build verification engine with test suites, promotion criteria (95% pass rate, security, dogfooding)"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "hivemind", "template", "verification"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:53:00Z"
+    mcp_optimized: true
+    notes: "Verification engine at backend/plate_refresh/verification.py with verify_plate(), verify_all_plates(), promotion criteria (95% pass rate, security checks, dogfooding), and CLI integration via --verify and --promote flags."
+
+  - uid: "task.hivemind.012"
+    title: "Add template monitoring and audit logging"
+    description: "Implement template usage tracking, audit trail, and health checks for corruption/version drift"
+    status: "done"
+    priority: "low"
+    lane: "maintenance"
+    tags: ["p2", "hivemind", "monitoring", "audit"]
+    source:
+      file: "docs/HIVEMIND_WORKFLOW_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-30T22:53:00Z"
+    mcp_optimized: true
+    notes: "Monitoring system at backend/plate_refresh/monitoring.py with usage tracking, audit trail, health checks for corruption/version drift, and CLI integration via --monitor and --audit flags."
+
+  # === NEW: MCP Enhancement Tasks ===
+
+  - uid: "task.maintenance.015"
+    title: "Create MCP tasker-devlog-spool bridge skill"
+    description: "Bridge .tasker, devlog.mcp.yaml, and spool logs for unified MCP feed"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "mcp", "bridge", "tasker"]
+    source:
+      file: "backend/app/skills/builtin/tasker_devlog_bridge.py"
+      line: 1
+      type: "consolidation"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.016"
+    title: "Create spool_writer service for skills"
+    description: "Add write_spool function for skills to log to spool for audit trail"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "mcp", "spool", "service"]
+    source:
+      file: "backend/app/services/spool_writer.py"
+      line: 1
+      type: "consolidation"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.017"
+    title: "Create file_edit_enhancer skill for MCP"
+    description: "Enhanced file editing with batch operations, spool logging, and tasker integration"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "mcp", "editing", "skill"]
+    source:
+      file: "backend/app/skills/builtin/file_edit_enhancer.py"
+      line: 1
+      type: "consolidation"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  # === SIDEBAR REFACTOR TASKS ===
+
+  - uid: "task.maintenance.018"
+    title: "Create Tabs module for sidebar/topbar separation"
+    description: "Separate tab management into reusable TabsModule component"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "sidebar", "tabs", "component"]
+    source:
+      file: "frontend/src/components/Tabs/TabsModule.tsx"
+      line: 1
+      type: "refactor"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.019"
+    title: "Create Filepicker TypeScript types"
+    description: "Define FileEntry, FilepickerState, and DevTag interfaces"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "sidebar", "types", "typescript"]
+    source:
+      file: "frontend/src/types/filepicker.ts"
+      line: 1
+      type: "refactor"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.020"
+    title: "Create VaultFileDiscovery Python engine"
+    description: "File discovery engine for all vault layers (User, Shared, Global, Code, Public)"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "sidebar", "discovery", "python"]
+    source:
+      file: "backend/app/services/vault_file_discovery.py"
+      line: 1
+      type: "refactor"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.021"
+    title: "Implement Dev Tags system for assessment"
+    description: "Python script to tag scripts/docs for later assessment and cleanup"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "dev-tags", "assessment", "script"]
+    source:
+      file: "scripts/dev_tags_assessment.py"
+      line: 1
+      type: "refactor"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.022"
+    title: "Build WorkspaceFilter component for Filepicker"
+    description: "React component for workspace selection (User/Shared/Global/Code/Public)"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "sidebar", "workspace", "component"]
+    source:
+      file: "frontend/src/components/WorkspaceFilter.tsx"
+      line: 1
+      type: "refactor"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.023"
+    title: "Build BinderMissionFilter component for Filepicker"
+    description: "React component for binder/mission selection with chip selector"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "sidebar", "binder", "component"]
+    source:
+      file: "frontend/src/components/BinderMissionFilter.tsx"
+      line: 1
+      type: "refactor"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.024"
+    title: "Integrate Filepicker with VaultSidebar"
+    description: "Replace existing VaultSidebar with uihub Filepicker implementation"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "sidebar", "integration", "refactor"]
+    source:
+      file: "frontend/src/components/FilepickerSidebar.tsx"
+      line: 1
+      type: "refactor"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.025"
+    title: "Create FilepickerSidebar CSS styles"
+    description: "CSS styles for the three-filter-box filepicker system"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "sidebar", "css", "styles"]
+    source:
+      file: "frontend/src/styles/filepicker-sidebar.css"
+      line: 1
+      type: "refactor"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.026"
+    title: "Unify FileEntry/VaultFile types"
+    description: "Consolidate overlapping types for backward compatibility"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "types", "unification", "refactor"]
+    source:
+      file: "frontend/src/types/filepicker.ts"
+      line: 1
+      type: "consolidation"
+    created: "2026-06-28T10:00:00Z"
+    updated: "2026-06-28T10:00:00Z"
+    mcp_optimized: true
+
+  # === NEW: MCP Modularization & Spec Tasks (Round 2026-06-30) ===
+
+  - uid: "task.maintenance.028"
+    title: "Modularize mcp_handlers.py into domain submodules"
+    description: "Split 640-line mcp_handlers.py into 8 domain modules (knowledge, clipboard, tasker, gridsmith, flow_router, toon, autostart, skill) with __init__.py registry"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "tech-debt", "modularize", "mcp"]
+    source:
+      file: "backend/app/api/mcp_handlers/__init__.py"
+      line: 1
+      type: "modularisation-planner"
+    created: "2026-06-30T21:00:00Z"
+    updated: "2026-06-30T21:30:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.029"
+    title: "Fix self_heal.py registry misalignment"
+    description: "Convert legacy self_heal.py classes to BaseSkill subclasses in skill_self_heal.py for proper registry discovery"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "tech-debt", "registry", "skills"]
+    source:
+      file: "backend/app/skills/builtin/skill_self_heal.py"
+      line: 1
+      type: "refactor"
+    created: "2026-06-30T21:00:00Z"
+    updated: "2026-06-30T21:30:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.030"
+    title: "Write PLATES_SYSTEM_SPEC.md"
+    description: "Comprehensive spec for Plates system (renamed from Templates) covering scaffolding via Cookiecutter, Pydantic validation, OpenAPI/Swagger MCP registry, DESTROY/REBUILD protocol, drift detection, and promotion workflow"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "spec", "plates", "recovery"]
+    source:
+      file: "docs/PLATES_SYSTEM_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-30T21:00:00Z"
+    updated: "2026-06-30T21:34:00Z"
+    mcp_optimized: true
+
+
+  - uid: "task.maintenance.031"
+    title: "Write HIVEMIND_ORCHESTRATION_SPEC.md"
+    description: "Comprehensive spec for multi-agent orchestration covering MCP server topology, agent definitions, consensus engine, LLM router, and workflow templates"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "spec", "hivemind", "orchestration"]
+    source:
+      file: "docs/HIVEMIND_ORCHESTRATION_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-30T21:00:00Z"
+    updated: "2026-06-30T21:30:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.032"
+    title: "Update mcp_guardrails.py for modular mcp_handlers package"
+    description: "Update guardrails to validate the new mcp_handlers/ package structure instead of monolithic mcp_handlers.py"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "tech-debt", "guardrails", "mcp"]
+    source:
+      file: "backend/app/api/mcp_guardrails.py"
+      line: 1
+      type: "refactor"
+    created: "2026-06-30T21:00:00Z"
+    updated: "2026-06-30T21:30:00Z"
+    mcp_optimized: true
+
+  - uid: "task.maintenance.033"
+    title: "Update skill_mcp_self_heal for modular mcp_handlers package"
+    description: "Update self-heal skill to check domain modules in mcp_handlers/ package instead of monolithic file"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "tech-debt", "self-heal", "mcp"]
+    source:
+      file: "backend/app/skills/builtin/skill_mcp_self_heal.py"
+      line: 1
+      type: "refactor"
+    created: "2026-06-30T21:00:00Z"
+    updated: "2026-06-30T21:30:00Z"
+    mcp_optimized: true
+
+  - uid: "task.hivemind.013"
+    title: "Implement Hivemind MCP server (port 8490)"
+    description: "Build hivemind_server.py with agent orchestration, consensus engine, and LLM router. See HIVEMIND_ORCHESTRATION_SPEC.md"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "hivemind", "mcp", "implementation"]
+    source:
+      file: "docs/HIVEMIND_ORCHESTRATION_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-30T21:30:00Z"
+    updated: "2026-06-30T21:40:00Z"
+    mcp_optimized: true
+
+
+  - uid: "task.hivemind.014"
+    title: "Implement plate refresh engine"
+    description: "Build plate_refresh/ engine with Cookiecutter rendering, Pydantic validation, drift detection, and DESTROY/REBUILD protocol. See PLATES_SYSTEM_SPEC.md"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "plates", "implementation", "recovery"]
+    source:
+      file: "docs/PLATES_SYSTEM_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-30T21:30:00Z"
+    updated: "2026-06-30T21:48:00Z"
+    mcp_optimized: true
+
+
+
+  # === NEW: Vault Plates & Enhanced DESTROY Tasks ===
+
+  - uid: "task.vault.001"
+    title: "Add vault domain to PlateMeta and create vault plates"
+    description: "Add 'vault' domain to PlateMeta domain Literal, create user vault seed plate, shared workspace plate, and public publishing framework plate"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "vault", "plates", "destroy"]
+    source:
+      file: "docs/VAULT_PLATES_AND_DESTROY_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-30T22:37:00Z"
+    updated: "2026-06-30T22:40:00Z"
+    mcp_optimized: true
+
+  - uid: "task.vault.002"
+    title: "Create Vault Discovery Skill"
+    description: "Build VaultDiscoverySkill (BaseSkill subclass) with dry-run mode, Nugget extraction, and vault layer scanning"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "vault", "discovery", "skill"]
+    source:
+      file: "backend/app/skills/builtin/skill_vault_discovery.py"
+      line: 1
+      type: "implementation"
+    created: "2026-06-30T22:37:00Z"
+    updated: "2026-06-30T22:40:00Z"
+    mcp_optimized: true
+
+  - uid: "task.vault.003"
+    title: "Implement enhanced DESTROY interactive menu"
+    description: "Add interactive DESTROY menu with 6 options (dry-run, destroy & rebuild, destroy user data, destroy all, nuggets, cancel) to plate_refresh CLI"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "destroy", "interactive", "cli"]
+    source:
+      file: "backend/plate_refresh/refresh.py"
+      line: 1
+      type: "implementation"
+    created: "2026-06-30T22:37:00Z"
+    updated: "2026-06-30T22:40:00Z"
+    mcp_optimized: true
+
+  - uid: "task.vault.004"
+    title: "Create vendor/ directory for distribution alignment"
+    description: "Create vendor/ directory structure with dist/ subdirectories and sources.yaml for GitHub pull definitions"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "vendor", "distribution", "packaging"]
+    source:
+      file: "vendor/sources.yaml"
+      line: 1
+      type: "implementation"
+    created: "2026-06-30T22:37:00Z"
+    updated: "2026-06-30T22:40:00Z"
+    mcp_optimized: true
+
+  - uid: "task.vault.005"
+    title: "Write VAULT_PLATES_AND_DESTROY_SPEC.md"
+    description: "Comprehensive spec for vault plates, vault discovery skill, enhanced DESTROY interactive options, and distribution alignment"
+    status: "done"
+    priority: "high"
+    lane: "maintenance"
+    tags: ["p0", "spec", "vault", "destroy"]
+    source:
+      file: "docs/VAULT_PLATES_AND_DESTROY_SPEC.md"
+      line: 1
+      type: "spec"
+    created: "2026-06-30T22:37:00Z"
+    updated: "2026-06-30T22:40:00Z"
+    mcp_optimized: true
+
+  - uid: "task.vault.006"
+    title: "Wire DistributionSystem to GitHub pulls"
+    description: "Implement actual GitHub pull logic in DistributionSystem using vendor/sources.yaml definitions"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "distribution", "github", "implementation"]
+    source:
+      file: "backend/app/services/distribution_system/distribution_system.py"
+      line: 1
+      type: "implementation"
+    created: "2026-06-30T22:37:00Z"
+    updated: "2026-06-30T22:53:00Z"
+    mcp_optimized: true
+    notes: "DistributionSystem at backend/app/services/distribution_system/distribution_system.py with GitHub pull logic using vendor/sources.yaml definitions, install/update/repair/remove operations, and health checks."
+
+  - uid: "task.vault.007"
+    title: "Wire PackageManager to plate system"
+    description: "Connect PackageManager to plate system for install/update/repair via plates"
+    status: "done"
+    priority: "medium"
+    lane: "maintenance"
+    tags: ["p1", "packaging", "plates", "implementation"]
+    source:
+      file: "backend/app/services/package_manager/package_manager.py"
+      line: 1
+      type: "implementation"
+    created: "2026-06-30T22:37:00Z"
+    updated: "2026-06-30T22:53:00Z"
+    mcp_optimized: true
+    notes: "PackageManager at backend/app/services/distribution_system/package_manager.py wired to plate system with install/update/repair/remove operations, plate creation from packages, and health checks."
+
+archive:
+  - uid: "task.archive.001"
+    title: "Old Phase 6-8 tasks (UDW-001 through UDW-034)"
+    archived_reason: "completed"
+    archived_date: "2026-06-28T10:00:00Z"
+    notes: "All UDW tasks marked as done in UNIFIED_DEV_TASK_WORKFLOW.md"
+

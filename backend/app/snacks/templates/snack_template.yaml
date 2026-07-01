@@ -1,0 +1,34 @@
+# Snack Metadata Template
+# Snacks are templated like Skills for publishing/restore flow
+# Categories: clipboard, ai, surface, system, dev, mission
+# Tags (lanes): System Operations, Dev Mode, User Mission Operations, Maintenance
+
+name: my-custom-snack
+description: What this snack does
+category: system  # clipboard, ai, surface, system, dev, mission
+icon: 🍎
+kind: action  # action, multi-action, badge, toggle, separator
+version: 1.0.0
+author: uCore
+tags:
+  - System Operations  # Lane: System Operations, Dev Mode, User Mission Operations, Maintenance
+timeout: 60
+requires_confirmation: false
+
+params:
+  - name: input_param
+    type: string        # string, number, boolean, object, array
+    description: Description of this parameter
+    required: true
+    default: null
+  - name: optional_param
+    type: number
+    required: false
+    default: 42
+
+# Publishing metadata
+publish:
+  source: github  # github, local, mcp
+  repo: uDosGo/uCore  # For GitHub publishing
+  path: backend/app/snacks/custom/  # Install path in repo
+  restore_to: ~/.ucore/snacks/  # User restore location

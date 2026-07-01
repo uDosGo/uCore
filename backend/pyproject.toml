@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ucore"
+version = "4.0.0"
+description = "uCore — unified daemon combining uServer + uConnect backend"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "uDos Go" },
+]
+
+dependencies = [
+    "aiohttp>=3.9,<4.0",
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    "snackmachine>=1.0",
+    "udos-budget>=1.0",
+    "udos-agents>=1.0",
+    "udos-identity>=1.0",
+    "litellm>=1.0",
+    "langgraph>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.27",
+    "ruff>=0.3",
+]
+
+[tool.setuptools.packages.find]
+where = ["app"]
+include = ["app*", "app.models*", "app.core*", "app.api*", "app.services*", "app.surfaces*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+    "E501",  # line too long - handled by formatter
+    "F401",  # unused imports - handled by isort
+]
+

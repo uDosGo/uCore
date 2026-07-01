@@ -1,0 +1,30 @@
+# uCore Developer Configuration Defaults
+
+tasker:
+  tasker_dir: ".tasker"
+  archived_dir: ".tasker.archived"
+  default_board: "inbox"
+
+spool:
+  logs_dir: "~/.ucore/logs"
+  max_bytes: 2097152  # 2MB
+  backup_count: 5
+  max_age_days: 14
+
+skills:
+  default_timeout: 60
+  mcp_optimized: true
+
+maintenance:
+  schedule:
+    daily_backup: "03:00"
+    vault_sync: "04:00"
+    tasker_sync: "04:05"
+    brain_sync: "04:15"
+    clipboard_maintenance: "04:30"
+    spool_maintenance: "04:35"
+
+devlog:
+  output_file: "devlog.mcp.yaml"
+  hours: 24
+  max_entries: 500

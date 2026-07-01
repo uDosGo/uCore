@@ -1,0 +1,88 @@
+plate:
+  id: "vault.user_vault_seed"
+  version: "2.0.0"
+  domain: "vault"
+  description: "Seed structure for a new user vault at ~/Vault/ — mirrors real on-disk layout"
+  vault_layer: "user"
+  vault_path: "~/Vault/"
+  structure:
+    # ─── Operational / System ───────────────────────────────
+    - path: "@inbox/"
+      description: "Quick capture inbox (pending/processed/failed)"
+    - path: "@groovebox/"
+      description: "Creative workspace (music, production, groovebox)"
+
+    # ─── Core Knowledge ─────────────────────────────────────
+    - path: "knowledge/"
+      description: "Personal knowledge base (concepts/insights/research)"
+    - path: "binders/"
+      description: "Binder collections (active/completed/on-hold/templates)"
+    - path: "missions/"
+      description: "Mission tracking (active/completed/templates)"
+    - path: "tasks/"
+      description: "Task tracking"
+    - path: "daily/"
+      description: "Daily notes"
+    - path: "journals/"
+      description: "Journal entries"
+
+    # ─── People & Agents ────────────────────────────────────
+    - path: "people/"
+      description: "Contacts and people directory"
+    - path: "agents/"
+      description: "AI agent definitions and templates"
+
+    # ─── Assets & Attachments ───────────────────────────────
+    - path: "attachments/"
+      description: "File attachments"
+    - path: "scripts/"
+      description: "Automation scripts (.ucode files)"
+    - path: "security/"
+      description: "Security policies and configurations"
+
+    # ─── Templates & Dev ────────────────────────────────────
+    - path: "templates/"
+      description: "Personal templates"
+    - path: "dev/"
+      description: "Development scratch space"
+
+  seed_files:
+    - path: "@inbox/readme.md"
+      content: "# @inbox\n\nQuick capture inbox. Drop notes, ideas, and captures here.\n\n- pending/ — Unprocessed items\n- processed/ — Completed items\n- failed/ — Items that failed processing"
+    - path: "knowledge/readme.md"
+      content: "# Knowledge\n\nPersonal knowledge base.\n\n- concepts/ — Core concepts\n- insights/ — Key insights\n- research/ — Research notes"
+    - path: "binders/readme.md"
+      content: "# Binders\n\nBinder collections for organizing work.\n\n- active/ — Current binders\n- completed/ — Finished binders\n- on-hold/ — Paused binders\n- templates/ — Binder templates"
+    - path: "missions/readme.md"
+      content: "# Missions\n\nMission tracking.\n\n- active/ — Current missions\n- completed/ — Finished missions\n- templates/ — Mission templates"
+    - path: "people/readme.md"
+      content: "# People\n\nContacts and people directory."
+    - path: "agents/readme.md"
+      content: "# Agents\n\nAI agent definitions and templates."
+    - path: "scripts/readme.md"
+      content: "# Scripts\n\nAutomation scripts (.ucode files)."
+    - path: "security/readme.md"
+      content: "# Security\n\nSecurity policies and configurations."
+
+  source: "builtin"
+  checksum: ""
+  dependencies: []
+  lessons:
+    - "User vault should be backed up before any destructive operation"
+    - "Vault structure mirrors real on-disk layout at ~/Vault/"
+    - "@-prefixed dirs are operational/system folders (inbox, groovebox)"
+    - "binders/ and missions/ are critical for Filepicker and workflow integration"
+    - "Seed files provide orientation for new users"
+  destroy:
+    salvage_keys:
+      - vault_layer
+      - vault_path
+    rebuild_command: "python -m plate_refresh.refresh --render vault.user_vault_seed"
+    backup_before_destroy: true
+    spool_archive:
+      enabled: true
+      spool_dir: "~/.ucore/logs"
+      compress_metadata: true
+      include_source: false
+      include_lessons: true
+      max_spool_age_days: 365

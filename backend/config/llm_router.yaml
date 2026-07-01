@@ -1,0 +1,58 @@
+# LLM Router Configuration — maps agents.yaml models to backend endpoints
+# Used by: HivemindServer → LLMRouter → CostManager
+#
+# Priority: lower number = tried first
+# API keys sourced in order: Secret Store (AES-256-GCM) → env var → this file
+#
+# Cost tiers:
+#   free:    $0/1K tokens       (Ollama local models)
+#   cheap:   $0.00015–0.002     (gpt-4o-mini, deepseek-v4-flash, qwen3.6)
+#   premium: $0.0025+           (claude-opus-4.7, glm-5.1, gpt-4o)
+
+router:
+  budgets:
+    daily: 2.00
+    weekly: 10.00
+    monthly: 30.00
+
+  cost_tiers:
+    free: [qwen2.5-coder:3b, llama3, codellama, mistral]
+    cheap: [deepseek-v4-flash, qwen3.6-27b, gpt-4o-mini]
+    premium: [glm-5.1, claude-opus-4.7, gpt-4o]
+
+  backends:
+    # ─── OpenRouter — primary cloud backend ──────────────────────
+    openrouter:
+      base_url: "https://openrouter.ai/api/v1"
+      api_key: "${OPENROUTER_API_KEY}"
+      models:
+        - glm-5.1              # architecture agent (premium)
+        - claude-opus-4.7      # reviewer agent (premium)
+        - deepseek-v4-flash    # debugger agent (cheap)
+        - qwen3.6-27b          # docgen agent (cheap)
+      priority: 1
+      type: openai_compatible
+
+    # ─── Ollama — local fallback / free tier ─────────────────────
+    ollama:
+      base_url: "http://localhost:11434/v1"
+      api_key: null
+      models:
+        - qwen2.5-coder:3b     # dev agent, gridsmith-dev agent (free)
+        - qwen2.5-coder:7b-instruct-q4_K_M  # larger codercoder (free)
+        - codegemma:2b         # f/e tasks (free)
+        - codellama:7b         # general coding (free)
+        - mistral:7b           # general purpose (free)
+        - qwen2.5-coder:0.5b   # tiny fallback (free)
+      priority: 2
+      type: openai_compatible
+
+    # ─── OpenAI Fallback — last resort ────────────────────────────
+    fallback:
+      base_url: "https://api.openai.com/v1"
+      api_key: "${OPENAI_API_KEY}"
+      models:
+        - gpt-4o-mini          # cheap
+        - gpt-4o               # premium
+      priority: 3
+      type: openai

@@ -1,0 +1,116 @@
+/* ═══════════════════════════════════════════════════════════════════
+   tokens.css — Shared Base Styles
+   Extracted from gridui.css. Font faces, NestFrame, and shared CSS vars.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Font Face Declarations ────────────────────────────────────── */
+@font-face {
+  font-family: 'PetMe128';
+  src: url('../fonts/PetMe128.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PetMe128';
+  src: url('../fonts/PetMe128.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'C64 User Mono';
+  src: url('../fonts/C64_User_Mono_v1.0-STYLE.woff') format('woff'),
+       url('../fonts/C64_User_Mono_v1.0-STYLE.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Teletext50';
+  src: url('../fonts/teletext50.woff2') format('woff2'),
+       url('../fonts/Teletext50.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('../fonts/press-start-2p.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bedstead';
+  src: url('../fonts/Bedstead.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Shared Surface Tokens (maps to pico) ──────────────────────── */
+:root {
+  --surface-bg: var(--pico-background-color, #0d1117);
+  --surface-card: var(--pico-card-background-color, #161b22);
+  --surface-card-high: var(--pico-card-sectioning-background-color, #1c2128);
+  --surface-card-highest: #21262d;
+  --surface-text: var(--pico-color, #c9d1d9);
+  --surface-text-muted: var(--pico-muted-color, #8b949e);
+  --surface-border: var(--pico-border-color, #30363d);
+  --surface-border-strong: #484f58;
+  --surface-accent: var(--pico-primary, #58a6ff);
+  --surface-accent-hover: var(--pico-primary-hover, #3b82f6);
+  --surface-accent-container: rgba(13, 110, 253, 0.15);
+  --surface-success: var(--pico-ins-color, #3fb950);
+  --surface-success-container: rgba(63, 185, 80, 0.2);
+  --surface-warning: #d29922;
+  --surface-warning-container: rgba(210, 153, 34, 0.2);
+  --surface-error: var(--pico-del-color, #f85149);
+  --surface-error-container: rgba(248, 81, 73, 0.15);
+
+  /* Touch target sizing */
+  --touch-min: 48px;
+}
+
+@media (min-width: 1800px) and (min-height: 800px) {
+  :root { --touch-min: 72px; }
+}
+@media (max-width: 720px) {
+  :root { --touch-min: 44px; }
+}
+
+/* ─── NestFrame: Focus Visible (zen/minimal) ────────────────────── */
+/* Flat, thin single-line highlight — no glow, no shadow, no animation */
+*:focus-visible {
+  outline: 1px solid var(--pico-primary, #58a6ff);
+  outline-offset: 1px;
+}
+
+/* ─── NestFrame: Reduced Motion ─────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Body Defaults ──────────────────────────────────────────────── */
+body {
+  font-family: var(--pico-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── NestFrame: Responsive grid pattern ─── */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(16px, 4vw, 48px);
+}

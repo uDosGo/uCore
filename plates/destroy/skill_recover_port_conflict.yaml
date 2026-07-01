@@ -1,0 +1,35 @@
+plate:
+  id: "skill.recover_port_conflict"
+  version: "1.0.0"
+  domain: "skill"
+  description: "Detect and resolve port conflicts on uCore services"
+  schema:
+    type: object
+    properties:
+      port:
+        type: integer
+        default: 8484
+      service_name:
+        type: string
+        default: "ucore-backend"
+  source: "builtin"
+  checksum: ""
+  dependencies: []
+  lessons:
+    - "Always check port 8484 before starting backend"
+    - "Use SO_REUSEADDR to avoid EADDRINUSE on restart"
+    - "If port is occupied, kill the old process before starting new one"
+  destroy:
+    salvage_keys:
+      - port
+      - service_name
+    rebuild_command: "echo Rebuilding $port for $service_name"
+    backup_before_destroy: true
+    spool_archive:
+      enabled: true
+      spool_dir: "~/.ucore/logs"
+      compress_metadata: true
+      include_source: false
+      include_lessons: true
+      max_spool_age_days: 365
+

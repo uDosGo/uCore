@@ -1,0 +1,10 @@
+{
+  "surface_id": "mysurface",
+  "surface_title": "My Grid Surface",
+  "surface_description": "Grid/canvas-based surface",
+  "surface_icon": "grid",
+  "surface_color": "#22c55e",
+  "route_path": "/mysurface",
+  "dev_only": false,
+  "author": "uCore"
+}

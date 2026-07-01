@@ -1,0 +1,23 @@
+/* ═══════════════════════════════════════════════════════════════════
+   surface-host.css — Global styles for the consolidated surface host
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── GridUI Theme Variables (maps to shared surface tokens) ────── */
+:root {
+  --grid-bg: var(--surface-bg, #0d1117);
+  --grid-text: var(--surface-text, #c9d1d9);
+  --grid-text-secondary: var(--surface-text-muted, #8b949e);
+  --grid-bg-card: var(--surface-card, #161b22);
+  --grid-bg-hover: var(--surface-card-high, #1c2333);
+  --grid-border-light: var(--surface-border, #30363d);
+  --grid-border: var(--surface-border, #30363d);
+  --gridui-surface-bg: var(--surface-bg, #0d1117);
+  --gridui-viewport-text: var(--surface-text, #c9d1d9);
+  --gridui-viewport-bg: var(--surface-bg, #0d1117);
+  --gridui-border-bg: var(--surface-card, #161b22);
+  --gridui-dynamic-zoom: 1;
+  --gridui-viewport-padding: 0px;
+}
+
+/* ─── Home Button (replaced by usx-header-btn) ─────────────────── */
+/* .surface-home-button removed — USX header button handles this.   */

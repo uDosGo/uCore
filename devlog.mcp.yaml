@@ -1,0 +1,21 @@
+# Devlog — uCore
+
+version: "2.0.0"
+updated: "2026-07-01T20:15:00Z"
+round: "sprint.2026-07-01 complete"
+
+## Recent Changes (2026-07-01)
+
+- Feed System: Pod schema, MCP server, API routes, FeedConsumer, frontend store
+- Docs: FEED_SYSTEM_SPEC.md, fieldnotes.md, archive SPRINT_PLAN
+- Version: 4.0.1
+- Cleanup: moved .tasker.archived, .episodic, .dev, .continue to docs/archive/
+
+## Current Dev Flow
+
+- tasker_ingest: MCP bridge session progress to .tasker/spool/wisdom
+- dev_layer: Dev Mode toggle service
+- docs_roundup: End-of-round docs automation skill
+- feed_server: Activity Pod ingest, query, suggest, link
+- feed_consumer: Feed to Spool bridge
+- feed store: Frontend Pinia feed store

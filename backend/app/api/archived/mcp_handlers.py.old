@@ -1,0 +1,640 @@
+#!/usr/bin/env python3
+"""MCP Tool Handlers — Extracted from mcp.py for modularization.
+
+This module contains individual tool handlers extracted from the monolithic
+handle_mcp_call function to improve maintainability.
+
+NOTE: All shared utilities are imported lazily inside handlers so that
+tests can patch them via ``mcp_api.<function_name>`` (monkeypatch pattern).
+"""
+from __future__ import annotations
+
+import json
+import logging
+from typing import Any, Dict
+
+from aiohttp import web
+
+from app.skills.registry import get_skill
+
+log = logging.getLogger("ucore.api.mcp_handlers")
+
+
+async def handle_skill_tool(tool_name: str, arguments: dict, request_id: Any) -> web.Response:
+    """Handle skill_xxx tool calls."""
+    from app.api.mcp import get_skill
+
+    skill_id = tool_name[6:]  # Remove "skill_" prefix
+    skill = get_skill(skill_id)
+    if not skill:
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32601,
+                "message": f"Tool '{tool_name}' not found",
+            },
+            "id": request_id,
+        }, status=404)
+
+    result = await skill.run(**arguments)
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(result, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_knowledge_search(arguments: dict, request_id: Any) -> web.Response:
+    """Handle knowledge_search tool."""
+    from app.knowledge.appflowy import semantic_search
+
+    query = str(arguments.get("query", "")).strip()
+    if not query:
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32602,
+                "message": "query is required",
+            },
+            "id": request_id,
+        }, status=400)
+
+    try:
+        limit = int(arguments.get("limit", 10))
+    except (TypeError, ValueError):
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32602,
+                "message": "limit must be an integer",
+            },
+            "id": request_id,
+        }, status=400)
+
+    workspace_id = arguments.get("workspace_id")
+    results = semantic_search(query, workspace_id, max(1, limit))
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(results, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_knowledge_list_workspaces(arguments: dict, request_id: Any) -> web.Response:
+    """Handle knowledge_list_workspaces tool."""
+    from app.knowledge.appflowy import list_workspaces
+
+    ws = list_workspaces()
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(ws, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_knowledge_list_documents(arguments: dict, request_id: Any) -> web.Response:
+    """Handle knowledge_list_documents tool."""
+    from app.knowledge.appflowy import list_documents
+
+    workspace_id = arguments.get("workspace_id")
+    docs = list_documents(str(workspace_id) if workspace_id else None)
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(docs, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_clipboard_capture(arguments: dict, request_id: Any) -> web.Response:
+    """Handle clipboard_capture tool."""
+    from app.api.mcp import capture_current_clipboard
+
+    source = arguments.get("source", "user_copy")
+    metadata = arguments.get("metadata") or {}
+    try:
+        item = capture_current_clipboard(source=source, metadata=metadata)
+    except Exception as exc:
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {"code": -32000, "message": str(exc)},
+            "id": request_id,
+        }, status=400)
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(item, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_clipboard_get(arguments: dict, request_id: Any) -> web.Response:
+    """Handle clipboard_get tool."""
+    from app.api.mcp import get_item_by_id, get_recent_items
+
+    item_id = arguments.get("item_id")
+    if item_id:
+        found_item = get_item_by_id(str(item_id))
+        if not found_item:
+            return web.json_response({
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32602,
+                    "message": f"Item {item_id} not found",
+                },
+                "id": request_id,
+            }, status=404)
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "result": {
+                "content": [
+                    {"type": "text", "text": json.dumps(found_item, indent=2)},
+                ],
+            },
+            "id": request_id,
+        })
+
+    limit = int(arguments.get("limit", 20))
+    include_pinned = bool(arguments.get("include_pinned", True))
+    items = get_recent_items(limit=limit, include_pinned=include_pinned)
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps({"items": items, "count": len(items)}, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_clipboard_delete(arguments: dict, request_id: Any) -> web.Response:
+    """Handle clipboard_delete tool."""
+    from app.api.mcp import delete_item
+
+    item_id = arguments.get("item_id")
+    if not item_id:
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32602,
+                "message": "item_id is required",
+            },
+            "id": request_id,
+        }, status=400)
+
+    success = delete_item(str(item_id))
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps({"status": "deleted" if success else "not_found", "id": item_id})},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_tasker_list_boards(arguments: dict, request_id: Any) -> web.Response:
+    """Handle tasker_list_boards tool."""
+    from app.api.mcp import list_tasker_boards
+
+    boards = list_tasker_boards(arguments.get("tasker_dir"))
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(boards, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_tasker_read_task(arguments: dict, request_id: Any) -> web.Response:
+    """Handle tasker_read_task tool."""
+    from app.api.mcp import read_task_markdown
+
+    board = arguments.get("board")
+    task = arguments.get("task")
+    if not board or not task:
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32602,
+                "message": "board and task are required",
+            },
+            "id": request_id,
+        }, status=400)
+
+    result = read_task_markdown(
+        board=board, task=task, tasker_dir=arguments.get("tasker_dir")
+    )
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(result, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_tasker_write_task(arguments: dict, request_id: Any) -> web.Response:
+    """Handle tasker_write_task tool."""
+    from app.api.mcp import write_task_markdown
+
+    title = str(arguments.get("title", ""))
+    if not title:
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32602,
+                "message": "title is required",
+            },
+            "id": request_id,
+        }, status=400)
+
+    metadata = arguments.get("metadata")
+    if metadata is not None and not isinstance(metadata, dict):
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32602,
+                "message": "metadata must be an object",
+            },
+            "id": request_id,
+        }, status=400)
+
+    try:
+        result = write_task_markdown(
+            title=title,
+            board=str(arguments.get("board", "inbox")),
+            status=str(arguments.get("status", "todo")),
+            body=str(arguments.get("body", "")),
+            source=str(arguments.get("source", "manual")),
+            source_id=str(arguments["source_id"]) if "source_id" in arguments else None,
+            metadata=metadata,
+            task=str(arguments["task"]) if "task" in arguments else None,
+            tasker_dir=arguments.get("tasker_dir"),
+        )
+    except ValueError as exc:
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {"code": -32602, "message": str(exc)},
+            "id": request_id,
+        }, status=400)
+
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(result, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_flow_router_analytics(arguments: dict, request_id: Any) -> web.Response:
+    """Handle flow_router_analytics tool."""
+    from app.api.flow_router.api import get_flow_router
+
+    router = get_flow_router()
+    analytics = router.get_analytics()
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(analytics, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_flow_router_history(arguments: dict, request_id: Any) -> web.Response:
+    """Handle flow_router_history tool."""
+    from app.api.flow_router.api import get_flow_router
+
+    try:
+        limit = int(arguments.get("limit", 100))
+    except (TypeError, ValueError):
+        limit = 100
+
+    router = get_flow_router()
+    history = router.get_routing_history(limit=limit)
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(history, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_gridsmith_grid(arguments: dict, request_id: Any) -> web.Response:
+    """Handle gridsmith_grid tool."""
+    rows = int(arguments.get("rows", 10))
+    cols = int(arguments.get("cols", 10))
+    bridge = get_gridsmith_bridge()
+    result = bridge.create_grid(rows=rows, cols=cols)
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(result, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_autostart_health_check(arguments: dict, request_id: Any) -> web.Response:
+    """Handle autostart_health_check tool."""
+    check_only = arguments.get("check_only", False)
+    from app.skills.builtin.skill_autostart import run_health_check
+    result = run_health_check()
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(result, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_toon_encode(arguments: dict, request_id: Any) -> web.Response:
+    """Handle toon_encode tool."""
+    from app.api.toon import handle_toon_encode
+    from app.skills.shared_utils import create_mock_request
+    mock_request = create_mock_request(arguments)
+    response = await handle_toon_encode(mock_request)
+    response_data = await response.json()
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(response_data, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_toon_stats(arguments: dict, request_id: Any) -> web.Response:
+    """Handle toon_stats tool."""
+    from app.api.toon import handle_toon_stats
+    from app.skills.shared_utils import create_mock_request
+    mock_request = create_mock_request({})
+    response = await handle_toon_stats(mock_request)
+    response_data = await response.json()
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(response_data, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_toon_clear(arguments: dict, request_id: Any) -> web.Response:
+    """Handle toon_clear tool."""
+    from app.api.toon import handle_toon_clear
+    from app.skills.shared_utils import create_mock_request
+    mock_request = create_mock_request({})
+    response = await handle_toon_clear(mock_request)
+    response_data = await response.json()
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(response_data, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_flow_router_route(arguments: dict, request_id: Any) -> web.Response:
+    """Handle flow_router_route tool."""
+    from app.api.flow_router import handle_flow_router_route
+    from app.skills.shared_utils import create_mock_request
+    mock_request = create_mock_request(arguments)
+    response = await handle_flow_router_route(mock_request)
+    response_data = await response.json()
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(response_data, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_gridsmith_tools_list(arguments: dict, request_id: Any) -> web.Response:
+    """Handle gridsmith_tools_list tool."""
+    from app.api.mcp import get_gridsmith_bridge
+
+    bridge = get_gridsmith_bridge()
+    payload = bridge.run("tools", "list")
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(payload, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_gridsmith_create_grid(arguments: dict, request_id: Any) -> web.Response:
+    """Handle gridsmith_create_grid tool."""
+    from app.api.mcp import get_gridsmith_bridge
+
+    bridge = get_gridsmith_bridge()
+    payload = bridge.run(
+        "grid", "create",
+        "--cols", str(int(arguments.get("cols", 80))),
+        "--rows", str(int(arguments.get("rows", 24))),
+    )
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(payload, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_gridsmith_latlon_to_ucode(arguments: dict, request_id: Any) -> web.Response:
+    """Handle gridsmith_latlon_to_ucode tool."""
+    from app.api.mcp import get_gridsmith_bridge
+
+    bridge = get_gridsmith_bridge()
+    payload = bridge.run(
+        "location", "latlon-to-ucode",
+        "--lat", str(arguments.get("lat")),
+        "--lon", str(arguments.get("lon")),
+        "--level", str(int(arguments.get("level", 340))),
+    )
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(payload, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_gridsmith_ucode_to_latlon(arguments: dict, request_id: Any) -> web.Response:
+    """Handle gridsmith_ucode_to_latlon tool."""
+    from app.api.mcp import get_gridsmith_bridge
+
+    bridge = get_gridsmith_bridge()
+    payload = bridge.run(
+        "location", "ucode-to-latlon",
+        "--coord", str(arguments.get("coord", "")),
+    )
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(payload, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_gridsmith_import_basic_program(arguments: dict, request_id: Any) -> web.Response:
+    """Handle gridsmith_import_basic_program tool."""
+    from app.api.mcp import get_gridsmith_bridge
+
+    bridge = get_gridsmith_bridge()
+    payload = bridge.run(
+        "world", "import-basic",
+        "--program", str(arguments.get("program", "")),
+        "--world-name", str(arguments.get("world_name", "")),
+    )
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(payload, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+async def handle_tasker_sync_export(arguments: dict, request_id: Any) -> web.Response:
+    """Handle tasker_sync_export tool."""
+    from app.api.mcp import get_skill
+
+    skill = get_skill("tasker_sync")
+    if not skill:
+        return web.json_response({
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32601,
+                "message": "Tool 'tasker_sync_export' not available",
+            },
+            "id": request_id,
+        }, status=404)
+
+    result = await skill.run(**arguments)
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "result": {
+            "content": [
+                {"type": "text", "text": json.dumps(result, indent=2)},
+            ],
+        },
+        "id": request_id,
+    })
+
+
+# Tool handler registry
+TOOL_HANDLERS: dict[str, Any] = {
+    "knowledge_search": handle_knowledge_search,
+    "knowledge_list_workspaces": handle_knowledge_list_workspaces,
+    "knowledge_list_documents": handle_knowledge_list_documents,
+    "clipboard_capture": handle_clipboard_capture,
+    "clipboard_get": handle_clipboard_get,
+    "clipboard_delete": handle_clipboard_delete,
+    "tasker_list_boards": handle_tasker_list_boards,
+    "tasker_read_task": handle_tasker_read_task,
+    "tasker_write_task": handle_tasker_write_task,
+    "tasker_sync_export": handle_tasker_sync_export,
+    "flow_router_route": handle_flow_router_route,
+    "flow_router_analytics": handle_flow_router_analytics,
+    "flow_router_history": handle_flow_router_history,
+    "gridsmith_tools_list": handle_gridsmith_tools_list,
+    "gridsmith_create_grid": handle_gridsmith_create_grid,
+    "gridsmith_latlon_to_ucode": handle_gridsmith_latlon_to_ucode,
+    "gridsmith_ucode_to_latlon": handle_gridsmith_ucode_to_latlon,
+    "gridsmith_import_basic_program": handle_gridsmith_import_basic_program,
+    "toon_encode": handle_toon_encode,
+    "toon_stats": handle_toon_stats,
+    "toon_clear": handle_toon_clear,
+    "autostart_health_check": handle_autostart_health_check,
+}
+
+
+async def dispatch_tool(body: Dict[str, Any]) -> web.Response:
+    """Dispatch an MCP request to the appropriate handler.
+
+    This mirrors the original ``handle_mcp_call`` logic but delegates to the
+    individual handler functions defined above.
+    """
+    tool_name = body.get("name") or body.get("tool") or body.get("tool_name") or ""
+    arguments = body.get("arguments") or body.get("params") or body.get("input") or {}
+    request_id = body.get("id")
+
+    log.info("[MCP call] tool=%r args_keys=%s", tool_name, list(arguments.keys()) if arguments else [])
+
+    if tool_name.startswith("skill_"):
+        return await handle_skill_tool(tool_name, arguments, request_id)
+
+    handler = TOOL_HANDLERS.get(tool_name)
+    if handler:
+        return await handler(arguments, request_id)
+
+    return web.json_response({
+        "jsonrpc": "2.0",
+        "error": {"code": -32601, "message": f"Tool '{tool_name}' not found"},
+        "id": request_id,
+    }, status=404)

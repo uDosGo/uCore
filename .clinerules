@@ -1,0 +1,75 @@
+# Cline Rules - uCore Baseline
+
+Use this repository in local-first, auditable mode.
+
+## Operating Principles
+
+1. Prefer safe, reversible changes and keep diffs small.
+2. Keep durable workflow state in `.tasker/` Markdown files.
+3. Treat Cline Kanban as orchestration UI, not source of truth.
+4. Keep MCP integrations localhost-only by default.
+5. Preserve Git history clarity with focused, test-backed changes.
+
+## Workflow Defaults
+
+1. For new work, start from a Kanban card linked to a `.tasker` item.
+2. Use isolated worktrees/branches for card execution when available.
+3. Validate with targeted tests before proposing merges.
+4. Report blockers with concrete next actions.
+
+## MCP Usage
+
+1. Prefer the `uCore` MCP server for skills and knowledge access.
+2. Verify MCP health before relying on tools.
+3. Do not broaden network exposure of MCP services without explicit opt-in.
+
+## Cost-Aware Routing
+
+1. Simple tasks: local/free model when practical.
+2. Medium tasks: Codex/Roundtable tier.
+3. Complex tasks: premium reasoning tier only when justified.
+
+## Docs Round Completion (before every push)
+
+1. Create or update a FEATURE_SPEC.md in docs/ for the feature delivered.
+2. Archive completed sprint plans and stale dev summaries to docs/archive/.
+3. Archive completed tasker items; mark sprint status as complete when done.
+4. Update devlog.mcp.yaml with all new and modified files.
+5. Update fieldnotes.md with key decisions, observations, archived code, lessons.
+6. Update wisdom.md lessons if any durable insights were learned.
+7. Bump version patch in pyproject.toml and package.json.
+8. Update .tasker.dev-flow.yaml with completed_count, sprint status, and notes.
+9. Run this round checklist before the final git push of any dev session.
+
+## Git Commit Rules
+
+1. Use short commit messages (max 72 chars for first line).
+2. No special characters in commit messages (no arrows, emoji, quotes, backticks).
+3. Use plain ASCII only: letters, numbers, spaces, hyphens, periods, commas.
+4. First line should be a concise summary. Body is optional and also plain ASCII.
+5. Use simple non-blocking commands: git add -A && git commit -m ... && git push.
+6. Only commit when all changes for a task are complete and verified.
+7. Prefer one commit per logical feature or fix, not per file edit.
+
+## In-House Skills Library
+
+1. Prioritize uCore builtin skills over external tools when available.
+2. Skills live in backend/app/skills/builtin/ as BaseSkill subclasses.
+3. Register skills via SkillMeta(id, name, description, category, params).
+4. Use skill_docs_roundup for end-of-session documentation automation.
+5. Use skill_dev_destroy_rebuild for Dev Mode recovery workflows.
+6. Use tasker_ingest for bridging session progress to .tasker/spool/wisdom.
+7. Use file_edit_enhancer for batch file operations with spool logging.
+8. Always consult skill registry before writing new skills to avoid duplication.
+
+## Feed System (Pod/Nugget/Seed/Slate/Spool)
+
+1. Feed is the unified incoming data layer for all user activity.
+2. Activity Pod (SQLite) stores browser, email, message, alert, search activity.
+3. Feed MCP server exposes ingest, query, suggest, link tools.
+4. FeedConsumer bridges feed activity into the Spool (feed in motion).
+5. Seed data bootstraps feed sources (browser paths, email, messages, contacts).
+6. Binder suggestions are AI-generated from feed activity clusters.
+7. Feed panel in Developer Surface shows incoming activity and suggestions.
+8. Task-activity links connect .tasker tasks back to feed origins.
+

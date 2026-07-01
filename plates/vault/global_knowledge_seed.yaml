@@ -1,0 +1,75 @@
+plate:
+  id: "vault.global_knowledge_seed"
+  version: "1.0.0"
+  domain: "vault"
+  description: "Seed structure for global knowledge bank at ~/Public/global-knowledge/"
+  vault_layer: "global"
+  vault_path: "~/Public/global-knowledge/"
+  structure:
+    # ─── Core Knowledge Domains ─────────────────────────────
+    - path: "water/"
+      description: "Water management, purification, systems"
+    - path: "fire/"
+      description: "Fire management, energy, combustion"
+    - path: "shelter/"
+      description: "Shelter construction, housing, protection"
+    - path: "food/"
+      description: "Food production, preservation, cooking"
+    - path: "medical/"
+      description: "Medical knowledge, first aid, health"
+    - path: "skills/"
+      description: "Practical skills and crafts"
+    - path: "survival/"
+      description: "Survival techniques and preparedness"
+    - path: "wellbeing/"
+      description: "Mental and physical wellbeing"
+    - path: "community/"
+      description: "Community organization and governance"
+    - path: "communication/"
+      description: "Communication methods and systems"
+    - path: "tech/"
+      description: "Technology and engineering"
+    - path: "making/"
+      description: "Making, fabrication, DIY"
+    - path: "reference/"
+      description: "General reference materials"
+    - path: "navigation/"
+      description: "Navigation, maps, orientation"
+    - path: "learning/"
+      description: "Learning resources and education"
+
+    # ─── System / Metadata ──────────────────────────────────
+    - path: "categories/"
+      description: "Category definitions and taxonomies"
+    - path: "contributor/"
+      description: "Contributor guidelines and attribution"
+    - path: "bin/"
+      description: "Binary assets and compiled resources"
+
+  seed_files:
+    - path: "README.md"
+      content: "# Global Knowledge Bank\n\nUniversal knowledge repository at ~/Public/global-knowledge/\n\nThis is a read-only reference vault covering essential life domains.\nSee KNOWLEDGE-SYSTEM.md for the full system description."
+    - path: "KNOWLEDGE-SYSTEM.md"
+      content: "# Knowledge System\n\nThis global knowledge bank is organized by life domains.\nEach domain has its own directory with structured content.\n\n## Domains\n- water, fire, shelter, food, medical\n- skills, survival, wellbeing, community\n- communication, tech, making, reference\n- navigation, learning\n\n## Index Files\n- _index.json — Full file index\n- _tag-cloud.json — Tag frequency cloud\n- _topic-map.json — Topic relationship map\n- _audit-report.json — Content audit report"
+
+  source: "builtin"
+  checksum: ""
+  dependencies: []
+  lessons:
+    - "Global knowledge bank is read-only — never write directly"
+    - "Content is organized by life domains, not by project"
+    - "Index files (_index.json, _tag-cloud.json) are auto-generated"
+    - "This vault is the canonical reference for all uCore agents"
+  destroy:
+    salvage_keys:
+      - vault_layer
+      - vault_path
+    rebuild_command: "echo Global knowledge bank is read-only; re-clone from upstream"
+    backup_before_destroy: true
+    spool_archive:
+      enabled: true
+      spool_dir: "~/.ucore/logs"
+      compress_metadata: true
+      include_source: false
+      include_lessons: true
+      max_spool_age_days: 365

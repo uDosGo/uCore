@@ -1,0 +1,11 @@
+{
+  "surface_id": "mysurface",
+  "surface_title": "My Surface",
+  "surface_description": "Description of my surface",
+  "surface_icon": "extension",
+  "surface_color": "#a855f7",
+  "route_path": "/mysurface",
+  "dev_only": false,
+  "has_sidebar": false,
+  "author": "uCore"
+}

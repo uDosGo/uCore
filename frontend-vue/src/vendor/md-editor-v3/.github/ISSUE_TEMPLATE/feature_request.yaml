@@ -1,0 +1,15 @@
+name: Feature Request
+description: Suggest an idea for this project
+labels:
+  - 'type: feature'
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for your participation.
+  - type: textarea
+    id: description
+    attributes:
+      label: A great idea
+    validations:
+      required: true

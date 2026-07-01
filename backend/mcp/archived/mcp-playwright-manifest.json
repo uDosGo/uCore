@@ -1,0 +1,22 @@
+{
+  "name": "mcp-playwright",
+  "version": "1.0.0",
+  "description": "Playwright MCP server for browser automation: navigation, input, network, cookies, storage, snapshot, tracing",
+  "tools": [
+    "playwright_navigate",
+    "playwright_click",
+    "playwright_fill",
+    "playwright_screenshot",
+    "playwright_extract",
+    "playwright_evaluate",
+    "playwright_wait",
+    "playwright_close"
+  ],
+  "transport": "stdio",
+  "health_check": "/health",
+  "protocolVersion": "0.1.0",
+  "serverInfo": {
+    "name": "Playwright MCP",
+    "version": "0.0.76"
+  }
+}

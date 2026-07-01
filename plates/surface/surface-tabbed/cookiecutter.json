@@ -1,0 +1,16 @@
+{
+  "surface_id": "mysurface",
+  "surface_title": "My Surface",
+  "surface_description": "Description of my surface",
+  "surface_icon": "extension",
+  "surface_color": "#a855f7",
+  "route_path": "/mysurface",
+  "dev_only": false,
+  "tabs": [
+    {"id": "panel1", "label": "Panel 1", "icon": "dashboard"},
+    {"id": "panel2", "label": "Panel 2", "icon": "settings"},
+    {"id": "panel3", "label": "Panel 3", "icon": "info"}
+  ],
+  "default_tab": "panel1",
+  "author": "uCore"
+}

@@ -1,0 +1,998 @@
+/* ═══════════════════════════════════════════════════════════════════
+   usx-standard.css — USX Standard for uCore (Consolidated)
+   ═══════════════════════════════════════════════════════════════════
+   Canonical styling system:
+   - Pico CSS v2.1.1 for base styling (imported via CDN in index.html)
+   - USX spacing scale with consistent tokens
+   - Component padding patterns (no hardcoded 0px!)
+   - Google Fonts: Inter, Material Symbols Outlined
+   - Pico color/token integration
+   - Icon sizing: relative to context (em-based), not hardcoded px
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── CRITICAL: NO @import for Google Fonts here ──────────────────
+    Fonts are imported in index.html via <link rel="preconnect"> + <link rel="stylesheet">
+    This avoids duplicate downloads and ensures fonts load before CSS applies.
+    ════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────
+   TIER 1: DESIGN TOKENS (source of truth for all spacing, typography, layout)
+   ───────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ─── Base Spacing (8px system, aligned with Pico's 1rem = 16px) ── */
+  --usx-spacing-xs: 4px;
+  --usx-spacing-sm: 8px;
+  --usx-spacing-md: 12px;
+  --usx-spacing-lg: 16px;
+  --usx-spacing-xl: 24px;
+  --usx-spacing-2xl: 32px;
+
+  /* ─── Icon System Tokens ──────────────────────────────────────── */
+  --usx-icon-label-gap: 0.5em;      /* Material3 standard: 0.5em between icon and label */
+
+  /* ─── Component-Specific Spacing ──────────────────────────────── */
+  --usx-card-padding-vertical: 14px;
+  --usx-card-padding-horizontal: 16px;
+  --usx-card-gap: 8px;
+  --usx-section-padding: 16px;
+  --usx-section-gap: 12px;
+  --usx-section-separator: 20px;
+  --usx-compact-padding: 12px;
+  --usx-compact-gap: 6px;
+  --usx-button-padding-vertical: 12px;
+  --usx-button-padding-horizontal: 20px;
+  --usx-button-gap: 0.5em;          /* Material3: 0.5em between icon and label in buttons */
+  --usx-badge-padding-vertical: 2px;
+  --usx-badge-padding-horizontal: 8px;
+  --usx-list-item-gap: 4px;
+  --usx-list-section-gap: 8px;
+  --usx-grid-gap: 12px;
+  --usx-grid-gap-dense: 8px;
+  --usx-grid-gap-loose: 16px;
+  --usx-sidebar-gap: 8px;
+  --usx-sidebar-padding: 12px;
+
+  /* ─── Surface Plate Tokens (for generated surfaces) ───────────── */
+  --usx-surface-header-padding: var(--usx-spacing-lg) var(--usx-spacing-xl);
+  --usx-surface-content-padding: var(--usx-spacing-xl);
+  --usx-surface-tab-bar-padding: 0 var(--usx-spacing-lg);
+  --usx-surface-tab-padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  --usx-surface-topbar-height: 48px;
+  --usx-surface-topbar-padding: 0 var(--usx-spacing-xl);
+
+  /* ─── Typography ──────────────────────────────────────────────── */
+  --usx-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --usx-font-family-mono: 'Menlo', 'Monaco', 'Courier New', monospace;
+  --usx-font-size-xs: 0.75rem;
+  --usx-font-size-sm: 0.875rem;
+  --usx-font-size-base: 1rem;
+  --usx-font-size-lg: 1.125rem;
+  --usx-font-size-xl: 1.25rem;
+  --usx-line-height-tight: 1.4;
+  --usx-line-height-base: 1.6;
+  --usx-line-height-relaxed: 1.8;
+
+  /* ─── Layout Constraints ──────────────────────────────────────── */
+  --usx-max-width: 1280px;
+  --usx-prose-width: 72ch;
+  --usx-prose-width-sm: 40ch;
+  --usx-prose-width-md: 72ch;
+  --usx-prose-width-lg: 80ch;
+  --usx-sidebar-width: 280px;
+  --usx-topbar-height: 48px;
+
+  /* ─── Column Width Tokens (Grid Algebra v2.0) ─────────────────── */
+  --usx-col-width-xs: 40ch;
+  --usx-col-width-sm: 35ch;
+  --usx-col-width-md: 40ch;
+  --usx-col-width-lg: 35ch;
+  --usx-col-width-xl: 40ch;
+  --usx-col-width-xxl: 40ch;
+  --usx-col-gap: 24px;
+  --usx-gap-xs: 0;
+  --usx-gap-sm: 16px;
+  --usx-gap-md: 24px;
+  --usx-gap-lg: 24px;
+  --usx-gap-xl: 24px;
+  --usx-gap-xxl: 24px;
+
+  /* ─── Column Count Per Breakpoint (Grid Algebra Spec) ─────────── */
+  --usx-cols-xs: 1;    /* < 480px */
+  --usx-cols-sm: 2;    /* 480-768px */
+  --usx-cols-md: 2;    /* 768-1024px */
+  --usx-cols-lg: 3;    /* 1024-1440px */
+  --usx-cols-xl: 3;    /* 1440-1920px */
+  --usx-cols-xxl: 4;   /* 1920px+ */
+
+  /* ─── Border Radius ───────────────────────────────────────────── */
+  --usx-border-radius-sm: 4px;
+  --usx-border-radius-md: 6px;
+  --usx-border-radius-lg: 8px;
+  --usx-border-radius-full: 999px;
+
+  /* ─── Touch Targets (Pico-large: ≥44px for thumbs) ───────────── */
+  --usx-touch-target-min: 44px;
+  --usx-input-height: 44px;
+  --usx-input-height-sm: 36px;
+  --usx-input-height-lg: 48px;
+
+  /* Icon hit areas */
+  --usx-icon-hit-area: 44px;         /* Minimum touch target for icon buttons */
+  --usx-icon-size-sm: 1.125em;       /* 18px @ base 16px — for small UI labels */
+  --usx-icon-size-md: 1.25em;        /* 20px — for list items */
+  --usx-icon-size-lg: 1.5em;         /* 24px — for headings / cards */
+
+  /* ─── Color Integration (from Pico CSS tokens) ────────────────── */
+  --pico-font-family: var(--usx-font-family);
+  --pico-font-size: 100%;
+  --pico-line-height: var(--usx-line-height-base);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   BASE RESET & TYPOGRAPHY APPLY
+   ───────────────────────────────────────────────────────────────────── */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #c2c7d0);
+}
+
+body {
+  font-family: var(--usx-font-family);
+  font-size: var(--usx-font-size-base);
+  line-height: var(--usx-line-height-base);
+}
+
+/* ─── Global Touch Targets (Pico-large: ≥44px for thumbs) ──────── */
+button, input, select, textarea, optgroup, label, [role="button"],
+.usx-button, .u-button {
+  font-family: var(--usx-font-family);
+  font-size: inherit;
+  min-height: var(--usx-touch-target-min, 44px);
+}
+
+/* Interactive elements smaller than 44px — explicit opt-in */
+button.usx-btn--sm, .usx-btn--sm,
+input.usx-input--sm, .usx-input--sm {
+  min-height: var(--usx-input-height-sm, 36px);
+}
+
+/* Material Symbols — default to 1.25em (20px at base 16px) */
+.material-symbols-outlined {
+  font-size: 1.25em;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   LAYOUT PRIMITIVES
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Surface Container (full-height layout) */
+.usx-surface,
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--pico-background-color, #0d1117);
+}
+
+/* Topbar / Header */
+.usx-topbar,
+.global-toolbar,
+[role="banner"] {
+  display: flex;
+  align-items: center;
+  height: var(--usx-topbar-height);
+  padding: 0 var(--usx-spacing-xl);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--pico-border-color);
+  background: var(--pico-card-background-color);
+  gap: var(--usx-spacing-md);
+  box-sizing: border-box;
+  z-index: 100;
+}
+
+/* Main Content Area */
+main,
+.usx-main,
+[role="main"] {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--usx-spacing-xl);
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+}
+
+main.usx-main--compact,
+.usx-main--compact {
+  padding: var(--usx-spacing-md);
+}
+
+main.usx-main--wide,
+.usx-main--wide {
+  padding: var(--usx-spacing-2xl);
+}
+
+/* Body/Content Wrapper */
+.usx-surface-body,
+.usx-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Container with max-width constraint */
+.usx-container {
+  max-width: var(--usx-max-width);
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Prose/Text Container */
+.usx-prose,
+.prose {
+  max-width: var(--usx-prose-width);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   SURFACE PLATE PATTERNS (for generated surfaces)
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Surface root: full-height flex column */
+.surface {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Surface header: title + description */
+.surface__header {
+  padding: var(--usx-surface-header-padding);
+  border-bottom: 1px solid rgba(88, 166, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.surface__title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.surface__description {
+  color: var(--pico-muted-color);
+  margin-top: var(--usx-spacing-xs);
+  font-size: 14px;
+}
+
+/* Surface content: scrollable main area */
+.surface__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--usx-surface-content-padding);
+  box-sizing: border-box;
+}
+
+/* Surface topbar: compact header row */
+.surface__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--usx-surface-topbar-padding);
+  height: var(--usx-surface-topbar-height);
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(88, 166, 255, 0.08);
+}
+
+.surface__topbar-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Surface tab bar — Pico nav-style underlined tabs */
+.surface__tabs {
+  display: flex;
+  gap: 0;
+  padding: var(--usx-surface-tab-bar-padding);
+  background: var(--pico-card-background-color);
+  overflow-x: auto;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--pico-border-color);
+}
+
+.surface__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-icon-label-gap);
+  padding: var(--usx-surface-tab-padding);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--pico-muted-color);
+  cursor: pointer;
+  font-size: var(--usx-font-size-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  margin-bottom: -1px; /* overlap the tab bar border */
+  font-family: var(--usx-font-family);
+}
+
+/* Hover: icon inverts to primary color, no underline */
+.surface__tab:hover {
+  color: var(--pico-primary);
+  border-bottom-color: transparent;
+}
+
+/* Active: primary color underline (only active tab gets underline) */
+.surface__tab--active {
+  color: var(--pico-primary);
+  border-bottom-color: var(--pico-primary);
+}
+
+/* Surface footer: input area */
+.surface__footer {
+  flex-shrink: 0;
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
+  border-top: 1px solid rgba(88, 166, 255, 0.08);
+}
+
+.surface__input-row {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+}
+
+/* Surface messages area */
+.surface__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--usx-spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-md);
+}
+
+.surface__message {
+  max-width: 80%;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border-radius: var(--usx-border-radius-md);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.surface__message--user {
+  align-self: flex-end;
+  background: var(--pico-primary);
+  color: white;
+}
+
+.surface__message--assistant {
+  align-self: flex-start;
+  background: var(--pico-card-background-color);
+  border: 1px solid rgba(88, 166, 255, 0.08);
+}
+
+/* Surface canvas area */
+.surface__canvas {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: var(--pico-background-color);
+}
+
+/* Surface toolbar */
+.surface__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--usx-surface-topbar-padding);
+  height: var(--usx-surface-topbar-height);
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(88, 166, 255, 0.08);
+}
+
+/* Surface panel (card-like container) */
+.surface__panel {
+  padding: var(--usx-spacing-lg);
+  background: var(--pico-card-background-color);
+  border: 1px solid rgba(88, 166, 255, 0.08);
+  border-radius: var(--usx-border-radius-md);
+}
+
+.surface__panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 var(--usx-spacing-sm);
+}
+
+.surface__panel-description {
+  color: var(--pico-muted-color);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   COMPONENT PATTERNS
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Cards */
+.usx-card,
+.card {
+  padding: var(--usx-card-padding-vertical) var(--usx-card-padding-horizontal);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-card-gap);
+  background: #141b26;
+  border-radius: var(--usx-border-radius-md);
+  transition: all 0.15s ease;
+}
+
+.usx-card:hover,
+.card:hover {
+  border-color: var(--pico-primary);
+  background: rgba(88, 166, 255, 0.03);
+}
+
+/* Sections */
+.usx-section,
+section {
+  padding: var(--usx-section-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-section-gap);
+  box-sizing: border-box;
+}
+
+/* Compact container */
+.usx-compact {
+  padding: var(--usx-compact-padding);
+  gap: var(--usx-compact-gap);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Grid System */
+.usx-grid,
+.grid {
+  display: grid;
+  gap: var(--usx-grid-gap);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  width: 100%;
+}
+
+.usx-grid--dense { gap: var(--usx-grid-gap-dense); }
+.usx-grid--loose { gap: var(--usx-grid-gap-loose); }
+
+/* Navigation Tabs — Pico nav-style underlined */
+.usx-tabs,
+.tabs {
+  display: flex;
+  gap: 0;
+  align-items: center;
+  padding: 0 var(--usx-spacing-lg);
+  border-bottom: 1px solid var(--pico-border-color);
+  flex-shrink: 0;
+  overflow-x: auto;
+  height: auto;
+  box-sizing: border-box;
+}
+
+.usx-tab,
+.tab,
+[role="tab"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--usx-icon-label-gap);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--pico-muted-color);
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  margin-bottom: -1px;
+  font-family: var(--usx-font-family);
+}
+
+/* Hover: icon inverts to primary color, no underline */
+.usx-tab:hover,
+.tab:hover,
+[role="tab"]:hover {
+  color: var(--pico-primary);
+  border-bottom-color: transparent;
+}
+
+/* Active: primary color underline (only active tab gets underline) */
+.usx-tab--active,
+.tab--active,
+[role="tab"][aria-selected="true"] {
+  color: var(--pico-primary);
+  border-bottom-color: var(--pico-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   BUTTONS & CONTROLS
+   ───────────────────────────────────────────────────────────────────── */
+
+button,
+[role="button"],
+.usx-button,
+.button {
+  padding: var(--usx-button-padding-vertical) var(--usx-button-padding-horizontal);
+  border-radius: var(--usx-border-radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--usx-button-gap);
+  border: 1px solid var(--pico-border-color);
+  background: transparent;
+  color: var(--pico-color);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  font-family: var(--usx-font-family);
+}
+
+button:hover,
+[role="button"]:hover,
+.usx-button:hover,
+.button:hover {
+  border-color: var(--pico-primary);
+  background: rgba(88, 166, 255, 0.08);
+  color: var(--pico-primary);
+}
+
+button:active,
+[role="button"]:active,
+.usx-button:active,
+.button:active {
+  background: rgba(88, 166, 255, 0.15);
+}
+
+/* Icon Buttons */
+.usx-icon-button,
+.icon-button {
+  width: var(--usx-icon-hit-area);
+  height: var(--usx-icon-hit-area);
+  padding: 0;
+  border-radius: var(--usx-border-radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Primary Button */
+.usx-btn--primary,
+.button--primary,
+button[type="submit"] {
+  background: var(--pico-primary);
+  border-color: var(--pico-primary);
+  color: white;
+}
+
+.usx-btn--primary:hover,
+.button--primary:hover,
+button[type="submit"]:hover {
+  background: #4a9eff;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   BADGES & PILLS
+   ───────────────────────────────────────────────────────────────────── */
+
+.usx-badge,
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
+  border-radius: var(--usx-border-radius-full);
+  border: 1px solid var(--pico-border-color);
+  background: var(--pico-card-sectioning-background-color);
+  color: var(--pico-muted-color);
+  font-size: var(--usx-font-size-sm);
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.usx-badge--accent,
+.badge--accent {
+  border-color: var(--pico-primary);
+  background: rgba(88, 166, 255, 0.15);
+  color: var(--pico-primary);
+}
+
+.usx-badge--success,
+.badge--success {
+  border-color: var(--pico-ins-color);
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--pico-ins-color);
+}
+
+.usx-badge--error,
+.badge--error {
+  border-color: var(--pico-del-color);
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--pico-del-color);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   UTILITY CLASSES
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Padding */
+.usx-p-xs { padding: var(--usx-spacing-xs); }
+.usx-p-sm { padding: var(--usx-spacing-sm); }
+.usx-p-md { padding: var(--usx-spacing-md); }
+.usx-p-lg { padding: var(--usx-spacing-lg); }
+.usx-p-xl { padding: var(--usx-spacing-xl); }
+.usx-p-2xl { padding: var(--usx-spacing-2xl); }
+
+.usx-px-xs { padding-left: var(--usx-spacing-xs); padding-right: var(--usx-spacing-xs); }
+.usx-px-sm { padding-left: var(--usx-spacing-sm); padding-right: var(--usx-spacing-sm); }
+.usx-px-md { padding-left: var(--usx-spacing-md); padding-right: var(--usx-spacing-md); }
+.usx-px-lg { padding-left: var(--usx-spacing-lg); padding-right: var(--usx-spacing-lg); }
+.usx-px-xl { padding-left: var(--usx-spacing-xl); padding-right: var(--usx-spacing-xl); }
+
+.usx-py-xs { padding-top: var(--usx-spacing-xs); padding-bottom: var(--usx-spacing-xs); }
+.usx-py-sm { padding-top: var(--usx-spacing-sm); padding-bottom: var(--usx-spacing-sm); }
+.usx-py-md { padding-top: var(--usx-spacing-md); padding-bottom: var(--usx-spacing-md); }
+.usx-py-lg { padding-top: var(--usx-spacing-lg); padding-bottom: var(--usx-spacing-lg); }
+.usx-py-xl { padding-top: var(--usx-spacing-xl); padding-bottom: var(--usx-spacing-xl); }
+
+/* Margin */
+.usx-m-xs { margin: var(--usx-spacing-xs); }
+.usx-m-sm { margin: var(--usx-spacing-sm); }
+.usx-m-md { margin: var(--usx-spacing-md); }
+.usx-m-lg { margin: var(--usx-spacing-lg); }
+.usx-m-xl { margin: var(--usx-spacing-xl); }
+
+.usx-mb-xs { margin-bottom: var(--usx-spacing-xs); }
+.usx-mb-sm { margin-bottom: var(--usx-spacing-sm); }
+.usx-mb-md { margin-bottom: var(--usx-spacing-md); }
+.usx-mb-lg { margin-bottom: var(--usx-spacing-lg); }
+.usx-mb-xl { margin-bottom: var(--usx-spacing-xl); }
+
+.usx-mt-xs { margin-top: var(--usx-spacing-xs); }
+.usx-mt-sm { margin-top: var(--usx-spacing-sm); }
+.usx-mt-md { margin-top: var(--usx-spacing-md); }
+.usx-mt-lg { margin-top: var(--usx-spacing-lg); }
+.usx-mt-xl { margin-top: var(--usx-spacing-xl); }
+
+/* Gap */
+.usx-gap-xs { gap: var(--usx-spacing-xs); }
+.usx-gap-sm { gap: var(--usx-spacing-sm); }
+.usx-gap-md { gap: var(--usx-spacing-md); }
+.usx-gap-lg { gap: var(--usx-spacing-lg); }
+.usx-gap-xl { gap: var(--usx-spacing-xl); }
+
+/* Flex */
+.usx-flex { display: flex; }
+.usx-flex-row { display: flex; flex-direction: row; align-items: center; gap: var(--usx-spacing-md); }
+.usx-flex-col { display: flex; flex-direction: column; gap: var(--usx-spacing-md); }
+.usx-flex-between { display: flex; justify-content: space-between; align-items: center; gap: var(--usx-spacing-md); }
+.usx-flex-center { display: flex; justify-content: center; align-items: center; gap: var(--usx-spacing-md); }
+.usx-items-center { align-items: center; }
+.usx-justify-between { justify-content: space-between; }
+
+/* Reset — no !important, use specificity instead */
+.usx-no-padding { padding: 0; }
+.usx-no-margin { margin: 0; }
+.usx-no-gap { gap: 0; }
+.usx-no-space { margin: 0; padding: 0; }
+
+/* ─────────────────────────────────────────────────────────────────────
+   MULTI-COLUMN LAYOUT
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Base column container */
+.usx-columns {
+  column-gap: var(--usx-col-gap);
+}
+
+/* Fixed column counts */
+.usx-columns-1 { columns: 1; }
+.usx-columns-2 { columns: 2; }
+.usx-columns-3 { columns: 3; }
+.usx-columns-4 { columns: 4; }
+.usx-columns-6 { columns: 6; }
+
+/* Responsive columns — adapts to viewport width */
+.usx-columns--responsive {
+  columns: 1;
+}
+@media (min-width: 480px) { .usx-columns--responsive { columns: var(--usx-cols-sm); } }
+@media (min-width: 768px) { .usx-columns--responsive { columns: var(--usx-cols-md); } }
+@media (min-width: 1024px) { .usx-columns--responsive { columns: var(--usx-cols-lg); } }
+@media (min-width: 1440px) { .usx-columns--responsive { columns: var(--usx-cols-xl); } }
+@media (min-width: 1920px) { .usx-columns--responsive { columns: var(--usx-cols-xxl); } }
+
+/* Prose width variants */
+.usx-prose--sm { max-width: var(--usx-prose-width-sm); }
+.usx-prose--md { max-width: var(--usx-prose-width-md); }
+.usx-prose--lg { max-width: var(--usx-prose-width-lg); }
+
+/* ─────────────────────────────────────────────────────────────────────
+   GLOBAL TOOLBAR — Pico Nav-Style Underlined Tabs
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Toolbar host */
+.global-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--usx-spacing-lg);
+  background: var(--pico-card-background-color);
+  min-height: var(--usx-topbar-height);
+  gap: var(--usx-spacing-sm);
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--pico-border-color);
+  position: relative;
+}
+
+.global-toolbar__left,
+.global-toolbar__center,
+.global-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+}
+
+.global-toolbar__center {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Tab buttons — Pico nav-style underlined */
+.global-toolbar__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-icon-label-gap);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--pico-muted-color);
+  font-size: var(--usx-font-size-sm);
+  font-weight: 500;
+  font-family: var(--usx-font-family);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  margin-bottom: -1px; /* overlap the toolbar border */
+}
+
+/* Hover: icon inverts to primary color, no underline */
+.global-toolbar__tab:hover {
+  color: var(--pico-primary);
+  border-bottom-color: transparent;
+}
+
+/* Active: primary color underline (only active tab gets underline) */
+.global-toolbar__tab--active {
+  color: var(--pico-primary);
+  border-bottom-color: var(--pico-primary);
+}
+
+/* Nav icon buttons (left side) — icon-only, no underline on hover */
+.global-toolbar__tab--nav {
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+}
+
+.global-toolbar__tab--nav:hover {
+  color: var(--pico-primary);
+  border-bottom-color: transparent;
+}
+
+.global-toolbar__tab--nav.global-toolbar__tab--active {
+  color: var(--pico-primary);
+  border-bottom-color: var(--pico-primary);
+}
+
+.global-toolbar__tab--icon-only {
+  padding: var(--usx-spacing-sm);
+}
+
+.global-toolbar__tab--icon-only span {
+  display: none;
+}
+
+/* Icon sizing in toolbar — relative to font-size (14px) */
+.global-toolbar__icon {
+  flex-shrink: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Right-side icon-only button (settings) */
+.global-toolbar__icon-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--usx-icon-hit-area);
+  height: var(--usx-icon-hit-area);
+  padding: 0;
+  border: none;
+  border-radius: var(--usx-border-radius-md);
+  background: transparent;
+  color: var(--pico-muted-color);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.global-toolbar__icon-only:hover {
+  color: var(--pico-color);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+/* Overflow dropdown */
+.global-toolbar__overflow-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.global-toolbar__more-btn {
+  padding: var(--usx-spacing-sm);
+}
+
+.global-toolbar__overflow-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--pico-card-background-color);
+  border: 1px solid rgba(88, 166, 255, 0.15);
+  border-radius: var(--usx-border-radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: var(--usx-spacing-xs);
+}
+
+.global-toolbar__overflow-item {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-icon-label-gap);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: none;
+  background: transparent;
+  color: var(--pico-muted-color);
+  font-size: var(--usx-font-size-sm);
+  cursor: pointer;
+  border-radius: var(--usx-border-radius-sm);
+  font-family: var(--usx-font-family);
+  transition: color 0.1s ease, background 0.1s ease;
+  text-align: left;
+}
+
+.global-toolbar__overflow-item:hover {
+  color: var(--pico-color);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+.global-toolbar__overflow-item--active {
+  color: var(--pico-primary);
+  background: rgba(88, 166, 255, 0.1);
+}
+
+/* Dev Mode toggle */
+.global-toolbar__dev-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border: 1px solid rgba(88, 166, 255, 0.2);
+  background: rgba(88, 166, 255, 0.05);
+  color: var(--pico-muted-color);
+  cursor: pointer;
+  border-radius: var(--usx-border-radius-md);
+  font-size: var(--usx-font-size-xs);
+  font-weight: 600;
+  font-family: var(--usx-font-family);
+  transition: all 0.15s ease;
+}
+
+.global-toolbar__dev-toggle:hover {
+  background: rgba(88, 166, 255, 0.1);
+  border-color: rgba(88, 166, 255, 0.3);
+}
+
+.global-toolbar__dev-toggle--on {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.global-toolbar__dev-toggle--on:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.global-toolbar__dev-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pico-muted-color);
+  transition: all 0.15s ease;
+}
+
+.global-toolbar__dev-toggle--on .global-toolbar__dev-dot {
+  background: #22c55e;
+  box-shadow: 0 0 4px rgba(34, 197, 94, 0.5);
+}
+
+.global-toolbar__dev-label {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .global-toolbar__tab:not(.global-toolbar__tab--nav) span {
+    display: none;
+  }
+  .global-toolbar__tab:not(.global-toolbar__tab--nav) {
+    padding: var(--usx-spacing-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --usx-font-size-base: 13px;
+  }
+
+  .usx-topbar {
+    height: 44px;
+    padding: 0 var(--usx-spacing-sm);
+  }
+
+  .global-toolbar__tab {
+    padding: var(--usx-spacing-sm);
+    min-width: 44px;
+    justify-content: center;
+  }
+
+  .global-toolbar__tab span {
+    display: none;
+  }
+}
+
+/* ─── Reduced Motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+  }
+}
+
+/* ─── Focus Visible ─────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 1px solid var(--pico-primary, #58a6ff);
+  outline-offset: 1px;
+}

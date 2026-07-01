@@ -1,0 +1,20 @@
+[metadata]
+name = "ucode-default-template"
+version = "1.0.0"
+description = "Default uCode Developer Mode template"
+created = "2026-06-28"
+
+[components]
+config = true
+instructions = true
+skills = true
+tasks = true
+mcp = true
+cline = true
+hivemind = true
+
+[reset_policy]
+preserve_secrets = true
+preserve_history = true
+preserve_vaults = true
+backup_before_reset = true

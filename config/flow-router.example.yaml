@@ -1,0 +1,27 @@
+# Flow-LLM Router Configuration
+# This file configures the Flow-LLM Router for cost-optimized routing
+
+version: "1.0.0"
+
+# Flow Router Configuration
+router:
+  enabled: true
+  default_provider: "roundtable"
+  fallback_provider: "ollama"
+  
+# Cost Optimization Configuration
+optimization:
+  enabled: true
+  budget_threshold: 10.0  # Alert when budget is below this amount
+  cost_savings_threshold: 0.01  # Minimum cost savings to report
+  
+# Analytics Configuration
+analytics:
+  enabled: true
+  history_retention_days: 30
+  report_interval: 300  # Report interval in seconds
+  
+# Security Configuration
+security:
+  allow_remote_access: false  # Flow router should only be accessed locally
+  require_auth: false

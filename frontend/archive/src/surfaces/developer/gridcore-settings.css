@@ -1,0 +1,203 @@
+/* ═══════════════════════════════════════════════════════════════════
+   gridcore-settings.css — GridCoreSettingsPanel Styling
+   ═══════════════════════════════════════════════════════════════════ */
+
+.gridcore-settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gridcore-settings-info {
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 5%, transparent);
+  border: 1px solid var(--pico-primary, #58a6ff);
+  border-radius: 6px;
+  font-size: var(--pico-font-size, 1rem);
+  color: var(--pico-muted-color, #8b949e);
+  line-height: 1.6;
+}
+
+.gridcore-settings-info p {
+  margin: 0;
+}
+
+.gridcore-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gridcore-settings-section-title {
+  font-size: var(--pico-font-size, 1rem);
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gridcore-settings-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.gridcore-settings-preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 10px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-size: var(--pico-font-size-sm, 0.875rem);
+  transition: all 0.2s ease;
+}
+
+.gridcore-settings-preset-btn:hover {
+  border-color: var(--pico-primary, #58a6ff);
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 8%, transparent);
+}
+
+.gridcore-settings-preset-name {
+  font-weight: 600;
+  font-size: var(--pico-font-size, 1rem);
+}
+
+.gridcore-settings-preset-desc {
+  font-size: var(--pico-font-size-xs, 0.75rem);
+  color: var(--pico-muted-color, #8b949e);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.gridcore-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gridcore-settings-field label {
+  font-size: var(--pico-font-size-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.gridcore-settings-slider-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gridcore-settings-slider {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--pico-border-color, #30363d);
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.gridcore-settings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--pico-primary, #58a6ff);
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.gridcore-settings-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--pico-primary, #58a6ff);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.gridcore-settings-slider:hover::-webkit-slider-thumb {
+  box-shadow: 0 0 0 6px rgba(88, 166, 255, 0.3);
+}
+
+.gridcore-settings-slider:hover::-moz-range-thumb {
+  box-shadow: 0 0 0 6px rgba(88, 166, 255, 0.3);
+}
+
+.gridcore-settings-help {
+  font-size: var(--pico-font-size-xs, 0.75rem);
+  color: var(--pico-muted-color, #8b949e);
+  margin: 0;
+}
+
+.gridcore-settings-button-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gridcore-settings-btn-option {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  background: transparent;
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-size: var(--pico-font-size-sm, 0.875rem);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.gridcore-settings-btn-option:hover {
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary, #58a6ff);
+}
+
+.gridcore-settings-btn-option--active {
+  background: color-mix(in srgb, var(--pico-primary, #58a6ff) 10%, transparent);
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary, #58a6ff);
+  font-weight: 600;
+}
+
+.gridcore-settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  font-size: var(--pico-font-size-sm, 0.875rem);
+}
+
+.gridcore-settings-toggle-row:last-child {
+  border-bottom: none;
+}
+
+.gridcore-settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.gridcore-settings-toggle input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--pico-primary, #58a6ff);
+}
+
+.gridcore-settings-toggle span {
+  font-size: var(--pico-font-size-xs, 0.75rem);
+  color: var(--pico-muted-color, #8b949e);
+}

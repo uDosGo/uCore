@@ -1,0 +1,367 @@
+/* ═══════════════════════════════════════════════════════════════════
+   gridui-terminal.css — Terminal & Teletext styles for GridUI
+   Extracted from gridui.css for separation of concerns.
+   
+   🔖 TAGGED: Terminal & Teletext Grid Modes (docs/TERMINAL_TELETEXT_GRID_WORK_TAG.md)
+   
+   ⚠️  IMPORTANT: These grid-based CSS styles are intentionally
+   SEPARATE from USX styles. Do NOT merge gridui styles with USX
+   styles — they have unique rendering requirements (grid algebra,
+   teletext, character maps) that conflict with USX layout.
+   
+   USX Integration: Use USX spacing/color variables while maintaining
+   grid-specific layout requirements.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── GridUI Panel (container for terminal/teletext) ─────────────── */
+.gridui-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--pico-background-color, #0d1117);
+}
+
+/* ─── Terminal Viewport ──────────────────────────────────────────── */
+.gridui-terminal-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pico-background-color, #0d1117);
+  padding: var(--usx-section-padding, 16px);
+}
+
+/* ─── Terminal Widget (wrapper for auto-zoom) ─────────────────────── */
+.gridui-terminal-widget {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* ─── Terminal Screen (character grid) ────────────────────────────── */
+.gridui-terminal-screen {
+  position: relative;
+  overflow: hidden;
+  font-family: 'PetMe128', 'Teletext50', 'Press Start 2P', 'C64 User Mono', 'Courier New', monospace;
+  line-height: 1;
+  color: var(--pico-primary, #58a6ff);
+  background: var(--pico-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ─── Viewport Widget (auto-zoom container) ───────────────────────── */
+.gridui-viewport-widget {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* ─── Teletext Widget (variant class) ─────────────────────────────── */
+.gridui-teletext-widget {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* ─── Terminal specific (legacy — kept for backward compat) ────── */
+.gridui-terminal-line {
+  white-space: pre-wrap;
+  word-break: break-all;
+  padding: var(--usx-list-item-gap, 4px) 0;
+}
+
+.gridui-terminal-prompt {
+  color: var(--pico-color, #c9d1d9);
+  font-weight: bold;
+}
+
+.gridui-terminal-input-line {
+  color: var(--pico-color, #c9d1d9);
+}
+
+.gridui-terminal-input-number {
+  font-weight: bold;
+  white-space: pre;
+  margin-right: var(--usx-spacing-sm, 8px);
+}
+
+.gridui-terminal-output {
+  color: var(--pico-primary, #58a6ff);
+  padding: var(--usx-spacing-xs, 4px) 0;
+}
+
+.gridui-terminal-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm, 8px);
+  padding: var(--usx-spacing-xs, 4px) 0;
+}
+
+.gridui-terminal-input-field {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--pico-color, #c9d1d9);
+  font-family: 'PetMe128', 'C64 User Mono', 'Courier New', monospace;
+  font-size: 16px;
+  outline: none;
+  caret-color: var(--pico-primary, #58a6ff);
+  padding: var(--usx-spacing-xs, 4px);
+}
+, 12px);
+  padding: var(--usx-spacing-sm, 8px) var(--usx-spacing-md, 12px);
+  background: var(--pico-card-background-color, #161b22);
+  border-top: 1px solid var(--pico-border-color, #30363d);
+  font-size: 12px;
+  color: var(--pico-muted-color, #8b949e);
+  font-family: 'Courier New', Courier, monospace;
+  flex-shrink: 0;
+}
+
+.gridui-teletext-info-bar span:first-child {
+  font-weight: 700;
+  color: var(--pico-primary, #58a6ff);
+  min-width: 48px;
+}
+
+.gridui-teletext-info-bar span:nth-child(2) {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gridui-teletext-poll-time {
+  font-size: 10px;
+  color: var(--pico-muted-color
+}
+
+.gridui-teletext-poll-time {
+  font-size: 10px;
+  color: var(--surface-text-muted, #8b949e);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* ─── LIVE Badge ─────────────────────────────────────────────────── */
+.gridui-teletext-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs, 4px);
+  padding: var(--usx-badge-padding-vertical, 2px) var(--usx-badge-padding-horizontal, 8px);
+  border-radius: 4px;
+  background: var(--pico-del-color, #f85149);
+  color: var(--pico-primary-inverse, #ffffff);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: gridui-teletext-live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gridui-teletext-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ─── LIVE FEED Badge ────────────────────────────────────────────── */
+.gridui-teletext-feed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs, 4px);
+  padding: var(--usx-badge-padding-vertical, 2px) var(--usx-badge-padding-horizontal, 8px);
+  border-radius: 4px;
+  background: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary-inverse, #ffffff);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: gridui-teletext-feed-pulse 3s ease-in-out infinite;
+}
+
+@keyframes gridui-teletext-feed-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.gridui-teletext-feed-badge-paused {
+  background: var(--pico-muted-color, #8b949e);
+  color: var(--pico-color, #e6edf3);
+  animation: none;
+}
+
+/* ─── BBCSDL Badge ──────────────────────────────────────────────────── */
+.gridui-teletext-bbcsdl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs, 4px);
+  padding: var(--usx-badge-padding-vertical, 2px) var(--usx-badge-padding-horizontal, 8px);
+  border-radius: 4px;
+  background: #8957e5;
+  color: var(--pico-primary-inverse, #ffffff);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: gridui-teletext-bbcsdl-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes gridui-teletext-bbcsdl-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+/* ─── GO TO PAGE Button ──────────────────────────────────────────── */
+.gridui-teletext-goto-btn {
+  padding: var(--usx-spacing-xs, 4px) var(--usx-spacing-sm, 8px);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--pico-color, #c9d1d9);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.gridui-teletext-goto-btn:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Page Navigation Overlay ────────────────────────────────────── */
+.gridui-teletext-nav-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm, 8px);
+  padding: var(--usx-spacing-md, 12px) var(--usx-spacing-lg, 16px);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+  border: 1px solid var(--surface-border-strong, #484f58);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.gridui-teletext-nav-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--pico-primary, #58a6ff);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.gridui-teletext-nav-input {
+  width: 64px;
+  padding: var(--usx-spacing-xs, 4px) var(--usx-spacing-sm, 8px);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 4px;
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Courier New', Courier, monospace;
+  text-align: center;
+  letter-spacing: 4px;
+  outline: none;
+}
+
+.gridui-teletext-nav-input:focus {
+  border-color: var(--pico-primary, #58a6ff);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.15);
+}
+
+.gridui-teletext-nav-close {
+  padding: var(--usx-spacing-xs, 4px) var(--usx-spacing-sm, 8px);
+  border: none;
+  background: transparent;
+  color: var(--pico-muted-color, #8b949e);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.gridui-teletext-nav-close:hover {
+  color: var(--pico-color, #c9d1d9);
+}
+
+/* ─── Scrolling Feed Ticker ──────────────────────────────────────── */
+.gridui-teletext-feed-ticker {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-md, 12px);
+  padding: var(--usx-spacing-xs, 4px) var(--usx-spacing-md, 12px);
+  background: var(--pico-background-color, #0d1117);
+  border-top: 1px solid var(--pico-border-color, #30363d);
+  font-size: 11px;
+  font-family: 'Courier New', Courier, monospace;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+  animation: gridui-teletext-ticker-slide 0.5s ease-out;
+}
+
+@keyframes gridui-teletext-ticker-slide {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gridui-teletext-ticker-source {
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(88, 166, 255, 0.15);
+  color: var(--pico-primary, #58a6ff);
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.gridui-teletext-ticker-title {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  flex-shrink: 0;
+}
+
+.gridui-teletext-ticker-body {
+  color: var(--pico-muted-color, #8b949e);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.gridui-teletext-ticker-time {
+  font-size: 10px;
+  color: var(--pico-muted-color, #8b949e);
+  flex-shrink: 0;
+}

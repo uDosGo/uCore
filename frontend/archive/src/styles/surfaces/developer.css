@@ -1,0 +1,1692 @@
+/* ═══════════════════════════════════════════════════════════════════
+   developer.css — Developer Surface Styles (USX Phase 2 standardized)
+   ═══════════════════════════════════════════════════════════════════
+   Layout → uses canonical .usx-surface-layout, .usx-surface-body,
+   and .usx-surface-main from usx-layout-system.css.
+   This file provides surface-specific theme tokens only.
+   ═══════════════════════════════════════════════════════════════════ */
+@import '../prose-ui-standard.css';
+
+/* ─── Surface Container ──────────────────────────────────────────── */
+.developer-surface {
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-chat-float-panel {
+  position: absolute;
+  top: var(--pico-spacing);
+  right: var(--pico-spacing);
+  bottom: 88px;
+  width: min(420px, calc(100vw - 32px));
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--pico-card-background-color, #161b22);
+  box-shadow: 0 24px 64px rgba(1, 4, 9, 0.45);
+}
+
+.developer-preview-panel {
+  position: absolute;
+  top: var(--pico-spacing);
+  bottom: var(--pico-spacing);
+  width: min(560px, calc(100vw - 32px));
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--pico-card-background-color, #161b22);
+  box-shadow: 0 24px 64px rgba(1, 4, 9, 0.38);
+}
+
+.developer-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-spacing-md) var(--usx-card-padding-vertical);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.developer-preview-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-list-item-gap);
+  min-width: 0;
+}
+
+.developer-preview-title {
+  font-size: var(--usx-font-size-body);
+  font-weight: var(--usx-font-weight-heading);
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-preview-subtitle {
+  font-size: var(--usx-font-size-meta);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  margin-left: auto;
+}
+
+.developer-preview-toggle,
+.developer-preview-save {
+  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-color, #c9d1d9);
+  border-radius: 8px;
+  padding: var(--usx-compact-gap) var(--usx-spacing-sm);
+  font-size: var(--usx-font-size-meta);
+  cursor: pointer;
+}
+
+.developer-preview-toggle.active {
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-primary, #58a6ff);
+  background: rgba(88, 166, 255, 0.1);
+}
+
+.developer-preview-toggle:disabled,
+.developer-preview-save:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.developer-preview-save {
+  background: rgba(210, 153, 34, 0.16);
+  border-color: rgba(210, 153, 34, 0.45);
+  color: var(--pico-warning, #f2cc60);
+}
+
+.developer-preview-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-spacing-sm) var(--usx-card-padding-vertical);
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  color: var(--pico-muted-color, #8b949e);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  background: rgba(88, 166, 255, 0.04);
+}
+
+.developer-preview-meta span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.developer-preview-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--pico-background-color);
+}
+
+.developer-preview-code {
+  margin: 0;
+  padding: var(--usx-spacing-lg);
+  min-height: 100%;
+  font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
+  font-size: var(--pico-font-size-condensed, 12px);
+  line-height: 1.55;
+  color: var(--pico-color);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.developer-preview-code--diff {
+  color: var(--pico-color, #dce7f3);
+}
+
+.developer-preview-editor-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.developer-preview-editor {
+  flex: 1;
+  min-height: 100%;
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: var(--usx-spacing-lg);
+  background: var(--pico-background-color);
+  color: var(--pico-color);
+  font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
+  font-size: var(--pico-font-size-condensed, 12px);
+  line-height: 1.55;
+}
+
+.developer-preview-empty,
+.developer-preview-truncated {
+  padding: var(--usx-spacing-lg);
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-preview-save-notice {
+  padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
+  font-size: var(--pico-font-size-condensed, 12px);
+  color: var(--pico-warning, #f2cc60);
+  border-top: 1px solid var(--pico-border-color, #30363d);
+  background: rgba(210, 153, 34, 0.08);
+}
+
+.developer-chat-float-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+.developer-chat-float-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  font-size: var(--pico-font-size-condensed, 12px);
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-chat-float-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.developer-chat-bubble {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1001;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--pico-primary) 0%, #d29922 100%);
+  color: var(--pico-color-inverse, #fff);
+  cursor: pointer;
+  box-shadow: 0 16px 40px rgba(1, 4, 9, 0.45);
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.developer-chat-bubble:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 20px 48px rgba(1, 4, 9, 0.55);
+}
+
+.developer-chat-bubble--open {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border: 1px solid var(--pico-border-color, #30363d);
+}
+
+/* ─── Tab Bar ───────────────────────────────────────────────────── */
+.developer-tab-bar {
+  display: flex;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
+  background: transparent;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.developer-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-compact-gap) var(--usx-card-padding-vertical);
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.developer-tab-btn:hover {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-tab-btn--active {
+  color: var(--pico-primary, #58a6ff);
+  background: rgba(13, 110, 253, 0.15);
+}
+
+.developer-tab-label {
+  font-size: var(--usx-font-size-meta);
+}
+
+/* ─── Status Badge (header right) ───────────────────────────────── */
+.developer-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border-radius: 999px;
+  font-weight: 500;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-muted-color, #8b949e);
+  border: 1px solid var(--pico-border-color, #30363d);
+}
+
+.developer-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pico-ins-color, #3fb950);
+}
+
+/* ─── Shared Panel Styles ───────────────────────────────────────── */
+.developer-panel {
+  padding: var(--usx-spacing-lg);
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-md);
+}
+
+.developer-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.developer-panel-title {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  margin: 0;
+}
+
+.developer-panel-count {
+  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-card-background-color, #161b22);
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
+  border-radius: 10px;
+}
+
+.developer-panel-search {
+  margin-bottom: 8px;
+}
+
+.developer-search-input {
+  width: 100%;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  background: var(--pico-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.developer-search-input:focus {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.developer-search-input::placeholder {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Chat Panel ────────────────────────────────────────────────── */
+.developer-chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.developer-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
+}
+
+.developer-chat-msg {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+  max-width: 85%;
+}
+
+.developer-chat-msg--user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.developer-chat-msg-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-chat-msg--user .developer-chat-msg-avatar {
+  background: var(--pico-primary, #58a6ff);
+  color: var(--pico-color-inverse, #fff);
+}
+
+.developer-chat-msg-content {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 12px;
+  padding: var(--usx-spacing-sm) var(--usx-card-padding-vertical);
+  min-width: 0;
+}
+
+.developer-chat-msg--user .developer-chat-msg-content {
+  background: rgba(13, 110, 253, 0.15);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.developer-chat-msg-time {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--usx-font-size-small);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-chat-loading {
+  display: flex;
+  gap: var(--usx-spacing-xs);
+  padding: 8px 0;
+}
+
+.developer-chat-loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pico-muted-color, #8b949e);
+  animation: developer-chat-bounce 1.4s ease-in-out infinite;
+}
+
+.developer-chat-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.developer-chat-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes developer-chat-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.developer-chat-input-row {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
+  border-top: 1px solid var(--pico-border-color, #30363d);
+  flex-shrink: 0;
+}
+
+.developer-chat-send-btn {
+  padding: var(--usx-spacing-sm) var(--usx-section-separator);
+  border: none;
+  border-radius: 8px;
+  background: var(--pico-primary, #58a6ff);
+  color: var(--pico-color-inverse, #fff);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.developer-chat-send-btn:hover:not(:disabled) {
+  background: var(--pico-primary-hover, #3b82f6);
+}
+
+.developer-chat-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Chat Prompt Row (wrapping cards below intro) ───────────────── */
+.developer-chat-prompt-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--usx-spacing-lg);
+  padding: 12px 16px 24px;
+  flex-shrink: 0;
+}
+
+.developer-chat-prompt-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 10px;
+  background: var(--pico-card-background-color, #161b22);
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  white-space: normal;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease;
+  font-family: inherit;
+  min-width: 140px;
+  max-width: 200px;
+  word-break: break-word;
+}
+
+.developer-chat-prompt-card:hover {
+  border-color: var(--pico-primary, #58a6ff);
+  transform: translateY(-1px);
+}
+
+.developer-chat-prompt-icon {
+  font-size: var(--pico-font-size-h3, 18px);
+  color: var(--pico-primary, #58a6ff);
+}
+
+.developer-chat-prompt-label {
+  font-weight: 600;
+  font-size: var(--pico-font-size-condensed, 12px);
+  white-space: normal;
+  word-break: break-word;
+}
+
+.developer-chat-prompt-ctx {
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  color: var(--pico-muted-color, #8b949e);
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ─── Chat Prose (markdown rendered) ─────────────────────────────── */
+.developer-chat-prose {
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.developer-chat-prose p {
+  margin: 0 0 8px;
+}
+
+.developer-chat-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.developer-chat-prose code {
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: var(--usx-font-size-meta);
+}
+
+.developer-chat-prose pre {
+  background: var(--pico-background-color, #0d1117);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  padding: var(--usx-spacing-md);
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.developer-chat-prose pre code {
+  background: none;
+  padding: 0;
+}
+
+.developer-chat-prose blockquote {
+  border-left: 3px solid var(--pico-primary, #58a6ff);
+  margin: 8px 0;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-md);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-chat-prose ul,
+.developer-chat-prose ol {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.developer-chat-prose li {
+  margin: 2px 0;
+}
+
+.developer-chat-prose hr {
+  border: none;
+  border-top: 1px solid var(--pico-border-color, #30363d);
+  margin: 12px 0;
+}
+
+.developer-chat-prose a {
+  color: var(--pico-primary, #58a6ff);
+  text-decoration: none;
+}
+
+.developer-chat-prose a:hover {
+  text-decoration: underline;
+}
+
+.developer-chat-prose h1,
+.developer-chat-prose h2,
+.developer-chat-prose h3,
+.developer-chat-prose h4 {
+  margin: var(--usx-spacing-md) 0 var(--usx-spacing-xs);
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-chat-prose strong {
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-chat-prose del {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Repo Cards ────────────────────────────────────────────────── */
+.developer-repo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-repo-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: var(--usx-card-padding-vertical);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-compact-gap);
+  transition: border-color 0.15s ease;
+}
+
+.developer-repo-card:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.developer-repo-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.developer-repo-name {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-repo-badge {
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.developer-repo-badge--clean {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.developer-repo-badge--modified {
+  background: rgba(210, 153, 34, 0.15);
+  color: var(--pico-warning-color, #d29922);
+}
+
+.developer-repo-details {
+  display: flex;
+  gap: var(--usx-spacing-md);
+  color: var(--pico-muted-color, #8b949e);
+  margin-bottom: 4px;
+}
+
+.developer-repo-branch {
+  font-family: monospace;
+}
+
+.developer-repo-path {
+  font-family: monospace;
+  opacity: 0.7;
+}
+
+.developer-repo-remote {
+  color: var(--pico-muted-color, #8b949e);
+  font-family: monospace;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+.developer-repo-actions {
+  display: flex;
+  gap: var(--usx-compact-gap);
+}
+
+.developer-repo-btn {
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 4px;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.developer-repo-btn:hover {
+  background: var(--pico-card-background-color, #161b22);
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.developer-repo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Skills Grid ──────────────────────────────────────────────── */
+.developer-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-skill-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: var(--usx-card-padding-vertical);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.developer-skill-name {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-skill-id {
+  color: var(--pico-muted-color, #8b949e);
+  font-family: monospace;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  padding: var(--usx-list-item-gap) var(--usx-compact-gap);
+  border-radius: 4px;
+}
+
+.developer-skill-desc {
+  color: var(--pico-muted-color, #8b949e);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.developer-skill-path {
+  color: var(--pico-muted-color, #8b949e);
+  font-family: monospace;
+  opacity: 0.6;
+}
+
+.developer-skill-run-btn {
+  align-self: flex-start;
+  padding: var(--usx-compact-gap) var(--usx-card-padding-vertical);
+  border: none;
+  border-radius: 6px;
+  background: var(--pico-primary, #58a6ff);
+  color: var(--pico-color-inverse, #fff);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.developer-skill-run-btn:hover:not(:disabled) {
+  background: var(--pico-primary-hover, #3b82f6);
+}
+
+.developer-skill-run-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.developer-skill-output {
+  margin-top: 16px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.developer-skill-output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+}
+
+.developer-skill-output-close {
+  background: none;
+  border: none;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  padding: var(--usx-list-item-gap) var(--usx-compact-gap);
+  border-radius: 4px;
+}
+
+.developer-skill-output-close:hover {
+  background: var(--pico-card-background-color, #161b22);
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-skill-output-text {
+  padding: var(--usx-spacing-md);
+  margin: 0;
+  font-family: monospace;
+  color: var(--pico-color, #c9d1d9);
+  background: var(--pico-background-color, #0d1117);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* ─── Review Cards ─────────────────────────────────────────────── */
+.developer-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-review-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: var(--usx-spacing-md) var(--usx-spacing-lg);
+}
+
+.developer-review-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  margin-bottom: 6px;
+}
+
+.developer-review-status {
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
+  border-radius: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.developer-review-status--modified {
+  background: rgba(210, 153, 34, 0.15);
+  color: var(--pico-warning-color, #d29922);
+}
+
+.developer-review-status--added {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.developer-review-status--deleted {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--pico-del-color, #f85149);
+}
+
+.developer-review-lines {
+  color: var(--pico-muted-color, #8b949e);
+  font-family: monospace;
+  margin-left: auto;
+}
+
+.developer-review-file {
+  font-family: monospace;
+  color: var(--pico-color, #c9d1d9);
+  margin-bottom: 4px;
+}
+
+.developer-review-summary {
+  color: var(--pico-muted-color, #8b949e);
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.developer-review-actions {
+  display: flex;
+  gap: var(--usx-compact-gap);
+}
+
+/* ─── Workflows Panel ──────────────────────────────────────────── */
+.developer-workflows-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-workflow-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: var(--usx-spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-workflow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.developer-workflow-name {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-workflow-status {
+  font-weight: 500;
+}
+
+.developer-workflow-meta {
+  display: flex;
+  gap: var(--usx-spacing-md);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-workflow-progress-bar {
+  height: 4px;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.developer-workflow-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.developer-workflow-actions {
+  display: flex;
+  gap: var(--usx-compact-gap);
+}
+
+/* ─── BenchBench Panel ─────────────────────────────────────────── */
+.developer-bench-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-bench-card {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: var(--usx-card-padding-vertical);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-bench-name {
+  color: var(--pico-muted-color, #8b949e);
+  font-weight: 500;
+}
+
+.developer-bench-value {
+  display: flex;
+  align-items: baseline;
+  gap: var(--usx-spacing-xs);
+}
+
+.developer-bench-score {
+  font-weight: 700;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-bench-unit {
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.developer-bench-trend {
+  font-weight: 500;
+}
+
+/* ─── Creative Panel ───────────────────────────────────────────── */
+.developer-creative-input-row {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-creative-presets {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  flex-wrap: wrap;
+}
+
+.developer-creative-preset-label {
+  color: var(--pico-muted-color, #8b949e);
+  font-weight: 500;
+}
+
+/* ─── Settings Panel ───────────────────────────────────────────── */
+.developer-settings-section {
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 8px;
+  padding: var(--usx-card-padding-vertical);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+}
+
+.developer-settings-section-title {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+}
+
+.developer-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-xs);
+}
+
+.developer-settings-label {
+  color: var(--pico-muted-color, #8b949e);
+  font-weight: 500;
+}
+
+.developer-settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+  padding: 0;
+}
+
+.developer-toggle--on {
+  background: var(--pico-primary, #58a6ff);
+}
+
+.developer-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--pico-color, #c9d1d9);
+  transition: transform 0.2s ease;
+}
+
+.developer-toggle--on .developer-toggle-knob {
+  transform: translateX(16px);
+}
+
+.developer-settings-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--pico-color, #c9d1d9);
+}
+
+.developer-settings-code {
+  background: var(--pico-background-color, #0d1117);
+  padding: var(--usx-list-item-gap) var(--usx-compact-gap);
+  border-radius: 4px;
+  color: var(--pico-primary, #58a6ff);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ─── Kanban Board (USX/Pico aligned) ──────────────────────────── */
+.kanban-board {
+  display: flex;
+  gap: var(--usx-spacing-md);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 0;
+  min-height: 300px;
+  height: 100%;
+  align-items: flex-start;
+}
+
+.kanban-col {
+  flex: 0 0 260px;
+  min-width: 220px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  border-radius: 8px;
+  padding: var(--usx-spacing-sm);
+  min-height: 200px;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.kanban-col-header {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  padding: 0 4px 6px;
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  flex-shrink: 0;
+}
+
+.kanban-col-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.kanban-col-title {
+  font-weight: 600;
+  color: var(--pico-color, #c9d1d9);
+  font-size: var(--pico-font-size, 14px);
+  flex-shrink: 0;
+}
+
+.kanban-col-count {
+  margin-left: auto;
+  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-background-color, #0d1117);
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: var(--pico-font-size-condensed, 12px);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.kanban-add-btn {
+  background: none;
+  border: none;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  padding: var(--usx-list-item-gap) var(--usx-spacing-xs);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.kanban-add-btn:hover {
+  background: rgba(88,166,255,0.15);
+  color: var(--pico-primary, #58a6ff);
+}
+
+.kanban-col-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.kanban-card {
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border-radius: 8px;
+  background: var(--pico-card-background-color, #161b22);
+  border: 1px solid var(--pico-border-color, #30363d);
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+  flex-shrink: 0;
+}
+
+.kanban-card:hover {
+  border-color: var(--pico-primary, #58a6ff);
+  transform: translateY(-1px);
+}
+
+.kanban-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--usx-spacing-sm);
+  margin-bottom: 6px;
+}
+
+.kanban-card-title {
+  font-weight: 500;
+  color: var(--pico-color, #c9d1d9);
+  font-size: var(--pico-font-size, 14px);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.kanban-card-delete {
+  background: none;
+  border: none;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  padding: var(--usx-list-item-gap);
+  border-radius: 3px;
+  display: flex;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.kanban-card:hover .kanban-card-delete {
+  opacity: 1;
+}
+
+.kanban-card-delete:hover {
+  background: rgba(248,81,73,0.2);
+  color: var(--pico-del-color, #f85149);
+}
+
+.kanban-card-meta {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+  font-size: var(--pico-font-size-small, 10px);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+/* ─── Kanban Detail Panel ─────────────────────────────────────── */
+.kanban-detail-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--pico-card-background-color, #161b22);
+  overflow: hidden;
+}
+
+.kanban-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  flex-shrink: 0;
+  background: rgba(88,166,255,0.04);
+}
+
+.kanban-detail-header-tabs {
+  display: flex;
+  gap: var(--usx-spacing-xs);
+}
+
+.kanban-detail-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.kanban-detail-tab:hover {
+  border-color: var(--pico-border-color, #30363d);
+  color: var(--pico-color, #c9d1d9);
+}
+
+.kanban-detail-tab.active {
+  border-color: var(--pico-primary, #58a6ff);
+  background: rgba(88,166,255,0.1);
+  color: var(--pico-primary, #58a6ff);
+}
+
+.kanban-detail-close {
+  background: none;
+  border: none;
+  color: var(--pico-muted-color, #8b949e);
+  cursor: pointer;
+  padding: var(--usx-spacing-xs);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.kanban-detail-close:hover {
+  background: rgba(248,81,73,0.15);
+  color: var(--pico-del-color, #f85149);
+}
+
+.kanban-detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--usx-spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-lg);
+}
+
+.kanban-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+}
+
+.kanban-detail-section--prose {
+  flex: 1;
+}
+
+.kanban-detail-title {
+  margin: 0;
+  font-size: var(--usx-font-size-h4);
+  color: var(--pico-color, #c9d1d9);
+  line-height: 1.3;
+}
+
+.kanban-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--usx-spacing-sm);
+  align-items: center;
+}
+
+.kanban-detail-badge {
+  padding: var(--usx-list-item-gap) var(--usx-spacing-sm);
+  border-radius: 10px;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  font-weight: 600;
+  border: 1px solid;
+  text-transform: capitalize;
+}
+
+.kanban-detail-meta-text {
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.kanban-detail-fm {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) 3fr;
+  gap: var(--usx-spacing-xs) var(--usx-spacing-md);
+  background: rgba(88,166,255,0.04);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  padding: var(--usx-spacing-sm);
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+}
+
+.kanban-detail-fm-row {
+  display: contents;
+}
+
+.kanban-detail-fm-key {
+  color: var(--pico-muted-color, #8b949e);
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.kanban-detail-fm-value {
+  color: var(--pico-color, #c9d1d9);
+  word-break: break-word;
+}
+
+.kanban-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--usx-spacing-xs);
+}
+
+.kanban-detail-tag {
+  font-size: var(--pico-font-size-small, 10px);
+  padding: var(--usx-list-item-gap) var(--usx-compact-gap);
+  background: rgba(88,166,255,0.1);
+  color: var(--pico-primary, #58a6ff);
+  border-radius: 3px;
+}
+
+.kanban-detail-file {
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  color: var(--pico-muted-color, #8b949e);
+  display: flex;
+  align-items: center;
+  gap: var(--usx-compact-gap);
+  font-family: monospace;
+}
+
+.kanban-detail-actions {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+  margin-top: 4px;
+}
+
+.kanban-detail-btn {
+  padding: var(--usx-compact-gap) var(--usx-card-padding-vertical);
+  border: 1px solid var(--pico-border-color, #30363d);
+  border-radius: 6px;
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--pico-font-size-condensed, 12px);
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+}
+
+.kanban-detail-btn:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.kanban-detail-btn.primary {
+  background: var(--pico-primary, #58a6ff);
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-color-inverse, #fff);
+}
+
+.kanban-detail-btn.primary:hover {
+  background: var(--pico-primary-hover, #3b82f6);
+}
+
+.kanban-detail-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kanban-detail-input {
+  width: 100%;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-sm);
+  border: 1px solid var(--pico-form-element-border-color, #30363d);
+  border-radius: 6px;
+  background: var(--pico-form-element-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+  font-family: inherit;
+  font-size: var(--pico-font-size-condensed, 13px);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.kanban-detail-input:focus {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.kanban-detail-editor-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.kanban-detail-editor {
+  flex: 1;
+  min-height: 200px;
+  width: 100%;
+  padding: var(--usx-spacing-md);
+  border: 1px solid var(--pico-form-element-border-color, #30363d);
+  border-radius: 6px;
+  background: var(--pico-form-element-background-color, #0d1117);
+  color: var(--pico-color, #c9d1d9);
+  font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
+  font-size: var(--pico-font-size-condensed, 12px);
+  line-height: 1.55;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.kanban-detail-editor:focus {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.kanban-detail-editor-preview {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+/* ─── Diff Editor (simple) ───────────────────────────────────── */
+.diff-editor-simple {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--pico-card-background-color, #161b22);
+  border-radius: 8px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  overflow: hidden;
+}
+
+.diff-editor-simple-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  background: var(--pico-background-color, #0d1117);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  flex-shrink: 0;
+}
+
+.diff-editor-simple-label {
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  color: var(--pico-muted-color, #8b949e);
+}
+
+.diff-editor-simple-actions {
+  display: flex;
+  gap: var(--usx-compact-gap);
+}
+
+.diff-editor-simple-btn {
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  border-radius: 4px;
+  border: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-card-sectioning-background-color, #1c2128);
+  color: var(--pico-color, #c9d1d9);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.diff-editor-simple-btn:hover {
+  border-color: var(--pico-primary, #58a6ff);
+}
+
+.diff-editor-simple-btn.primary {
+  background: var(--pico-primary, #58a6ff);
+  border-color: var(--pico-primary, #58a6ff);
+  color: var(--pico-color-inverse, #fff);
+}
+
+.diff-editor-simple-btn.danger {
+  background: rgba(248,81,73,0.2);
+  border-color: var(--pico-del-color, #f85149);
+  color: var(--pico-del-color, #f85149);
+}
+
+.diff-editor-simple-body {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+}
+
+.diff-editor-simple-split {
+  display: flex;
+  width: 100%;
+}
+
+.diff-editor-simple-pane {
+  flex: 1;
+  min-width: 50%;
+  overflow: auto;
+}
+
+.diff-editor-simple-pane + .diff-editor-simple-pane {
+  border-left: 1px solid var(--pico-border-color, #30363d);
+}
+
+.diff-editor-simple-pane-header {
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  font-size: var(--pico-font-size-small, 10px);
+  font-weight: 600;
+  color: var(--pico-muted-color, #8b949e);
+  background: rgba(88,166,255,0.04);
+  border-bottom: 1px solid var(--pico-border-color, #30363d);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.diff-editor-simple-pane-content {
+  font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  line-height: 1.5;
+  padding: 0;
+}
+
+.diff-editor-simple-line {
+  display: flex;
+  min-height: 20px;
+}
+
+.diff-editor-simple-line-num {
+  width: 40px;
+  flex-shrink: 0;
+  text-align: right;
+  padding: 1px 8px;
+  color: var(--pico-muted-color, #8b949e);
+  font-size: var(--pico-font-size-small, 10px);
+  user-select: none;
+  border-right: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-background-color, #0d1117);
+}
+
+.diff-editor-simple-line-content {
+  padding: 1px 8px;
+  white-space: pre;
+  flex: 1;
+  min-width: 0;
+}
+
+.diff-editor-simple-line--add {
+  background: rgba(63,185,80,0.12);
+}
+
+.diff-editor-simple-line--add .diff-editor-simple-line-num {
+  background: rgba(63,185,80,0.08);
+}
+
+.diff-editor-simple-line--add .diff-editor-simple-line-content {
+  color: var(--pico-ins-color, #3fb950);
+}
+
+.diff-editor-simple-line--del {
+  background: rgba(248,81,73,0.12);
+}
+
+.diff-editor-simple-line--del .diff-editor-simple-line-num {
+  background: rgba(248,81,73,0.08);
+}
+
+.diff-editor-simple-line--del .diff-editor-simple-line-content {
+  color: var(--pico-del-color, #f85149);
+}
+
+.diff-editor-simple-line--ctx .diff-editor-simple-line-content {
+  color: var(--pico-color, #c9d1d9);
+}
+
+.diff-editor-simple-unified {
+  width: 100%;
+  font-family: 'C64 User Mono v1.0', 'SFMono-Regular', Consolas, monospace;
+  font-size: var(--pico-font-size-condensed-slim, 11px);
+  line-height: 1.5;
+}
+
+.diff-editor-simple-unified-line {
+  display: flex;
+  min-height: 20px;
+}
+
+.diff-editor-simple-unified-nums {
+  width: 60px;
+  flex-shrink: 0;
+  text-align: right;
+  padding: 1px 8px;
+  color: var(--pico-muted-color, #8b949e);
+  font-size: var(--pico-font-size-small, 10px);
+  user-select: none;
+  border-right: 1px solid var(--pico-border-color, #30363d);
+  background: var(--pico-background-color, #0d1117);
+}
+
+.diff-editor-simple-unified-marker {
+  width: 16px;
+  flex-shrink: 0;
+  text-align: center;
+  padding: 1px 4px;
+  font-weight: 700;
+  user-select: none;
+}
+
+.diff-editor-simple-unified-content {
+  padding: 1px 8px;
+  white-space: pre;
+  flex: 1;
+  min-width: 0;
+}
+
+.diff-editor-simple-summary {
+  display: flex;
+  gap: var(--usx-spacing-md);
+  align-items: center;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-md);
+  border-top: 1px solid var(--pico-border-color, #30363d);
+  font-size: var(--pico-font-size-small, 10px);
+  color: var(--pico-muted-color, #8b949e);
+  background: var(--pico-background-color, #0d1117);
+  flex-shrink: 0;
+}
+
+/* ─── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .developer-tab-btn span { display: none; }
+  .developer-skills-grid { grid-template-columns: 1fr; }
+  .developer-bench-grid { grid-template-columns: 1fr 1fr; }
+}

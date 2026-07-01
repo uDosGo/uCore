@@ -1,0 +1,10 @@
+/* ═══════════════════════════════════════════════════════════════════
+   workflow.css — Workflow Surface Styles (USX Phase 2 standardized)
+   ═══════════════════════════════════════════════════════════════════
+   Uses Pico tokens for colors, USX spacing variables for layout.
+   
+   USX ALIGNMENT NOTE:
+   Layout → uses canonical .usx-surface-layout and .usx-surface-main
+   from usx-layout-system.css. Surface-specific theme tokens remain
+   here for now.
+   ═══════════════════════════════════════════════════════════════════ */

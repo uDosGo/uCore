@@ -1,0 +1,35 @@
+# TOON Context Optimization Configuration
+# This file configures the TOON context optimization server
+
+version: "1.0.0"
+
+# TOON Server Configuration
+server:
+  enabled: true
+  cache_ttl: 3600  # Cache time-to-live in seconds
+  compression_threshold: 1000  # Minimum content size to compress (bytes)
+  
+# Content Type Configuration
+content_types:
+  json:
+    enabled: true
+    compression_level: 6
+  markdown:
+    enabled: true
+    compression_level: 6
+  csv:
+    enabled: true
+    compression_level: 6
+  text:
+    enabled: true
+    compression_level: 6
+
+# Analytics Configuration
+analytics:
+  enabled: true
+  report_interval: 300  # Report interval in seconds
+  
+# Security Configuration
+security:
+  allow_remote_access: false  # TOON server should only be accessed locally
+  require_auth: false

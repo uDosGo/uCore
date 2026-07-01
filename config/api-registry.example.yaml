@@ -1,0 +1,28 @@
+# uCore API Registry Configuration
+# Copy to ~/.ucore/config/api-registry.yaml and adjust
+
+# Variable definitions: ${tier:purpose} → provider+model
+# These are fallbacks when the registry cannot find a match
+# in the live provider catalog.
+
+defaults:
+  coder: "qwen2.5-coder:3b"
+  reviewer: "deepseek/deepseek-chat"
+  architect: "glm-5.1"
+  debugger: "deepseek-v4-flash"
+  docgen: "qwen3.6-27b"
+  fast: "qwen2.5-coder:3b"
+  worldbuild: "qwen2.5-coder:3b"
+  any: "qwen2.5-coder:3b"
+
+tier_overrides:
+  local:
+    coder: "qwen2.5-coder:3b"
+    fast: "qwen2.5-coder:3b"
+    any: "qwen2.5-coder:3b"
+  budget:
+    coder: "deepseek-v4-flash"
+    reviewer: "deepseek/deepseek-chat"
+  premium:
+    reviewer: "claude-opus-4.7"
+    architect: "glm-5.1"

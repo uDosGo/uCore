@@ -1,0 +1,52 @@
+# Bidirectional vault sync configuration for uCore.
+# Copy to config/vault-sync.yaml and adjust paths as needed.
+
+state_file: ~/.ucore/vault-sync-state.json
+
+# Confirmed topology (see docs/MCP_VAULT_ALIGNMENT_ASSESSMENT.md):
+#   user   → ~/Vault/                    (one personal vault)
+#   shared → ~/Shared/                   (many shared vaults)
+#   global → ~/Public/global-knowledge/  (global knowledge bank)
+#   public → ~/Public/doc-sites/         (published vaults)
+#   code   → ~/Code/                     (dev repos)
+
+containers:
+  - id: code-docs
+    left: /Users/fredbook/Code/uDocs
+    right: /Users/fredbook/Vault/CodeDocs
+    mode: bidirectional
+    include:
+      - "**/*.md"
+      - "**/*.markdown"
+
+  - id: user-vault
+    left: /Users/fredbook/Vault
+    right: /Users/fredbook/Code/uDocs/ingest/user-vault
+    mode: bidirectional
+    include:
+      - "**/*.md"
+      - "**/*.markdown"
+
+  - id: shared-vault
+    left: /Users/fredbook/Shared
+    right: /Users/fredbook/Code/uDocs/ingest/shared
+    mode: bidirectional
+    include:
+      - "**/*.md"
+      - "**/*.markdown"
+
+  - id: global-knowledge
+    left: /Users/fredbook/Public/global-knowledge
+    right: /Users/fredbook/Code/uDocs/ingest/global
+    mode: bidirectional
+    include:
+      - "**/*.md"
+      - "**/*.markdown"
+
+  - id: public-vault
+    left: /Users/fredbook/Public/doc-sites
+    right: /Users/fredbook/Code/uDocs/ingest/public
+    mode: bidirectional
+    include:
+      - "**/*.md"
+      - "**/*.markdown"

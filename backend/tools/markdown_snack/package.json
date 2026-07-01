@@ -1,0 +1,11 @@
+{
+  "name": "ucore-markdown-snack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Markdown snack helper for uCore macOS snacks",
+  "main": "markdown-snack.js",
+  "license": "MIT",
+  "dependencies": {
+    "markdown-it": "^14.1.0"
+  }
+}
