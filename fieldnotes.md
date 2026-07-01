@@ -5,6 +5,66 @@ development reference. Updated at the end of each dev flow round.
 
 ---
 
+## 2026-07-01 — USX Variable & Modular Style Refactor
+
+### What We Built
+
+Complete rewrite of the USX styling system from a single 998-line
+usx-standard.css monolithic file into a modular token + theme architecture
+with zero hardcoded values.
+
+### Architecture
+
+```
+styles/
+├── tokens/                         # Source of truth for ALL design values
+│   ├── tokens-color.css            # 40+ color variables (primary, surface, status, accent)
+│   ├── tokens-typography.css       # Font families, sizes (xs-5xl), weights, line heights
+│   ├── tokens-spacing.css          # 13-step spacing scale (0-16) + semantic aliases (xs-2xl)
+│   ├── tokens-touch.css            # Touch targets (44/36/52px), input heights, button padding
+│   └── tokens-components.css       # Border radius, card, tabs, icons, grid, surface plate, layout, transitions
+├── themes/                         # Override only what changes per theme
+│   ├── base.css                    # Imports tokens, sets :root defaults (light)
+│   ├── dark.css                    # GitHub-dark palette, :root.dark / [data-theme="dark"]
+│   ├── teletext.css                # BBC Ceefax: black bg, green text, sharp corners, monospace
+│   ├── c64.css                     # C64: blue bg, light blue text, Courier, 2px borders
+│   └── high-contrast.css          # Accessibility: black/white, thick borders, bolder weights
+└── usx-standard.css               # Pure-variable component library (BEM, surface plates, layout primitives)
+```
+
+### Key Decisions
+
+- **Zero hardcoded values rule**: Every visual property in usx-standard.css
+  uses `var(--usx-*)`. The only hex colors in the entire system are in
+  tokens-color.css and theme override files.
+- **Three-tier hierarchy**: Base tokens (:root) → Theme overrides
+  (:root.dark, etc.) → User settings (JS-applied CSS variables).
+- **Theme mechanism**: Uses both `:root.theme-name` class AND
+  `[data-theme="theme-name"]` attribute for maximum selector flexibility.
+- **useTheme() composable**: Singleton pattern (shared `ref` across all
+  component instances), localStorage persistence, system preference
+  detection, `cycleTheme()` for developer quick-switch.
+- **usx_standard.py v3 skill**: Refactored from v2's hardcoded canonical
+  file references to a dynamic pattern-based audit. New actions:
+  validate-tokens, audit-surface, scaffold-surface.
+- **BEM surface plate classes**: `.surface`, `.surface__header`,
+  `.surface__title`, `.surface__content`, `.surface__tab`, etc. —
+  all properties are variables, so surfaces are theme-neutral.
+- **border-overlap token**: The 1px negative margin used for tab/border
+  alignment is now `var(--usx-border-overlap)`, computed as
+  `calc(var(--usx-border-overlap) * -1)`.
+
+### Future Notes
+
+- Consider making the opsz value (24) in `.material-symbols-outlined` a
+  token if icon sizing themes become important.
+- The `rgba(0, 0, 0, 0.3)` in the dropdown shadow is the only remaining
+  non-tokenized visual property — it's a structural shadow effect.
+- Surface scaffold templates should be expanded with more pre-built
+  patterns (data tables, forms, split panes).
+
+---
+
 ## 2026-07-01 — Feed System Round
 
 ### What We Built

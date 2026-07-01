@@ -371,3 +371,13 @@ def register_routes(app: web.Application) -> None:
         log.debug("Feed API routes registered")
     except ImportError as e:
         log.debug("Feed API routes not available: %s", e)
+
+    # ── Surface Registry API ───────────────────────────────────────────
+    try:
+        from .surface_registry_api import register_surface_routes
+        register_surface_routes(app)
+        log.debug("Surface Registry API routes registered")
+    except ImportError as e:
+        log.debug(
+            "Surface Registry routes not available: %s", e,
+        )

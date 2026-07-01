@@ -73,3 +73,15 @@ Use this repository in local-first, auditable mode.
 7. Feed panel in Developer Surface shows incoming activity and suggestions.
 8. Task-activity links connect .tasker tasks back to feed origins.
 
+## USX Variable & Modular Style System
+
+1. Zero hardcoded values in component CSS — every visual property must use var(--usx-*).
+2. Token source of truth: styles/tokens/tokens-{color,typography,spacing,touch,components}.css.
+3. Theme overrides live in styles/themes/{base,dark,teletext,c64,high-contrast}.css — override only what changes.
+4. Component library: styles/usx-standard.css — all BEM surface plates and primitives use variables only.
+5. Hardcoded hex colors (#xxx) allowed ONLY in tokens-color.css and theme override files.
+6. Use useTheme() composable (composables/useTheme.ts) for runtime theme switching — singleton, localStorage.
+7. Run usx_standard skill 'validate-tokens' before every push to verify token integrity.
+8. Scaffold new surfaces with usx_standard 'scaffold-surface' — generates USX-compliant Vue templates.
+9. All interactive elements must meet var(--usx-touch-min) minimum touch target.
+

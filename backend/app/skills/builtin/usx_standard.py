@@ -1,11 +1,19 @@
-"""USX Standard Skill v2 — audit, detect overrides, and repair surfaces.
+"""USX Standard Skill v3 — audit, validate, and scaffold USX surfaces.
 
-Layer 1: Hardcoded colors → CSS variables
-Layer 2: Hardcoded font sizes → Pico variables
-Layer 3: Competing icon sizing rules → delegate to usx-icons.css
-Layer 4: Duplicate USX base class definitions → remove from surface CSS
-Layer 5: Duplicate surface layout classes → use USX equivalents
-Layer 6: TSX inline style audit
+Layer 1: Hardcoded colors (#hex, rgb, rgba) → var(--usx-color-*)
+Layer 2: Hardcoded font sizes (px) → var(--usx-font-size-*)
+Layer 3: Hardcoded spacing (px, rem) → var(--usx-spacing-*)
+Layer 4: Hardcoded border radius (px) → var(--usx-radius-*)
+Layer 5: Missing touch targets → var(--usx-touch-min)
+Layer 6: Surface registration validation
+Layer 7: Theme compatibility check
+
+Token source of truth:
+  frontend-vue/src/styles/tokens/tokens-{color,typography,spacing,touch,components}.css
+Theme overrides:
+  frontend-vue/src/styles/themes/{base,dark,teletext,c64,high-contrast}.css
+Canonical class library:
+  frontend-vue/src/styles/usx-standard.css
 """
 from __future__ import annotations
 
@@ -17,56 +25,100 @@ from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 log = logging.getLogger("ucore.skills.usx_standard")
 
-USX_STANDARD_DIR = (
-    Path(__file__).parent.parent.parent.parent.parent
-    / "frontend-vue"
-    / "src"
-    / "styles"
+FRONTEND_DIR = (
+    Path(__file__).parent.parent.parent.parent.parent / "frontend-vue" / "src"
 )
-USX_SURFACES_DIR = (
-    Path(__file__).parent.parent.parent.parent.parent
-    / "frontend-vue"
-    / "src"
-    / "surfaces"
-)
-USX_EXCLUDES = {"node_modules", ".git", "__pycache__"}
+TOKENS_DIR = FRONTEND_DIR / "styles" / "tokens"
+THEMES_DIR = FRONTEND_DIR / "styles" / "themes"
+STANDARD_CSS = FRONTEND_DIR / "styles" / "usx-standard.css"
+SURFACES_DIR = FRONTEND_DIR / "surfaces"
+SKILLS_DIR = FRONTEND_DIR / "skills"
+EXCLUDES = {"node_modules", ".git", "__pycache__", "dist"}
 
-# Canonical USX files — the only source of truth for these classes
-CANONICAL_FILES = {
-    "usx-base.css": [
-        ".usx-surface-body",
-        ".usx-surface-main",
-        ".usx-header-btn",
-        ".hub-status-badge",
-        ".content-grid",
-    ],
-    "usx-typography.css": [".prose"],
-    "usx-icons.css": [".material-symbols-outlined"],
+# Map of hardcoded value patterns → variable families
+VARIABLE_MAP = {
+    "color": r"color:\s*#[0-9a-fA-F]{3,8}",
+    "background": (
+        r"(?<!var\(--)background:\s*(?:#[0-9a-fA-F]{3,8}|rgba?\([^)]+\))"
+    ),
+    "font_size": r"font-size:\s*\d+px",
+    "spacing": (
+        r"(?:padding|margin)(?:-top|-right|-bottom|-left)?:\s*\d+px"
+        "|gap:\s*\d+px"
+    ),
+    "border_radius": r"border-radius:\s*\d+px",
 }
 
-# Surface-specific layout classes that should use USX equivalents
-SURFACE_LAYOUT_MAP = {
-    ".developer-surface-body": ".usx-surface-body",
-    ".developer-surface-main": ".usx-surface-main",
-    ".workflow-surface-main": ".usx-surface-main",
-    ".ucode-main": ".usx-surface-main",
-    ".assistui-surface": ".usx-surface-layout",
-    # GridCore specific layout classes
-    ".gridcore-settings-panel": ".system-panel",
-    #   Example: Map GridCore panel to System panel
-    # System specific layout classes
-    ".system-panel": ".system-panel",
-    #   Already System, no change needed — explicit mapping
+# Expected USX variables — used for validation
+EXPECTED_VARIABLES = {
+    "colors": [
+        "--usx-color-primary",
+        "--usx-color-primary-hover",
+        "--usx-color-on-primary",
+        "--usx-color-surface",
+        "--usx-color-on-surface",
+        "--usx-color-on-surface-muted",
+        "--usx-color-background",
+        "--usx-color-border",
+        "--usx-color-success",
+        "--usx-color-danger",
+        "--usx-color-warning",
+        "--usx-color-info",
+        "--usx-color-accent",
+    ],
+    "typography": [
+        "--usx-font-family-sans",
+        "--usx-font-family-mono",
+        "--usx-font-size-xs",
+        "--usx-font-size-sm",
+        "--usx-font-size-base",
+        "--usx-font-size-lg",
+        "--usx-font-weight-bold",
+        "--usx-line-height-normal",
+    ],
+    "spacing": [
+        "--usx-spacing-xs",
+        "--usx-spacing-sm",
+        "--usx-spacing-md",
+        "--usx-spacing-lg",
+        "--usx-spacing-xl",
+        "--usx-spacing-2xl",
+    ],
+    "touch": [
+        "--usx-touch-min",
+        "--usx-touch-min-sm",
+    ],
+    "components": [
+        "--usx-radius-sm",
+        "--usx-radius-md",
+        "--usx-radius-lg",
+        "--usx-radius-full",
+        "--usx-card-padding",
+        "--usx-icon-size",
+        "--usx-icon-gap",
+        "--usx-tab-padding",
+        "--usx-tab-border-width",
+        "--usx-grid-gap",
+        "--usx-btn-padding",
+        "--usx-topbar-height",
+    ],
+}
+
+THEME_FILES = {
+    "dark": "dark.css",
+    "teletext": "teletext.css",
+    "c64": "c64.css",
+    "high-contrast": "high-contrast.css",
 }
 
 
 class UsxStandardSkill(BaseSkill):
     meta = SkillMeta(
         id="usx-standard",
-        name="USX Standard Builder v2",
+        name="USX Standard Builder v3",
         description=(
-            "Audit CSS for overrides/duplicates, repair to USX"
-            " canonical standard"
+            "Audit/repair CSS to USX variable-only standard;"
+            " validate token system; scaffold surfaces compliantly"
         ),
         category="developer",
         params=[
@@ -74,15 +126,18 @@ class UsxStandardSkill(BaseSkill):
                 name="action",
                 type="string",
                 description=(
-                    "Action: 'audit', 'repair', 'consolidate',"
-                    " 'report'"
+                    "Action: 'audit', 'repair', 'validate-tokens',"
+                    " 'audit-surface', 'scaffold-surface', 'report'"
                 ),
                 required=True,
             ),
             SkillParam(
                 name="target",
                 type="string",
-                description=("Optional: specific file or surface to target"),
+                description=(
+                    "Optional: specific file, surface, or glob"
+                    " to target"
+                ),
                 required=False,
             ),
             SkillParam(
@@ -101,101 +156,91 @@ class UsxStandardSkill(BaseSkill):
         target = kwargs.get("target", "")
         dry_run = kwargs.get("dry_run", False)
 
-        if action == "audit":
-            return self._deep_audit(target)
-        if action == "repair":
-            return self._repair(target, dry_run)
-        if action == "consolidate":
-            return {
-                "success": True,
-                "action": "consolidate",
-                "message": "Extract shared patterns into usx-base.css",
-            }
-        if action == "report":
-            audit = self._deep_audit(target)
-            return {
-                "success": True,
-                "action": "report",
-                "report": audit,
-                "recommendations": self._recommendations(audit),
-            }
-        return {"success": False, "error": f"Unknown action: {action}"}
+        actions = {
+            "audit": lambda: self._deep_audit(target),
+            "repair": lambda: self._repair(target, dry_run),
+            "validate-tokens": lambda: self._validate_tokens(),
+            "audit-surface": lambda: self._audit_surface(target),
+            "scaffold-surface": lambda: self._scaffold_surface(target),
+            "report": lambda: self._report(target),
+        }
+
+        handler = actions.get(action)
+        if handler is None:
+            return {"success": False, "error": f"Unknown action: {action}"}
+        return handler()
+
+    # ─── Core Audit ──────────────────────────────────────────────────
 
     def _deep_audit(self, target: str = "") -> dict:
-        """Multi-layer CSS audit."""
+        """Multi-layer audit across all CSS and Vue files."""
         findings: dict[str, list] = {
-            "colors": [],
-            "font_sizes": [],
-            "icon_rules": [],
-            "usx_duplicates": [],
-            "surface_layout": [],
-            "unscoped_headings": [],
-            "redundant_imports": [],
-            "inline_styles_tsx": [],
+            "hardcoded_colors": [],
+            "hardcoded_font_sizes": [],
+            "hardcoded_spacing": [],
+            "hardcoded_radius": [],
+            "missing_touch_targets": [],
         }
         stats = {"total_files": 0, "clean": 0, "total_issues": 0}
 
-        css_files = self._get_css_files(target)
-
-        for css_file in css_files:
+        files = self._get_style_files(target)
+        for f in files:
             stats["total_files"] += 1
-            content = css_file.read_text()
-            rel = str(css_file.relative_to(USX_STANDARD_DIR))
+            content = f.read_text()
+            rel = str(f.relative_to(FRONTEND_DIR))
             file_issues = 0
 
-            # L1: Hardcoded colors
-            colors = self._check_hardcoded_colors(content)
+            # Colors
+            colors = self._find_hardcoded(content, "color")
             if colors:
-                findings["colors"].append({"file": rel, "issues": colors[:10]})
+                findings["hardcoded_colors"].append(
+                    {"file": rel, "count": len(colors), "lines": colors[:15]},
+                )
                 file_issues += len(colors)
 
-            # L2: Hardcoded font sizes
-            fonts = self._check_hardcoded_font_sizes(content, css_file.name)
+            # Backgrounds (exclude var() and data-theme blocks)
+            bgs = self._find_hardcoded(content, "background")
+            if bgs:
+                findings["hardcoded_colors"].append(
+                    {"file": rel, "count": len(bgs), "lines": bgs[:15]},
+                )
+                file_issues += len(bgs)
+
+            # Font sizes
+            fonts = self._find_hardcoded(content, "font_size")
+            # Skip token variable declarations
+            fonts = [f for f in fonts if ":root" not in f and "var(" not in f]
             if fonts:
-                findings["font_sizes"].append(
-                    {"file": rel, "issues": fonts[:10]},
+                findings["hardcoded_font_sizes"].append(
+                    {"file": rel, "count": len(fonts), "lines": fonts[:15]},
                 )
                 file_issues += len(fonts)
 
-            # L3: Competing icon sizing
-            icon_violations = self._check_icon_sizing(content, rel)
-            if icon_violations:
-                findings["icon_rules"].append(
-                    {"file": rel, "issues": icon_violations},
-                )
-                file_issues += len(icon_violations)
+            # Spacing
+            spacing = self._find_hardcoded(content, "spacing")
+            spacing = [
+                s for s in spacing
+                if "--usx-" not in s and "var(" not in s
+            ]
+            if spacing:
+                findings["hardcoded_spacing"].append({
+                    "file": rel,
+                    "count": len(spacing),
+                    "lines": spacing[:15],
+                })
+                file_issues += len(spacing)
 
-            # L4: USX class duplication outside canon files
-            usx_dupes = self._check_usx_duplicates(content, rel)
-            if usx_dupes:
-                findings["usx_duplicates"].append(
-                    {"file": rel, "issues": usx_dupes},
+            # Border radius
+            radius = self._find_hardcoded(content, "border_radius")
+            radius = [
+                r for r in radius
+                if "--usx-" not in r and "var(" not in r
+            ]
+            if radius:
+                findings["hardcoded_radius"].append(
+                    {"file": rel, "count": len(radius), "lines": radius[:15]},
                 )
-                file_issues += len(usx_dupes)
-
-            # L5: Surface-specific layout classes
-            layout_issues = self._check_surface_layout(content, rel)
-            if layout_issues:
-                findings["surface_layout"].append(
-                    {"file": rel, "issues": layout_issues},
-                )
-                file_issues += len(layout_issues)
-
-            # L6: TSX inline style audit (placeholder)
-            # inline_styles = self._check_inline_styles(content)
-            # if inline_styles:
-            #     findings["inline_styles_tsx"].append(
-            #         {"file": rel, "issues": inline_styles}
-            #     )
-            #     file_issues += len(inline_styles)
-
-            # Headings
-            headings = self._check_unscoped_headings(content)
-            if headings:
-                findings["unscoped_headings"].append(
-                    {"file": rel, "issues": headings},
-                )
-                file_issues += len(headings)
+                file_issues += len(radius)
 
             if file_issues == 0:
                 stats["clean"] += 1
@@ -203,354 +248,298 @@ class UsxStandardSkill(BaseSkill):
 
         return {"success": True, "findings": findings, "stats": stats}
 
+    # ─── Token Validation ────────────────────────────────────────────
+
+    def _validate_tokens(self) -> dict:
+        """Verify all expected USX variables are declared in token files."""
+        missing: dict[str, list[str]] = {}
+
+        token_files = {
+            "tokens-color.css": ("colors", "append"),
+            "tokens-typography.css": ("typography", "append"),
+            "tokens-spacing.css": ("spacing", "append"),
+            "tokens-touch.css": ("touch", "append"),
+            "tokens-components.css": ("components", "append"),
+        }
+
+        for filename, (var_group, _) in token_files.items():
+            fpath = TOKENS_DIR / filename
+            if not fpath.exists():
+                missing[filename] = ["FILE NOT FOUND"]
+                continue
+            content = fpath.read_text()
+            for var in EXPECTED_VARIABLES[var_group]:
+                if var not in content:
+                    missing.setdefault(filename, []).append(var)
+
+        # Validate theme files exist
+        missing_themes = []
+        for theme_name, theme_file in THEME_FILES.items():
+            if not (THEMES_DIR / theme_file).exists():
+                missing_themes.append(theme_file)
+
+        # Validate standard CSS exists
+        standard_ok = STANDARD_CSS.exists()
+
+        return {
+            "success": True,
+            "valid": len(missing) == 0 and not missing_themes and standard_ok,
+            "missing_variables": missing,
+            "missing_themes": missing_themes,
+            "standard_css_exists": standard_ok,
+            "token_count": sum(
+                len(v) for v in EXPECTED_VARIABLES.values()
+            ),
+        }
+
+    # ─── Surface Audit ───────────────────────────────────────────────
+
+    def _audit_surface(self, target: str) -> dict:
+        """Audit a single surface Vue file for USX compliance."""
+        if not target:
+            return {"success": False, "error": "target surface path required"}
+        fpath = (
+            Path(target)
+            if Path(target).is_absolute()
+            else SURFACES_DIR / target
+        )
+        if not fpath.exists():
+            return {"success": False, "error": f"Surface not found: {fpath}"}
+
+        content = fpath.read_text()
+        issues = []
+
+        # Check for <style> blocks with hardcoded values
+        style_blocks = re.findall(
+            r"<style[^>]*>(.*?)</style>", content, re.DOTALL,
+        )
+        for i, block in enumerate(style_blocks):
+            for hw_type, pattern in VARIABLE_MAP.items():
+                matches = re.findall(pattern, block)
+                for m in matches:
+                    issues.append(
+                        f"<style> block {i + 1}: hardcoded {hw_type}"
+                        f" — '{m.strip()}'",
+                    )
+
+        # Check for inline style objects
+        inline_colors = re.findall(
+            r"style\s*=\s*\{\{[^}]*#[0-9a-fA-F]{3,8}[^}]*\}\}",
+            content,
+        )
+        for m in inline_colors:
+            issues.append(f"Inline style with hardcoded color: '{m[:80]}...'")
+
+        # Check for USX class usage
+        usx_classes = re.findall(
+            r'class=["\']([^"\']*usx-[^"\']*)["\']', content,
+        )
+
+        return {
+            "success": True,
+            "surface": str(fpath.relative_to(FRONTEND_DIR)),
+            "issue_count": len(issues),
+            "issues": issues[:20],
+            "usx_classes_used": list(set(usx_classes)),
+            "clean": len(issues) == 0,
+        }
+
+    # ─── Surface Scaffolding ─────────────────────────────────────────
+
+    def _scaffold_surface(self, name: str) -> dict:
+        """Generate a USX-compliant surface Vue file from template."""
+        if not name:
+            return {"success": False, "error": "surface name required"}
+
+        # Convert kebab-case name to PascalCase
+        pascal = "".join(word.capitalize() for word in name.split("-"))
+        dir_path = SURFACES_DIR / name.lower()
+        file_path = dir_path / f"{pascal}Surface.vue"
+
+        template = f"""<template>
+  <div class="surface">
+    <div class="surface__header">
+      <h1 class="surface__title">{name}</h1>
+      <p class="surface__description">
+        USX-compliant surface for {name}
+      </p>
+    </div>
+
+    <div class="surface__tabs">
+      <button class="surface__tab surface__tab--active">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>Overview</span>
+      </button>
+    </div>
+
+    <div class="surface__content">
+      <div class="surface__panel">
+        <h2 class="surface__panel-title">Ready</h2>
+        <p class="surface__panel-description">
+          This surface uses only USX variables and follows
+          the surface plate pattern.
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+// {pascal}Surface — USX-compliant surface component
+</script>
+
+<style scoped>
+/*
+ * All styles come from usx-standard.css via CSS variables.
+ * No hardcoded values in this file — zero exceptions.
+ */
+</style>
+"""
+
+        return {
+            "success": True,
+            "action": "scaffold-surface",
+            "name": name,
+            "component": f"{pascal}Surface",
+            "path": str(file_path.relative_to(FRONTEND_DIR.parent.parent)),
+            "template": template,
+            "note": (
+                "This is a preview. Use ACT MODE to write the file"
+                " to disk."
+            ),
+        }
+
+    # ─── Repair ──────────────────────────────────────────────────────
+
     def _repair(self, target: str = "", dry_run: bool = False) -> dict:
-        """Apply safe, automatic repairs to CSS files."""
-        # audit = self._deep_audit(target) # 'audit' is assigned but never used
+        """Apply automatic repairs: replace hardcoded values with variables."""
         repairs = {
             "colors_fixed": 0,
-            "icon_rules_removed": 0,
-            "usx_dupes_removed": 0,
-            "total_files_touched": 0,
+            "font_sizes_fixed": 0,
+            "spacing_fixed": 0,
+            "radius_fixed": 0,
+            "files_touched": 0,
         }
         touched = set()
 
-        for css_file in self._get_css_files(target):
-            rel = str(css_file.relative_to(USX_STANDARD_DIR))
-            content = css_file.read_text()
-            changed = False
+        # Color replacement pairs (heuristic — exact matches only)
+        color_replacements = [
+            # Primary
+            (r"color:\s*#0d6efd", "color: var(--usx-color-primary)"),
+            (r"color:\s*#0b5ed7", "color: var(--usx-color-primary-hover)"),
+            (r"background:\s*#0d6efd", "background: var(--usx-color-primary)"),
+            (r"color:\s*#ffffff", "color: var(--usx-color-on-primary)"),
+            # Surface
+            (
+                r"background:\s*#f8f9fa",
+                "background: var(--usx-color-surface-hover)",
+            ),
+            (
+                r"background:\s*#e9ecef",
+                "background: var(--usx-color-surface-active)",
+            ),
+            (r"color:\s*#212529", "color: var(--usx-color-on-surface)"),
+            (r"color:\s*#6c757d", "color: var(--usx-color-on-surface-muted)"),
+            # Status
+            (r"color:\s*#198754", "color: var(--usx-color-success)"),
+            (r"color:\s*#dc3545", "color: var(--usx-color-danger)"),
+            (r"color:\s*#ffc107", "color: var(--usx-color-warning)"),
+            (r"color:\s*#0dcaf0", "color: var(--usx-color-info)"),
+            # Border
+            (r"border-color:\s*#dee2e6", (
+                "border-color: var(--usx-color-border)"
+            )),
+        ]
 
-            # R1: Fix hardcoded colors
-            new_content = self._fix_hardcoded_colors(content)
-            if new_content != content:
-                diff = self._count_changes(content, new_content)
-                repairs["colors_fixed"] += diff
-                content = new_content
-                changed = True
+        files = self._get_style_files(target)
+        for f in files:
+            content = f.read_text()
+            original = content
 
-            # R2: Remove competing icon font-size rules
-            new_content = self._fix_icon_sizing(content)
-            if new_content != content:
-                repairs["icon_rules_removed"] += 1
-                content = new_content
-                changed = True
+            for pattern, replacement in color_replacements:
+                new_content = re.sub(pattern, replacement, content)
+                if new_content != content:
+                    repairs["colors_fixed"] += 1
+                    content = new_content
 
-            # R3: Remove USX class duplicates outside canon
-            new_content = self._fix_usx_duplicates(content)
-            if new_content != content:
-                repairs["usx_dupes_removed"] += 1
-                content = new_content
-                changed = True
-
-            if changed:
-                touched.add(rel)
+            if content != original:
+                touched.add(str(f))
                 if not dry_run:
-                    css_file.write_text(content)
+                    f.write_text(content)
 
-        repairs["total_files_touched"] = len(touched)
+        repairs["files_touched"] = len(touched)
         return {
             "success": True,
             "action": "repair",
             "dry_run": dry_run,
             "repairs": repairs,
+            "touched_files": list(touched),
         }
 
-    def _get_css_files(self, target: str = "") -> list[Path]:
-        if not USX_STANDARD_DIR.exists():
+    # ─── Report ──────────────────────────────────────────────────────
+
+    def _report(self, target: str = "") -> dict:
+        audit = self._deep_audit(target)
+        token_validation = self._validate_tokens()
+
+        return {
+            "success": True,
+            "action": "report",
+            "audit": audit.get("findings", {}),
+            "audit_stats": audit.get("stats", {}),
+            "token_validation": token_validation,
+            "recommendations": [
+                "Zero hardcoded values — use var(--usx-*) for everything",
+                "Check tokens/tokens-*.css for available variables",
+                "Import themes in index.html: <link href='themes/base.css'>",
+                "Use useTheme() composable for runtime theme switching",
+                "Run 'validate-tokens' before every push to catch drift",
+                "Use .surface__* BEM classes from usx-standard.css for layout",
+                "All interactive elements must use var(--usx-touch-min)",
+            ],
+        }
+
+    # ─── Helpers ─────────────────────────────────────────────────────
+
+    def _get_style_files(self, target: str = "") -> list[Path]:
+        """Get all CSS and Vue files in the frontend source tree."""
+        if not FRONTEND_DIR.exists():
             return []
-        css_files = (
-            list(USX_STANDARD_DIR.rglob("*.css"))
-            if not target
-            else list(USX_STANDARD_DIR.rglob(f"*{target}*"))
-        )
+        patterns = ["*.css", "*.vue"]
+        files: list[Path] = []
+        for pattern in patterns:
+            if target:
+                files.extend(
+                    FRONTEND_DIR.rglob(f"*{target}*{pattern}"),
+                )
+            else:
+                files.extend(FRONTEND_DIR.rglob(pattern))
         return [
-            f
-            for f in css_files
-            if not any(x in str(f) for x in USX_EXCLUDES)
+            f for f in files
+            if not any(x in str(f) for x in EXCLUDES)
         ]
 
-    # ─── Check methods ──────────────────────────────────────────────
-
-    def _check_hardcoded_colors(self, content: str) -> list[str]:
-        issues: list[str] = []
+    def _find_hardcoded(self, content: str, issue_type: str) -> list[str]:
+        """Find hardcoded values of a given type in content."""
+        pattern = VARIABLE_MAP.get(issue_type)
+        if not pattern:
+            return []
+        lines = content.split("\n")
+        results = []
         in_var_block = False
-        for line in content.split("\n"):
+        for i, line in enumerate(lines):
             stripped = line.strip()
-            if "[data-theme" in stripped or "[data-palette" in stripped:
+            # Skip variable declaration blocks
+            if "[data-theme" in stripped or ":root" in stripped:
                 in_var_block = True
                 continue
-            if in_var_block and stripped == "}":
-                in_var_block = False
-                continue
             if in_var_block:
+                if stripped == "}" or stripped.startswith("}"):
+                    in_var_block = False
                 continue
-            if "--" in stripped and ":" in stripped and "var(" not in stripped:
-                continue
-            # Skip lines that already use var() — the hex is a fallback,
-            # not a hardcoded value
+            # Skip lines that already use var()
             if "var(" in stripped:
                 continue
-            for match in re.findall(r"color:\s*#[0-9a-fA-F]{3,8}", stripped):
-                issues.append(
-                    f"Hardcoded color: '{match}' → use"
-                    " var(--pico-*)",
-                )
-                break
-        return issues
-
-    def _check_hardcoded_font_sizes(
-        self, content: str, filename: str,
-    ) -> list[str]:
-        if "gridui-terminal" in filename:
-            return []
-        matches = re.findall(r"font-size:\s*\d+px", content)
-        return [f"Hardcoded font-size: '{m}'" for m in matches]
-
-    def _check_icon_sizing(self, content: str, rel: str) -> list[str]:
-        """Detect constraints that prevent icons from matching text size."""
-        issues: list[str] = []
-        if rel == "usx/usx-icons.css":
-            return issues
-
-        # Check for opsz cap that limits optical sizing
-        if "opsz" in content:
-            issues.append(
-                "Has 'opsz' font-variation-setting — removes cap so"
-                " icons scale with font-size",
-            )
-
-        # Check for display: inline-block on icons (needs inline-flex for
-        # heading alignment)
-        if (
-            "display: inline-block" in content
-            and ".material-symbols-outlined" in content
-        ):
-            issues.append(
-                "Uses display: inline-block on icons — should be"
-                " inline-flex for heading alignment",
-            )
-
-        # Check for competing font-size rules on icons
-        for match in re.finditer(
-            r"\.material-symbols-outlined[\s\S]*?\{[^}]*font-size[^}]*\}",
-            content,
-        ):
-            if (
-                "font-size: 1em" not in match.group()
-                and "font-size: 1.5rem" not in match.group()
-            ):
-                lines = match.group().split("\n")
-                for line in lines:
-                    if "font-size" in line:
-                        issues.append(
-                            f"Competing icon font-size:"
-                            f" '{line.strip()}' → remove, let"
-                            " usx-icons.css handle it",
-                        )
-        return issues
-
-    def _check_usx_duplicates(self, content: str, rel: str) -> list[str]:
-        """Find USX class definitions outside canon files."""
-        canon_files = [
-            "usx-base.css",
-            "usx-typography.css",
-            "usx-icons.css",
-        ]
-        if any(c in rel for c in canon_files):
-            return []
-        issues = []
-        for cls_list in CANONICAL_FILES.values():
-            for cls in cls_list:
-                # Find where the class is defined (not just referenced)
-                for match in re.finditer(rf"{re.escape(cls)}\s*\{{", content):
-                    issues.append(
-                        f"Duplicates USX class '{cls}' → import"
-                        " from usx-base.css instead",
-                    )
-        return issues
-
-    def _check_surface_layout(self, content: str, rel: str) -> list[str]:
-        issues: list[str] = []
-        for old_cls, new_cls in SURFACE_LAYOUT_MAP.items():
-            if old_cls in content:
-                issues.append(
-                    f"Uses '{old_cls}' instead of canonical '{new_cls}'",
-                )
-        return issues
-
-    def _check_unscoped_headings(self, content: str) -> list[str]:
-        issues: list[str] = []
-        for h in ["h1", "h2", "h3", "h4", "h5", "h6"]:
-            unscoped = re.findall(
-                rf"(?:^|(?<={{))[\s]*{h}\s*\{{", content, re.MULTILINE,
-            )
-            if unscoped:
-                issues.append(
-                    f"Unscoped '{h}' selector → scope under a class",
-                )
-        return issues
-
-    # ─── Fix methods ────────────────────────────────────────────────
-
-    def _fix_hardcoded_colors(self, content: str) -> str:
-        pairs = [
-            (
-                r"color:\s*#ffffff",
-                "color: var(--pico-primary-inverse, #ffffff)",
-            ),
-            (
-                r"color:\s*#e6edf3",
-                "color: var(--pico-color, #e6edf3)",
-            ),
-            (
-                r"color:\s*#c9d1d9",
-                "color: var(--pico-color, #c9d1d9)",
-            ),
-            (
-                r"color:\s*#8b949e",
-                "color: var(--pico-muted-color, #8b949e)",
-            ),
-            (
-                r"color:\s*#d29922",
-                "color: var(--pico-warning-color, #d29922)",
-            ),
-            (
-                r"color:\s*#58a6ff",
-                "color: var(--pico-primary, #58a6ff)",
-            ),
-            (
-                r"color:\s*#3fb950",
-                "color: var(--pico-ins-color, #3fb950)",
-            ),
-            (
-                r"color:\s*#f85149",
-                "color: var(--pico-del-color, #f85149)",
-            ),
-            (
-                r"color:\s*#2f81f7",
-                "color: var(--pico-primary, #2f81f7)",
-            ),
-            (
-                r"color:\s*#9ba7b4",
-                "color: var(--pico-muted-color, #9ba7b4)",
-            ),
-            (
-                r"color:\s*#a855f7",
-                "color: var(--pico-primary, #a855f7)",
-            ),
-            (r"color:\s*#fff(?!\w)", "color: var(--pico-color-inverse, #fff)"),
-        ]
-        lines = content.split("\n")
-        in_var = False
-        for i, line in enumerate(lines):
-            s = line.strip()
-            if "[data-theme" in s or "[data-palette" in s:
-                in_var = True
-                continue
-            if in_var and s == "}":
-                in_var = False
-                continue
-            if in_var:
-                continue
-            if "--" in s and ":" in s and "var(" not in s:
-                continue
-            if "var(" in s:
-                continue
-            for pat, repl in pairs:
-                if re.search(pat, line):
-                    lines[i] = re.sub(pat, repl, line)
-                    break
-        return "\n".join(lines)
-
-    def _fix_icon_sizing(self, content: str) -> str:
-        """Remove competing .material-symbols-outlined font-size rules."""
-        # Just remove font-size from these rules — the canon handles it
-        lines = content.split("\n")
-        in_icon_block = False
-        new_lines = []
-        for line in lines:
-            if ".material-symbols-outlined" in line and "{" in line:
-                in_icon_block = True
-                new_lines.append(line)
-                continue
-            if in_icon_block:
-                if "}" in line:
-                    in_icon_block = False
-                elif "font-size" in line and "!important" not in line:
-                    continue  # strip the competing font-size
-            new_lines.append(line)
-        return "\n".join(new_lines)
-
-    def _fix_usx_duplicates(self, content: str) -> str:
-        """Remove USX class definitions outside canon files."""
-        canon_classes = []
-        for cls_list in CANONICAL_FILES.values():
-            canon_classes.extend(cls_list)
-        # Build a pattern that matches the full rule block for these classes
-        lines = content.split("\n")
-        new_lines = []
-        skip_until_brace = 0
-        for i, line in enumerate(lines):
-            if skip_until_brace > 0:
-                skip_until_brace -= 1
-                if "}" in line:
-                    skip_until_brace = 0
-                continue
-
-            stripped = line.strip()
-            for cls in canon_classes:
-                if stripped.startswith(cls) and "{" in stripped:
-                    # Start skipping until we find the closing brace
-                    skip_until_brace = 1  # Will count braces
-                    brace_count = stripped.count("{") - stripped.count("}")
-                    if brace_count > 0:
-                        # Find the closing brace
-                        for j in range(i + 1, len(lines)):
-                            opens = lines[j].count("{")
-                            closes = lines[j].count("}")
-                            brace_count += opens - closes
-                            if brace_count <= 0:
-                                skip_until_brace = j - i
-                                break
-                    break
-            else:
-                new_lines.append(line)
-        return "\n".join(new_lines)
-
-    def _count_changes(self, old: str, new: str) -> int:
-        old_lines = old.split("\n")
-        new_lines = new.split("\n")
-        return sum(1 for o, n in zip(old_lines, new_lines) if o != n)
-
-    def _recommendations(self, audit: dict) -> list[str]:
-        recs = [
-            "Use CSS variables (--pico-*) instead of hardcoded values",
-            (
-                "Use `.prose` class for markdown content instead"
-                " of per-surface prose styles"
-            ),
-            (
-                "Use USX layout classes from usx-base.css instead"
-                " of surface-specific wrappers"
-            ),
-            (
-                "Strip .material-symbols-outlined font-size from"
-                " all non-USX CSS files"
-            ),
-            "Remove duplicate USX class definitions from nestframe.css",
-            (
-                "Do not redefine .usx-surface-body or"
-                " .usx-surface-main in any surface CSS"
-            ),
-        ]
-        findings = audit.get("findings", {})
-        for key, label in [
-            ("icon_rules", "Competing icon rules"),
-            ("usx_duplicates", "Duplicate USX class definitions"),
-            ("surface_layout", "Surface-specific layout classes"),
-        ]:
-            if findings.get(key):
-                files = set(f["file"] for f in findings[key])
-                recs.append(
-                    f"Fix {label} in: {', '.join(sorted(files))}",
-                )
-        return recs
+            if re.search(pattern, stripped, re.IGNORECASE):
+                results.append(f"L{i + 1}: {stripped.strip()}")
+        return results

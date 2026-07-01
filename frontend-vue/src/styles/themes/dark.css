@@ -1,0 +1,57 @@
+/* ═══════════════════════════════════════════════════════════════════
+   dark.css — USX Dark Theme
+   ═══════════════════════════════════════════════════════════════════
+   Override only what changes from the light base.
+   Applied via :root.dark or [data-theme="dark"]
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root.dark,
+[data-theme="dark"] {
+  /* ===== COLORS ===== */
+  --usx-color-background: #0d1117;
+  --usx-color-background-alt: #161b22;
+
+  --usx-color-surface: #161b22;
+  --usx-color-surface-hover: #1c2333;
+  --usx-color-surface-active: #2d3748;
+  --usx-color-surface-variant: #1c2333;
+
+  --usx-color-on-surface: #f0f6fc;
+  --usx-color-on-surface-muted: #8b949e;
+
+  --usx-color-border: #30363d;
+  --usx-color-border-light: #3d444d;
+  --usx-color-border-dark: #21262d;
+
+  --usx-color-primary: #58a6ff;
+  --usx-color-primary-hover: #79c0ff;
+  --usx-color-primary-active: #1f6feb;
+  --usx-color-on-primary: #0d1117;
+
+  --usx-color-secondary: #8b949e;
+  --usx-color-secondary-hover: #a5b3c0;
+  --usx-color-on-secondary: #0d1117;
+
+  --usx-color-success: #3fb950;
+  --usx-color-success-hover: #56d364;
+  --usx-color-on-success: #0d1117;
+
+  --usx-color-warning: #d29922;
+  --usx-color-warning-hover: #e3b341;
+  --usx-color-on-warning: #0d1117;
+
+  --usx-color-danger: #f85149;
+  --usx-color-danger-hover: #ff7b72;
+  --usx-color-on-danger: #0d1117;
+
+  --usx-color-info: #58a6ff;
+  --usx-color-info-hover: #79c0ff;
+  --usx-color-on-info: #0d1117;
+
+  --usx-color-accent: #a371f7;
+  --usx-color-accent-hover: #c3a5ff;
+  --usx-color-on-accent: #0d1117;
+
+  /* ===== SCROLLBAR ===== */
+  scrollbar-color: var(--usx-color-border) var(--usx-color-background);
+}

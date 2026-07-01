@@ -1,0 +1,39 @@
+/* ═══════════════════════════════════════════════════════════════════
+   base.css — USX Base Theme (light, always applied)
+   ═══════════════════════════════════════════════════════════════════
+   Import tokens, then apply as :root defaults.
+   Dark/teletext/c64 themes override only what changes.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@import '../tokens/tokens-color.css';
+@import '../tokens/tokens-typography.css';
+@import '../tokens/tokens-spacing.css';
+@import '../tokens/tokens-touch.css';
+@import '../tokens/tokens-components.css';
+
+:root {
+  /* ===== BASE RESET ===== */
+  font-family: var(--usx-font-family-sans);
+  font-size: var(--usx-font-base);
+  line-height: var(--usx-line-height-normal);
+  color: var(--usx-color-on-surface);
+  background: var(--usx-color-background);
+
+  /* ===== GLOBAL TOUCH TARGETS ===== */
+  /* All interactive elements get minimum touch target */
+}
+
+/* ─── Reduced Motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Focus Visible ─────────────────────────────────────────────── */
+*:focus-visible {
+  outline: var(--usx-border-width-thick) solid var(--usx-color-primary);
+  outline-offset: 2px;
+}

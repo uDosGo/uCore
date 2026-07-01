@@ -1,0 +1,178 @@
+{
+  "version": "1.0.0",
+  "description": "Surface Registry — canonical manifest of all uCore surfaces and backend wiring",
+  "updated": "2026-07-01T20:40:00Z",
+  "surfaces": {
+    "dashboard": {
+      "component": "DashboardSurface",
+      "route": "/",
+      "icon": "home",
+      "devTab": false,
+      "devOnly": false,
+      "description": "Mission Control dashboard",
+      "runtimes": ["dashboard_runtime"],
+      "panels": []
+    },
+    "assistui": {
+      "component": "AssistUISurface",
+      "route": "/assistui",
+      "icon": "bolt",
+      "devTab": false,
+      "devOnly": false,
+      "description": "AI assistant chat interface",
+      "runtimes": ["assistui_runtime"],
+      "panels": []
+    },
+    "ucode": {
+      "component": "UCodeSurface",
+      "route": "/ucode",
+      "icon": "grid",
+      "devTab": false,
+      "devOnly": false,
+      "description": "uCode IDE surface",
+      "runtimes": ["ucode_runtime"],
+      "panels": []
+    },
+    "server": {
+      "component": "ServerSurface",
+      "route": "/server",
+      "icon": "server",
+      "devTab": false,
+      "devOnly": false,
+      "description": "Server management",
+      "runtimes": ["hivemind_server", "llm_router"],
+      "panels": []
+    },
+    "developer": {
+      "component": "DeveloperSurface",
+      "route": "/developer",
+      "icon": "code",
+      "devTab": true,
+      "devOnly": true,
+      "description": "Developer hub with skills, models, MCP servers",
+      "runtimes": ["dev_layer", "tasker_ingest"],
+      "panels": ["AgentsPanel", "ClineCliPanel", "FeedPanel", "KanbanPanel", "MCPServersPanel", "ModelsPanel", "ReposPanel", "ReviewPanel", "SettingsPanel", "SkillsPanel", "WorkflowsPanel"]
+    },
+    "workflow": {
+      "component": "WorkflowSurface",
+      "route": "/workflow",
+      "icon": "workflow",
+      "devTab": false,
+      "devOnly": false,
+      "description": "Workflow and task management",
+      "runtimes": ["task_processor"],
+      "panels": ["BinderPanel", "MissionControlPanel", "MissionsPanel", "PublishPanel", "TasksPanel"]
+    },
+    "system": {
+      "component": "SystemSurface",
+      "route": "/system",
+      "icon": "settings",
+      "devTab": false,
+      "devOnly": false,
+      "description": "System settings and configuration",
+      "runtimes": ["system_runtime"],
+      "panels": []
+    },
+    "snackmachine": {
+      "component": "SnackMachineSurface",
+      "route": "/snackmachine",
+      "icon": "snack",
+      "devTab": false,
+      "devOnly": false,
+      "description": "SnackMachine operations",
+      "runtimes": ["snackmachine"],
+      "panels": []
+    },
+    "browserui": {
+      "component": "BrowserUISurface",
+      "route": "/browserui",
+      "icon": "globe",
+      "devTab": false,
+      "devOnly": false,
+      "description": "Browser UI surface",
+      "runtimes": ["browser_runtime"],
+      "panels": [],
+      "hidden": true
+    },
+    "documentation": {
+      "component": "DocumentationSurface",
+      "route": "/documentation",
+      "icon": "help",
+      "devTab": false,
+      "devOnly": false,
+      "description": "Documentation and help",
+      "runtimes": ["docs_roundup"],
+      "panels": []
+    },
+    "teletext": {
+      "component": "TeletextSurface",
+      "route": "/teletext",
+      "icon": "tv",
+      "devTab": false,
+      "devOnly": false,
+      "description": "Teletext viewer surface",
+      "runtimes": ["teletext_runtime"],
+      "panels": []
+    },
+    "terminal": {
+      "component": "TerminalSurface",
+      "route": "/terminal",
+      "icon": "terminal",
+      "devTab": false,
+      "devOnly": false,
+      "description": "Terminal emulator surface",
+      "runtimes": ["terminal_runtime"],
+      "panels": []
+    }
+  },
+  "backend_runtimes": {
+    "dev_layer": {
+      "service": "Dev Mode Layer",
+      "file": "backend/app/services/dev_layer.py",
+      "protocols": ["MCP", "REST"],
+      "endpoints": ["/api/dev/probe", "/api/dev/toggle"]
+    },
+    "feed_server": {
+      "service": "Feed MCP Server",
+      "file": "backend/app/mcp/feed/feed_server.py",
+      "protocols": ["MCP", "REST"],
+      "endpoints": ["/api/feed/ingest", "/api/feed/query", "/api/feed/suggest", "/api/feed/link"]
+    },
+    "feed_consumer": {
+      "service": "Feed Consumer Bridge",
+      "file": "backend/app/services/feed_consumer.py",
+      "protocols": ["internal"],
+      "endpoints": []
+    },
+    "hivemind_server": {
+      "service": "Hivemind MCP Server",
+      "file": "backend/app/mcp/hivemind_server.py",
+      "protocols": ["MCP"],
+      "endpoints": []
+    },
+    "llm_router": {
+      "service": "LLM Router",
+      "file": "backend/app/mcp/llm_router.py",
+      "protocols": ["MCP"],
+      "endpoints": []
+    },
+    "tasker_ingest": {
+      "service": "Tasker Ingest Bridge",
+      "file": "backend/app/mcp/tasker_ingest.py",
+      "protocols": ["MCP", "internal"],
+      "endpoints": []
+    },
+    "cost_manager": {
+      "service": "Cost Manager",
+      "file": "backend/app/services/cost_manager.py",
+      "protocols": ["internal"],
+      "endpoints": []
+    },
+    "template_manager": {
+      "service": "Template Manager",
+      "file": "backend/app/services/template_manager.py",
+      "protocols": ["internal"],
+      "endpoints": []
+    }
+  }
+}

@@ -1,0 +1,62 @@
+/* ═══════════════════════════════════════════════════════════════════
+   tokens-color.css — USX Color Tokens
+   ═══════════════════════════════════════════════════════════════════
+   All color values live here. Themes override these variables only.
+   Components reference them ONLY via var(--usx-color-*) — never #hex.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ===== PRIMARY ===== */
+  --usx-color-primary: #0d6efd;
+  --usx-color-primary-hover: #0b5ed7;
+  --usx-color-primary-active: #0a58ca;
+  --usx-color-primary-disabled: #8bb9fe;
+  --usx-color-on-primary: #ffffff;
+
+  /* ===== SECONDARY ===== */
+  --usx-color-secondary: #6c757d;
+  --usx-color-secondary-hover: #5c636a;
+  --usx-color-secondary-active: #565e64;
+  --usx-color-secondary-disabled: #b3b9bf;
+  --usx-color-on-secondary: #ffffff;
+
+  /* ===== SURFACE ===== */
+  --usx-color-surface: #ffffff;
+  --usx-color-surface-hover: #f8f9fa;
+  --usx-color-surface-active: #e9ecef;
+  --usx-color-surface-disabled: #dee2e6;
+  --usx-color-surface-variant: #f1f3f5;
+  --usx-color-on-surface: #212529;
+  --usx-color-on-surface-muted: #6c757d;
+
+  /* ===== BACKGROUND ===== */
+  --usx-color-background: #ffffff;
+  --usx-color-background-alt: #f8f9fa;
+
+  /* ===== BORDER ===== */
+  --usx-color-border: #dee2e6;
+  --usx-color-border-light: #e9ecef;
+  --usx-color-border-dark: #adb5bd;
+
+  /* ===== STATUS ===== */
+  --usx-color-success: #198754;
+  --usx-color-success-hover: #157347;
+  --usx-color-on-success: #ffffff;
+
+  --usx-color-warning: #ffc107;
+  --usx-color-warning-hover: #ffca2c;
+  --usx-color-on-warning: #212529;
+
+  --usx-color-danger: #dc3545;
+  --usx-color-danger-hover: #bb2d3b;
+  --usx-color-on-danger: #ffffff;
+
+  --usx-color-info: #0dcaf0;
+  --usx-color-info-hover: #31d2f2;
+  --usx-color-on-info: #212529;
+
+  /* ===== ACCENT (user-configurable) ===== */
+  --usx-color-accent: #6f42c1;
+  --usx-color-accent-hover: #5c3a99;
+  --usx-color-on-accent: #ffffff;
+}

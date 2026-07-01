@@ -8,7 +8,7 @@ import { ref, computed } from 'vue'
 
 export type DeveloperTab =
   | 'models' | 'agents' | 'kanban' | 'repos' | 'review'
-  | 'skills' | 'feed' | 'settings' | 'workflows' | 'mcp-servers'
+  | 'skills' | 'feed' | 'surfaces' | 'settings' | 'workflows' | 'mcp-servers'
 
 export interface RepoInfo {
   name: string
@@ -34,6 +34,7 @@ export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[]
   { id: 'review', label: 'Review', icon: 'visibility' },
   { id: 'skills', label: 'Skills', icon: 'extension' },
   { id: 'feed', label: 'Feed', icon: 'rss_feed' },
+  { id: 'surfaces', label: 'Surfaces', icon: 'dashboard' },
   { id: 'workflows', label: 'Dev Flow', icon: 'account_tree' },
 
   { id: 'mcp-servers', label: 'MCP', icon: 'dns' },

@@ -1,18 +1,24 @@
 # Devlog — uCore
 
-version: "2.0.0"
-updated: "2026-07-01T20:15:00Z"
+version: "2.0.1"
+updated: "2026-07-01T20:36:00Z"
 round: "sprint.2026-07-01 complete"
 
 ## Recent Changes (2026-07-01)
 
+- USX Refactor: modular token system (5 token files), 6 theme files, pure-variable usx-standard.css
+- Theme system: dark, teletext, c64, high-contrast themes via :root class + data-theme
+- useTheme() composable: singleton theme manager with localStorage persistence
+- usx_standard.py v3: audit, validate-tokens, audit-surface, scaffold-surface, report
 - Feed System: Pod schema, MCP server, API routes, FeedConsumer, frontend store
-- Docs: FEED_SYSTEM_SPEC.md, fieldnotes.md, archive SPRINT_PLAN
+- FeedPanel: Developer Surface tab component
+- Cleanup: pruned devlog, purged legacy dot-folders to docs/archive/
 - Version: 4.0.1
-- Cleanup: moved .tasker.archived, .episodic, .dev, .continue to docs/archive/
 
 ## Current Dev Flow
 
+- usx_standard: USX audit/repair/validate/scaffold skill for agent-driven CSS
+- useTheme: Vue composable for runtime theme switching (5 themes)
 - tasker_ingest: MCP bridge session progress to .tasker/spool/wisdom
 - dev_layer: Dev Mode toggle service
 - docs_roundup: End-of-round docs automation skill

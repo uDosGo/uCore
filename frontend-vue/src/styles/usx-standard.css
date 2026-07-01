@@ -1,168 +1,43 @@
 /* ═══════════════════════════════════════════════════════════════════
-   usx-standard.css — USX Standard for uCore (Consolidated)
+   usx-standard.css — USX Standard for uCore (Pure Variable Edition)
    ═══════════════════════════════════════════════════════════════════
-   Canonical styling system:
-   - Pico CSS v2.1.1 for base styling (imported via CDN in index.html)
-   - USX spacing scale with consistent tokens
-   - Component padding patterns (no hardcoded 0px!)
-   - Google Fonts: Inter, Material Symbols Outlined
-   - Pico color/token integration
-   - Icon sizing: relative to context (em-based), not hardcoded px
+   Zero hardcoded values. Every property uses var(--usx-*).
+   Import this file LAST after tokens and themes.
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ─── CRITICAL: NO @import for Google Fonts here ──────────────────
-    Fonts are imported in index.html via <link rel="preconnect"> + <link rel="stylesheet">
-    This avoids duplicate downloads and ensures fonts load before CSS applies.
-    ════════════════════════════════════════════════════════════════ */
-
 /* ─────────────────────────────────────────────────────────────────────
-   TIER 1: DESIGN TOKENS (source of truth for all spacing, typography, layout)
-   ───────────────────────────────────────────────────────────────────── */
-
-:root {
-  /* ─── Base Spacing (8px system, aligned with Pico's 1rem = 16px) ── */
-  --usx-spacing-xs: 4px;
-  --usx-spacing-sm: 8px;
-  --usx-spacing-md: 12px;
-  --usx-spacing-lg: 16px;
-  --usx-spacing-xl: 24px;
-  --usx-spacing-2xl: 32px;
-
-  /* ─── Icon System Tokens ──────────────────────────────────────── */
-  --usx-icon-label-gap: 0.5em;      /* Material3 standard: 0.5em between icon and label */
-
-  /* ─── Component-Specific Spacing ──────────────────────────────── */
-  --usx-card-padding-vertical: 14px;
-  --usx-card-padding-horizontal: 16px;
-  --usx-card-gap: 8px;
-  --usx-section-padding: 16px;
-  --usx-section-gap: 12px;
-  --usx-section-separator: 20px;
-  --usx-compact-padding: 12px;
-  --usx-compact-gap: 6px;
-  --usx-button-padding-vertical: 12px;
-  --usx-button-padding-horizontal: 20px;
-  --usx-button-gap: 0.5em;          /* Material3: 0.5em between icon and label in buttons */
-  --usx-badge-padding-vertical: 2px;
-  --usx-badge-padding-horizontal: 8px;
-  --usx-list-item-gap: 4px;
-  --usx-list-section-gap: 8px;
-  --usx-grid-gap: 12px;
-  --usx-grid-gap-dense: 8px;
-  --usx-grid-gap-loose: 16px;
-  --usx-sidebar-gap: 8px;
-  --usx-sidebar-padding: 12px;
-
-  /* ─── Surface Plate Tokens (for generated surfaces) ───────────── */
-  --usx-surface-header-padding: var(--usx-spacing-lg) var(--usx-spacing-xl);
-  --usx-surface-content-padding: var(--usx-spacing-xl);
-  --usx-surface-tab-bar-padding: 0 var(--usx-spacing-lg);
-  --usx-surface-tab-padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  --usx-surface-topbar-height: 48px;
-  --usx-surface-topbar-padding: 0 var(--usx-spacing-xl);
-
-  /* ─── Typography ──────────────────────────────────────────────── */
-  --usx-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --usx-font-family-mono: 'Menlo', 'Monaco', 'Courier New', monospace;
-  --usx-font-size-xs: 0.75rem;
-  --usx-font-size-sm: 0.875rem;
-  --usx-font-size-base: 1rem;
-  --usx-font-size-lg: 1.125rem;
-  --usx-font-size-xl: 1.25rem;
-  --usx-line-height-tight: 1.4;
-  --usx-line-height-base: 1.6;
-  --usx-line-height-relaxed: 1.8;
-
-  /* ─── Layout Constraints ──────────────────────────────────────── */
-  --usx-max-width: 1280px;
-  --usx-prose-width: 72ch;
-  --usx-prose-width-sm: 40ch;
-  --usx-prose-width-md: 72ch;
-  --usx-prose-width-lg: 80ch;
-  --usx-sidebar-width: 280px;
-  --usx-topbar-height: 48px;
-
-  /* ─── Column Width Tokens (Grid Algebra v2.0) ─────────────────── */
-  --usx-col-width-xs: 40ch;
-  --usx-col-width-sm: 35ch;
-  --usx-col-width-md: 40ch;
-  --usx-col-width-lg: 35ch;
-  --usx-col-width-xl: 40ch;
-  --usx-col-width-xxl: 40ch;
-  --usx-col-gap: 24px;
-  --usx-gap-xs: 0;
-  --usx-gap-sm: 16px;
-  --usx-gap-md: 24px;
-  --usx-gap-lg: 24px;
-  --usx-gap-xl: 24px;
-  --usx-gap-xxl: 24px;
-
-  /* ─── Column Count Per Breakpoint (Grid Algebra Spec) ─────────── */
-  --usx-cols-xs: 1;    /* < 480px */
-  --usx-cols-sm: 2;    /* 480-768px */
-  --usx-cols-md: 2;    /* 768-1024px */
-  --usx-cols-lg: 3;    /* 1024-1440px */
-  --usx-cols-xl: 3;    /* 1440-1920px */
-  --usx-cols-xxl: 4;   /* 1920px+ */
-
-  /* ─── Border Radius ───────────────────────────────────────────── */
-  --usx-border-radius-sm: 4px;
-  --usx-border-radius-md: 6px;
-  --usx-border-radius-lg: 8px;
-  --usx-border-radius-full: 999px;
-
-  /* ─── Touch Targets (Pico-large: ≥44px for thumbs) ───────────── */
-  --usx-touch-target-min: 44px;
-  --usx-input-height: 44px;
-  --usx-input-height-sm: 36px;
-  --usx-input-height-lg: 48px;
-
-  /* Icon hit areas */
-  --usx-icon-hit-area: 44px;         /* Minimum touch target for icon buttons */
-  --usx-icon-size-sm: 1.125em;       /* 18px @ base 16px — for small UI labels */
-  --usx-icon-size-md: 1.25em;        /* 20px — for list items */
-  --usx-icon-size-lg: 1.5em;         /* 24px — for headings / cards */
-
-  /* ─── Color Integration (from Pico CSS tokens) ────────────────── */
-  --pico-font-family: var(--usx-font-family);
-  --pico-font-size: 100%;
-  --pico-line-height: var(--usx-line-height-base);
-}
-
-/* ─────────────────────────────────────────────────────────────────────
-   BASE RESET & TYPOGRAPHY APPLY
+   BASE RESET & TYPOGRAPHY
    ───────────────────────────────────────────────────────────────────── */
 
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--pico-background-color, #0d1117);
-  color: var(--pico-color, #c2c7d0);
+  background: var(--usx-color-background);
+  color: var(--usx-color-on-surface);
 }
 
 body {
-  font-family: var(--usx-font-family);
+  font-family: var(--usx-font-family-sans);
   font-size: var(--usx-font-size-base);
-  line-height: var(--usx-line-height-base);
+  line-height: var(--usx-line-height-normal);
 }
 
-/* ─── Global Touch Targets (Pico-large: ≥44px for thumbs) ──────── */
+/* ─── Global Touch Targets ──────────────────────────────────────── */
 button, input, select, textarea, optgroup, label, [role="button"],
 .usx-button, .u-button {
-  font-family: var(--usx-font-family);
+  font-family: var(--usx-font-family-sans);
   font-size: inherit;
-  min-height: var(--usx-touch-target-min, 44px);
+  min-height: var(--usx-touch-min);
 }
 
-/* Interactive elements smaller than 44px — explicit opt-in */
 button.usx-btn--sm, .usx-btn--sm,
 input.usx-input--sm, .usx-input--sm {
-  min-height: var(--usx-input-height-sm, 36px);
+  min-height: var(--usx-touch-min-sm);
 }
 
-/* Material Symbols — default to 1.25em (20px at base 16px) */
+/* ─── Material Symbols ──────────────────────────────────────────── */
 .material-symbols-outlined {
-  font-size: 1.25em;
+  font-size: var(--usx-icon-size);
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
   line-height: 1;
   vertical-align: middle;
@@ -172,7 +47,6 @@ input.usx-input--sm, .usx-input--sm {
    LAYOUT PRIMITIVES
    ───────────────────────────────────────────────────────────────────── */
 
-/* Surface Container (full-height layout) */
 .usx-surface,
 #app {
   display: flex;
@@ -180,10 +54,9 @@ input.usx-input--sm, .usx-input--sm {
   height: 100vh;
   width: 100%;
   overflow: hidden;
-  background: var(--pico-background-color, #0d1117);
+  background: var(--usx-color-background);
 }
 
-/* Topbar / Header */
 .usx-topbar,
 .global-toolbar,
 [role="banner"] {
@@ -192,14 +65,13 @@ input.usx-input--sm, .usx-input--sm {
   height: var(--usx-topbar-height);
   padding: 0 var(--usx-spacing-xl);
   flex-shrink: 0;
-  border-bottom: 1px solid var(--pico-border-color);
-  background: var(--pico-card-background-color);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
+  background: var(--usx-color-surface);
   gap: var(--usx-spacing-md);
   box-sizing: border-box;
   z-index: 100;
 }
 
-/* Main Content Area */
 main,
 .usx-main,
 [role="main"] {
@@ -222,7 +94,6 @@ main.usx-main--wide,
   padding: var(--usx-spacing-2xl);
 }
 
-/* Body/Content Wrapper */
 .usx-surface-body,
 .usx-body {
   display: flex;
@@ -231,7 +102,6 @@ main.usx-main--wide,
   width: 100%;
 }
 
-/* Container with max-width constraint */
 .usx-container {
   max-width: var(--usx-max-width);
   margin: 0 auto;
@@ -239,7 +109,6 @@ main.usx-main--wide,
   box-sizing: border-box;
 }
 
-/* Prose/Text Container */
 .usx-prose,
 .prose {
   max-width: var(--usx-prose-width);
@@ -248,10 +117,9 @@ main.usx-main--wide,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
-   SURFACE PLATE PATTERNS (for generated surfaces)
+   SURFACE PLATE PATTERNS
    ───────────────────────────────────────────────────────────────────── */
 
-/* Surface root: full-height flex column */
 .surface {
   display: flex;
   flex-direction: column;
@@ -260,26 +128,24 @@ main.usx-main--wide,
   overflow: hidden;
 }
 
-/* Surface header: title + description */
 .surface__header {
   padding: var(--usx-surface-header-padding);
-  border-bottom: 1px solid rgba(88, 166, 255, 0.08);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   flex-shrink: 0;
 }
 
 .surface__title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--usx-font-size-3xl);
+  font-weight: var(--usx-font-weight-bold);
   margin: 0;
 }
 
 .surface__description {
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin-top: var(--usx-spacing-xs);
-  font-size: 14px;
+  font-size: var(--usx-font-size-sm);
 }
 
-/* Surface content: scrollable main area */
 .surface__content {
   flex: 1;
   overflow-y: auto;
@@ -287,7 +153,6 @@ main.usx-main--wide,
   box-sizing: border-box;
 }
 
-/* Surface topbar: compact header row */
 .surface__topbar {
   display: flex;
   align-items: center;
@@ -295,61 +160,57 @@ main.usx-main--wide,
   padding: var(--usx-surface-topbar-padding);
   height: var(--usx-surface-topbar-height);
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(88, 166, 255, 0.08);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .surface__topbar-title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--usx-font-size-base);
+  font-weight: var(--usx-font-weight-semibold);
   margin: 0;
 }
 
-/* Surface tab bar — Pico nav-style underlined tabs */
 .surface__tabs {
   display: flex;
   gap: 0;
   padding: var(--usx-surface-tab-bar-padding);
-  background: var(--pico-card-background-color);
+  background: var(--usx-color-surface);
   overflow-x: auto;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--pico-border-color);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .surface__tab {
   display: flex;
   align-items: center;
-  gap: var(--usx-icon-label-gap);
-  padding: var(--usx-surface-tab-padding);
+  gap: var(--usx-icon-gap);
+  padding: var(--usx-tab-padding);
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--usx-tab-border-width) solid transparent;
   background: transparent;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   cursor: pointer;
   font-size: var(--usx-font-size-sm);
-  font-weight: 500;
+  font-weight: var(--usx-font-weight-medium);
   white-space: nowrap;
-  transition: color 0.15s ease, border-color 0.15s ease;
-  margin-bottom: -1px; /* overlap the tab bar border */
-  font-family: var(--usx-font-family);
+  transition: color var(--usx-transition-base), border-color var(--usx-transition-base);
+  margin-bottom: calc(var(--usx-border-overlap) * -1);
+  font-family: var(--usx-font-family-sans);
 }
 
-/* Hover: icon inverts to primary color, no underline */
 .surface__tab:hover {
-  color: var(--pico-primary);
+  color: var(--usx-color-primary);
   border-bottom-color: transparent;
 }
 
-/* Active: primary color underline (only active tab gets underline) */
 .surface__tab--active {
-  color: var(--pico-primary);
-  border-bottom-color: var(--pico-primary);
+  color: var(--usx-color-primary);
+  border-bottom-color: var(--usx-color-primary);
 }
 
-/* Surface footer: input area */
 .surface__footer {
   flex-shrink: 0;
   padding: var(--usx-spacing-md) var(--usx-spacing-lg);
-  border-top: 1px solid rgba(88, 166, 255, 0.08);
+  border-top: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .surface__input-row {
@@ -357,7 +218,6 @@ main.usx-main--wide,
   gap: var(--usx-spacing-sm);
 }
 
-/* Surface messages area */
 .surface__messages {
   flex: 1;
   overflow-y: auto;
@@ -370,32 +230,30 @@ main.usx-main--wide,
 .surface__message {
   max-width: 80%;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border-radius: var(--usx-border-radius-md);
-  font-size: 14px;
-  line-height: 1.5;
+  border-radius: var(--usx-radius-md);
+  font-size: var(--usx-font-size-sm);
+  line-height: var(--usx-line-height-normal);
 }
 
 .surface__message--user {
   align-self: flex-end;
-  background: var(--pico-primary);
-  color: white;
+  background: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
 }
 
 .surface__message--assistant {
   align-self: flex-start;
-  background: var(--pico-card-background-color);
-  border: 1px solid rgba(88, 166, 255, 0.08);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
 }
 
-/* Surface canvas area */
 .surface__canvas {
   flex: 1;
   overflow: hidden;
   position: relative;
-  background: var(--pico-background-color);
+  background: var(--usx-color-background);
 }
 
-/* Surface toolbar */
 .surface__toolbar {
   display: flex;
   align-items: center;
@@ -403,26 +261,25 @@ main.usx-main--wide,
   padding: var(--usx-surface-topbar-padding);
   height: var(--usx-surface-topbar-height);
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(88, 166, 255, 0.08);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
 }
 
-/* Surface panel (card-like container) */
 .surface__panel {
   padding: var(--usx-spacing-lg);
-  background: var(--pico-card-background-color);
-  border: 1px solid rgba(88, 166, 255, 0.08);
-  border-radius: var(--usx-border-radius-md);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
 }
 
 .surface__panel-title {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--usx-font-size-lg);
+  font-weight: var(--usx-font-weight-semibold);
   margin: 0 0 var(--usx-spacing-sm);
 }
 
 .surface__panel-description {
-  color: var(--pico-muted-color);
-  font-size: 14px;
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-sm);
   margin: 0;
 }
 
@@ -430,38 +287,35 @@ main.usx-main--wide,
    COMPONENT PATTERNS
    ───────────────────────────────────────────────────────────────────── */
 
-/* Cards */
 .usx-card,
 .card {
-  padding: var(--usx-card-padding-vertical) var(--usx-card-padding-horizontal);
+  padding: var(--usx-card-padding);
   display: flex;
   flex-direction: column;
-  gap: var(--usx-card-gap);
-  background: #141b26;
-  border-radius: var(--usx-border-radius-md);
-  transition: all 0.15s ease;
+  gap: var(--usx-grid-gap-sm);
+  background: var(--usx-color-surface-variant);
+  border-radius: var(--usx-radius-md);
+  transition: all var(--usx-transition-base);
 }
 
 .usx-card:hover,
 .card:hover {
-  border-color: var(--pico-primary);
-  background: rgba(88, 166, 255, 0.03);
+  border-color: var(--usx-color-primary);
+  background: var(--usx-color-surface-hover);
 }
 
-/* Sections */
 .usx-section,
 section {
-  padding: var(--usx-section-padding);
+  padding: var(--usx-spacing-lg);
   display: flex;
   flex-direction: column;
-  gap: var(--usx-section-gap);
+  gap: var(--usx-spacing-md);
   box-sizing: border-box;
 }
 
-/* Compact container */
 .usx-compact {
-  padding: var(--usx-compact-padding);
-  gap: var(--usx-compact-gap);
+  padding: var(--usx-spacing-md);
+  gap: var(--usx-grid-gap-sm);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -472,21 +326,24 @@ section {
 .grid {
   display: grid;
   gap: var(--usx-grid-gap);
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--usx-grid-min-col-width), 1fr));
   width: 100%;
 }
 
-.usx-grid--dense { gap: var(--usx-grid-gap-dense); }
-.usx-grid--loose { gap: var(--usx-grid-gap-loose); }
+.usx-grid--dense { gap: var(--usx-grid-gap-sm); }
+.usx-grid--loose { gap: var(--usx-grid-gap-lg); }
 
-/* Navigation Tabs — Pico nav-style underlined */
+/* ─────────────────────────────────────────────────────────────────────
+   TABS (Pico nav-style underlined)
+   ───────────────────────────────────────────────────────────────────── */
+
 .usx-tabs,
 .tabs {
   display: flex;
   gap: 0;
   align-items: center;
   padding: 0 var(--usx-spacing-lg);
-  border-bottom: 1px solid var(--pico-border-color);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   flex-shrink: 0;
   overflow-x: auto;
   height: auto;
@@ -499,35 +356,33 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--usx-icon-label-gap);
-  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  gap: var(--usx-icon-gap);
+  padding: var(--usx-tab-padding);
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--usx-tab-border-width) solid transparent;
   background: transparent;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  font-weight: 500;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  font-weight: var(--usx-font-weight-medium);
+  transition: color var(--usx-transition-base), border-color var(--usx-transition-base);
   text-decoration: none;
   white-space: nowrap;
-  margin-bottom: -1px;
-  font-family: var(--usx-font-family);
+  margin-bottom: calc(var(--usx-border-overlap) * -1);
+  font-family: var(--usx-font-family-sans);
 }
 
-/* Hover: icon inverts to primary color, no underline */
 .usx-tab:hover,
 .tab:hover,
 [role="tab"]:hover {
-  color: var(--pico-primary);
+  color: var(--usx-color-primary);
   border-bottom-color: transparent;
 }
 
-/* Active: primary color underline (only active tab gets underline) */
 .usx-tab--active,
 .tab--active,
 [role="tab"][aria-selected="true"] {
-  color: var(--pico-primary);
-  border-bottom-color: var(--pico-primary);
+  color: var(--usx-color-primary);
+  border-bottom-color: var(--usx-color-primary);
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -538,44 +393,44 @@ button,
 [role="button"],
 .usx-button,
 .button {
-  padding: var(--usx-button-padding-vertical) var(--usx-button-padding-horizontal);
-  border-radius: var(--usx-border-radius-md);
+  padding: var(--usx-btn-padding);
+  border-radius: var(--usx-radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--usx-button-gap);
-  border: 1px solid var(--pico-border-color);
+  gap: var(--usx-icon-gap);
+  border: var(--usx-border-width) solid var(--usx-color-border);
   background: transparent;
-  color: var(--pico-color);
+  color: var(--usx-color-on-surface);
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.15s ease;
-  font-family: var(--usx-font-family);
+  font-weight: var(--usx-font-weight-medium);
+  transition: all var(--usx-transition-base);
+  font-family: var(--usx-font-family-sans);
 }
 
 button:hover,
 [role="button"]:hover,
 .usx-button:hover,
 .button:hover {
-  border-color: var(--pico-primary);
-  background: rgba(88, 166, 255, 0.08);
-  color: var(--pico-primary);
+  border-color: var(--usx-color-primary);
+  background: var(--usx-color-primary-disabled);
+  color: var(--usx-color-primary);
 }
 
 button:active,
 [role="button"]:active,
 .usx-button:active,
 .button:active {
-  background: rgba(88, 166, 255, 0.15);
+  background: var(--usx-color-primary-disabled);
 }
 
 /* Icon Buttons */
 .usx-icon-button,
 .icon-button {
-  width: var(--usx-icon-hit-area);
-  height: var(--usx-icon-hit-area);
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
   padding: 0;
-  border-radius: var(--usx-border-radius-md);
+  border-radius: var(--usx-radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -585,15 +440,15 @@ button:active,
 .usx-btn--primary,
 .button--primary,
 button[type="submit"] {
-  background: var(--pico-primary);
-  border-color: var(--pico-primary);
-  color: white;
+  background: var(--usx-color-primary);
+  border-color: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
 }
 
 .usx-btn--primary:hover,
 .button--primary:hover,
 button[type="submit"]:hover {
-  background: #4a9eff;
+  background: var(--usx-color-primary-hover);
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -606,42 +461,41 @@ button[type="submit"]:hover {
   align-items: center;
   justify-content: center;
   gap: var(--usx-spacing-xs);
-  padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
-  border-radius: var(--usx-border-radius-full);
-  border: 1px solid var(--pico-border-color);
-  background: var(--pico-card-sectioning-background-color);
-  color: var(--pico-muted-color);
+  padding: var(--usx-spacing-1) var(--usx-spacing-3);
+  border-radius: var(--usx-radius-full);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  background: var(--usx-color-surface-variant);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
 }
 
 .usx-badge--accent,
 .badge--accent {
-  border-color: var(--pico-primary);
-  background: rgba(88, 166, 255, 0.15);
-  color: var(--pico-primary);
+  border-color: var(--usx-color-primary);
+  background: var(--usx-color-primary-disabled);
+  color: var(--usx-color-primary);
 }
 
 .usx-badge--success,
 .badge--success {
-  border-color: var(--pico-ins-color);
-  background: rgba(63, 185, 80, 0.15);
-  color: var(--pico-ins-color);
+  border-color: var(--usx-color-success);
+  background: var(--usx-color-success);
+  color: var(--usx-color-on-success);
 }
 
 .usx-badge--error,
 .badge--error {
-  border-color: var(--pico-del-color);
-  background: rgba(248, 81, 73, 0.15);
-  color: var(--pico-del-color);
+  border-color: var(--usx-color-danger);
+  background: var(--usx-color-danger);
+  color: var(--usx-color-on-danger);
 }
 
 /* ─────────────────────────────────────────────────────────────────────
    UTILITY CLASSES
    ───────────────────────────────────────────────────────────────────── */
 
-/* Padding */
 .usx-p-xs { padding: var(--usx-spacing-xs); }
 .usx-p-sm { padding: var(--usx-spacing-sm); }
 .usx-p-md { padding: var(--usx-spacing-md); }
@@ -661,7 +515,6 @@ button[type="submit"]:hover {
 .usx-py-lg { padding-top: var(--usx-spacing-lg); padding-bottom: var(--usx-spacing-lg); }
 .usx-py-xl { padding-top: var(--usx-spacing-xl); padding-bottom: var(--usx-spacing-xl); }
 
-/* Margin */
 .usx-m-xs { margin: var(--usx-spacing-xs); }
 .usx-m-sm { margin: var(--usx-spacing-sm); }
 .usx-m-md { margin: var(--usx-spacing-md); }
@@ -680,14 +533,12 @@ button[type="submit"]:hover {
 .usx-mt-lg { margin-top: var(--usx-spacing-lg); }
 .usx-mt-xl { margin-top: var(--usx-spacing-xl); }
 
-/* Gap */
 .usx-gap-xs { gap: var(--usx-spacing-xs); }
 .usx-gap-sm { gap: var(--usx-spacing-sm); }
 .usx-gap-md { gap: var(--usx-spacing-md); }
 .usx-gap-lg { gap: var(--usx-spacing-lg); }
 .usx-gap-xl { gap: var(--usx-spacing-xl); }
 
-/* Flex */
 .usx-flex { display: flex; }
 .usx-flex-row { display: flex; flex-direction: row; align-items: center; gap: var(--usx-spacing-md); }
 .usx-flex-col { display: flex; flex-direction: column; gap: var(--usx-spacing-md); }
@@ -696,7 +547,6 @@ button[type="submit"]:hover {
 .usx-items-center { align-items: center; }
 .usx-justify-between { justify-content: space-between; }
 
-/* Reset — no !important, use specificity instead */
 .usx-no-padding { padding: 0; }
 .usx-no-margin { margin: 0; }
 .usx-no-gap { gap: 0; }
@@ -706,48 +556,43 @@ button[type="submit"]:hover {
    MULTI-COLUMN LAYOUT
    ───────────────────────────────────────────────────────────────────── */
 
-/* Base column container */
 .usx-columns {
-  column-gap: var(--usx-col-gap);
+  column-gap: var(--usx-grid-gap-lg);
 }
 
-/* Fixed column counts */
 .usx-columns-1 { columns: 1; }
 .usx-columns-2 { columns: 2; }
 .usx-columns-3 { columns: 3; }
 .usx-columns-4 { columns: 4; }
 .usx-columns-6 { columns: 6; }
 
-/* Responsive columns — adapts to viewport width */
 .usx-columns--responsive {
   columns: 1;
 }
-@media (min-width: 480px) { .usx-columns--responsive { columns: var(--usx-cols-sm); } }
-@media (min-width: 768px) { .usx-columns--responsive { columns: var(--usx-cols-md); } }
-@media (min-width: 1024px) { .usx-columns--responsive { columns: var(--usx-cols-lg); } }
-@media (min-width: 1440px) { .usx-columns--responsive { columns: var(--usx-cols-xl); } }
-@media (min-width: 1920px) { .usx-columns--responsive { columns: var(--usx-cols-xxl); } }
+@media (min-width: 480px) { .usx-columns--responsive { columns: 2; } }
+@media (min-width: 768px) { .usx-columns--responsive { columns: 2; } }
+@media (min-width: 1024px) { .usx-columns--responsive { columns: 3; } }
+@media (min-width: 1440px) { .usx-columns--responsive { columns: 3; } }
+@media (min-width: 1920px) { .usx-columns--responsive { columns: 4; } }
 
-/* Prose width variants */
-.usx-prose--sm { max-width: var(--usx-prose-width-sm); }
-.usx-prose--md { max-width: var(--usx-prose-width-md); }
-.usx-prose--lg { max-width: var(--usx-prose-width-lg); }
+.usx-prose--sm { max-width: var(--usx-prose-width); }
+.usx-prose--md { max-width: var(--usx-prose-width); }
+.usx-prose--lg { max-width: var(--usx-prose-width); }
 
 /* ─────────────────────────────────────────────────────────────────────
-   GLOBAL TOOLBAR — Pico Nav-Style Underlined Tabs
+   GLOBAL TOOLBAR
    ───────────────────────────────────────────────────────────────────── */
 
-/* Toolbar host */
 .global-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--usx-spacing-lg);
-  background: var(--pico-card-background-color);
+  background: var(--usx-color-surface);
   min-height: var(--usx-topbar-height);
   gap: var(--usx-spacing-sm);
   box-sizing: border-box;
-  border-bottom: 1px solid var(--pico-border-color);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   position: relative;
 }
 
@@ -764,51 +609,47 @@ button[type="submit"]:hover {
   justify-content: center;
 }
 
-/* Tab buttons — Pico nav-style underlined */
 .global-toolbar__tab {
   display: inline-flex;
   align-items: center;
-  gap: var(--usx-icon-label-gap);
-  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  gap: var(--usx-icon-gap);
+  padding: var(--usx-tab-padding);
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--usx-tab-border-width) solid transparent;
   background: transparent;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
-  font-weight: 500;
-  font-family: var(--usx-font-family);
+  font-weight: var(--usx-font-weight-medium);
+  font-family: var(--usx-font-family-sans);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--usx-transition-base), border-color var(--usx-transition-base);
   white-space: nowrap;
-  margin-bottom: -1px; /* overlap the toolbar border */
+  margin-bottom: calc(var(--usx-border-overlap) * -1);
 }
 
-/* Hover: icon inverts to primary color, no underline */
 .global-toolbar__tab:hover {
-  color: var(--pico-primary);
+  color: var(--usx-color-primary);
   border-bottom-color: transparent;
 }
 
-/* Active: primary color underline (only active tab gets underline) */
 .global-toolbar__tab--active {
-  color: var(--pico-primary);
-  border-bottom-color: var(--pico-primary);
+  color: var(--usx-color-primary);
+  border-bottom-color: var(--usx-color-primary);
 }
 
-/* Nav icon buttons (left side) — icon-only, no underline on hover */
 .global-toolbar__tab--nav {
-  font-weight: 600;
-  border-bottom: 2px solid transparent;
+  font-weight: var(--usx-font-weight-semibold);
+  border-bottom: var(--usx-tab-border-width) solid transparent;
 }
 
 .global-toolbar__tab--nav:hover {
-  color: var(--pico-primary);
+  color: var(--usx-color-primary);
   border-bottom-color: transparent;
 }
 
 .global-toolbar__tab--nav.global-toolbar__tab--active {
-  color: var(--pico-primary);
-  border-bottom-color: var(--pico-primary);
+  color: var(--usx-color-primary);
+  border-bottom-color: var(--usx-color-primary);
 }
 
 .global-toolbar__tab--icon-only {
@@ -819,7 +660,6 @@ button[type="submit"]:hover {
   display: none;
 }
 
-/* Icon sizing in toolbar — relative to font-size (14px) */
 .global-toolbar__icon {
   flex-shrink: 0;
   line-height: 1;
@@ -828,28 +668,26 @@ button[type="submit"]:hover {
   justify-content: center;
 }
 
-/* Right-side icon-only button (settings) */
 .global-toolbar__icon-only {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--usx-icon-hit-area);
-  height: var(--usx-icon-hit-area);
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
   padding: 0;
   border: none;
-  border-radius: var(--usx-border-radius-md);
+  border-radius: var(--usx-radius-md);
   background: transparent;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--usx-transition-base), background var(--usx-transition-base);
 }
 
 .global-toolbar__icon-only:hover {
-  color: var(--pico-color);
-  background: rgba(88, 166, 255, 0.08);
+  color: var(--usx-color-on-surface);
+  background: var(--usx-color-surface-hover);
 }
 
-/* Overflow dropdown */
 .global-toolbar__overflow-anchor {
   position: relative;
   display: inline-flex;
@@ -863,41 +701,41 @@ button[type="submit"]:hover {
   position: absolute;
   top: 100%;
   right: 0;
-  background: var(--pico-card-background-color);
-  border: 1px solid rgba(88, 166, 255, 0.15);
-  border-radius: var(--usx-border-radius-md);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
+  box-shadow: 0 var(--usx-spacing-3) var(--usx-spacing-7) rgba(0, 0, 0, 0.3);
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  min-width: 180px;
+  min-width: var(--usx-dropdown-min-width);
   padding: var(--usx-spacing-xs);
 }
 
 .global-toolbar__overflow-item {
   display: flex;
   align-items: center;
-  gap: var(--usx-icon-label-gap);
+  gap: var(--usx-icon-gap);
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border: none;
   background: transparent;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
   cursor: pointer;
-  border-radius: var(--usx-border-radius-sm);
-  font-family: var(--usx-font-family);
-  transition: color 0.1s ease, background 0.1s ease;
+  border-radius: var(--usx-radius-sm);
+  font-family: var(--usx-font-family-sans);
+  transition: color var(--usx-transition-fast), background var(--usx-transition-fast);
   text-align: left;
 }
 
 .global-toolbar__overflow-item:hover {
-  color: var(--pico-color);
-  background: rgba(88, 166, 255, 0.08);
+  color: var(--usx-color-on-surface);
+  background: var(--usx-color-surface-hover);
 }
 
 .global-toolbar__overflow-item--active {
-  color: var(--pico-primary);
-  background: rgba(88, 166, 255, 0.1);
+  color: var(--usx-color-primary);
+  background: var(--usx-color-surface-active);
 }
 
 /* Dev Mode toggle */
@@ -906,49 +744,49 @@ button[type="submit"]:hover {
   align-items: center;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  border: 1px solid rgba(88, 166, 255, 0.2);
-  background: rgba(88, 166, 255, 0.05);
-  color: var(--pico-muted-color);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  background: var(--usx-color-surface-variant);
+  color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  border-radius: var(--usx-border-radius-md);
+  border-radius: var(--usx-radius-md);
   font-size: var(--usx-font-size-xs);
-  font-weight: 600;
-  font-family: var(--usx-font-family);
-  transition: all 0.15s ease;
+  font-weight: var(--usx-font-weight-semibold);
+  font-family: var(--usx-font-family-sans);
+  transition: all var(--usx-transition-base);
 }
 
 .global-toolbar__dev-toggle:hover {
-  background: rgba(88, 166, 255, 0.1);
-  border-color: rgba(88, 166, 255, 0.3);
+  background: var(--usx-color-surface-hover);
+  border-color: var(--usx-color-border-light);
 }
 
 .global-toolbar__dev-toggle--on {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.3);
-  color: #22c55e;
+  background: var(--usx-color-success);
+  border-color: var(--usx-color-success-hover);
+  color: var(--usx-color-on-success);
 }
 
 .global-toolbar__dev-toggle--on:hover {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.4);
+  background: var(--usx-color-success-hover);
+  border-color: var(--usx-color-success);
 }
 
 .global-toolbar__dev-dot {
-  width: 8px;
-  height: 8px;
+  width: var(--usx-spacing-3);
+  height: var(--usx-spacing-3);
   border-radius: 50%;
-  background: var(--pico-muted-color);
-  transition: all 0.15s ease;
+  background: var(--usx-color-on-surface-muted);
+  transition: all var(--usx-transition-base);
 }
 
 .global-toolbar__dev-toggle--on .global-toolbar__dev-dot {
-  background: #22c55e;
-  box-shadow: 0 0 4px rgba(34, 197, 94, 0.5);
+  background: var(--usx-color-on-success);
+  box-shadow: 0 0 var(--usx-spacing-2) var(--usx-color-success-hover);
 }
 
 .global-toolbar__dev-label {
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--usx-letter-spacing-wide);
 }
 
 /* ─── Responsive ────────────────────────────────────────────────── */
@@ -963,17 +801,17 @@ button[type="submit"]:hover {
 
 @media (max-width: 768px) {
   :root {
-    --usx-font-size-base: 13px;
+    --usx-font-base: 13px;
   }
 
   .usx-topbar {
-    height: 44px;
+    height: var(--usx-touch-min);
     padding: 0 var(--usx-spacing-sm);
   }
 
   .global-toolbar__tab {
     padding: var(--usx-spacing-sm);
-    min-width: 44px;
+    min-width: var(--usx-touch-min);
     justify-content: center;
   }
 
@@ -985,14 +823,14 @@ button[type="submit"]:hover {
 /* ─── Reduced Motion ────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms;
-    animation-iteration-count: 1;
-    transition-duration: 0.01ms;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 /* ─── Focus Visible ─────────────────────────────────────────────── */
 *:focus-visible {
-  outline: 1px solid var(--pico-primary, #58a6ff);
-  outline-offset: 1px;
+  outline: var(--usx-border-width-thick) solid var(--usx-color-primary);
+  outline-offset: var(--usx-spacing-2);
 }

@@ -1,0 +1,40 @@
+/* ═══════════════════════════════════════════════════════════════════
+   tokens-typography.css — USX Typography Tokens
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ===== FONT FAMILIES ===== */
+  --usx-font-family-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --usx-font-family-serif: Georgia, 'Times New Roman', serif;
+  --usx-font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+
+  /* ===== FONT SIZES (rem-based, relative to --usx-font-base) ===== */
+  --usx-font-base: 16px;
+
+  --usx-font-size-xs: 0.75rem;
+  --usx-font-size-sm: 0.875rem;
+  --usx-font-size-base: 1rem;
+  --usx-font-size-lg: 1.125rem;
+  --usx-font-size-xl: 1.25rem;
+  --usx-font-size-2xl: 1.5rem;
+  --usx-font-size-3xl: 1.875rem;
+  --usx-font-size-4xl: 2.25rem;
+  --usx-font-size-5xl: 3rem;
+
+  /* ===== FONT WEIGHTS ===== */
+  --usx-font-weight-light: 300;
+  --usx-font-weight-regular: 400;
+  --usx-font-weight-medium: 500;
+  --usx-font-weight-semibold: 600;
+  --usx-font-weight-bold: 700;
+
+  /* ===== LINE HEIGHTS ===== */
+  --usx-line-height-tight: 1.2;
+  --usx-line-height-normal: 1.5;
+  --usx-line-height-relaxed: 1.75;
+
+  /* ===== LETTER SPACING ===== */
+  --usx-letter-spacing-tight: -0.02em;
+  --usx-letter-spacing-normal: 0;
+  --usx-letter-spacing-wide: 0.02em;
+}

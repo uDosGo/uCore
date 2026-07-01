@@ -1,0 +1,73 @@
+/* ═══════════════════════════════════════════════════════════════════
+   c64.css — USX Commodore 64 Theme
+   ═══════════════════════════════════════════════════════════════════
+   C64-inspired: dark blue background, cyan/light-blue text, purple accents.
+   Applied via :root.c64 or [data-theme="c64"]
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root.c64,
+[data-theme="c64"] {
+  /* ===== COLORS ===== */
+  --usx-color-background: #0000aa;
+  --usx-color-background-alt: #000088;
+
+  --usx-color-surface: #0000aa;
+  --usx-color-surface-hover: #1a1acc;
+  --usx-color-surface-active: #2a2add;
+  --usx-color-surface-variant: #000099;
+
+  --usx-color-on-surface: #8888ff;
+  --usx-color-on-surface-muted: #6666cc;
+
+  --usx-color-border: #8888ff;
+  --usx-color-border-light: #aaaaff;
+  --usx-color-border-dark: #4444aa;
+
+  --usx-color-primary: #8888ff;
+  --usx-color-primary-hover: #aaaaff;
+  --usx-color-primary-active: #6666dd;
+  --usx-color-on-primary: #0000aa;
+
+  --usx-color-secondary: #aa88ff;
+  --usx-color-secondary-hover: #ccbbff;
+  --usx-color-on-secondary: #0000aa;
+
+  --usx-color-success: #88ff88;
+  --usx-color-success-hover: #aaffaa;
+  --usx-color-on-success: #0000aa;
+
+  --usx-color-warning: #ffcc88;
+  --usx-color-warning-hover: #ffddaa;
+  --usx-color-on-warning: #0000aa;
+
+  --usx-color-danger: #ff8888;
+  --usx-color-danger-hover: #ffaaaa;
+  --usx-color-on-danger: #0000aa;
+
+  --usx-color-info: #88ffff;
+  --usx-color-info-hover: #aaffff;
+  --usx-color-on-info: #0000aa;
+
+  --usx-color-accent: #ff88ff;
+  --usx-color-accent-hover: #ffaaff;
+  --usx-color-on-accent: #0000aa;
+
+  /* ===== TYPOGRAPHY ===== */
+  --usx-font-family-sans: 'Courier New', monospace;
+  --usx-font-family-mono: 'Courier New', monospace;
+  --usx-font-family-serif: 'Courier New', monospace;
+
+  /* ===== RADIUS — slightly round ===== */
+  --usx-radius-sm: 0;
+  --usx-radius-md: 2px;
+  --usx-radius-lg: 4px;
+  --usx-radius-xl: 4px;
+  --usx-radius-2xl: 6px;
+  --usx-radius-full: 0;
+
+  /* ===== BORDERS ===== */
+  --usx-border-width: 2px;
+  --usx-border-width-thick: 4px;
+
+  color-scheme: dark;
+}
