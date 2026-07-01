@@ -120,25 +120,26 @@ const editorColumnClass = computed(() => {
   /* flex: 1 still applies — the editor column takes the rest */
 }
 
-/* ─── Editor Column ───────────────────────────────────────────────── */
+/* ─── Editor Column — right sidebar, full height ──────────────── */
 .workflow-editor {
   flex-shrink: 0;
   overflow: hidden;
-  border-left: var(--usx-border-width) solid var(--usx-color-border);
   display: flex;
   flex-direction: column;
+  border-left: var(--usx-border-width) solid var(--usx-color-border);
+  background: var(--usx-color-background);
 }
 
 /* Single pane: 50-50 split with main panel */
 .workflow-editor--single {
   width: 50%;
-  min-width: 320px;
+  min-width: 360px;
 }
 
 /* Both panes: 50-50 even split with main panel */
 .workflow-editor--wide {
-  width: 50%;
-  min-width: 420px;
+  width: 55%;
+  min-width: 480px;
 }
 
 /* ─── Empty editor state ──────────────────────────────────────────── */

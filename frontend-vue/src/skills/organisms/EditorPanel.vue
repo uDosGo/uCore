@@ -42,7 +42,9 @@
       </div>
     </div>
 
-    <!-- Panes: side-by-side (split) when editing, stacked when layout toggled -->
+    <!-- Panes: side-by-side (split) when editing, stacked when layout toggled.
+         Order: Edit (left) | Preview (right) when split.
+               Preview (top) | Edit (bottom) when stacked. -->
     <div
       class="editor-panel__panes"
       :class="{
@@ -50,21 +52,7 @@
         'editor-panel__panes--stacked': showEditor && paneLayout === 'stacked',
       }"
     >
-      <!-- Preview Pane — always visible, the default view -->
-      <div class="editor-panel__preview-pane">
-        <div class="editor-panel__pane-header">
-          <UIcon name="visibility" />
-          <span>Preview</span>
-        </div>
-        <div class="editor-panel__pane-body">
-          <MarkdownPreview
-            :content="localContent"
-            :preview-id="`editor-panel-preview-${instanceId}`"
-          />
-        </div>
-      </div>
-
-      <!-- Editing Pane — appears side-by-side when pencil is toggled -->
+      <!-- Editing Pane — appears on the left when pencil is toggled -->
       <div v-if="showEditor" class="editor-panel__edit-pane">
         <div class="editor-panel__pane-header">
           <UIcon name="edit" />
@@ -77,6 +65,20 @@
             :toolbars="editorToolbars"
             @save="handleSave"
             @change="onContentChange"
+          />
+        </div>
+      </div>
+
+      <!-- Preview Pane — always visible, stays on the right -->
+      <div class="editor-panel__preview-pane">
+        <div class="editor-panel__pane-header">
+          <UIcon name="visibility" />
+          <span>Preview</span>
+        </div>
+        <div class="editor-panel__pane-body">
+          <MarkdownPreview
+            :content="localContent"
+            :preview-id="`editor-panel-preview-${instanceId}`"
           />
         </div>
       </div>
@@ -225,9 +227,9 @@ function handleSave() {
   flex-direction: row;
 }
 
-/* Stacked: top = edit, bottom = preview */
+/* Stacked: preview on top, edit on bottom */
 .editor-panel__panes--stacked {
-  flex-direction: column;
+  flex-direction: column-reverse;
 }
 
 /* ─── Preview Pane — always visible, takes full width when alone ── */
@@ -249,12 +251,12 @@ function handleSave() {
 }
 
 .editor-panel__panes--split .editor-panel__edit-pane {
-  border-left: var(--usx-border-width) solid var(--usx-color-border);
+  border-right: var(--usx-border-width) solid var(--usx-color-border);
   min-width: 0;
 }
 
 .editor-panel__panes--stacked .editor-panel__edit-pane {
-  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
+  border-top: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 /* ─── Pane header ────────────────────────────────────────────────── */
@@ -280,5 +282,6 @@ function handleSave() {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding: var(--usx-spacing-sm);
 }
 </style>
