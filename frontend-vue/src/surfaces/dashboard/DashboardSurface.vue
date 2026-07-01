@@ -13,7 +13,7 @@
     </div>
 
     <!-- Dev Mode hint when server is running but Dev Mode is off -->
-    <div v-if="devMode.devServerRunning && !devMode.devModeEnabled" class="dashboard-surface__dev-hint">
+    <div v-if="devMode.devServerRunning && devMode.mode === 'off'" class="dashboard-surface__dev-hint">
       <p>
         <UIcon name="code" />
         Developer tools are available.
@@ -78,26 +78,31 @@ function navigate(route: string) {
 
 <style scoped>
 .dashboard-surface {
-  max-width: 960px;
+  max-width: var(--usx-max-width);
   margin: 0 auto;
   padding: var(--usx-spacing-xl) var(--usx-spacing-lg);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dashboard-surface__title {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: var(--usx-font-size-3xl);
+  font-weight: var(--usx-font-weight-bold);
   margin-bottom: var(--usx-spacing-sm);
+  color: var(--usx-color-on-surface);
 }
 
 .dashboard-surface__subtitle {
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin-bottom: var(--usx-spacing-md);
-  font-size: 15px;
+  font-size: var(--usx-font-size-base);
 }
 
 .dashboard-surface__grid-inner {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--usx-grid-min-col-width), 1fr));
+  gap: var(--usx-grid-gap-lg);
+  width: 100%;
   gap: var(--usx-spacing-md);
 }
 

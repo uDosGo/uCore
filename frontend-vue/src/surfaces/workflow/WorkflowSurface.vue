@@ -1,27 +1,11 @@
 <template>
   <div class="surface">
-    <!-- Tab bar — Pico nav-style underlined tabs -->
-    <div class="surface__tabs">
-      <button
-        v-for="tab in WORKFLOW_TABS"
-        :key="tab.id"
-        class="surface__tab"
-        :class="{ 'surface__tab--active': wf.activeTab === tab.id }"
-        @click="wf.setTab(tab.id)"
-      >
-        <UIcon :name="tab.icon" />
-        <span>{{ tab.label }}</span>
-      </button>
-    </div>
-
-    <!-- Content area -->
+    <!-- Content area (tabs are in GlobalToolbar) -->
     <div class="surface__content">
       <div class="workflow-layout">
         <!-- Left/Main panel: the active tab content -->
         <div v-if="wf.activeTab !== 'editor'" class="workflow-panel" :class="{ 'workflow-panel--narrow': wf.editorOpen }">
           <MissionControlPanel v-if="wf.activeTab === 'mission-control'" />
-          <MissionsPanel v-else-if="wf.activeTab === 'missions'" />
-          <BinderPanel v-else-if="wf.activeTab === 'binder'" />
           <TasksPanel v-else-if="wf.activeTab === 'tasks'" />
           <PublishPanel v-else-if="wf.activeTab === 'publish'" />
         </div>
@@ -71,10 +55,9 @@
  * @usage Routed at '/workflow?tab=mission-control'
  */
 import { computed } from 'vue'
-import { useWorkflowStore, WORKFLOW_TABS } from '../../stores/workflow'
+import { useWorkflowStore } from '../../stores/workflow'
 import MissionControlPanel from './panels/MissionControlPanel.vue'
 import MissionsPanel from './panels/MissionsPanel.vue'
-import BinderPanel from './panels/BinderPanel.vue'
 import TasksPanel from './panels/TasksPanel.vue'
 import PublishPanel from './panels/PublishPanel.vue'
 import { EditorPanel } from '../../skills'

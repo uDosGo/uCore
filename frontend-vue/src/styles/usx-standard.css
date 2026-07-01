@@ -691,7 +691,7 @@ button[type="submit"]:hover {
   padding: 0 var(--usx-spacing-lg);
   background: var(--usx-color-surface);
   min-height: var(--usx-topbar-height);
-  gap: var(--usx-spacing-sm);
+  gap: var(--usx-spacing-xs);
   box-sizing: border-box;
   border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   position: relative;
@@ -723,6 +723,8 @@ button[type="submit"]:hover {
 .global-toolbar__center {
   flex: 1;
   justify-content: center;
+  min-width: 0;
+  gap: var(--usx-spacing-2);
 }
 
 /* ─── Base tab (center labels) ─────────────────────────────────── */
@@ -795,12 +797,12 @@ button[type="submit"]:hover {
 /* ─── Shared icon sizing ───────────────────────────────────────── */
 .global-toolbar__icon {
   flex-shrink: 0;
-  width: 1.25em;
-  height: 1.25em;
+  width: 1.35em;
+  height: 1.35em;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25em;
+  font-size: 1.35em;
   line-height: 1;
   vertical-align: middle;
 }
@@ -816,7 +818,7 @@ button[type="submit"]:hover {
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
   transition: color var(--usx-transition-fast);
-  font-size: 1.25em;
+  font-size: 1.35em;
   line-height: 1;
   width: var(--usx-touch-min);
   height: var(--usx-touch-min);
@@ -846,11 +848,15 @@ button[type="submit"]:hover {
   right: 0;
   background: var(--usx-color-surface);
   border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
   z-index: 1000;
   display: flex;
   flex-direction: column;
   min-width: var(--usx-dropdown-min-width);
   padding: var(--usx-spacing-xs);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .global-toolbar__overflow-item {
@@ -884,12 +890,6 @@ button[type="submit"]:hover {
   align-items: center;
   gap: var(--usx-spacing-md);
   min-height: fit-content;
-}
-
-.global-toolbar__center {
-  flex: 1;
-  justify-content: center;
-  min-width: 200px;
 }
 
 /* Dev Mode toggle */
@@ -946,27 +946,33 @@ button[type="submit"]:hover {
 }
 
 /* ─── Responsive ────────────────────────────────────────────────── */
-@media (max-width: 900px) {
+/* At narrow widths, hide tab labels in the center — icons only */
+@media (max-width: 800px) {
   .global-toolbar__tab:not(.global-toolbar__tab--nav) span {
     display: none;
   }
   .global-toolbar__tab:not(.global-toolbar__tab--nav) {
-    padding: var(--usx-spacing-sm);
+    padding: var(--usx-spacing-xs);
+  }
+  .global-toolbar__overflow-item span {
+    display: inline !important;
   }
 }
 
-@media (max-width: 768px) {
-  :root {
-    --usx-font-base: 13px;
-  }
-
-  .usx-topbar {
-    height: var(--usx-touch-min);
+@media (max-width: 600px) {
+  .global-toolbar {
     padding: 0 var(--usx-spacing-sm);
+    gap: var(--usx-spacing-2);
   }
 
-  .global-toolbar__tab {
-    padding: var(--usx-spacing-sm);
+  .global-toolbar__left,
+  .global-toolbar__center,
+  .global-toolbar__right {
+    gap: var(--usx-spacing-2);
+  }
+
+  .global-toolbar__tab:not(.global-toolbar__tab--nav) {
+    padding: var(--usx-spacing-2);
     min-width: var(--usx-touch-min);
     justify-content: center;
   }

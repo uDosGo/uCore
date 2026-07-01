@@ -82,7 +82,7 @@ onMounted(async () => {
 }
 
 .workspace-filter__select {
-  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-lg) var(--usx-spacing-xs) var(--usx-spacing-sm);
   background: var(--pico-background-color);
   border-radius: var(--usx-border-radius-sm);
   font-size: var(--usx-font-size-sm);

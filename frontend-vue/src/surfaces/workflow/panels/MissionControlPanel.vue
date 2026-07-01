@@ -104,6 +104,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Binder Cross-Reference section (embedded from BinderPanel) -->
+    <BinderPanel />
   </div>
 </template>
 
@@ -112,6 +115,7 @@ import { onMounted } from 'vue'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 import { useWorkflowStore } from '../../../stores/workflow'
+import BinderPanel from './BinderPanel.vue'
 
 const wf = useWorkflowStore()
 
@@ -249,17 +253,18 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--usx-border-radius-md);
-  background: rgba(88, 166, 255, 0.08);
-  color: rgba(88, 166, 255, 0.8);
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
+  border-radius: var(--usx-radius-md);
+  background: var(--usx-color-surface-variant);
+  color: var(--usx-color-primary);
   flex-shrink: 0;
+  font-size: var(--usx-icon-size-lg);
 }
 
 .wf-mission-card:hover .wf-mission-card-icon {
-  background: rgba(88, 166, 255, 0.12);
-  color: rgba(88, 166, 255, 1);
+  background: var(--usx-color-primary-disabled);
+  color: var(--usx-color-primary);
 }
 
 .wf-mission-card-content {

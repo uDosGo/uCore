@@ -59,4 +59,48 @@
   --usx-color-accent: #6f42c1;
   --usx-color-accent-hover: #5c3a99;
   --usx-color-on-accent: #ffffff;
+
+  /* ================================================================
+     PICO CSS Compatibility Mappings
+     Map all --pico-* variables to USX tokens so existing components
+     that reference Pico variables resolve to Bootstrap colors.
+     ================================================================ */
+
+  /* ── Text ─────────────────────────────────── */
+  --pico-color: var(--usx-color-on-surface);
+  --pico-muted-color: var(--usx-color-on-surface-muted);
+
+  /* ── Backgrounds ──────────────────────────── */
+  --pico-background-color: var(--usx-color-background);
+  --pico-card-background-color: var(--usx-color-surface);
+  --pico-muted-background-color: var(--usx-color-surface-variant);
+  --pico-code-background-color: var(--usx-color-surface-variant);
+
+  /* ── Borders ──────────────────────────────── */
+  --pico-border-color: var(--usx-color-border);
+  --pico-border-width: var(--usx-border-width, 1px);
+  --pico-border-radius: var(--usx-radius-md, 8px);
+  --pico-box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+
+  /* ── Primary ──────────────────────────────── */
+  --pico-primary: var(--usx-color-primary);
+  --pico-primary-hover: var(--usx-color-primary-hover);
+  --pico-primary-background: var(--usx-color-primary);
+  --pico-primary-hover-background: var(--usx-color-primary-hover);
+  --pico-primary-underline: var(--usx-color-primary);
+  --pico-primary-border: var(--usx-color-primary);
+
+  /* ── Form elements ────────────────────────── */
+  --pico-form-element-background-color: var(--usx-color-surface);
+  --pico-form-element-border-color: var(--usx-color-border);
+  --pico-form-element-color: var(--usx-color-on-surface);
+  --pico-form-element-placeholder-color: var(--usx-color-on-surface-muted);
+  --pico-form-element-height: var(--usx-touch-min, 48px);
+
+  /* ── Mark / highlight ─────────────────────── */
+  --pico-mark-background-color: var(--usx-color-warning);
+  --pico-mark-color: var(--usx-color-on-warning);
+
+  /* ── Selection ────────────────────────────── */
+  --pico-selection-background-color: var(--usx-color-primary-disabled);
 }

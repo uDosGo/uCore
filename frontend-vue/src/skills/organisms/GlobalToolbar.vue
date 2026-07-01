@@ -166,21 +166,21 @@ function navigate(path: string) {
 // Compact mode: icons only when viewport < 900px
 const compactMode = computed(() => windowWidth.value < 900)
 
-const MAX_VISIBLE_TABS = 4
+// Max 3 tabs inline — 4th slot becomes the "more" dropdown trigger.
+// This ensures the dropdown always has ≥2 options when visible.
+const maxVisibleTabs = 3
 
 // Surface tabs shown in the middle of the toolbar
 const surfaceTabs = computed<ToolbarTab[]>(() => {
   // If parent passed explicit tabs, use those
   if (props.tabs?.length) return props.tabs
 
-  // On dashboard, show the main surface tabs
+  // On dashboard, show the main surface tabs (no Dashboard tab — it's the home icon in the left nav)
   if (route.path === '/') {
     return [
       { id: 'terminal', icon: 'terminal', label: 'Terminal', active: false, onClick: () => navigate('/terminal') },
-      { id: 'dashboard', icon: 'home', label: 'Dashboard', active: true, onClick: () => navigate('/') },
-      { id: 'missions', icon: 'flag', label: 'Mission Control', active: false, onClick: () => navigate('/workflow?tab=mission-control') },
+      { id: 'missions', icon: 'flag', label: 'Missions', active: false, onClick: () => navigate('/workflow?tab=mission-control') },
       { id: 'server', icon: 'server', label: 'Server', active: false, onClick: () => navigate('/server') },
-      { id: 'system', icon: 'settings', label: 'System', active: false, onClick: () => navigate('/system') },
     ]
   }
 
@@ -240,11 +240,11 @@ const surfaceTabs = computed<ToolbarTab[]>(() => {
   return []
 })
 
-// First MAX_VISIBLE_TABS tabs shown inline
-const visibleTabs = computed(() => surfaceTabs.value.slice(0, MAX_VISIBLE_TABS))
+// First maxVisibleTabs tabs shown inline
+const visibleTabs = computed(() => surfaceTabs.value.slice(0, maxVisibleTabs))
 
 // Remaining tabs go into the overflow dropdown
-const overflowTabs = computed(() => surfaceTabs.value.slice(MAX_VISIBLE_TABS))
+const overflowTabs = computed(() => surfaceTabs.value.slice(maxVisibleTabs))
 
 // Close overflow on outside click
 function onDocumentClick(e: MouseEvent) {

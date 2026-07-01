@@ -225,7 +225,7 @@
       <!-- Runtimes View -->
       <div v-if="activeSubTab === 'runtimes'" class="registry-view">
         <h4>Runtimes ({{ filteredRuntimes.length }})</h4>
-        <div v-if="filteredRuntimes.length === 0" class="usx-compact" style="text-align: center; color: var(--usx-color-on-surface-muted)">
+        <div v-if="Object.keys(filteredRuntimes).length === 0" class="usx-compact" style="text-align: center; color: var(--usx-color-on-surface-muted)">
           No runtimes match your search.
         </div>
         <div v-else class="registry-grid">

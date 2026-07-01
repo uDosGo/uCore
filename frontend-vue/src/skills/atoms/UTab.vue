@@ -87,6 +87,7 @@ const emit = defineEmits<{
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.35em;
 }
 
 .u-tab__label {

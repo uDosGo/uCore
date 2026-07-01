@@ -373,6 +373,7 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
 .filepicker-sidebar__item-icon {
   flex-shrink: 0;
   color: var(--pico-muted-color);
+  font-size: 1.35em;
 }
 
 .filepicker-sidebar__item-info {

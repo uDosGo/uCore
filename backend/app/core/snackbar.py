@@ -45,10 +45,16 @@ def _save_json(path: str, data: dict) -> None:
 
 @web.middleware
 async def cors_middleware(request: web.Request, handler):
-    if request.method == "OPTIONS":
-        response = web.Response()
-    else:
-        response = await handler(request)
+    try:
+        if request.method == "OPTIONS":
+            response = web.Response()
+        else:
+            response = await handler(request)
+    except web.HTTPException as exc:
+        # Catch HTTP errors (404, 405, etc.) so CORS headers are added
+        response = exc
+    except Exception:
+        raise
     if settings.enable_cors:
         response.headers["Access-Control-Allow-Origin"] = "*"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"

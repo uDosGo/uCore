@@ -54,4 +54,25 @@
 
   /* ===== SCROLLBAR ===== */
   scrollbar-color: var(--usx-color-border) var(--usx-color-background);
+
+  /* ================================================================
+     PICO CSS Compatibility Mappings (Dark)
+     ================================================================ */
+  --pico-color: var(--usx-color-on-surface);
+  --pico-muted-color: var(--usx-color-on-surface-muted);
+  --pico-background-color: var(--usx-color-background);
+  --pico-card-background-color: var(--usx-color-surface);
+  --pico-muted-background-color: var(--usx-color-surface-variant);
+  --pico-code-background-color: var(--usx-color-surface-variant);
+  --pico-border-color: var(--usx-color-border);
+  --pico-primary: var(--usx-color-primary);
+  --pico-primary-hover: var(--usx-color-primary-hover);
+  --pico-primary-background: var(--usx-color-primary);
+  --pico-primary-hover-background: var(--usx-color-primary-hover);
+  --pico-primary-underline: var(--usx-color-primary);
+  --pico-form-element-background-color: var(--usx-color-surface);
+  --pico-form-element-border-color: var(--usx-color-border);
+  --pico-form-element-color: var(--usx-color-on-surface);
+  --pico-form-element-placeholder-color: var(--usx-color-on-surface-muted);
+  --pico-selection-background-color: var(--usx-color-primary-disabled);
 }

@@ -204,13 +204,17 @@ const fallbackChar = computed(() => {
   line-height: 1;
 }
 
-/* Material Symbols — font-size inherited from .u-icon wrapper */
+/* Material Symbols — Material 3 compliant */
 .u-icon .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
   font-size: inherit;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
+  font-display: swap;
 }
 
 /* Fallback */

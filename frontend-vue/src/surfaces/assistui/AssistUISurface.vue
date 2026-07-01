@@ -63,8 +63,8 @@
       </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="surface__main">
+    <!-- Main Content — USX surface__content replaces surface__main + surface__body -->
+    <div class="surface__content">
       <!-- Conversation List Sidebar -->
       <div v-if="conversationListOpen" class="assistui-conv-sidebar">
         <div class="assistui-conv-sidebar-header">
@@ -102,63 +102,59 @@
         </div>
       </div>
 
-      <!-- Chat Body -->
-      <div class="surface__body">
-        <div class="surface__body-inner">
-          <!-- Messages -->
-          <div ref="messagesEl" class="assistui-messages">
-            <div
-              v-for="msg in chat.messages"
-              :key="msg.id"
-              class="assistui-message"
-              :class="`assistui-message--${msg.role}`"
-            >
-              <div class="assistui-message-header">
-                <span class="assistui-message-role">
-                  {{ msg.role === 'user' ? 'You' : 'Assistant' }}
-                </span>
-                <span class="assistui-message-time">{{ formatTime(msg.timestamp) }}</span>
-              </div>
-              <div class="assistui-message-body" v-html="renderMarkdown(msg.content)" />
-            </div>
-
-            <!-- Prompt cards (shown when only welcome message) -->
-            <div v-if="chat.prompts.length > 0 && chat.messages.length <= 1" class="assistui-prompt-row">
-              <div
-                v-for="prompt in chat.prompts"
-                :key="prompt.id"
-                class="assistui-prompt-card"
-                @click="handlePromptClick(prompt)"
-              >
-                <UIcon :name="resolveIcon(prompt.icon)" />
-                <span class="assistui-prompt-card-label">{{ prompt.label }}</span>
-                <span v-if="prompt.context" class="assistui-prompt-card-context">{{ prompt.context }}</span>
-              </div>
-            </div>
-
-            <!-- Loading indicator -->
-            <div v-if="chat.loading" class="assistui-loading">
-              <span class="assistui-loading-dot" />
-              <span class="assistui-loading-dot" />
-              <span class="assistui-loading-dot" />
-            </div>
+      <!-- Chat Body — USX surface__messages handles scroll + spacing -->
+      <div class="surface__messages">
+        <!-- Messages -->
+        <div
+          v-for="msg in chat.messages"
+          :key="msg.id"
+          class="surface__message"
+          :class="`surface__message--${msg.role}`"
+        >
+          <div class="surface__message-header">
+            <span class="surface__message-role">
+              {{ msg.role === 'user' ? 'You' : 'Assistant' }}
+            </span>
+            <span class="surface__message-time">{{ formatTime(msg.timestamp) }}</span>
           </div>
+          <div class="surface__message-body" v-html="renderMarkdown(msg.content)" />
+        </div>
 
-          <!-- Input -->
-          <div class="surface__footer">
-            <div class="surface__input-row">
-              <textarea
-                ref="inputRef"
-                v-model="chat.input"
-                class="assistui-input"
-                placeholder="Ask anything..."
-                @keydown="handleInputKeydown"
-              />
-              <button class="assistui-submit-btn" @click="chat.sendMessage()">
-                <UIcon name="send" />
-              </button>
-            </div>
+        <!-- Prompt cards (shown when only welcome message) -->
+        <div v-if="chat.prompts.length > 0 && chat.messages.length <= 1" class="assistui-prompt-row">
+          <div
+            v-for="prompt in chat.prompts"
+            :key="prompt.id"
+            class="assistui-prompt-card"
+            @click="handlePromptClick(prompt)"
+          >
+            <UIcon :name="resolveIcon(prompt.icon)" />
+            <span class="assistui-prompt-card-label">{{ prompt.label }}</span>
+            <span v-if="prompt.context" class="assistui-prompt-card-context">{{ prompt.context }}</span>
           </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div v-if="chat.loading" class="assistui-loading">
+          <span class="assistui-loading-dot" />
+          <span class="assistui-loading-dot" />
+          <span class="assistui-loading-dot" />
+        </div>
+      </div>
+
+      <!-- Input — USX surface__footer + surface__input-row -->
+      <div class="surface__footer">
+        <div class="surface__input-row">
+          <textarea
+            ref="inputRef"
+            v-model="chat.input"
+            class="assistui-input"
+            placeholder="Ask anything..."
+            @keydown="handleInputKeydown"
+          />
+          <button class="assistui-submit-btn" @click="chat.sendMessage()">
+            <UIcon name="send" />
+          </button>
         </div>
       </div>
     </div>
@@ -258,6 +254,52 @@ onMounted(() => {
 <style scoped>
 /* Surface-specific overrides only — layout handled by .surface__* classes */
 
+/* ─── Nav-link styled buttons in topbar (model picker + New/History/Clear) ─── */
+.assistui-model-section .usx-button,
+.assistui-status-bar .usx-button {
+  border: none;
+  background: transparent;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border-radius: var(--usx-radius-sm);
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-sm);
+  font-weight: var(--usx-font-weight-medium);
+  transition: color var(--usx-transition-fast), background var(--usx-transition-fast);
+}
+
+.assistui-model-section .usx-button:hover,
+.assistui-status-bar .usx-button:hover {
+  border: none;
+  background: var(--usx-color-surface-hover);
+  color: var(--usx-color-on-surface);
+}
+
+.assistui-model-section .usx-button:active,
+.assistui-status-bar .usx-button:active,
+.assistui-model-section .usx-button:focus,
+.assistui-status-bar .usx-button:focus {
+  border: none;
+  background: transparent;
+  color: var(--usx-color-on-surface);
+  box-shadow: none;
+  outline: none;
+}
+
+/* Remove global focus-visible outline for AssistUI elements — they have their own focus styling */
+.assistui-model-section .usx-button:focus-visible,
+.assistui-status-bar .usx-button:focus-visible,
+.assistui-input:focus-visible,
+.assistui-submit-btn:focus-visible {
+  outline: none;
+}
+
+/* Also suppress the global .usx-button:active background on nav-link styled buttons */
+.assistui-model-section .usx-button:active,
+.assistui-status-bar .usx-button:active {
+  background: transparent;
+  box-shadow: none;
+}
+
 .assistui-agent-bar {
   display: flex;
   align-items: center;
@@ -276,10 +318,12 @@ onMounted(() => {
   top: 100%;
   left: 0;
   margin-top: var(--usx-spacing-xs);
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-md);
-  min-width: 200px;
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
+  min-width: 240px;
   z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .assistui-model-option {
@@ -289,7 +333,7 @@ onMounted(() => {
   width: 100%;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   background: transparent;
-  color: var(--pico-color);
+  color: var(--usx-color-on-surface);
   cursor: pointer;
   font-size: var(--usx-font-size-sm);
   transition: background 0.15s ease;
@@ -297,17 +341,17 @@ onMounted(() => {
 }
 
 .assistui-model-option:hover {
-  background: #1a2332;
+  background: var(--usx-color-surface-hover);
 }
 
 .assistui-model-option--active {
-  background: #1a2332;
-  color: var(--pico-primary);
+  background: var(--usx-color-surface-active);
+  color: var(--usx-color-primary);
 }
 
 .assistui-model-provider {
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .assistui-model-name {
@@ -327,30 +371,31 @@ onMounted(() => {
   width: 8px;
   height: 8px;
   border-radius: var(--usx-border-radius-full);
-  background: var(--pico-muted-color);
+  background: var(--usx-color-on-surface-muted);
   transition: background 0.3s ease;
 }
 
 .assistui-status-dot--online {
-  background: #3fb950;
+  background: var(--usx-color-success, #3fb950);
 }
 
 .assistui-status-text {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .assistui-status-sep {
   width: 1px;
   height: 20px;
-  background: var(--pico-background-color);
+  background: var(--usx-color-border);
 }
 
 .assistui-conv-sidebar {
   width: 280px;
   flex-shrink: 0;
   overflow-y: auto;
-  background: var(--pico-card-background-color);
+  background: var(--usx-color-surface);
+  border-right: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .assistui-conv-sidebar-header {
@@ -363,7 +408,7 @@ onMounted(() => {
 .assistui-conv-sidebar-header h3 {
   margin: 0;
   font-size: var(--usx-font-size-base);
-  color: var(--pico-color);
+  color: var(--usx-color-on-surface);
 }
 
 .assistui-conv-list {
@@ -380,29 +425,31 @@ onMounted(() => {
   justify-content: center;
   gap: var(--usx-spacing-md);
   padding: var(--usx-spacing-lg);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   text-align: center;
 }
 
 .assistui-conv-item {
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border-radius: var(--usx-border-radius-md);
-  background: var(--pico-background-color);
+  border-radius: var(--usx-radius-md);
+  background: var(--usx-color-surface);
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--usx-spacing-sm);
+  border: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .assistui-conv-item:hover {
-  background: #1a2332;
+  background: var(--usx-color-surface-hover);
 }
 
 .assistui-conv-item--active {
-  background: #1a2332;
-  color: var(--pico-primary);
+  background: var(--usx-color-surface-active);
+  color: var(--usx-color-primary);
+  border-color: var(--usx-color-primary);
 }
 
 .assistui-conv-item-info {
@@ -415,7 +462,7 @@ onMounted(() => {
 
 .assistui-conv-item-title {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-color);
+  color: var(--usx-color-on-surface);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -424,13 +471,13 @@ onMounted(() => {
 
 .assistui-conv-item-meta {
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .assistui-conv-item-delete {
   background: none;
   border: none;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   cursor: pointer;
   padding: 0;
   display: flex;
@@ -439,66 +486,35 @@ onMounted(() => {
 }
 
 .assistui-conv-item-delete:hover {
-  color: #f85149;
+  color: var(--usx-color-danger);
 }
 
-.assistui-messages {
-  flex: 1;
-  overflow-y: auto;
+/* Messages use USX .surface__messages / .surface__message from usx-standard.css.
+   Extend with custom header/metadata styling. */
+.surface__messages {
   padding: var(--usx-spacing-xl) var(--usx-spacing-lg);
-  max-width: 100%;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: var(--usx-spacing-md);
 }
 
-.assistui-input {
-  flex: 1;
-  min-height: 40px;
-  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border-radius: var(--usx-border-radius-lg);
-  background: var(--pico-background-color);
-  color: var(--pico-color);
-  resize: vertical;
-}
-
-.assistui-submit-btn {
-  padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
-  border: none;
-  border-radius: var(--usx-border-radius-lg);
-  background: var(--pico-primary);
-  color: white;
-  cursor: pointer;
-}
-
-.assistui-submit-btn:hover {
-  background: var(--pico-primary-hover);
-}
-
-.assistui-message {
-  display: flex;
-  flex-direction: column;
-  gap: var(--usx-spacing-sm);
-  margin-bottom: var(--usx-spacing-lg);
+.surface__message {
   padding: var(--usx-spacing-md);
-  border-radius: var(--usx-border-radius-md);
-  background: var(--pico-background-color);
+  border-radius: var(--usx-radius-md);
 }
 
-.assistui-message--user {
-  background: #1a2332;
+.surface__message--user {
+  background: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
   margin-left: auto;
   max-width: 80%;
 }
 
-.assistui-message--assistant {
-  background: var(--pico-background-color);
+.surface__message--assistant {
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
   margin-right: auto;
   max-width: 100%;
 }
 
-.assistui-message-header {
+.surface__message-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -508,18 +524,18 @@ onMounted(() => {
 .assistui-message-role {
   font-size: var(--usx-font-size-sm);
   font-weight: 600;
-  color: var(--pico-primary);
+  color: var(--usx-color-primary);
 }
 
 .assistui-message-time {
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .assistui-message-body {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-color);
-  line-height: 1.6;
+  color: var(--usx-color-on-surface);
+  line-height: var(--usx-line-height-relaxed, 1.6);
 }
 
 .assistui-message-body h1,
@@ -530,16 +546,16 @@ onMounted(() => {
 
 .assistui-message-body code {
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--usx-color-surface-variant);
   border-radius: var(--usx-border-radius-sm);
   font-family: monospace;
-  color: #58a6ff;
+  color: var(--usx-color-primary);
 }
 
 .assistui-prompt-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--usx-spacing-md);
+  gap: var(--usx-spacing-lg);
   margin: var(--usx-spacing-xl) 0;
   padding: var(--usx-spacing-lg) 0;
 }
@@ -551,28 +567,29 @@ onMounted(() => {
   align-items: center;
   text-align: center;
   padding: var(--usx-spacing-lg);
-  border-radius: var(--usx-border-radius-lg);
-  background: var(--pico-card-background-color);
-  border: 1px solid rgba(88, 166, 255, 0.1);
+  border-radius: var(--usx-radius-lg);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
   cursor: pointer;
-  transition: all 0.15s ease;
-  color: var(--pico-color);
+  transition: all var(--usx-transition-base, 0.15s ease);
+  color: var(--usx-color-on-surface);
 }
 
 .assistui-prompt-card:hover {
-  background: rgba(88, 166, 255, 0.1);
-  border-color: rgba(88, 166, 255, 0.3);
+  background: var(--usx-color-surface-hover);
+  border-color: var(--usx-color-primary);
   transform: translateY(-2px);
+  box-shadow: 0 var(--usx-spacing-sm) var(--usx-spacing-lg) rgba(0, 0, 0, 0.08);
 }
 
 .assistui-prompt-card-label {
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   font-weight: 600;
 }
 
 .assistui-prompt-card-context {
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .assistui-loading {
@@ -586,7 +603,7 @@ onMounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--pico-primary);
+  background: var(--usx-color-primary);
   animation: assistui-pulse 1.5s ease-in-out infinite;
 }
 
@@ -601,5 +618,50 @@ onMounted(() => {
 @keyframes assistui-pulse {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 1; }
+}
+
+/* ─── Input & Submit ────────────────────────────────────────────── */
+.assistui-input {
+  flex: 1;
+  min-height: 44px;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-lg);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
+  font-family: var(--usx-font-family-sans);
+  font-size: var(--usx-font-size-base);
+  resize: vertical;
+  outline: none;
+}
+
+.assistui-input:focus {
+  border-color: var(--usx-color-primary);
+}
+
+.assistui-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: var(--usx-radius-full);
+  background: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
+  cursor: pointer;
+  font-size: var(--usx-font-size-lg);
+  transition: background var(--usx-transition-fast), transform var(--usx-transition-fast);
+  flex-shrink: 0;
+}
+
+.assistui-submit-btn:hover {
+  background: var(--usx-color-primary-hover);
+  transform: scale(1.05);
+}
+
+.assistui-submit-btn:active {
+  transform: scale(0.95);
 }
 </style>

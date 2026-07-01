@@ -142,7 +142,7 @@ const filteredStacks = computed(() => {
 }
 
 .browserui-stack-icon {
-  font-size: 1.25em;
+  font-size: 1.5em;
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -170,12 +170,13 @@ const filteredStacks = computed(() => {
   border-radius: var(--usx-radius-md);
   text-decoration: none;
   color: inherit;
-  transition: border-color var(--usx-transition-fast), transform var(--usx-transition-fast);
+  transition: border-color var(--usx-transition-fast), transform var(--usx-transition-fast), box-shadow var(--usx-transition-fast);
 }
 
 .browserui-card:hover {
   border-color: var(--usx-color-primary);
   transform: translateY(-2px);
+  box-shadow: 0 var(--usx-spacing-sm) var(--usx-spacing-lg) rgba(0, 0, 0, 0.08);
 }
 
 .browserui-card-title {
@@ -202,7 +203,8 @@ const filteredStacks = computed(() => {
   font-size: var(--usx-font-size-xs);
   padding: 2px var(--usx-spacing-sm);
   background: var(--usx-color-surface-variant);
-  border-radius: var(--usx-radius-sm);
-  color: var(--usx-color-on-surface-muted);
+  border-radius: var(--usx-radius-full);
+  color: var(--usx-color-primary);
+  font-weight: var(--usx-font-weight-medium);
 }
 </style>
