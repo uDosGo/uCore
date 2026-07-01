@@ -55,19 +55,6 @@ input.usx-input--sm, .usx-input--sm {
    LAYOUT PRIMITIVES
    ───────────────────────────────────────────────────────────────────── */
 
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background: var(--usx-color-background);
-  color: var(--usx-color-on-surface);
-  font-family: var(--usx-font-family-sans);
-  font-size: var(--usx-font-size-base);
-  line-height: var(--usx-line-height-normal);
-}
-
 .usx-surface,
 #app,
 .app-shell {
@@ -384,55 +371,7 @@ section {
 .usx-grid--loose { gap: var(--usx-grid-gap-lg); }
 
 /* ─────────────────────────────────────────────────────────────────────
-   /* USX tokens for spacing, icons, and layout */
-   :root {
-     --usx-spacing-small: 4px;
-     --usx-spacing-medium: 8px;
-     --usx-spacing-large: 16px;
-     --usx-icon-size: 24px;
-     --usx-padding: 8px;
-     --usx-margin: 8px;
-   }
-   
-   /* Icon styles */
-   .icon {
-     width: var(--usx-icon-size);
-     height: var(--usx-icon-size);
-     fill: currentColor;
-   }
-   
-   /* Layout spacing */
-   .layout-padding {
-     padding: var(--usx-padding);
-   }
-   
-   /* UI element spacing */
-   .ui-spacing {
-     margin: var(--usx-margin);
-   }
-   
-   /* Example icon usage */
-   .icon-example {
-     width: var(--usx-icon-size);
-     height: var(--usx-icon-size);
-     display: inline-block;
-     background-image: url('path/to/icon.svg');
-     background-size: contain;
-     background-repeat: no-repeat;
-   }
-   
-   /* Spacing utility classes */
-   .spacing-small {
-     margin: var(--usx-spacing-small);
-   }
-   .spacing-medium {
-     margin: var(--usx-spacing-medium);
-   }
-   .spacing-large {
-     margin: var(--usx-spacing-large);
-   }
-   
-   /* Additional styles for icons and spacing can be added here for enhancement */
+   TABS
    ───────────────────────────────────────────────────────────────────── */
 
 .usx-tabs,

@@ -5,20 +5,20 @@
       <!-- Dashboard -->
       <div v-if="srv.activeTab === 'dashboard'" class="server-dashboard">
         <div class="surface__panel">
-          <div class="usx-flex-between" style="flex-wrap:wrap">
+          <div class="server-dashboard-header">
             <div>
-              <h2 style="margin:0">Server Operations</h2>
-              <p class="usx-mt-xs" style="color:var(--pico-muted-color)">{{ srv.services.length }} services · {{ upCount }} online</p>
+              <h2 class="usx-no-margin">Server Operations</h2>
+              <p class="usx-mt-xs server-muted-text">{{ srv.services.length }} services · {{ upCount }} online</p>
             </div>
             <div class="health-ring" :style="{ borderColor: healthColor, color: healthColor }">
               {{ healthPct }}%
             </div>
           </div>
           <div class="server-stats-row">
-            <div class="server-stat"><span class="server-stat-value" style="color:#3fb950">{{ upCount }}</span><span class="server-stat-label">Up</span></div>
-            <div class="server-stat"><span class="server-stat-value" style="color:#d29922">{{ degradedCount }}</span><span class="server-stat-label">Degraded</span></div>
-            <div class="server-stat"><span class="server-stat-value" style="color:#f85149">{{ downCount }}</span><span class="server-stat-label">Down</span></div>
-            <div class="server-stat"><span class="server-stat-value" style="color:#58a6ff">${{ srv.budgetRemaining?.toFixed(2) ?? '—' }}</span><span class="server-stat-label">Budget</span></div>
+            <div class="server-stat"><span class="server-stat-value server-stat-value--up">{{ upCount }}</span><span class="server-stat-label">Up</span></div>
+            <div class="server-stat"><span class="server-stat-value server-stat-value--degraded">{{ degradedCount }}</span><span class="server-stat-label">Degraded</span></div>
+            <div class="server-stat"><span class="server-stat-value server-stat-value--down">{{ downCount }}</span><span class="server-stat-label">Down</span></div>
+            <div class="server-stat"><span class="server-stat-value server-stat-value--budget">${{ srv.budgetRemaining?.toFixed(2) ?? '—' }}</span><span class="server-stat-label">Budget</span></div>
           </div>
         </div>
 
@@ -42,13 +42,13 @@
           <div v-for="svc in srv.services" :key="svc.name" class="surface__panel">
             <div class="usx-flex-row">
               <UIcon :name="svc.type === 'system' ? 'settings' : 'person'" />
-              <span class="usx-flex" style="flex:1;font-weight:600">{{ svc.name }}</span>
+              <span class="server-service-name-cell">{{ svc.name }}</span>
               <UBadge :type="svc.status === 'up' ? 'success' : svc.status === 'degraded' ? 'warning' : 'error'" size="sm">
                 {{ svc.status }}
               </UBadge>
             </div>
-            <p class="usx-mt-sm" style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color)">{{ svc.description }}</p>
-            <div class="usx-flex-row usx-gap-md" style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color)">
+            <p class="usx-mt-sm server-muted-text-sm">{{ svc.description }}</p>
+            <div class="usx-flex-row usx-gap-md server-muted-text-sm">
               <span>Port :{{ svc.port || 'N/A' }}</span>
               <span>Uptime {{ svc.uptime }}%</span>
               <span>{{ svc.type }}</span>
@@ -77,7 +77,7 @@
       <!-- Models -->
       <div v-else-if="srv.activeTab === 'models'">
         <h3 class="surface__panel-title">Server Models</h3>
-        <p class="usx-mb-md" style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color)">Models are managed from the Developer surface. This panel shows runtime model usage.</p>
+        <p class="usx-mb-md server-muted-text-sm">Models are managed from the Developer surface. This panel shows runtime model usage.</p>
         <div class="server-model-usage">
           <div v-for="m in modelUsage" :key="m.id" class="model-usage-row">
             <span>{{ m.name }}</span>
@@ -94,10 +94,10 @@
           <div v-for="agent in runtimeAgents" :key="agent.id" class="surface__panel">
             <div class="usx-flex-row">
               <UIcon :name="agent.icon" />
-              <span style="font-weight:600;flex:1">{{ agent.name }}</span>
+              <span class="server-agent-name">{{ agent.name }}</span>
               <UBadge :type="agent.active ? 'success' : 'info'" size="sm">{{ agent.active ? 'running' : 'idle' }}</UBadge>
             </div>
-            <p style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color);margin:0">{{ agent.description }}</p>
+            <p class="server-agent-desc">{{ agent.description }}</p>
           </div>
         </div>
       </div>
@@ -130,14 +130,14 @@
       <!-- Story -->
       <div v-else-if="srv.activeTab === 'story'">
         <h3 class="surface__panel-title">Story</h3>
-        <p class="usx-mb-md" style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color)">Narrative and mission content is managed from the Workflow surface.</p>
+        <p class="usx-mb-md server-muted-text-sm">Narrative and mission content is managed from the Workflow surface.</p>
         <UButton variant="secondary" size="sm" @click="$router.push('/workflow')">Open Workflow →</UButton>
       </div>
 
       <!-- Snacks -->
       <div v-else-if="srv.activeTab === 'snacks'">
         <h3 class="surface__panel-title">Snackbar</h3>
-        <p class="usx-mb-md" style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color)">Snack management is handled from the SnackMachine surface.</p>
+        <p class="usx-mb-md server-muted-text-sm">Snack management is handled from the SnackMachine surface.</p>
         <UButton variant="secondary" size="sm" @click="$router.push('/snackmachine')">Open SnackMachine →</UButton>
       </div>
     </div>
@@ -169,7 +169,7 @@ const downCount = computed(() => srv.services.filter(s => s.status === 'down').l
 const healthPct = computed(() => srv.services.length ? Math.round((upCount.value / srv.services.length) * 100) : 0)
 const healthColor = computed(() => {
   const pct = healthPct.value
-  return pct >= 80 ? '#3fb950' : pct >= 50 ? '#d29922' : '#f85149'
+  return pct >= 80 ? 'var(--server-color-up)' : pct >= 50 ? 'var(--server-color-degraded)' : 'var(--server-color-down)'
 })
 
 const modelUsage = [
@@ -187,8 +187,53 @@ const runtimeAgents = [
 </script>
 
 <style scoped>
-/* Surface-specific overrides only — layout handled by .surface__* classes */
+/* ═══════════════════════════════════════════════════════════════════
+   ServerSurface — USX-standard scoped styles
+   Uses --usx-color-* throughout. No --pico-* or hardcoded values.
+   ═══════════════════════════════════════════════════════════════════ */
 
+/* ─── Status Color Tokens ──────────────────────────────────────── */
+.surface {
+  --server-color-up: #3fb950;
+  --server-color-degraded: #d29922;
+  --server-color-down: #f85149;
+  --server-color-budget: #58a6ff;
+}
+
+.server-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--usx-spacing-md);
+}
+
+.server-muted-text {
+  color: var(--usx-color-on-surface-muted);
+}
+
+.server-muted-text-sm {
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
+}
+
+.server-service-name-cell {
+  flex: 1;
+  font-weight: var(--usx-font-weight-semibold);
+}
+
+.server-agent-name {
+  font-weight: var(--usx-font-weight-semibold);
+  flex: 1;
+}
+
+.server-agent-desc {
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
+  margin: 0;
+}
+
+/* ─── Dashboard ────────────────────────────────────────────────── */
 .server-dashboard {
   display: flex;
   flex-direction: column;
@@ -208,13 +253,18 @@ const runtimeAgents = [
 }
 
 .server-stat-value {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: var(--usx-font-size-2xl);
+  font-weight: var(--usx-font-weight-bold);
 }
+
+.server-stat-value--up { color: #3fb950; }
+.server-stat-value--degraded { color: #d29922; }
+.server-stat-value--down { color: #f85149; }
+.server-stat-value--budget { color: #58a6ff; }
 
 .server-stat-label {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   text-transform: uppercase;
 }
 
@@ -227,7 +277,7 @@ const runtimeAgents = [
   align-items: center;
   justify-content: center;
   font-size: var(--usx-font-size-lg);
-  font-weight: 700;
+  font-weight: var(--usx-font-weight-bold);
   flex-shrink: 0;
 }
 
@@ -259,12 +309,12 @@ const runtimeAgents = [
 
 .server-service-name {
   font-size: var(--usx-font-size-sm);
-  font-weight: 500;
+  font-weight: var(--usx-font-weight-medium);
 }
 
 .server-service-desc {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -272,7 +322,7 @@ const runtimeAgents = [
 
 .server-service-uptime {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .server-services-grid {
@@ -285,7 +335,7 @@ const runtimeAgents = [
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-xs);
-  font-family: monospace;
+  font-family: var(--usx-font-family-mono);
   font-size: var(--usx-font-size-sm);
 }
 
@@ -293,17 +343,17 @@ const runtimeAgents = [
   display: flex;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
   align-items: baseline;
 }
 
 .log-timestamp {
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   flex-shrink: 0;
 }
 
 .log-service {
-  color: var(--pico-primary);
+  color: var(--usx-color-primary);
   flex-shrink: 0;
   min-width: 80px;
 }
@@ -311,7 +361,7 @@ const runtimeAgents = [
 .log-level {
   flex-shrink: 0;
   min-width: 40px;
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   text-transform: uppercase;
   font-size: var(--usx-font-size-xs);
 }
@@ -321,7 +371,7 @@ const runtimeAgents = [
 .log-level--error { color: #f85149; }
 
 .log-message {
-  color: var(--pico-color);
+  color: var(--usx-color-on-surface);
 }
 
 .server-model-usage {
@@ -344,21 +394,21 @@ const runtimeAgents = [
 .model-usage-bar {
   flex: 1;
   height: 8px;
-  background: var(--pico-border-color);
-  border-radius: var(--usx-border-radius-sm);
+  background: var(--usx-color-border);
+  border-radius: var(--usx-radius-sm);
   overflow: hidden;
 }
 
 .model-usage-fill {
   height: 100%;
-  background: var(--pico-primary);
-  border-radius: var(--usx-border-radius-sm);
+  background: var(--usx-color-primary);
+  border-radius: var(--usx-radius-sm);
 }
 
 .model-usage-row > span:last-child {
   min-width: 70px;
   text-align: right;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .server-agents-list {
@@ -375,8 +425,8 @@ const runtimeAgents = [
 
 .budget-stat {
   padding: var(--usx-spacing-md);
-  border-radius: var(--usx-border-radius-lg);
-  background: var(--pico-background-color);
+  border-radius: var(--usx-radius-lg);
+  background: var(--usx-color-background);
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-xs);
@@ -384,12 +434,12 @@ const runtimeAgents = [
 
 .budget-stat-label {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   text-transform: uppercase;
 }
 
 .budget-stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: var(--usx-font-size-2xl);
+  font-weight: var(--usx-font-weight-bold);
 }
 </style>
