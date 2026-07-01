@@ -14,7 +14,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const fontStyle = ref<FontStyle>('inter')
   const fontSize = ref<number>(16)
   const palette = ref<Palette>('default')
-  const themeMode = ref<ThemeMode>('auto')
+  const themeMode = ref<ThemeMode>('dark')
 
   function setFontStyle(style: FontStyle) {
     fontStyle.value = style

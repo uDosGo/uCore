@@ -44,9 +44,9 @@ const emit = defineEmits<{
 }>()
 
 const iconSize = computed(() => {
-  if (props.size === 'sm') return 14
-  if (props.size === 'lg') return 20
-  return 16
+  if (props.size === 'sm') return 16
+  if (props.size === 'lg') return 24
+  return 20
 })
 
 import { computed } from 'vue'
@@ -57,11 +57,12 @@ import { computed } from 'vue'
   display: inline-flex;
   align-items: center;
   gap: var(--usx-spacing-xs);
-  border-radius: var(--usx-border-radius-md);
+  border-radius: var(--usx-radius-md);
   cursor: pointer;
   font-weight: 500;
   transition: all 0.15s ease;
-  font-family: var(--usx-font-family);
+  font-family: var(--usx-font-family-sans);
+  border: var(--usx-border-width) solid transparent;
 }
 
 .u-button--sm { padding: var(--usx-spacing-sm) var(--usx-spacing-md); font-size: var(--usx-font-size-sm); }
@@ -69,22 +70,23 @@ import { computed } from 'vue'
 .u-button--lg { padding: var(--usx-spacing-lg) var(--usx-spacing-xl); font-size: var(--usx-font-size-lg); }
 
 .u-button--primary {
-  background: var(--pico-primary);
-  color: #fff;
+  background: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
 }
-.u-button--primary:hover { background: var(--pico-primary-hover); }
+.u-button--primary:hover { background: var(--usx-color-primary-hover); }
 
 .u-button--secondary {
-  background: var(--pico-background-color);
-  color: var(--pico-color);
+  background: var(--usx-color-surface-variant);
+  color: var(--usx-color-on-surface);
+  border-color: var(--usx-color-border);
 }
-.u-button--secondary:hover { background: #1a2332; }
+.u-button--secondary:hover { background: var(--usx-color-surface-hover); }
 
 .u-button--ghost {
   background: transparent;
-  color: var(--pico-color);
+  color: var(--usx-color-on-surface-muted);
 }
-.u-button--ghost:hover { background: #1a2332; opacity: 0.7; }
+.u-button--ghost:hover { color: var(--usx-color-on-surface); background: var(--usx-color-surface-hover); }
 
 .u-button--disabled {
   opacity: 0.5;
@@ -93,5 +95,8 @@ import { computed } from 'vue'
 
 .u-button__icon {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  line-height: 1;
 }
 </style>

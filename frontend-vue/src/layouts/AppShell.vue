@@ -35,6 +35,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useShellStore } from '../stores/shell'
+import { useSettingsStore } from '../stores/settings'
 import GlobalToolbar from '../skills/organisms/GlobalToolbar.vue'
 import FilepickerSidebar from '../skills/molecules/FilepickerSidebar.vue'
 import FloatingChat from '../surfaces/assistui/FloatingChat.vue'
@@ -42,6 +43,9 @@ import SnackbarHost from '../skills/molecules/SnackbarHost.vue'
 
 const route = useRoute()
 const shell = useShellStore()
+
+// Initialize settings store to apply persisted theme (dark mode default)
+useSettingsStore()
 
 const currentTabs = computed(() => {
   // Surface-specific tabs can be injected via route meta
@@ -53,15 +57,18 @@ const currentTabs = computed(() => {
 .app-shell {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 .app-body {
   display: flex;
   flex: 1;
   overflow: hidden;
-  height: 0; /* force flex child to respect parent */
+  min-height: 0;
 }
 
 .app-sidebar {
@@ -69,8 +76,8 @@ const currentTabs = computed(() => {
   overflow-y: auto;
   overflow-x: hidden;
   flex-shrink: 0;
-  background: var(--pico-card-background-color);
-  border-right: 1px solid var(--pico-border-color);
+  background: var(--usx-color-surface);
+  border-right: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .app-main {
@@ -78,5 +85,8 @@ const currentTabs = computed(() => {
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
+  padding: var(--usx-spacing-xl);
+  background: var(--usx-color-background);
+  min-height: 0;
 }
 </style>

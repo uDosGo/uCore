@@ -12,15 +12,24 @@
 @import '../tokens/tokens-components.css';
 
 :root {
-  /* ===== BASE RESET ===== */
-  font-family: var(--usx-font-family-sans);
-  font-size: var(--usx-font-base);
-  line-height: var(--usx-line-height-normal);
-  color: var(--usx-color-on-surface);
-  background: var(--usx-color-background);
-
   /* ===== GLOBAL TOUCH TARGETS ===== */
-  /* All interactive elements get minimum touch target */
+  --usx-touch-min: 48px;
+  --usx-touch-min-sm: 40px;
+}
+
+/* Global Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ─── Reduced Motion ────────────────────────────────────────────── */

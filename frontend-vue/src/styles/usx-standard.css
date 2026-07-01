@@ -9,17 +9,23 @@
    BASE RESET & TYPOGRAPHY
    ───────────────────────────────────────────────────────────────────── */
 
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
   background: var(--usx-color-background);
   color: var(--usx-color-on-surface);
-}
-
-body {
   font-family: var(--usx-font-family-sans);
   font-size: var(--usx-font-size-base);
   line-height: var(--usx-line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ─── Global Touch Targets ──────────────────────────────────────── */
@@ -35,26 +41,43 @@ input.usx-input--sm, .usx-input--sm {
   min-height: var(--usx-touch-min-sm);
 }
 
-/* ─── Material Symbols ──────────────────────────────────────────── */
+/* ─── Material Symbols Outlined (Material 3 Icons) ─────────────────── */
 .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
   font-size: var(--usx-icon-size);
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   line-height: 1;
   vertical-align: middle;
+  font-display: swap;
 }
 
 /* ─────────────────────────────────────────────────────────────────────
    LAYOUT PRIMITIVES
    ───────────────────────────────────────────────────────────────────── */
 
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--usx-color-background);
+  color: var(--usx-color-on-surface);
+  font-family: var(--usx-font-family-sans);
+  font-size: var(--usx-font-size-base);
+  line-height: var(--usx-line-height-normal);
+}
+
 .usx-surface,
-#app {
+#app,
+.app-shell {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100%;
   overflow: hidden;
   background: var(--usx-color-background);
+  min-height: 0;
 }
 
 .usx-topbar,
@@ -62,14 +85,22 @@ input.usx-input--sm, .usx-input--sm {
 [role="banner"] {
   display: flex;
   align-items: center;
-  height: var(--usx-topbar-height);
-  padding: 0 var(--usx-spacing-xl);
+  justify-content: space-between;
+  min-height: var(--usx-topbar-height);
+  padding: 0 var(--usx-spacing-lg);
   flex-shrink: 0;
   border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   background: var(--usx-color-surface);
-  gap: var(--usx-spacing-md);
+  gap: var(--usx-spacing-lg);
   box-sizing: border-box;
   z-index: 100;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  min-width: 320px;
+  min-height: var(--usx-touch-min);
 }
 
 main,
@@ -82,6 +113,11 @@ main,
   box-sizing: border-box;
   width: 100%;
   position: relative;
+  background: var(--usx-color-background);
+  gap: var(--usx-spacing-lg);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 main.usx-main--compact,
@@ -325,16 +361,78 @@ section {
 .usx-grid,
 .grid {
   display: grid;
-  gap: var(--usx-grid-gap);
+  gap: var(--usx-grid-gap-lg);
   grid-template-columns: repeat(auto-fill, minmax(var(--usx-grid-min-col-width), 1fr));
   width: 100%;
+  padding: var(--usx-spacing-lg);
+  box-sizing: border-box;
+  margin: 0;
+  min-width: 0;
+  
+  /* Responsive grid adjustments */
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    padding: var(--usx-spacing-md);
+  }
+  
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
 }
 
 .usx-grid--dense { gap: var(--usx-grid-gap-sm); }
 .usx-grid--loose { gap: var(--usx-grid-gap-lg); }
 
 /* ─────────────────────────────────────────────────────────────────────
-   TABS (Pico nav-style underlined)
+   /* USX tokens for spacing, icons, and layout */
+   :root {
+     --usx-spacing-small: 4px;
+     --usx-spacing-medium: 8px;
+     --usx-spacing-large: 16px;
+     --usx-icon-size: 24px;
+     --usx-padding: 8px;
+     --usx-margin: 8px;
+   }
+   
+   /* Icon styles */
+   .icon {
+     width: var(--usx-icon-size);
+     height: var(--usx-icon-size);
+     fill: currentColor;
+   }
+   
+   /* Layout spacing */
+   .layout-padding {
+     padding: var(--usx-padding);
+   }
+   
+   /* UI element spacing */
+   .ui-spacing {
+     margin: var(--usx-margin);
+   }
+   
+   /* Example icon usage */
+   .icon-example {
+     width: var(--usx-icon-size);
+     height: var(--usx-icon-size);
+     display: inline-block;
+     background-image: url('path/to/icon.svg');
+     background-size: contain;
+     background-repeat: no-repeat;
+   }
+   
+   /* Spacing utility classes */
+   .spacing-small {
+     margin: var(--usx-spacing-small);
+   }
+   .spacing-medium {
+     margin: var(--usx-spacing-medium);
+   }
+   .spacing-large {
+     margin: var(--usx-spacing-large);
+   }
+   
+   /* Additional styles for icons and spacing can be added here for enhancement */
    ───────────────────────────────────────────────────────────────────── */
 
 .usx-tabs,
@@ -364,11 +462,14 @@ section {
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
   font-weight: var(--usx-font-weight-medium);
+  font-size: var(--usx-font-size-base);
   transition: color var(--usx-transition-base), border-color var(--usx-transition-base);
   text-decoration: none;
   white-space: nowrap;
   margin-bottom: calc(var(--usx-border-overlap) * -1);
   font-family: var(--usx-font-family-sans);
+  min-height: var(--usx-touch-min);
+  min-width: var(--usx-touch-min);
 }
 
 .usx-tab:hover,
@@ -596,6 +697,21 @@ button[type="submit"]:hover {
   position: relative;
 }
 
+/* Neutralise Pico CSS button styling inside the toolbar */
+.global-toolbar button,
+.global-toolbar a[role="button"] {
+  --pico-border-width: 0 !important;
+  --pico-border-radius: 0 !important;
+  --pico-box-shadow: none !important;
+  --pico-background-color: transparent !important;
+  --pico-color: inherit !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
+}
+
 .global-toolbar__left,
 .global-toolbar__center,
 .global-toolbar__right {
@@ -609,27 +725,37 @@ button[type="submit"]:hover {
   justify-content: center;
 }
 
+/* ─── Base tab (center labels) ─────────────────────────────────── */
 .global-toolbar__tab {
   display: inline-flex;
   align-items: center;
-  gap: var(--usx-icon-gap);
-  padding: var(--usx-tab-padding);
+  justify-content: center;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border: none;
   border-bottom: var(--usx-tab-border-width) solid transparent;
   background: transparent;
   color: var(--usx-color-on-surface-muted);
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-medium);
   font-family: var(--usx-font-family-sans);
   cursor: pointer;
-  transition: color var(--usx-transition-base), border-color var(--usx-transition-base);
+  transition: color var(--usx-transition-fast);
+  text-decoration: none;
   white-space: nowrap;
   margin-bottom: calc(var(--usx-border-overlap) * -1);
+  min-height: var(--usx-touch-min);
+  line-height: 1;
+}
+
+/* Label text in center tabs — keep at base size even when icon is larger */
+.global-toolbar__tab-label {
+  font-size: var(--usx-font-size-base);
+  line-height: 1.5;
 }
 
 .global-toolbar__tab:hover {
-  color: var(--usx-color-primary);
-  border-bottom-color: transparent;
+  color: var(--usx-color-on-surface);
 }
 
 .global-toolbar__tab--active {
@@ -637,55 +763,72 @@ button[type="submit"]:hover {
   border-bottom-color: var(--usx-color-primary);
 }
 
+/* ─── Nav icons (left) ─────────────────────────────────────────── */
 .global-toolbar__tab--nav {
-  font-weight: var(--usx-font-weight-semibold);
-  border-bottom: var(--usx-tab-border-width) solid transparent;
+  border-bottom: none;
+  padding: var(--usx-spacing-xs);
+  min-height: 0;
+  transition: color var(--usx-transition-fast);
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
+  font-size: 1.25em;
+  line-height: 1;
 }
 
 .global-toolbar__tab--nav:hover {
-  color: var(--usx-color-primary);
-  border-bottom-color: transparent;
+  color: var(--usx-color-on-surface);
 }
 
 .global-toolbar__tab--nav.global-toolbar__tab--active {
   color: var(--usx-color-primary);
-  border-bottom-color: var(--usx-color-primary);
 }
 
+/* ─── Icon-only mode ───────────────────────────────────────────── */
 .global-toolbar__tab--icon-only {
-  padding: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xs);
 }
 
 .global-toolbar__tab--icon-only span {
   display: none;
 }
 
+/* ─── Shared icon sizing ───────────────────────────────────────── */
 .global-toolbar__icon {
   flex-shrink: 0;
-  line-height: 1;
+  width: 1.25em;
+  height: 1.25em;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.25em;
+  line-height: 1;
+  vertical-align: middle;
 }
 
+/* ─── Right-side icon-only buttons (theme toggle, settings) ───── */
 .global-toolbar__icon-only {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--usx-touch-min);
-  height: var(--usx-touch-min);
-  padding: 0;
+  padding: var(--usx-spacing-xs);
   border: none;
-  border-radius: var(--usx-radius-md);
   background: transparent;
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  transition: color var(--usx-transition-base), background var(--usx-transition-base);
+  transition: color var(--usx-transition-fast);
+  font-size: 1.25em;
+  line-height: 1;
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
 }
 
 .global-toolbar__icon-only:hover {
   color: var(--usx-color-on-surface);
-  background: var(--usx-color-surface-hover);
+}
+
+/* Ensure icon-inside-icon-only matches parent size */
+.global-toolbar__icon-only .u-icon {
+  font-size: 1em !important;
 }
 
 .global-toolbar__overflow-anchor {
@@ -703,8 +846,6 @@ button[type="submit"]:hover {
   right: 0;
   background: var(--usx-color-surface);
   border: var(--usx-border-width) solid var(--usx-color-border);
-  border-radius: var(--usx-radius-md);
-  box-shadow: 0 var(--usx-spacing-3) var(--usx-spacing-7) rgba(0, 0, 0, 0.3);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -722,20 +863,33 @@ button[type="submit"]:hover {
   color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
   cursor: pointer;
-  border-radius: var(--usx-radius-sm);
   font-family: var(--usx-font-family-sans);
-  transition: color var(--usx-transition-fast), background var(--usx-transition-fast);
+  transition: color var(--usx-transition-fast);
   text-align: left;
 }
 
 .global-toolbar__overflow-item:hover {
   color: var(--usx-color-on-surface);
-  background: var(--usx-color-surface-hover);
 }
 
 .global-toolbar__overflow-item--active {
   color: var(--usx-color-primary);
-  background: var(--usx-color-surface-active);
+}
+
+/* Toolbar Section Layout */
+.global-toolbar__left,
+.global-toolbar__center,
+.global-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-md);
+  min-height: fit-content;
+}
+
+.global-toolbar__center {
+  flex: 1;
+  justify-content: center;
+  min-width: 200px;
 }
 
 /* Dev Mode toggle */
@@ -745,43 +899,45 @@ button[type="submit"]:hover {
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border: var(--usx-border-width) solid var(--usx-color-border);
-  background: var(--usx-color-surface-variant);
+  border-radius: var(--usx-radius-full);
+  background: transparent;
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  border-radius: var(--usx-radius-md);
   font-size: var(--usx-font-size-xs);
   font-weight: var(--usx-font-weight-semibold);
   font-family: var(--usx-font-family-sans);
-  transition: all var(--usx-transition-base);
+  transition: color var(--usx-transition-fast), border-color var(--usx-transition-fast), background var(--usx-transition-fast);
+  line-height: 1;
 }
 
 .global-toolbar__dev-toggle:hover {
-  background: var(--usx-color-surface-hover);
-  border-color: var(--usx-color-border-light);
+  color: var(--usx-color-on-surface);
+  border-color: var(--usx-color-on-surface-muted);
+}
+
+/* Dev dot indicator */
+.global-toolbar__dev-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--usx-color-on-surface-muted);
+  transition: background var(--usx-transition-fast);
 }
 
 .global-toolbar__dev-toggle--on {
-  background: var(--usx-color-success);
-  border-color: var(--usx-color-success-hover);
-  color: var(--usx-color-on-success);
-}
-
-.global-toolbar__dev-toggle--on:hover {
-  background: var(--usx-color-success-hover);
+  color: var(--usx-color-on-surface);
   border-color: var(--usx-color-success);
-}
-
-.global-toolbar__dev-dot {
-  width: var(--usx-spacing-3);
-  height: var(--usx-spacing-3);
-  border-radius: 50%;
-  background: var(--usx-color-on-surface-muted);
-  transition: all var(--usx-transition-base);
+  background: transparent;
 }
 
 .global-toolbar__dev-toggle--on .global-toolbar__dev-dot {
-  background: var(--usx-color-on-success);
-  box-shadow: 0 0 var(--usx-spacing-2) var(--usx-color-success-hover);
+  background: var(--usx-color-success);
+}
+
+.global-toolbar__dev-toggle--on:hover {
+  border-color: var(--usx-color-success-hover);
+  color: var(--usx-color-on-surface);
 }
 
 .global-toolbar__dev-label {

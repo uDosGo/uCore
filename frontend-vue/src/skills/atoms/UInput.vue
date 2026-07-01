@@ -54,41 +54,65 @@ const emit = defineEmits<{
 .u-input {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: var(--usx-spacing-xs);
-  border-radius: var(--usx-border-radius-md);
-  padding: var(--usx-button-padding-vertical) var(--usx-button-padding-horizontal);
-  background: var(--pico-background-color);
-  transition: background 0.15s ease;
-  height: var(--usx-input-height, 40px);
-  min-height: var(--usx-input-height, 40px);
+  border-radius: var(--usx-radius-md);
+  padding: 0 var(--usx-spacing-md);
+  background: var(--usx-color-surface-variant);
+  transition: background var(--usx-transition-fast);
+  height: var(--usx-input-height, 36px);
+  min-height: var(--usx-input-height, 36px);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  box-sizing: border-box;
+  /* Neutralise Pico CSS input styling */
+  --pico-border-width: 0;
+  --pico-border-radius: 0;
+  --pico-form-element-height: auto;
+  --pico-background-color: transparent;
 }
 
 .u-input:focus-within {
-  background: #1a2332;
+  border-color: var(--usx-color-primary);
+  background: var(--usx-color-surface);
 }
 
 .u-input__icon {
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   flex-shrink: 0;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.15em;
 }
 
 .u-input__field {
   border: none;
   background: transparent;
   outline: none;
-  font-size: var(--usx-font-size-base);
-  color: var(--pico-color);
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface);
   width: 100%;
+  height: 100%;
+  font-family: var(--usx-font-family-sans);
+  padding: 0;
+  line-height: normal;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.u-input__field:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.u-input__field::placeholder {
+  color: var(--usx-color-on-surface-muted);
+  opacity: 0.7;
 }
 
 .u-input--disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: var(--pico-background-color);
 }
 </style>

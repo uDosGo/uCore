@@ -29,11 +29,11 @@
   --usx-tab-border-width: 2px;
 
   /* ===== ICONS ===== */
-  --usx-icon-size: 1.25em;
-  --usx-icon-size-sm: 1em;
-  --usx-icon-size-lg: 1.5em;
-  --usx-icon-size-xl: 2em;
-  --usx-icon-gap: 0.5em;
+  --usx-icon-size: 20px;
+  --usx-icon-size-sm: 16px;
+  --usx-icon-size-lg: 24px;
+  --usx-icon-size-xl: 32px;
+  --usx-icon-gap: var(--usx-spacing-sm);
 
   /* ===== GRID ===== */
   --usx-grid-gap: var(--usx-spacing-md);
@@ -50,8 +50,8 @@
   /* ===== LAYOUT ===== */
   --usx-max-width: 1280px;
   --usx-prose-width: 72ch;
-  --usx-topbar-height: 48px;
-  --usx-grid-min-col-width: 260px;
+  --usx-topbar-height: 56px;
+  --usx-grid-min-col-width: 280px;
   --usx-dropdown-min-width: 180px;
   --usx-border-overlap: 1px;
 

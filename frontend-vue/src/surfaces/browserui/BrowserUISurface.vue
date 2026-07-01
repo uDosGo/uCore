@@ -1,35 +1,36 @@
 <template>
   <div class="surface">
-    <div class="surface__toolbar">
-      <h1 class="surface__topbar-title">Browser</h1>
-      <div class="surface__toolbar-actions">
-        <UInput v-model="searchQuery" placeholder="Search the web..." class="browserui-search-input" />
+    <div class="surface__topbar browserui-topbar">
+      <div class="browserui-search-wrap">
+        <UInput v-model="searchQuery" placeholder="Search the web..." />
       </div>
     </div>
     <div class="surface__content">
-      <div class="browserui-stacks">
-        <div v-for="stack in filteredStacks" :key="stack.id" class="browserui-stack">
-          <div class="browserui-stack-header">
-            <UIcon :name="stack.icon" />
-            <h3>{{ stack.title }}</h3>
-            <UBadge type="info" size="sm">{{ stack.items.length }}</UBadge>
-          </div>
-          <div class="browserui-cards">
-            <a
-              v-for="item in stack.items"
-              :key="item.id"
-              :href="item.url"
-              target="_blank"
-              rel="noopener"
-              class="browserui-card"
-            >
-              <div class="browserui-card-title">{{ item.title }}</div>
-              <div class="browserui-card-desc">{{ item.description }}</div>
-              <div class="browserui-card-tags">
-                <span v-for="tag in item.tags" :key="tag" class="browserui-tag">{{ tag }}</span>
-              </div>
-            </a>
-          </div>
+      <div v-if="filteredStacks.length === 0" class="browserui-empty">
+        <UIcon name="search" class="browserui-empty-icon" />
+        <p>No results found</p>
+      </div>
+      <div v-for="stack in filteredStacks" :key="stack.id" class="browserui-stack">
+        <div class="browserui-stack-header">
+          <UIcon :name="stack.icon" class="browserui-stack-icon" />
+          <h3>{{ stack.title }}</h3>
+          <UBadge type="info" circle>{{ stack.items.length }}</UBadge>
+        </div>
+        <div class="browserui-cards">
+          <a
+            v-for="item in stack.items"
+            :key="item.id"
+            :href="item.url"
+            target="_blank"
+            rel="noopener"
+            class="browserui-card"
+          >
+            <div class="browserui-card-title">{{ item.title }}</div>
+            <div class="browserui-card-desc">{{ item.description }}</div>
+            <div class="browserui-card-tags">
+              <span v-for="tag in item.tags" :key="tag" class="browserui-tag">{{ tag }}</span>
+            </div>
+          </a>
         </div>
       </div>
     </div>
@@ -87,10 +88,50 @@ const filteredStacks = computed(() => {
 </script>
 
 <style scoped>
-.browserui-stacks {
+/* ─── Topbar: search box centered ───────────────────────────────── */
+.browserui-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  padding: var(--usx-spacing-md) var(--usx-spacing-xl);
+}
+
+.browserui-search-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 480px;
+}
+
+.browserui-search-wrap .u-input {
+  width: 100%;
+}
+
+/* ─── Empty state ──────────────────────────────────────────────── */
+.browserui-empty {
   display: flex;
   flex-direction: column;
-  gap: var(--usx-spacing-xl);
+  align-items: center;
+  justify-content: center;
+  padding: var(--usx-spacing-3xl) 0;
+  color: var(--usx-color-on-surface-muted);
+}
+
+.browserui-empty-icon {
+  font-size: 3em;
+  margin-bottom: var(--usx-spacing-md);
+  opacity: 0.4;
+}
+
+.browserui-empty p {
+  font-size: var(--usx-font-size-base);
+  margin: 0;
+}
+
+/* ─── Stack sections ───────────────────────────────────────────── */
+.browserui-stack + .browserui-stack {
+  margin-top: var(--usx-spacing-2xl);
 }
 
 .browserui-stack-header {
@@ -100,16 +141,22 @@ const filteredStacks = computed(() => {
   margin-bottom: var(--usx-spacing-md);
 }
 
+.browserui-stack-icon {
+  font-size: 1.25em;
+  color: var(--usx-color-on-surface-muted);
+}
+
 .browserui-stack-header h3 {
-  font-size: var(--usx-font-size-lg);
-  font-weight: 600;
+  font-size: var(--usx-font-size-base);
+  font-weight: var(--usx-font-weight-semibold);
   margin: 0;
   flex: 1;
 }
 
+/* ─── Card grid ────────────────────────────────────────────────── */
 .browserui-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: var(--usx-spacing-sm);
 }
 
@@ -118,43 +165,44 @@ const filteredStacks = computed(() => {
   flex-direction: column;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-md);
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
   text-decoration: none;
   color: inherit;
-  transition: all 0.15s ease;
+  transition: border-color var(--usx-transition-fast), transform var(--usx-transition-fast);
 }
 
 .browserui-card:hover {
-  border-color: var(--pico-primary);
-  transform: translateY(-1px);
+  border-color: var(--usx-color-primary);
+  transform: translateY(-2px);
 }
 
 .browserui-card-title {
   font-size: var(--usx-font-size-sm);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
+  color: var(--usx-color-on-surface);
 }
 
 .browserui-card-desc {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
+  line-height: var(--usx-line-height-normal);
 }
 
 .browserui-card-tags {
   display: flex;
   gap: var(--usx-spacing-xs);
   flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: var(--usx-spacing-xs);
 }
 
 .browserui-tag {
   font-size: var(--usx-font-size-xs);
-  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  background: var(--pico-border-color);
-  border-radius: var(--usx-border-radius-sm);
-  color: var(--pico-muted-color);
-}
-
-.browserui-search-input {
-  max-width: 500px;
+  padding: 2px var(--usx-spacing-sm);
+  background: var(--usx-color-surface-variant);
+  border-radius: var(--usx-radius-sm);
+  color: var(--usx-color-on-surface-muted);
 }
 </style>

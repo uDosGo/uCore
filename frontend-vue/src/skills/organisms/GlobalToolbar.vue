@@ -75,20 +75,27 @@
       </span>
     </div>
 
-    <!-- Right: Dev Mode toggle + Settings -->
+    <!-- Right: Dev Mode toggle + Theme toggle + Settings -->
     <div class="global-toolbar__right">
       <button
         v-if="devMode.devServerRunning"
         class="global-toolbar__dev-toggle"
-        :class="{ 'global-toolbar__dev-toggle--on': devMode.devModeEnabled }"
+        :class="{ 'global-toolbar__dev-toggle--on': devMode.mode === 'on' || devMode.mode === 'minimal' }"
         @click="devMode.toggle()"
-        :title="devMode.devModeEnabled ? 'Dev Mode ON — click to disable' : 'Dev Mode OFF — click to enable'"
+        :title="(devMode.mode === 'on' || devMode.mode === 'minimal') ? 'Dev Mode ON — click to disable' : 'Dev Mode OFF — click to enable'"
       >
         <span class="global-toolbar__dev-dot"></span>
         <span class="global-toolbar__dev-label">Dev</span>
       </button>
       <UBadge v-else-if="devMode.probed" type="info">Dev Offline</UBadge>
       <UBadge v-else type="warning" title="Probing dev server...">Probing...</UBadge>
+      <button
+        class="global-toolbar__icon-only global-toolbar__theme-toggle"
+        :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+        @click="toggleTheme"
+      >
+        <UIcon :name="isDark ? 'light_mode' : 'dark_mode'" />
+      </button>
       <button class="global-toolbar__icon-only" title="Settings" @click="navigate('/system')">
         <UIcon name="settings" />
       </button>
@@ -111,6 +118,7 @@ import { useDevModeStore } from '../../stores/devMode'
 import { useServerStore, SERVER_TABS } from '../../stores/server'
 import { useWorkflowStore, WORKFLOW_TABS } from '../../stores/workflow'
 import { useDeveloperStore, DEVELOPER_TABS } from '../../stores/developer'
+import { useSettingsStore } from '../../stores/settings'
 import UIcon from '../atoms/UIcon.vue'
 import UBadge from '../atoms/UBadge.vue'
 
@@ -141,8 +149,15 @@ const devMode = useDevModeStore()
 const serverStore = useServerStore()
 const workflowStore = useWorkflowStore()
 const developerStore = useDeveloperStore()
+const settings = useSettingsStore()
 const showOverflow = ref(false)
 const windowWidth = ref(window.innerWidth)
+
+const isDark = computed(() => settings.themeMode === 'dark')
+
+function toggleTheme() {
+  settings.setThemeMode(isDark.value ? 'light' : 'dark')
+}
 
 function navigate(path: string) {
   router.push(path)
