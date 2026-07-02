@@ -401,6 +401,8 @@ function initGrid(tabId: string) {
   if (!el) {
     el = createGridUICanvas({ cols: cfg.cols, rows: cfg.rows, font: cfg.font, cellSize: cfg.cellSize })
     if (cfg.charWidth) el.setAttribute('char-width', String(cfg.charWidth))
+    // Teletext: fixed cell size for readable G0 bitmaps
+    if (tabId === 'teletext') el.setAttribute('fit-container', 'false')
     el.style.flexShrink = '0'
     gridContainer.value.appendChild(el)
     canvasCache.set(tabId, el)
@@ -411,6 +413,8 @@ function initGrid(tabId: string) {
     el.setAttribute('font', cfg.font)
     if (cfg.charWidth) el.setAttribute('char-width', String(cfg.charWidth))
     else el.removeAttribute('char-width')
+    if (tabId === 'teletext') el.setAttribute('fit-container', 'false')
+    else el.removeAttribute('fit-container')
     el.style.display = ''
     // Force reflow so parent clientHeight is valid for _fitToContainer
     void el.offsetHeight
@@ -763,21 +767,71 @@ function onImportFile(e: Event) {
 function loadTeletextDemo() {
   if (!activeCanvas) return
   const cfg = tabConfigs.teletext
-  let buf = createBuffer(cfg.cols, cfg.rows)
-  buf = writeString(buf, 1, 0, 'uDosConnect Teletext', 7, 4, true)
-  buf = writeString(buf, 30, 0, 'P100', 7, 4)
-  buf = writeString(buf, 0, 1, '='.repeat(cfg.cols), 3, 0)
-  buf = writeString(buf, 2, 3, 'Welcome to uCore Teletext', 7, 0, true)
-  buf = writeString(buf, 2, 5, 'GridUI Canvas Engine -- Live', 2, 0)
-  buf = writeString(buf, 2, 7, 'Framework-agnostic Web Component', 6, 0)
-  buf = writeString(buf, 2, 9, 'Powered by grid-algebra + bbcruntime', 5, 0)
-  buf = writeString(buf, 2, 12, 'X'.repeat(36), 4, 0)
-  buf = writeString(buf, 2, 13, 'X  Teletext G0 Character Set    X', 4, 0)
-  buf = writeString(buf, 2, 14, 'X  Block graphics + mosaic       X', 4, 0)
-  buf = writeString(buf, 2, 15, 'X'.repeat(36), 4, 0)
-  buf = writeString(buf, 0, cfg.rows - 2, '='.repeat(cfg.cols), 3, 0)
-  buf = writeString(buf, 1, cfg.rows - 1, 'uDosConnect', 7, 1)
-  buf = writeString(buf, 28, cfg.rows - 1, 'Page 100', 7, 1)
+  const c = cfg.cols, r = cfg.rows
+  let buf = createBuffer(c, r)
+
+  // ─── Header bar ───
+  buf = fill(buf, 0, 0, c, 1, ' ', 7, 4)
+  buf = writeString(buf, 1, 0, 'uCore TELETEXT  ·  GridUI Canvas Engine  ·  P100', 7, 4)
+  buf = writeString(buf, c - 11, 0, 'Fri  3 Jul 2026', 7, 4)
+
+  // ─── Magazine strip ───
+  buf = fill(buf, 0, 1, c, 1, ' ', 7, 1)
+  buf = writeString(buf, 1, 1, '═══  NEWS  ═══  WEATHER  ═══  SPORT  ═══  SCIENCE  ═══  GRID  ═══', 7, 1)
+
+  // ─── Headline ───
+  buf = writeString(buf, 0, 2, '='.repeat(c), 3, 0)
+  buf = writeString(buf, 2, 3, 'uCode GridUI v3 ships with Ceefax G0 emulation', 7, 0, true)
+  buf = writeString(buf, 2, 4, 'MODE7GX3 bitmap renderer brings authentic teletext', 6, 0)
+  buf = writeString(buf, 2, 5, 'pixel-crisp graphics to the 24x24 cell grid', 6, 0)
+
+  // ─── Story column 1 ───
+  buf = writeString(buf, 0, 7, '─' .repeat(19), 3, 0)
+  buf = writeString(buf, 1, 8, 'G0 BITMAP ENGINE', 7, 0)
+  buf[8][17] = { char: '│', fg: 3, bg: 0 }
+  buf = writeString(buf, 1, 9, 'The new G0 renderer', 2, 0)
+  buf = writeString(buf, 1, 10, 'renders MODE7GX3 chars', 2, 0)
+  buf = writeString(buf, 1, 11, 'via offscreen canvas,', 2, 0)
+  buf = writeString(buf, 1, 12, 'threshold to binary,', 2, 0)
+  buf = writeString(buf, 1, 13, 'and NN scaling — zero', 2, 0)
+  buf = writeString(buf, 1, 14, 'anti-aliasing, pixel-', 2, 0)
+  buf = writeString(buf, 1, 15, 'crisp output at any', 2, 0)
+  buf = writeString(buf, 1, 16, 'cell size.', 2, 0)
+
+  // ─── Story column 2 ───
+  buf = writeString(buf, 20, 8, 'AUTO-FIT CONTAINERS', 7, 0)
+  buf[8][37] = { char: '│', fg: 3, bg: 0 }
+  // Split column 2 into two sub-columns
+  buf = writeString(buf, 20, 9, 'Both the 24x24 editor', 5, 0)
+  buf = writeString(buf, 20, 10, 'and 40x25 layer view-', 5, 0)
+  buf = writeString(buf, 20, 11, 'port now auto-size to', 5, 0)
+  buf = writeString(buf, 20, 12, 'fill their containers.', 5, 0)
+  buf = writeString(buf, 20, 14, 'ResizeObserver live-', 5, 0)
+  buf = writeString(buf, 20, 15, 'adjusts cells when the', 5, 0)
+  buf = writeString(buf, 20, 16, 'window or panels change.', 5, 0)
+
+  // ─── Story column 3 ───
+  buf[0][17] = { char: '─', fg: 3, bg: 0 }
+  buf = writeString(buf, c - 19, 8, 'FONT SELECTOR', 7, 0)
+  buf = writeString(buf, c - 19, 9, 'Switch between Press', 6, 0)
+  buf = writeString(buf, c - 19, 10, 'Start 2P (Terminal)', 6, 0)
+  buf = writeString(buf, c - 19, 11, 'and MODE7GX3 (Tele-', 6, 0)
+  buf = writeString(buf, c - 19, 12, 'text) from sidebar.', 6, 0)
+  buf = writeString(buf, c - 19, 14, 'Character grid shows', 6, 0)
+  buf = writeString(buf, c - 19, 15, 'glyphs in active font.', 6, 0)
+  buf = writeString(buf, c - 19, 16, 'Click to place in cell.', 6, 0)
+
+  // ─── Separator and footer articles ───
+  buf = writeString(buf, 0, 18, '='.repeat(c), 3, 0)
+  buf = writeString(buf, 2, 19, 'Weather:  Sunny  22C  Wind: 12mph  Humidity: 45%', 7, 0)
+  buf = writeString(buf, 2, 20, 'Sport:    Grid Editor Cup — Team Canvas leads 3-1', 3, 0)
+  buf = writeString(buf, 2, 21, 'Science:  G0 pixel pipeline reaches v2 milestone', 5, 0)
+
+  // ─── Footer ───
+  buf = writeString(buf, 0, r - 2, '='.repeat(c), 3, 0)
+  buf = writeString(buf, 1, r - 1, 'uDosConnect  ·  uCode GridUI v3  ·  Ceefax Emulation', 7, 1)
+  buf = writeString(buf, c - 10, r - 1, 'Page 100', 7, 1)
+
   activeCanvas.setBuffer(buf)
 }
 
