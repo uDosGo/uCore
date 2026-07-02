@@ -30,7 +30,7 @@
         @click="navigate('/browserui')"
         title="Research"
       >
-        <UIcon name="globe" class="global-toolbar__icon" />
+        <UIcon name="visibility" class="global-toolbar__icon" />
       </button>
       <button
         class="global-toolbar__tab global-toolbar__tab--nav"
@@ -38,7 +38,7 @@
         @click="navigate('/assistui')"
         title="Assistant"
       >
-        <UIcon name="bolt" class="global-toolbar__icon" />
+        <UIcon name="chat" class="global-toolbar__icon" />
       </button>
       <button
         class="global-toolbar__tab global-toolbar__tab--nav"
@@ -46,7 +46,7 @@
         @click="navigate('/ucode')"
         title="GridCore"
       >
-        <UIcon name="terminal" class="global-toolbar__icon" />
+        <UIcon name="grid_on" class="global-toolbar__icon" />
       </button>
     </div>
 
