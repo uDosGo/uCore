@@ -976,8 +976,10 @@ function clearGrid() {
   border-radius: var(--usx-border-radius-sm, 4px);
   padding: 2px var(--usx-spacing-xs);
   cursor: pointer;
-  min-height: 24px;
+  height: var(--usx-touch-min, 32px);
   max-width: 180px;
+  box-sizing: border-box;
+  align-self: center;
 }
 
 .ucode-viewport-select:hover {
