@@ -291,7 +291,9 @@ export class GridUICanvasElement extends HTMLElement {
     const isTeletext = this._font === 'mode7gx3'
     const fontFamily = this._font === 'pressstart2p'
       ? '"Press Start 2P", monospace'
-      : `"${this._font}", monospace`
+      : this._font === 'mode7gx3'
+        ? '"MODE7GX3", monospace'
+        : `"${this._font}", monospace`
     ctx.font = `${fontSize}px ${fontFamily}`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
