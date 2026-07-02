@@ -1,71 +1,118 @@
 # GridUI Rendering Contract — uCode Runtime Target
 
 **Date**: 2026-07-02
-**Status**: Baseline established — frontend alignment complete
-**Purpose**: This document defines the pixel-exact rendering contract between the uCore frontend (GridUI surface) and the uCode backend runtime. The uCode runtime must produce grid buffers that render correctly in this surface.
+**Status**: v2 — Per-cell char-width, fixed grid, multiple render modes
+**Purpose**: Defines the pixel-exact rendering contract. The uCode backend runtime produces `GridBuffer` objects; the frontend renders them. The grid is a **fixed 24×24 pixel cell matrix** — character widths are per-cell, enabling mixed rendering modes on the same grid line.
 
 ---
 
-## Rendering Pipeline
+## Architecture
 
 ```
-uCode Runtime (backend)
-  → GridBuffer (2D GridCell[][], rows × cols)
-    → GridUICanvasElement.setBuffer(buf)
-      → Canvas 2D Context
-        → Pixel buffer → Display
+GridAlgebra (fixed 24×24 cells)     ← grid-core/types.ts, buffer.ts, algebra.ts
+  └── GridBuffer: GridCell[][]       ← cols × rows, each cell is 24×24 CSS px
+       └── GridCell {
+             char: string            ← G0 char code (teletext) or Unicode
+             fg, bg: number          ← palette indices 0-7
+             bold?, blink?, mosaic?  ← formatting flags
+             width?: number          ← render width in CSS px (optional)
+           }
+            ↓
+GridUICanvasElement.setBuffer(buf)   ← Web Component
+  ├── Background: fillRect → full 24×24 cell (zero gaps)
+  ├── Mode: font (Press Start 2P)    ← fillText, square, natural
+  ├── Mode: teletext (MODE7GX3)      ← fillText clipped, char-width=26px
+  └── Mode: block (fillRect)         ← solid fills for graphic chars
+```
+
+## Core Principle: Fixed Grid, Variable Char Width
+
+```
+┌─────────────────────────────────────────────────┐
+│  Grid is always: cols × cellSize CSS pixels      │
+│  e.g. 40 × 20px = 800 × 500                      │
+│                                                   │
+│  Each cell background: 20 × 20 px (gapless)       │
+│  Each char renders at: cell.width || defaultCharW │
+│                                                   │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │ background│  │ background│  │ background│       │
+│  │   [==]    │  │ [MODE7GX3]│  │ [Press2P] │       │
+│  │  charW=26 │  │ charW=26  │  │ charW=20  │       │
+│  └──────────┘  └──────────┘  └──────────┘        │
+│  Same grid cell size (20×20), different char width │
+└─────────────────────────────────────────────────┘
 ```
 
 ## Surface Layout
 
 ### UCodeSurface (route: `/ucode`)
 
-| Tab | Cols | Rows | Cell Size | Font | Expected Pixel Size | Aspect |
-|-----|------|------|-----------|------|-------------------|--------|
-| **Terminal** | 80 | 24 | 16px | `pressstart2p` | 1280×384 | ~10:3 |
-| **Teletext** | 40 | 25 | 20px | `vt323` | 800×500 | 8:5 |
-| **Grid** (editor view) | 24 | 24 | 24px | `vt323` | 576×576 | 1:1 |
-| **Grid** (layer) | 40 | 25 | 12px | `vt323` | 480×300 | 8:5 |
-| **Layer** | 40 | 25 | 20px | `vt323` | 800×500 | 8:5 |
+| Tab | Cols | Rows | Cell | Font | Char W | Viewport | Notes |
+|-----|------|------|------|------|--------|----------|-------|
+| **Terminal** | 40 | 25 | 20px | `pressstart2p` | 20px | 800×500 | Square, natural |
+| **Teletext** | 40 | 25 | 20px | `mode7gx3` | 26px | 800×500 | Wider chars, clipped |
+| **Grid** (editor) | 24 | 24 | 24px | `mode7gx3` | 24px | 576×576 | 1× retro base |
+| **Grid** (layer) | 40 | 25 | 12px | `mode7gx3` | 12px | 480×300 | Miniature overview |
+| **Layer** | 40 | 25 | 20px | `mode7gx3` | 26px | 800×500 | Match teletext |
 
 ### Standalone Routes
 
-| Route | Cols | Rows | Cell Size | Font | Expected Pixel Size |
-|-------|------|------|-----------|------|-------------------|
-| `/terminal` | 80 | 24 | 16px | `pressstart2p` | 1280×384 |
-| `/teletext` | 40 | 25 | 20px | `vt323` | 800×500 |
+| Route | Cols | Rows | Cell | Font | Char W | Viewport |
+|-------|------|------|------|------|--------|----------|
+| `/terminal` | 40 | 25 | 20px | `pressstart2p` | 20px | 800×500 |
+| `/teletext` | 40 | 25 | 20px | `mode7gx3` | 26px | 800×500 |
 
 ## Pixel-Perfect Rendering Guarantees
 
-### Cell Dimensions
+### Cell Dimensions (fixed)
 ```
-canvas CSS width  = cols × cellSize        (exact CSS pixels)
-canvas CSS height = rows × cellSize        (exact CSS pixels)
-canvas pixel width  = canvas CSS width  × devicePixelRatio
-canvas pixel height = canvas CSS height × devicePixelRatio
+canvas CSS width  = cols × cellSize          (exact, e.g. 800px)
+canvas CSS height = rows × cellSize          (exact, e.g. 500px)
+canvas pixel w/h  = CSS dims × devicePixelRatio
 ```
 
-### Zero-Gap Rendering
-```css
-/* No gaps between adjacent cells */
-cellSpacing: 0
-gap: 0
-padding: 0
-margin: 0
+### Zero-Gap Background
+Each cell background fills the full cell with 1px overlap:
+```javascript
+ctx.fillRect(x, y, cellW + 1, cellH + 1)
 ```
-Each cell is rendered as a `fillRect(x, y, cellW, cellH)` with no spacing between adjacent rectangles. Background fills extend edge-to-edge.
+No gap, padding, or margin between adjacent cell backgrounds — ever.
 
-### Font Sizing
-| Font Family | Scale Factor | Font Size Formula |
-|------------|-------------|-------------------|
-| `pressstart2p` | 0.65 | `cellSize × 0.65 × dpr` |
-| `vt323` | 0.9 | `cellSize × 0.9 × dpr` |
-| fallback monospace | ~0.6 | `cellW / 0.6` |
+### Variable Char Width
+```javascript
+// Per-cell width overrides default
+const chW = cell.width ? Math.round(cell.width * dpr) : defaultCharW
 
-Text is centered in each cell with `textAlign: center` and `textBaseline: middle`.
+// Character centered within its width inside the fixed cell
+const cx = x + (cellW - chW) / 2 + chW / 2
+ctx.fillText(cell.char, cx, y + cellH / 2)
+```
+
+| Scenario | Cell | Char Width | Overflow | Clipped |
+|----------|------|-----------|----------|---------|
+| Square font (pressstart2p) | 20px | 20px (= cell) | None | No |
+| Teletext (MODE7GX3) | 20px | **26px** | +3px each side | Yes |
+| Per-cell override | 20px | cell.width | Varies | Yes |
+
+### Font Sizing (derived from char-width)
+```
+fontScale = defaultCharW / cellW    (in physical pixels)
+fontSize  = cellSize × fontScale × dpr
+```
+
+| Font | Config | Scale | Font Size | Glyph Fill |
+|------|--------|-------|-----------|------------|
+| `pressstart2p` | char-width=20 | 1.0× | 40px @2x | ~50% (natural) |
+| `mode7gx3` | char-width=26 | **1.3×** | 52px @2x | **101%** ✅ |
+| `mode7gx3` (fallback) | char-width=24 | 1.0× | 40px @2x | ~78% |
 
 ### Colour Palette
-The 8-colour unified palette (`PALETTE_DARK`) is defined in `grid-core/palette.ts`:
+The 8-colour unified palette (`PALETTE_DARK`) from `grid-core/palette.ts`:<｜end▁of▁thinking｜>
+
+<｜｜DSML｜｜tool_calls>
+<｜｜DSML｜｜invoke name="read_file">
+<｜｜DSML｜｜parameter name="filePath" string="true">/Users/fredbook/Code/uCore/docs/GRIDUI_RENDERING_CONTRACT.md
 | Index | Dark Theme | Purpose |
 |-------|-----------|---------|
 | 0 | `#000000` | Background/black |
@@ -120,6 +167,10 @@ interface GridCell {
   bold?: boolean      // Bold flag
   blink?: boolean     // Blink flag (teletext)
   mosaic?: boolean    // Mosaic block graphic flag
+  /** Render width in CSS pixels within the fixed cell.
+   *  Defaults to char-width attribute (26 for teletext, 20 for terminal).
+   *  Enables mixing square fonts, teletext, and sprites on same grid line. */
+  width?: number
 }
 
 type GridBuffer = GridCell[][]  // [row][col], y × x
@@ -127,18 +178,39 @@ type GridBuffer = GridCell[][]  // [row][col], y × x
 
 **Source**: `frontend-vue/src/grid-core/types.ts`
 
-> **Note**: The vendor grid-algebra (`vendor/gridui-canvas/grid-algebra/GridCell.ts`) has additional fields (`flash`, `doubleHeight`, `doubleWidth`). The canvas renderer only uses `char`, `fg`, `bg`, `bold`, `blink`, and `mosaic`. The runtime should use the `grid-core` type as the canonical buffer format.
+### Render Modes (per cell, on the same grid line)
+
+| Mode | How | Cell example |
+|------|-----|-------------|
+| **Square font** | `fillText` at cell size | `pressstart2p` — 20px char in 20px cell |
+| **Teletext** | `fillText` clipped, wider char | `mode7gx3` — 26px char in 20px cell |
+| **Block graphic** | `fillRect` full cell | `=`, `-`, `|`, `#`, `X` |
+| **Sprite/emoji** | `cell.width` + `cell.char` | Any width, any glyph |
+| **Mosaic** | 2×3 sub-cell blocks | Teletext G0 block graphics |
 
 ## uCode Runtime Requirements
 
-The uCode backend runtime must produce `GridBuffer` objects that the frontend can render. The runtime should:
+The uCode backend runtime must produce `GridBuffer` objects. The runtime should:
 
-1. **Produce buffers matching one of the preset grid sizes** (or define custom sizes)
-2. **Use colour indices 0-7** from the unified palette
-3. **Support `bold` flag** for double-stroke rendering
-4. **Support `blink` flag** for teletext-style blinking characters
-5. **Support `mosaic` flag** for block graphic characters
-6. **Each cell contains exactly one character** (single Unicode code point)
+1. **Use any grid size** — 40×25 is the current standard; aspect presets in algebra.ts
+2. **Colour indices 0-7** from the unified palette (GitHub Dark / Bootstrap)
+3. **Per-cell char widths** via `cell.width` — enables mixed rendering
+4. **Support `bold`** for double-stroke, **`blink`** for teletext flash
+5. **Support `mosaic`** for 2×3 block graphics
+6. **Single Unicode code point per cell** — one character per GridCell
+
+### Canvas vs CSS Rendering Decision
+
+| Factor | Canvas (current) | CSS DOM |
+|--------|-----------------|---------|
+| Performance | Single element, GPU composited | 1000s of `<span>` elements |
+| Anti-aliasing | `fillText` always AA | `-webkit-font-smoothing: none` — crisp |
+| G0 bitmaps | Possible via offscreen canvas + nearest-neighbour | Via @font-face (Galax approach) |
+| Per-pixel control | Full — blend modes, transforms | Limited |
+| Sprite overlay | Trivial — drawImage | Hard — absolute positioning |
+| Scrolling | Full canvas scroll | DOM handles naturally |
+
+**Current decision**: Canvas 2D (Web Component). CSS DOM rendering with `-webkit-font-smoothing: none` remains an option for the uCode runtime if pixel-crisp G0 text is a priority.
 
 ### Viewport Size Reference (24×24 base cell)
 
@@ -178,14 +250,27 @@ viewports:
 - [ ] Grid larger than viewport → scrollable
 - [ ] Grid smaller than viewport → centered
 
-## Playwright Audit Results (2026-07-02 Baseline)
+## Key Design Decisions
 
-| Tab | Expected | Actual (Host) | Canvas Pixels | Cell Check |
-|-----|----------|--------------|---------------|------------|
-| Terminal | 1280×384 | 1280×384 ✅ | 2560×768 | 16×16 ✅ |
-| Teletext | 800×500 | 800×500 ✅ | 1600×1000 | 20×20 ✅ |
-| Grid (editor) | 576×576 | 576×576 ✅ | 1152×1152 | 24×24 ✅ |
-| Grid (layer) | 480×300 | 480×300 ✅ | 960×600 | 12×12 ✅ |
-| Layer | 800×500 | 800×500 ✅ | 1600×1000 | 20×20 ✅ |
+1. **Fixed 24×24 cells, variable char widths** — The grid algebra is constant. Character width is a per-cell property (`GridCell.width`), enabling mixed rendering modes (square font, teletext, sprites) on the same grid line.
 
-**All tabs render at exact pixel dimensions with zero gaps.**
+2. **Per-cell font sizing**: `fontScale = defaultCharW / cellW` — the font size derives from the char width. This means `char-width=26` at 20px cells gives 1.3× scale, filling 101% of the cell width.
+
+3. **MODE7GX3 for teletext** — Downloaded from galax.xyz, based on ModeSeven (BBC Micro MODE 7). Loaded via @font-face from `public/fonts/`. Replaces VT323 which had narrow glyphs.
+
+4. **All canvas, not CSS** — The `<gridui-canvas>` Web Component renders to a single `<canvas>` element. CSS DOM rendering with `-webkit-font-smoothing: none` could give crisper text but loses the per-pixel control needed for sprite/mosaic overlay.
+
+5. **Per-cell mosaic blocks** — The G0 2×3 mosaic system (6 sub-cells, each on/off via 6-bit code) is supported via the `mosaic` flag on `GridCell`.
+
+6. **G0 bitmap renderer (planned)** — Pre-render MODE7GX3 chars to 12×10 bitmaps via offscreen canvas, threshold to binary, render with nearest-neighbour scaling for pixel-crisp output matching galax.xyz quality.
+
+## Playwright Audit Results (2026-07-02)
+
+| Tab | Expected | Actual | Canvas Pixels | Char Fill | Gaps |
+|-----|----------|--------|---------------|-----------|------|
+| Terminal (40×25, 20px, press2p) | 800×500 | 800×500 ✅ | 1600×1000 | ~50% (natural) | 0 bg gaps |
+| Teletext (40×25, 20px, mode7gx3) | 800×500 | 800×500 ✅ | 1600×1000 | **101%** ✅ | 0 bg, 10 narrow-char |
+| Grid editor (24×24, 24px) | 576×576 | 576×576 ✅ | 1152×1152 | 100% (block) | 0 |
+| Grid layer (40×25, 12px) | 480×300 | 480×300 ✅ | 960×600 | — | — |
+
+**All tabs: zero background gaps. Teletext: 0/40 separator gaps (edge-to-edge).**

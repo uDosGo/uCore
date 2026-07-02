@@ -268,14 +268,14 @@ export class GridUICanvasElement extends HTMLElement {
       '█', '▄', '▀', '▐', '▌', '░', '▒', '▓',
     ])
 
-    // Font sizing — text glyphs are clipped to cell boundaries.
-    // VT323: teletext font — boost to 2× so glyphs fill cell width.
-    // (measureText shows glyphs are ~40% of font-size at 1×)
-    // Press Start 2P: pixel font — natural size, user confirmed it looks good.
-    // MODE7GX3: teletext bitmap font — cells are 1.3:1 aspect (wider than tall)
-    // via cell-aspect attribute. Font renders at 1× with no additional scaling.
-    // VT323: fallback teletext font — boost to 2× to compensate for narrow glyphs.
-    const fontScale = this._font === 'mode7gx3' ? 1.0 : this._font === 'vt323' ? 2.0 : 1.0
+    // Font sizing — font renders at char-width scale so glyphs fill the cell.
+    // MODE7GX3: defaultCharW / cellSize determines scale (e.g. 26/20 = 1.3×)
+    // Press Start 2P: defaultCharW = cellSize → 1× (square, natural)
+    // VT323: fallback — boost to 2× for narrow glyphs.
+    const fontScale = this._font === 'vt323' ? 2.0
+      : this._font === 'mode7gx3'
+        ? defaultCharW / cellW  // e.g. 52/40 = 1.3×
+        : 1.0
     const fontSize = Math.round(this._cellSize * fontScale * dpr)
     const fontFamily = this._font === 'pressstart2p'
       ? '"Press Start 2P", monospace'
