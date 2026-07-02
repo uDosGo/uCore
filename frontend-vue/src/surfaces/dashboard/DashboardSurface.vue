@@ -59,9 +59,9 @@ const devMode = useDevModeStore()
 // Hub navigation tabs
 const HUB_TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: 'home' },
-  { id: 'missions', label: 'Mission Control', icon: 'flag' },
+  { id: 'missions', label: 'Missions', icon: 'flag' },
+  { id: 'snackmachine', label: 'Snacks', icon: 'snack' },
   { id: 'server', label: 'Server', icon: 'server' },
-  { id: 'snackmachine', label: 'Snack Machine', icon: 'snack' },
   { id: 'system', label: 'System', icon: 'settings' },
   { id: 'developer', label: 'Developer', icon: 'code' },
 ]

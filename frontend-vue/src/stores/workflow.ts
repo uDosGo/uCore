@@ -75,7 +75,7 @@ export interface WorkflowStatus {
 }
 
 export const WORKFLOW_TABS: { id: WorkflowTab; label: string; icon: string }[] = [
-  { id: 'mission-control', label: 'Missions', icon: 'dashboard' },
+  { id: 'mission-control', label: 'Mission Control', icon: 'dashboard' },
   { id: 'binder', label: 'Binder', icon: 'folder' },
   { id: 'tasks', label: 'Tasks', icon: 'task' },
   { id: 'editor', label: 'Editor', icon: 'article' },

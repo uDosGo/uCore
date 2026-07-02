@@ -41,7 +41,7 @@ const markdown = useMarkdownStore()
 <style scoped>
 .markdown-preview {
   width: 100%;
-  height: 100%;
+  flex: 1;
   overflow-y: auto;
   background: var(--usx-color-surface);
 }
@@ -49,5 +49,6 @@ const markdown = useMarkdownStore()
 :deep(.md-editor-preview) {
   line-height: 1.7;
   padding: var(--usx-spacing-md);
+  min-height: 100%;
 }
 </style>

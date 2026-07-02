@@ -132,20 +132,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Story -->
-      <div v-else-if="srv.activeTab === 'story'">
-        <h3 class="surface__panel-title">Story</h3>
-        <p class="usx-mb-md server-muted-text-sm">Narrative and mission content is managed from the Workflow surface.</p>
-        <UButton variant="secondary" size="sm" @click="$router.push('/workflow')">Open Workflow →</UButton>
-      </div>
-
-      <!-- Snacks -->
-      <div v-else-if="srv.activeTab === 'snacks'">
-        <h3 class="surface__panel-title">Snackbar</h3>
-        <p class="usx-mb-md server-muted-text-sm">Snack management is handled from the SnackMachine surface.</p>
-        <UButton variant="secondary" size="sm" @click="$router.push('/snackmachine')">Open Snack Machine →</UButton>
-      </div>
     </div>
   </div>
 </template>
@@ -154,7 +140,7 @@
 /**
  * @component ServerSurface
  * @description Server operations surface — dashboard, services, logs, models,
- * runtime agents, budget, story links, snackbar.
+ * runtime agents, budget.
  * Uses USX surface classes from usx-standard.css.
  * @category surfaces
  * @usage Routed at '/server/*'

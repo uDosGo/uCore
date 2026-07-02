@@ -1,12 +1,12 @@
 /**
  * @module stores/server
- * @description Server operations state — services, logs, budget, snacks.
+ * @description Server operations state — services, logs, budget.
  * Ported from UServerSurface.tsx (React).
  */
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export type ServerTab = 'dashboard' | 'services' | 'logs' | 'models' | 'agents' | 'budget' | 'story' | 'snacks'
+export type ServerTab = 'dashboard' | 'services' | 'logs' | 'models' | 'agents' | 'budget'
 
 export interface ServiceStatus {
   name: string
@@ -31,8 +31,6 @@ export const SERVER_TABS: { id: ServerTab; label: string; icon: string }[] = [
   { id: 'models', label: 'Models', icon: 'smart_toy' },
   { id: 'agents', label: 'Runtime Agents', icon: 'group' },
   { id: 'budget', label: 'Budget', icon: 'attach_money' },
-  { id: 'story', label: 'Story', icon: 'auto_stories' },
-  { id: 'snacks', label: 'Snacks', icon: 'food_croissant' },
 ]
 
 export const useServerStore = defineStore('server', () => {
