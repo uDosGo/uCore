@@ -1,8 +1,8 @@
 # GridUI Rendering Contract — uCode Runtime Target
 
 **Date**: 2026-07-03
-**Status**: v3 — Auto-fit containers, mixed font rendering, G0 bitmap pipeline, Grid Editor with tools/sidebar
-**Purpose**: Defines the pixel-exact rendering contract. The uCode backend runtime produces `GridBuffer` objects; the frontend renders them. The grid is a **fixed cell matrix** — cells auto-fit to container space, character widths are per-cell, enabling mixed rendering modes on the same grid line.
+**Status**: v3.1 — Teletext: G0 block bitmaps + MODE7GX3 fillText text, mixed font rendering, Grid Editor
+**Purpose**: Defines the pixel-exact rendering contract. The uCode backend runtime produces `GridBuffer` objects; the frontend renders them.
 
 ---
 
@@ -20,9 +20,10 @@ GridAlgebra (fixed grid presets)     ← grid-core/types.ts, buffer.ts, algebra.
             ↓
 GridUICanvasElement.setBuffer(buf)   ← Web Component (canvas 2D)
   ├── Background: fillRect gapless   ← 1px overlap to kill seams
-  ├── G0 Bitmap Renderer             ← mode7gx3: pixel-crisp teletext via offscreen canvas
-  ├── Font Renderer (fillText)       ← pressstart2p, clipped per-cell
-  ├── Block Renderer (fillRect)      ← graphic chars like ═ ║ █
+  ├── Teletext blocks (G0 bitmap)    ← █▄▀║═╔╗ etc. — pixel-crisp offscreen canvas
+  ├── Teletext text (fillText)       ← MODE7GX3 font, 1.3× scale, clipped per-cell
+  ├── Terminal mode (fillText)       ← pressstart2p, square, natural
+  ├── Block Renderer (fillRect)      ← graphic chars fillRect
   ├── Gridlines                      ← optional, faint 1px lines at cell boundaries
   └── Auto-fit via ResizeObserver    ← cells size to container, ceiling at configured cellSize
 
@@ -99,7 +100,20 @@ G0Renderer (g0-renderer.ts)         ← Ceefax teletext bitmap pipeline
 | Route | Cols | Rows | Cell | Font | Notes |
 |-------|------|------|------|------|-------|
 | `/terminal` | 40 | 25 | auto | `pressstart2p` | Uses grid-core canvas renderer |
-| `/teletext` | 40 | 25 | auto | `mode7gx3` | G0 bitmap pipeline |
+| `/teletext` | 40 | 25 | auto | `mode7gx3` | G0 blocks + fillText text |
+
+## Teletext Rendering (mode7gx3)
+
+The `mode7gx3` font renders in two modes:
+
+| Character type | Method | Font | Notes |
+|---------------|--------|------|-------|
+| Block graphics (`█▄▀▐▌░▒▓│─║═╔╗╚╝╠╣╦╩╬`) | G0 bitmap pipeline | MODE7GX3 (pre-rendered) | Pixel-crisp, zero anti-aliasing |
+| Text (A-Z, 0-9, punctuation) | fillText with clipping | MODE7GX3 (TTF) | 1.3× scale, readable |
+
+The G0 renderer pre-renders MODE7GX3 glyphs at 4× on an offscreen canvas, thresholds pixels to binary, then renders with 2× NN scaling for crisp output.
+
+The TELETEXT_BLOCKS set (defined in `gridui-canvas.ts`) determines which characters use G0 vs fillText.
 
 ## Font Selector (Grid Editor Sidebar)
 
@@ -273,7 +287,8 @@ type GridBuffer = GridCell[][]  // [row][col], y × x
 | Mode | How | Cell example |
 |------|-----|-------------|
 | **Square font** | `fillText` at cell size | `pressstart2p` — 20px char in 20px cell |
-| **Teletext** | `fillText` clipped, wider char | `mode7gx3` — 26px char in 20px cell |
+| **Teletext text** | `fillText` clipped, MODE7GX3 font | MODE7GX3 at 1.3× scale, readable characters |
+| **Teletext blocks** | G0 bitmap renderer | `█▄▀║═╔╗` — pixel-crisp, zero aliasing |
 | **Block graphic** | `fillRect` full cell | `=`, `-`, `|`, `#`, `X` |
 | **Sprite/emoji** | `cell.width` + `cell.char` | Any width, any glyph |
 | **Mosaic** | 2×3 sub-cell blocks | Teletext G0 block graphics |
