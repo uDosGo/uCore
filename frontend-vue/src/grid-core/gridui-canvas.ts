@@ -17,6 +17,11 @@
 
 import type { GridBuffer, GridCell } from './types'
 import { PALETTE_DARK, getColour } from './palette'
+import { G0Renderer } from './g0-renderer'
+
+/* ─── G0 Teletext Renderer (singleton) ──────────────────────────── */
+/** For mode7gx3 font, renders G0 characters as pixel-crisp bitmaps */
+const g0 = new G0Renderer()
 
 /* ─── Template ─────────────────────────────────────────────────── */
 
@@ -277,11 +282,12 @@ export class GridUICanvasElement extends HTMLElement {
         ? defaultCharW / cellW  // e.g. 52/40 = 1.3×
         : 1.0
     const fontSize = Math.round(this._cellSize * fontScale * dpr)
+    // G0 teletext renderer (mode7gx3) uses pixel-crisp bitmaps — no font calls during render loop.
+    // Regular fonts (pressstart2p) use fillText with clipping.
+    const isTeletext = this._font === 'mode7gx3'
     const fontFamily = this._font === 'pressstart2p'
       ? '"Press Start 2P", monospace'
-      : this._font === 'mode7gx3'
-        ? '"MODE7GX3", monospace'
-        : `"${this._font}", monospace`
+      : `"${this._font}", monospace`
     ctx.font = `${fontSize}px ${fontFamily}`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
@@ -313,35 +319,40 @@ export class GridUICanvasElement extends HTMLElement {
 
         // Draw character
         if (cell.char && cell.char !== ' ') {
-          ctx.fillStyle = getColour(cell.fg, this._palette)
+          const fg = getColour(cell.fg, this._palette)
+          const bg = getColour(cell.bg, this._palette)
 
-          // Character render width: per-cell override, or default for this font
-          const chW = cell.width ? Math.round(cell.width * dpr) : defaultCharW
-
-          if (BLOCK_CHARS.has(cell.char) && this._font !== 'mode7gx3') {
-            // Block chars: fill the entire cell as a solid rectangle.
-            ctx.fillRect(x, y, cellW, cellH)
+          if (isTeletext) {
+            // G0 bitmap renderer — pixel-crisp, zero anti-aliasing
+            const charCode = cell.char.charCodeAt(0)
+            g0.render(ctx, c * this._cellSize, r * this._cellSize, this._cellSize, charCode, fg, bg, dpr)
           } else {
-            // Text chars: render as font glyph, clipped to cell boundaries.
-            // Character is centered within its render width, which may differ
-            // from cell width (e.g. teletext=26px, square=24px).
-            ctx.save()
-            ctx.beginPath()
-            ctx.rect(x, y, cellW, cellH)
-            ctx.clip()
+            ctx.fillStyle = fg
 
-            // Center the character within its render width
-            const cx = x + (cellW - chW) / 2 + chW / 2
+            // Character render width: per-cell override, or default
+            const chW = cell.width ? Math.round(cell.width * dpr) : defaultCharW
 
-            // Bold: draw twice for thicker appearance
-            if (cell.bold) {
-              ctx.fillText(cell.char, cx - 1, y + cellH / 2)
-              ctx.fillText(cell.char, cx + 1, y + cellH / 2)
+            if (BLOCK_CHARS.has(cell.char)) {
+              // Block chars: fill the entire cell as a solid rectangle.
+              ctx.fillRect(x, y, cellW, cellH)
             } else {
-              ctx.fillText(cell.char, cx, y + cellH / 2)
-            }
+              // Text chars: render as font glyph, clipped to cell boundaries
+              ctx.save()
+              ctx.beginPath()
+              ctx.rect(x, y, cellW, cellH)
+              ctx.clip()
 
-            ctx.restore()
+              const cx = x + (cellW - chW) / 2 + chW / 2
+
+              if (cell.bold) {
+                ctx.fillText(cell.char, cx - 1, y + cellH / 2)
+                ctx.fillText(cell.char, cx + 1, y + cellH / 2)
+              } else {
+                ctx.fillText(cell.char, cx, y + cellH / 2)
+              }
+
+              ctx.restore()
+            }
           }
         }
 
