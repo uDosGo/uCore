@@ -45,7 +45,7 @@ The "Maintenance scheduler stopped" without an error suggests the async
 event loop exits prematurely. Check:
 1. `app/core/snackbar.py` line ~507 — `web.run_app()` completion
 2. Maintenance scheduler signal handling / graceful shutdown path
-3. Python 3.14 compatibility (running on 3.14.5, app was developed for 3.11+)
+3. Python 3.12 compatibility — downgraded from 3.14 to fix aiohttp keepalive OSError
 
 ### Fix Required
 - Stop, debug, and fix the scheduler exit logic

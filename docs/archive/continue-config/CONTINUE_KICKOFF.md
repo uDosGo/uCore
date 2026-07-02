@@ -1,6 +1,6 @@
 # 🚀 Continue Kick-off — Phases 0–1: Test Coverage
 
-**Context:** uCore is a unified daemon (Python 3.14/aiohttp + React/TypeScript) serving as a local-first API development OS. Full architecture in `CONTEXT.md`.
+**Context:** uCore is a unified daemon (Python 3.12/aiohttp + React/TypeScript) serving as a local-first API development OS. Full architecture in `CONTEXT.md`.
 
 ---
 

@@ -6,7 +6,7 @@
   "scripts": {
     "install:root": "bash scripts/install-root.sh",
     "dev": "pnpm --filter @udos/ui-hub-vue run dev",
-    "dev:backend": "cd backend && python -m app.main",
+    "dev:backend": "cd backend && PYTHONPATH=. python -m app",
     "build": "pnpm --filter @udos/ui-hub-vue run build",
     "test": "cd backend && pytest -q",
     "lint": "cd backend && ruff check .",

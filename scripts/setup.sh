@@ -57,7 +57,7 @@ This script sets up the uCore development environment including:
   - ~/.ucore/ data directory structure
 
 Prerequisites:
-  - Python 3.11 or later
+  - Python 3.12.x (3.12 recommended)
   - Node.js 22 or later
   - pnpm 9 or later
 EOF
@@ -120,12 +120,12 @@ info "Checking prerequisites..."
 
 # Python
 PYTHON_BIN=""
-for cmd in python3.14 python3.13 python3.12 python3.11 python3; do
+for cmd in python3.12 python3.13 python3 python3.11; do
     if command -v "$cmd" &>/dev/null; then
         PY_VER=$("$cmd" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
         PY_MAJOR=${PY_VER%%.*}
         PY_MINOR=${PY_VER#*.}
-        if [[ "$PY_MAJOR" -ge 3 && "$PY_MINOR" -ge 11 ]]; then
+        if [[ "$PY_MAJOR" -eq 3 && "$PY_MINOR" -eq 12 ]]; then
             PYTHON_BIN="$cmd"
             break
         fi
@@ -133,7 +133,7 @@ for cmd in python3.14 python3.13 python3.12 python3.11 python3; do
 done
 
 if [[ -z "$PYTHON_BIN" ]]; then
-    err "Python 3.11+ is required. Install it with: brew install python@3.14"
+    err "Python 3.12+ is required. Install it with: brew install python@3.12"
     exit 1
 fi
 ok "Python: $($PYTHON_BIN --version 2>&1)"

@@ -28,7 +28,7 @@ class MetadataAPITest(AioHTTPTestCase):
     async def test_system_info_has_python_version(self):
         resp = await self.client.get("/api/system")
         data = await resp.json()
-        # Python version should be a string like "3.14.x"
+        # Python version should be a string like "3.12.x"
         assert data["python"].startswith("3")
         assert data["python"].count(".") >= 2
 

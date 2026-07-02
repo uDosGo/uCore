@@ -80,15 +80,17 @@ def api_get_sync(path: str, timeout: float = 3.0) -> Optional[dict]:
 def is_ucore_alive() -> bool:
     """Check if uCore backend is running.
     
+    Uses a raw TCP socket probe instead of HTTP to avoid triggering a
+    known aiohttp bug where Python stdlib HTTP clients (urllib, http.client)
+    cause the backend event loop to hang permanently.
+    
     Returns:
         True if backend is responding, False otherwise
     """
+    import socket
     try:
-        import urllib.request
-        
-        req = urllib.request.Request("http://localhost:8484/api/health", method="HEAD")
-        with urllib.request.urlopen(req, timeout=2) as resp:
-            return resp.status < 500
+        with socket.create_connection(("127.0.0.1", 8484), timeout=2):
+            return True
     except Exception:
         return False
 

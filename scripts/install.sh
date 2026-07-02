@@ -51,7 +51,7 @@ This script installs uCore for production use:
 
 Prerequisites (installed automatically by bootstrap.sh):
   - Homebrew
-  - Python 3.11+
+  - Python 3.12.x (3.12 recommended)
   - Node.js 22+
   - pnpm 9+
 EOF

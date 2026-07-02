@@ -11,7 +11,7 @@ uCore uses MCP (Model Context Protocol) servers for extended functionality inclu
 
 - Node.js >= 22.0.0
 - pnpm >= 9.0.0
-- Python >= 3.11
+- Python >= 3.12,<3.13 (3.12 recommended)
 - uCore backend running
 
 ## Installation

@@ -1,13 +1,13 @@
 # uCore — Unified Development OS
 
-[![Python](https://img.shields.io/badge/Python-3.14-blue)]()
+[![Python](https://img.shields.io/badge/Python-3.12-blue)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)]()
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)]()
 [![Tests](https://img.shields.io/badge/Tests-301%20passing-brightgreen)]()
 
 uCore is a **local-first, AI-powered development daemon** that unifies syntax, automation, and runtime management.
 
-**Port:** 8484 | **Stack:** Python 3.14 + aiohttp + SQLite + Vue 3 + TypeScript
+**Port:** 8484 | **Stack:** Python 3.12 + aiohttp + SQLite + Vue 3 + TypeScript
 
 ## Quick Start
 
@@ -17,7 +17,7 @@ uCore is a **local-first, AI-powered development daemon** that unifies syntax, a
 curl -fsSL https://raw.githubusercontent.com/uDosGo/uCore/main/scripts/bootstrap.sh | bash
 ```
 
-This installs Homebrew, Python 3.14, Node.js 22, pnpm, clones uCore, and starts everything.
+This installs Homebrew, Python 3.12, Node.js 22, pnpm, clones uCore, and starts everything.
 
 ### Already Have Prerequisites
 

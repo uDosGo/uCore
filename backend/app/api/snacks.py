@@ -27,7 +27,20 @@ from app.services.snackbar_orchestrator import SnackbarOrchestrator
 _orch = SnackbarOrchestrator()
 
 
+async def list_snackmachine(request: web.Request) -> web.Response:
+    """GET /snackmachine — aggregated snack machine status for menu bar / surface."""
+    queue = _orch.get_queue()
+    history = _orch.get_history(limit=20)
+    return web.json_response({
+        "snacks": [s.model_dump(mode="json") for s in queue],
+        "pending": len(queue),
+        "history": [s.model_dump(mode="json") for s in history],
+        "ok": True,
+    })
+
+
 def register_snack_routes(app: web.Application) -> None:
+    app.router.add_get("/snackmachine", list_snackmachine)
     app.router.add_get("/api/snacks", list_queue)
     app.router.add_post("/api/snacks", queue_snack)
     app.router.add_get("/api/snacks/history", get_history)

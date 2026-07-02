@@ -38,7 +38,7 @@ async def demo_toon_optimization():
 
 ## Technical Details
 
-- Use Python 3.14 with FastAPI
+- Use Python 3.12 with FastAPI
 - PostgreSQL database with async support
 - Redis for caching
 - Docker for containerization

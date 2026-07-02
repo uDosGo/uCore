@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ucore"
-version = "4.0.0"
+version = "4.0.3"
 description = "uCore — unified daemon combining uServer + uConnect backend"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }
 authors = [
     { name = "uDos Go" },

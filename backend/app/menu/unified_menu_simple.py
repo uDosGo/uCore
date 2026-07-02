@@ -189,17 +189,19 @@ class UnifiedMenuDelegate(NSObject):
 
         # ── Header ──────────────────────────────────────────────
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🍿 uCore Menu", None, "",
+            "🍔 SnackShack", None, "h",
         )
-        item.setEnabled_(False)
+        item.setEnabled_(True)
+        item.setTarget_(self)
+        item.setAction_("openSnackMachine:")
         self._menu.addItem_(item)
 
         self._menu.addItem_(NSMenuItem.separatorItem())
 
         # ── UI Hub Section ──────────────────────────────────────
-        uihub_status = "🟢" if self._uihub_connected else "😢"
+        uihub_status = "😊" if self._uihub_connected else "😢"
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            f"{uihub_status} UI Hub", None, "",
+            f"{uihub_status} Frontend", None, "",
         )
         item.setEnabled_(False)
         self._menu.addItem_(item)
@@ -220,7 +222,7 @@ class UnifiedMenuDelegate(NSObject):
         self._menu.addItem_(item)
 
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "📋 Clipboard", "showClipboardPopover:", "v",
+            "🏝️ Clipboard", "showClipboardPopover:", "v",
         )
         item.setTarget_(self)
         self._menu.addItem_(item)
@@ -228,7 +230,7 @@ class UnifiedMenuDelegate(NSObject):
         self._menu.addItem_(NSMenuItem.separatorItem())
 
         # ── Status ───────────────────────────────────────────────
-        backend_status = "🟢" if self._connected else "🔴"
+        backend_status = "😊" if self._connected else "😢"
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
             f"{backend_status} Backend", None, "",
         )
@@ -238,15 +240,6 @@ class UnifiedMenuDelegate(NSObject):
         state = "✓" if self._start_at_login else "  "
         item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
             f"{state} Start at Login", "toggleStartAtLogin:", "",
-        )
-        item.setTarget_(self)
-        self._menu.addItem_(item)
-
-        self._menu.addItem_(NSMenuItem.separatorItem())
-
-        # ── SnackShack ────────────────────────────────────────
-        item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "🛖 SnackShack", "openSnackMachine:", "h",
         )
         item.setTarget_(self)
         self._menu.addItem_(item)

@@ -39,7 +39,7 @@ if ! check_backend; then
         PYTHON_BIN="/usr/bin/python3"
     fi
     
-    $PYTHON_BIN -m app.core.snackbar --port 8484 > "$LOG_DIR/ucore-server.log" 2>&1 &
+    cd "$BACKEND_DIR" && PYTHONPATH=. $PYTHON_BIN -m app --port 8484 > "$LOG_DIR/ucore-server.log" 2>&1 &
     sleep 3
     
     if check_backend; then
@@ -58,7 +58,7 @@ if ! check_menu; then
         PYTHON_BIN="/usr/bin/python3"
     fi
     
-    $PYTHON_BIN -m app.menu.unified_menu > "$LOG_DIR/ucore-menu.log" 2>&1 &
+    cd "$BACKEND_DIR" && PYTHONPATH=. $PYTHON_BIN -m app.menu.unified_menu_simple > "$LOG_DIR/ucore-menu.log" 2>&1 &
     sleep 2
     
     if check_menu; then

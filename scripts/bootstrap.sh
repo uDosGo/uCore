@@ -3,7 +3,7 @@
 #
 # This script installs all prerequisites on a fresh macOS system:
 #   1. Homebrew (if not installed)
-#   2. Python 3.14 via Homebrew
+#   2. Python 3.12 via Homebrew
 #   3. Node.js 22 via Homebrew
 #   4. pnpm via Homebrew
 #   5. git (via Homebrew, if needed)
@@ -47,7 +47,7 @@ Options:
 
 This script installs all prerequisites on a fresh macOS system:
   1. Homebrew (package manager)
-  2. Python 3.14
+  2. Python 3.12
   3. Node.js 22
   4. pnpm
   5. git
@@ -113,7 +113,7 @@ fi
 
 info "Step 2/6: Checking Python..."
 PYTHON_INSTALLED=false
-for cmd in python3.14 python3.13 python3.12 python3.11 python3; do
+for cmd in python3.12 python3.13 python3 python3.11; do
     if command -v "$cmd" &>/dev/null; then
         PY_VER=$("$cmd" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
         PY_MAJOR=${PY_VER%%.*}
@@ -127,9 +127,9 @@ for cmd in python3.14 python3.13 python3.12 python3.11 python3; do
 done
 
 if [[ "$PYTHON_INSTALLED" == "false" ]]; then
-    info "Installing Python 3.14 via Homebrew..."
-    brew install python@3.14
-    ok "Python 3.14 installed"
+    info "Installing Python 3.12 via Homebrew..."
+    brew install python@3.12
+    ok "Python 3.12 installed"
 fi
 
 # ─── 3. Node.js ──────────────────────────────────────────────────────
@@ -207,7 +207,7 @@ echo "║   uCore Bootstrap Complete! 🎉          ║"
 echo "╚══════════════════════════════════════════╝"
 echo ""
 echo "  ✅ Homebrew installed/updated"
-echo "  ✅ Python 3.14 installed"
+echo "  ✅ Python 3.12 installed"
 echo "  ✅ Node.js 22 installed"
 echo "  ✅ pnpm installed"
 echo "  ✅ git installed"
