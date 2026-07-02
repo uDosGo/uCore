@@ -28,8 +28,25 @@
       </template>
     </SurfaceTabNav>
 
-    <!-- ─── Non-Grid tabs: single canvas ─── -->
-    <div v-if="activeTab !== 'grid'" class="surface__body">
+    <!-- ─── Layer Composer tab: prose stub ─── -->
+    <div v-if="activeTab === 'layer'" class="surface__body">
+      <div class="surface__canvas">
+        <div class="layer-composer-prose">
+          <h2>Layer Composer</h2>
+          <p>Layer composer is the spatial and geographical linking of Layers into <strong>Worlds</strong>.</p>
+          <p>This feature is under development. The linking system will connect map layers — terrain, structures, units — into unified spatial environments with geographical coordinates, adjacency rules, and world-level queries.</p>
+          <ul>
+            <li><a href="https://github.com/uDosGo/uCore/tree/main/docs" target="_blank" rel="noopener">uCore docs</a></li>
+            <li><a href="https://github.com/uDosGo/uCore/tree/main/docs/specs" target="_blank" rel="noopener">Spatial / location specs</a></li>
+            <li><a href="https://github.com/uDosGo/uCore/tree/main/docs/archived" target="_blank" rel="noopener">Geography / map layer archives</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Other non-grid tabs (Terminal / Teletext) ─── -->
+    <template v-else-if="activeTab !== 'grid'">
+    <div class="surface__body">
       <!-- Slide-in preset popover (floats over canvas) -->
       <div class="preset-popover" :class="{ open: showPresets }">
         <div class="preset-popover__inner">
@@ -48,6 +65,7 @@
         <div ref="gridContainer" class="ucode-viewport" role="region" :aria-label="`${currentTitle} viewport`"></div>
       </div>
     </div>
+    </template>
 
     <!-- ─── Grid Editor tab: split layout ─── -->
     <div v-else class="grid-editor-layout">
@@ -157,7 +175,7 @@
               v-for="ch in fontChars" :key="ch"
               class="sidebar-char-chip"
               :class="{ selected: selectedChar === ch }"
-              :style="{ fontFamily: editorFont === 'mode7gx3' ? 'MODE7GX3, monospace' : '\"Press Start 2P\", monospace' }"
+              :style="{ fontFamily: chipFont }"
               :title="`U+${ch.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0')}`"
               @click="placeChar(ch)"
             >{{ ch }}</button>
@@ -292,6 +310,12 @@ function placeChar(ch: string) {
     }
   }
 }
+
+const chipFont = computed(() =>
+  editorFont.value === 'mode7gx3'
+    ? "'MODE7GX3', monospace"
+    : '"Press Start 2P", monospace'
+)
 
 const selectedCharCode = computed(() =>
   selectedChar.value
@@ -1221,6 +1245,35 @@ function clearGrid() {
   right: 1px;
   background: rgba(255,255,255,0.8);
   color: #000;
+}
+
+/* Layer Composer prose stub */
+.layer-composer-prose {
+  max-width: var(--usx-prose-width, 72ch);
+  margin: var(--usx-spacing-xl) auto;
+  padding: var(--usx-spacing-xl);
+}
+
+.layer-composer-prose h2 {
+  font-size: var(--usx-font-size-2xl, 24px);
+  margin: 0 0 var(--usx-spacing-md);
+  color: var(--usx-color-on-surface);
+}
+
+.layer-composer-prose p {
+  margin: 0 0 var(--usx-spacing-md);
+  color: var(--usx-color-on-surface);
+  line-height: 1.6;
+}
+
+.layer-composer-prose ul {
+  margin: 0;
+  padding-left: var(--usx-spacing-lg);
+}
+
+.layer-composer-prose a {
+  color: var(--usx-color-primary);
+  text-decoration: underline;
 }
 
 /* ─── Shared ────────────────────────────────────────────────────── */
