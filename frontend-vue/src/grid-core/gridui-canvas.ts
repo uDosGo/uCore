@@ -52,6 +52,11 @@ export class GridUICanvasElement extends HTMLElement {
   private _blinkState: boolean = true
   private _blinkInterval: number | null = null
   private _hoveredCell: { col: number; row: number } | null = null
+  private _resizeObserver: ResizeObserver | null = null
+  /** Configured cellSize from attribute (before any container fitting) */
+  private _configuredCellSize: number = 16
+  /** Whether to auto-fit to container (default true, set fit-container="false" to disable) */
+  private _fitToContainerEnabled: boolean = true
 
   /* ─── Observed Attributes ─────────────────────────────────────── */
 
@@ -80,14 +85,19 @@ export class GridUICanvasElement extends HTMLElement {
   connectedCallback(): void {
     this._parseAttributes()
     this._startBlink()
-    // Size canvas to exact grid dimensions, then render
-    this._fitCanvas()
+    // Observe container for responsive fitting
+    this._resizeObserver = new ResizeObserver(() => this._fitToContainer())
+    this._resizeObserver.observe(this.parentElement || this)
+    // Size canvas and render
+    this._fitToContainer()
     this._render()
   }
 
 
   disconnectedCallback(): void {
     this._stopBlink()
+    this._resizeObserver?.disconnect()
+    this._resizeObserver = null
   }
 
   attributeChangedCallback(): void {
@@ -101,7 +111,9 @@ export class GridUICanvasElement extends HTMLElement {
     this._cols = parseInt(this.getAttribute('cols') || '40', 10)
     this._rows = parseInt(this.getAttribute('rows') || '25', 10)
     this._cellSize = parseInt(this.getAttribute('cell-size') || '16', 10)
+    this._configuredCellSize = this._cellSize
     this._font = this.getAttribute('font') || 'monospace'
+    this._fitToContainerEnabled = this.getAttribute('fit-container') !== 'false'
 
     // Ensure buffer matches dimensions
     if (this._buffer.length === 0) {
@@ -110,17 +122,27 @@ export class GridUICanvasElement extends HTMLElement {
   }
 
   /**
-   * Fit the canvas to the grid dimensions at the current DPR.
-   * The canvas pixel size = cols × cellSize × devicePixelRatio.
-   * CSS size = cols × cellSize (in CSS pixels).
+   * Fit the grid to the available container space.
+   * Uses the configured cellSize when container is large enough,
+   * shrinks cells proportionally when container is small.
+   * Always keeps the grid centered.
+   * Disable with fit-container="false" attribute.
    */
-  /**
-   * Size the canvas to exactly match the grid dimensions at the current DPR.
-   * The canvas pixel size = cols × cellSize × devicePixelRatio.
-   * CSS size = cols × cellSize (in CSS pixels).
-   * This guarantees each cell is exactly cellSize×cellSize CSS pixels.
-   */
-  private _fitCanvas(): void {
+  private _fitToContainer(): void {
+    if (!this._fitToContainerEnabled || !this.parentElement) {
+      this._cellSize = this._configuredCellSize
+    } else {
+      const parent = this.parentElement
+      const availW = parent.clientWidth
+      const availH = parent.clientHeight
+      const maxCellW = Math.floor(availW / this._cols)
+      const maxCellH = Math.floor(availH / this._rows)
+      // Use configured size if it fits, otherwise shrink to fit
+      this._cellSize = Math.min(this._configuredCellSize, maxCellW, maxCellH)
+      // Never go below 4px cells
+      if (this._cellSize < 4) this._cellSize = 4
+    }
+
     const dpr = window.devicePixelRatio || 1
     const cssWidth = this._cols * this._cellSize
     const cssHeight = this._rows * this._cellSize
@@ -130,11 +152,9 @@ export class GridUICanvasElement extends HTMLElement {
     if (this._canvas.width !== pixelWidth || this._canvas.height !== pixelHeight) {
       this._canvas.width = pixelWidth
       this._canvas.height = pixelHeight
-      this._canvas.style.width = `${cssWidth}px`
-      this._canvas.style.height = `${cssHeight}px`
     }
-
-    // Size the host element to match the canvas for proper intrinsic sizing
+    this._canvas.style.width = `${cssWidth}px`
+    this._canvas.style.height = `${cssHeight}px`
     this.style.width = `${cssWidth}px`
     this.style.height = `${cssHeight}px`
   }
@@ -217,8 +237,8 @@ export class GridUICanvasElement extends HTMLElement {
     const ctx = this._ctx
     const dpr = window.devicePixelRatio || 1
 
-    // Ensure canvas is sized to exact grid dimensions
-    this._fitCanvas()
+    // Ensure canvas is sized to fit container
+    this._fitToContainer()
 
     const cellW = Math.round(this._cellSize * dpr)
     const cellH = Math.round(this._cellSize * dpr)

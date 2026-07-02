@@ -330,12 +330,14 @@ function initGridEditor() {
 
   // Editor view: 24×24 cells at 24px each (1x retro base cell)
   editorCanvas = createGridUICanvas({ cols: editorCols, rows: editorRows, font: 'vt323', cellSize: 24 })
+  editorCanvas.setAttribute('fit-container', 'false')
   editorCanvas.style.flexShrink = '0'
   editorCanvas.addEventListener('cell-click', onEditorCellClick as EventListener)
   editorViewportRef.value.appendChild(editorCanvas)
 
   // Layer overview: 40×25 at 12px each (scaled to fit)
   layerCanvas = createGridUICanvas({ cols: LAYER_COLS, rows: LAYER_ROWS, font: 'vt323', cellSize: 12 })
+  layerCanvas.setAttribute('fit-container', 'false')
   layerCanvas.style.flexShrink = '0'
   layerCanvas.addEventListener('cell-click', onLayerCellClick as EventListener)
   layerViewportRef.value.appendChild(layerCanvas)
