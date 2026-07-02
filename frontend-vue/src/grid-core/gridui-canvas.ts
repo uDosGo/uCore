@@ -240,6 +240,10 @@ export class GridUICanvasElement extends HTMLElement {
     // Ensure canvas is sized to fit container
     this._fitToContainer()
 
+    // Disable canvas smoothing for pixel-perfect rendering — prevents
+    // anti-aliased seams between adjacent filled rectangles.
+    ctx.imageSmoothingEnabled = false
+
     const cellW = Math.round(this._cellSize * dpr)
     const cellH = Math.round(this._cellSize * dpr)
 
@@ -251,17 +255,28 @@ export class GridUICanvasElement extends HTMLElement {
     // Clipping per cell prevents overflow into adjacent cells.
     // Press Start 2P: pixel font at cellSize maps its pixel grid to cells
     // VT323: teletext font slightly oversized to fill cell height
-    const fontSize = (this._font === 'pressstart2p' || this._font === '"pressstart2p"')
-      ? Math.round(this._cellSize * dpr)
+    // Block chars: graphic/line characters that should fill the cell as solid rects
+    // This gives true grid-aligned rendering instead of relying on font glyph widths.
+    const BLOCK_CHARS = new Set([
+      '=', '-', '|', '#', '*', '.', '~', 'X', 'x', '+', '·',
+      '─', '│', '═', '║', '╔', '╗', '╚', '╝', '╠', '╣', '╦', '╩', '╬',
+      '█', '▄', '▀', '▐', '▌', '░', '▒', '▓',
+    ])
+
+    // Font for text characters — oversized and clipped so glyphs fill the cell
+    const fontScale = (this._font === 'pressstart2p' || this._font === '"pressstart2p"')
+      ? 1.5   // Press Start 2P has narrow glyphs (±50% width) — boost to fill
       : (this._font === 'vt323' || this._font === '"vt323"')
-        ? Math.round(this._cellSize * 1.05 * dpr)
-        : Math.round(cellW / 0.6)
+        ? 1.2  // VT323 is wider
+        : 1.0
+    const fontSize = Math.round(this._cellSize * fontScale * dpr)
     ctx.font = `${fontSize}px "${this._font}", monospace`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 
-    // Draw each cell — NO gaps between cells
-    // cellW and cellH are in canvas-physical pixels (accounting for DPR)
+    // Draw each cell — ZERO gaps between cells.
+    // Background fills overlap by 1px to eliminate anti-aliased seam lines
+    // that can appear between adjacent rectangles on some GPUs/browsers.
     for (let r = 0; r < this._rows && r < this._buffer.length; r++) {
       const row = this._buffer[r]
       if (!row) continue
@@ -276,32 +291,39 @@ export class GridUICanvasElement extends HTMLElement {
         // Skip blink cells when blink state is off
         if (cell.blink && !this._blinkState) {
           ctx.fillStyle = getColour(cell.bg, this._palette)
-          ctx.fillRect(x, y, cellW, cellH)
+          ctx.fillRect(x, y, cellW + 1, cellH + 1)
           continue
         }
 
-        // Draw background — fills the entire cell area with NO gap
+        // Draw background — fills entire cell + 1px overlap to kill seams
         ctx.fillStyle = getColour(cell.bg, this._palette)
-        ctx.fillRect(x, y, cellW, cellH)
+        ctx.fillRect(x, y, cellW + 1, cellH + 1)
 
-        // Draw character — clip to cell boundaries for true grid alignment
+        // Draw character
         if (cell.char && cell.char !== ' ') {
-          ctx.save()
-          ctx.beginPath()
-          ctx.rect(x, y, cellW, cellH)
-          ctx.clip()
-
           ctx.fillStyle = getColour(cell.fg, this._palette)
 
-          // Bold: draw twice for thicker appearance
-          if (cell.bold) {
-            ctx.fillText(cell.char, x + cellW / 2 - 1, y + cellH / 2)
-            ctx.fillText(cell.char, x + cellW / 2 + 1, y + cellH / 2)
+          if (BLOCK_CHARS.has(cell.char)) {
+            // Block chars: fill the entire cell as a solid rectangle.
+            // This gives true grid-aligned rendering for graphic elements.
+            ctx.fillRect(x, y, cellW, cellH)
           } else {
-            ctx.fillText(cell.char, x + cellW / 2, y + cellH / 2)
-          }
+            // Text chars: render as font glyph, clipped to cell boundaries
+            ctx.save()
+            ctx.beginPath()
+            ctx.rect(x, y, cellW, cellH)
+            ctx.clip()
 
-          ctx.restore()
+            // Bold: draw twice for thicker appearance
+            if (cell.bold) {
+              ctx.fillText(cell.char, x + cellW / 2 - 1, y + cellH / 2)
+              ctx.fillText(cell.char, x + cellW / 2 + 1, y + cellH / 2)
+            } else {
+              ctx.fillText(cell.char, x + cellW / 2, y + cellH / 2)
+            }
+
+            ctx.restore()
+          }
         }
 
         // Mosaic mode: draw block graphic
