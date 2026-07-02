@@ -157,8 +157,9 @@
               v-for="ch in fontChars" :key="ch"
               class="sidebar-char-chip"
               :class="{ selected: selectedChar === ch }"
+              :style="{ fontFamily: editorFont === 'mode7gx3' ? 'MODE7GX3, monospace' : '\"Press Start 2P\", monospace' }"
               :title="`U+${ch.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0')}`"
-              @click="selectedChar = ch"
+              @click="placeChar(ch)"
             >{{ ch }}</button>
           </div>
         </div>
@@ -277,6 +278,20 @@ const fontChars = computed(() => {
   for (let i = 0x21; i <= 0x7E; i++) chars.push(String.fromCharCode(i))
   return chars
 })
+
+function placeChar(ch: string) {
+  selectedChar.value = ch
+  // Write char to center cell of the editor viewport
+  if (activeTab.value === 'grid') {
+    const cx = editorFocusX.value + Math.floor(editorCols / 2)
+    const cy = editorFocusY.value + Math.floor(editorRows / 2)
+    if (cx >= 0 && cx < LAYER_COLS && cy >= 0 && cy < LAYER_ROWS) {
+      layerBuffer[cy][cx] = { char: ch, fg: selectedFg.value, bg: selectedBg.value }
+      syncEditorToFocus()
+      renderLayerOverview()
+    }
+  }
+}
 
 const selectedCharCode = computed(() =>
   selectedChar.value
