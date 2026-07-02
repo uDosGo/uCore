@@ -442,8 +442,37 @@ function initGridEditor() {
   layerCanvas.addEventListener('cell-click', onLayerCellClick as EventListener)
   layerViewportRef.value.appendChild(layerCanvas)
 
+  // Fill layer with demo map content
+  loadGridEditorDemo()
   renderLayerOverview()
   syncEditorToFocus()
+}
+
+function loadGridEditorDemo() {
+  layerBuffer = createBuffer(LAYER_COLS, LAYER_ROWS)
+  // Title
+  layerBuffer = writeString(layerBuffer, 1, 0, 'uCode Grid Editor', 7, 5, true)
+  // Fill with '.' background
+  layerBuffer = fill(layerBuffer, 0, 1, LAYER_COLS, LAYER_ROWS - 2, '.', 4, 0)
+  // Map layers
+  const layers = [
+    { label: 'Terrain', color: 2, y: 3, fillChar: '#' },
+    { label: 'Structures', color: 3, y: 8, fillChar: '&' },
+    { label: 'Units', color: 1, y: 13, fillChar: '@' },
+  ]
+  for (const layer of layers) {
+    layerBuffer = fill(layerBuffer, 4, layer.y, 30, 3, layer.fillChar, layer.color, 0)
+    layerBuffer = writeString(layerBuffer, 4, layer.y + 1, `  ~ ${layer.label} ~  `, 7, layer.color, true)
+  }
+  // Legend panel
+  layerBuffer = writeString(layerBuffer, 40, 3, '╔══════════════╗', 6, 0)
+  layerBuffer = writeString(layerBuffer, 40, 4, '║  Layer Stack ║', 6, 0)
+  layerBuffer = writeString(layerBuffer, 40, 5, '╠══════════════╣', 6, 0)
+  layerBuffer = writeString(layerBuffer, 40, 6, '║  1. Terrain  ║', 2, 0)
+  layerBuffer = writeString(layerBuffer, 40, 7, '║  2. Structs  ║', 3, 0)
+  layerBuffer = writeString(layerBuffer, 40, 8, '║  3. Units    ║', 1, 0)
+  layerBuffer = writeString(layerBuffer, 40, 9, '╚══════════════╝', 6, 0)
+  layerBuffer = writeString(layerBuffer, 1, LAYER_ROWS - 3, ' Click a cell to edit in the editor above', 7, 0)
 }
 
 function destroyGridEditor() {
