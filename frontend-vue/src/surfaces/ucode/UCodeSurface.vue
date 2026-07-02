@@ -860,30 +860,32 @@ function clearGrid() {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 6px;
-  width: 140px;
+  padding: 2px;
+  width: 180px;
 }
 
 .editor-section__tools {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 2px;
-  width: 100%;
+  justify-content: center;
 }
 
 .editor-tool-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  aspect-ratio: 1;
+  width: 28px;
+  height: 28px;
+  min-height: 0;
   border: 1px solid var(--usx-color-border);
   border-radius: 4px;
   background: var(--usx-color-surface);
   color: var(--usx-color-on-surface-muted);
-  font-size: 20px;
+  font-size: 16px;
   cursor: pointer;
   padding: 0;
+  box-sizing: border-box;
 }
 
 .editor-tool-btn:hover {
@@ -898,19 +900,21 @@ function clearGrid() {
 }
 
 .editor-section__colours {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 2px;
-  width: 100%;
+  justify-content: center;
 }
 
 .editor-colour-swatch {
-  width: 100%;
-  aspect-ratio: 1;
+  width: 20px;
+  height: 20px;
+  min-height: 0;
   border: 2px solid var(--usx-color-border);
   border-radius: 3px;
   cursor: pointer;
   padding: 0;
+  box-sizing: border-box;
   transition: transform 0.1s ease, border-color 0.1s ease;
 }
 
@@ -930,26 +934,24 @@ function clearGrid() {
 }
 
 .editor-section__actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 2px;
-  width: 100%;
+  justify-content: center;
 }
 
 .editor-action-btn {
-  width: 100%;
-  aspect-ratio: 1;
-  font-size: 10px;
+  font-size: 9px;
   font-family: monospace;
   font-weight: 600;
+  padding: 3px 4px;
+  min-height: 0;
+  height: auto;
   border: 1px solid var(--usx-color-border);
   border-radius: 3px;
   background: var(--usx-color-surface);
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .editor-action-btn:hover {
