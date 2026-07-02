@@ -340,9 +340,9 @@ export class GridUICanvasElement extends HTMLElement {
               const charCode = cell.char.charCodeAt(0)
               g0.render(ctx, c * this._cellSize, r * this._cellSize, this._cellSize, charCode, fg, bg, dpr)
             } else {
-              // Regular text: render with Teletext50 font via fillText (readable teletext)
+              // Regular text: fillText with MODE7GX3 font
               ctx.fillStyle = fg
-              ctx.font = `${Math.round(this._cellSize * 2 * dpr)}px "Teletext50", monospace`
+              ctx.font = `${fontSize}px ${fontFamily}`
               ctx.save()
               ctx.beginPath()
               ctx.rect(x, y, cellW, cellH)
