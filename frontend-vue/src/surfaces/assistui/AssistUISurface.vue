@@ -1,23 +1,18 @@
 <template>
-  <div class="surface">
-    <!-- Top Bar: Agent + Model + Status + Actions -->
+  <div class="surface" :class="{ 'surface--tab-nav-vertical': shell.tabOrientation === 'vertical' }">
+    <!-- AssistUI agent tabs (Vault, Developer, Agent) -->
+    <SurfaceTabNav
+      v-model="activeAgentTab"
+      :tabs="ASSISTUI_TABS"
+      :show-toggle="false"
+      :orientation="shell.tabOrientation"
+      @toggle-orientation="shell.toggleTabOrientation()"
+    />
+    <!-- Wrapper for topbar + content (needed for vertical layout to keep them stacked) -->
+    <div class="surface__body">
+    <!-- Top Bar: Model picker + Status + Actions -->
     <div class="surface__topbar">
-      <div class="surface__topbar-inner">
-        <!-- Agent pills -->
-        <div class="assistui-agent-bar">
-          <button
-            v-for="agent in AGENTS"
-            :key="agent.id"
-            class="surface__tab"
-            :class="{ 'surface__tab--active': chat.activeAgent === agent.id }"
-            :title="agent.desc"
-            @click="chat.setActiveAgent(agent.id)"
-          >
-            <UIcon :name="agent.icon" />
-            <span>{{ agent.label }}</span>
-          </button>
-        </div>
-
+      <div class="assistui-controls-row">
         <!-- Model picker -->
         <div class="assistui-model-section" ref="modelSectionRef">
           <button class="usx-button" @click="modelPickerOpen = !modelPickerOpen">
@@ -158,6 +153,7 @@
         </div>
       </div>
     </div>
+    </div><!-- /surface__body -->
   </div>
 </template>
 
@@ -168,11 +164,36 @@
  * Uses USX surface classes from usx-standard.css.
  * @category surfaces
  */
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useShellStore } from '../../stores/shell'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import { useChatStore, AGENTS } from '../../stores/chat'
+import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
+import type { TabDef } from '../../skills/molecules/SurfaceTabNav.vue'
 
+const shell = useShellStore()
 const chat = useChatStore()
+
+// AssistUI agent tabs — mapped from AGENTS for SurfaceTabNav
+const ASSISTUI_TABS: TabDef[] = AGENTS.map(a => ({
+  id: a.id,
+  label: a.label,
+  icon: a.icon,
+}))
+
+const activeAgentTab = ref(chat.activeAgent)
+
+// Sync activeAgentTab when chat.activeAgent changes externally
+watch(() => chat.activeAgent, (agent) => {
+  activeAgentTab.value = agent
+})
+
+// Update agent when a tab is clicked
+watch(activeAgentTab, (tabId) => {
+  if (tabId && tabId !== chat.activeAgent) {
+    chat.setActiveAgent(tabId as any)
+  }
+})
 
 const modelPickerOpen = ref(false)
 const conversationListOpen = ref(false)
@@ -300,12 +321,11 @@ onMounted(() => {
   box-shadow: none;
 }
 
-.assistui-agent-bar {
+.assistui-controls-row {
   display: flex;
   align-items: center;
-  gap: var(--usx-spacing-xs);
-  flex-wrap: nowrap;
-  flex-shrink: 0;
+  gap: var(--usx-spacing-md);
+  width: 100%;
 }
 
 .assistui-model-section {
@@ -574,6 +594,8 @@ onMounted(() => {
   transition: all var(--usx-transition-base, 0.15s ease);
   color: var(--usx-color-on-surface);
 }
+
+
 
 .assistui-prompt-card:hover {
   background: var(--usx-color-surface-hover);

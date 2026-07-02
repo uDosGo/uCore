@@ -1,24 +1,35 @@
 <template>
-  <div class="dashboard-surface">
-    <h1 class="dashboard-surface__title">Dashboard</h1>
-    <p class="dashboard-surface__subtitle">Select a surface to begin</p>
+  <div class="surface" :class="{ 'surface--tab-nav-vertical': shell.tabOrientation === 'vertical' }">
+    <!-- Hub navigation: quick-launch links to key surfaces -->
+    <SurfaceTabNav
+      v-model="activeHubTab"
+      :tabs="visibleHubTabs"
+      :orientation="shell.tabOrientation"
+      @toggle-orientation="shell.toggleTabOrientation()"
+    />
+    <div class="surface__content">
+      <div class="dashboard-surface">
+        <h1 class="dashboard-surface__title">Dashboard</h1>
+        <p class="dashboard-surface__subtitle">Select a surface to begin</p>
 
-    <div class="dashboard-surface__grid-inner">
-      <SurfaceCard
-        v-for="surface in visibleSurfaces"
-        :key="surface.id"
-        :surface="surface"
-        @click="navigate(surface.route)"
-      />
-    </div>
+        <div class="dashboard-surface__grid-inner">
+          <SurfaceCard
+            v-for="surface in visibleSurfaces"
+            :key="surface.id"
+            :surface="surface"
+            @click="navigate(surface.route)"
+          />
+        </div>
 
-    <!-- Dev Mode hint when server is running but Dev Mode is off -->
-    <div v-if="devMode.devServerRunning && devMode.mode === 'off'" class="dashboard-surface__dev-hint">
-      <p>
-        <UIcon name="code" />
-        Developer tools are available.
-        <button class="dashboard-surface__dev-link" @click="devMode.enable()">Enable Dev Mode</button>
-      </p>
+        <!-- Dev Mode hint when server is running but Dev Mode is off -->
+        <div v-if="devMode.devServerRunning && devMode.mode === 'off'" class="dashboard-surface__dev-hint">
+          <p>
+            <UIcon name="code" />
+            Developer tools are available.
+            <button class="dashboard-surface__dev-link" @click="devMode.enable()">Enable Dev Mode</button>
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -26,21 +37,53 @@
 <script setup lang="ts">
 /**
  * @component DashboardSurface
- * @description Mission Control — surface hub dashboard with cards for each surface.
+ * @description Mission Control — surface hub dashboard with surface cards and hub navigation.
  * Ported from DashboardSurface.tsx (React).
  * Enhanced with Dev Mode filtering — dev-only surfaces hidden when Dev Mode is off.
  * @category surfaces
  * @usage Routed at '/' — default landing page.
  */
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useShellStore } from '../../stores/shell'
 import { useDevModeStore } from '../../stores/devMode'
 import SurfaceCard from '../../skills/molecules/SurfaceCard.vue'
+import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import type { SurfaceCard as SurfaceCardType } from '../../types'
 
 const router = useRouter()
+const shell = useShellStore()
 const devMode = useDevModeStore()
+
+// Hub navigation tabs
+const HUB_TABS = [
+  { id: 'dashboard', label: 'Dashboard', icon: 'home' },
+  { id: 'missions', label: 'Mission Control', icon: 'flag' },
+  { id: 'server', label: 'Server', icon: 'server' },
+  { id: 'snackmachine', label: 'Snack Machine', icon: 'snack' },
+  { id: 'system', label: 'System', icon: 'settings' },
+  { id: 'developer', label: 'Developer', icon: 'code' },
+]
+
+const activeHubTab = ref('dashboard')
+
+const visibleHubTabs = computed(() =>
+  HUB_TABS.filter(t => t.id !== 'developer' || devMode.devServerRunning)
+)
+
+watch(activeHubTab, (tabId) => {
+  if (!tabId || tabId === 'dashboard') return
+  const routes: Record<string, string> = {
+    missions: '/workflow?tab=mission-control',
+    server: '/server',
+    snackmachine: '/snackmachine',
+    system: '/system',
+    developer: '/developer',
+  }
+  const path = routes[tabId]
+  if (path) router.push(path)
+})
 
 const ALL_SURFACES: SurfaceCardType[] = [
   { id: 'assistui', title: 'AssistUI', description: 'AI Chat & Agent Workflows', icon: 'bolt', route: '/assistui', color: '#a855f7' },
@@ -49,7 +92,7 @@ const ALL_SURFACES: SurfaceCardType[] = [
   { id: 'workflow', title: 'Workflow', description: 'Missions, Tasks & Binder', icon: 'workflow', route: '/workflow', color: '#3b82f6' },
   { id: 'system', title: 'System', description: 'Admin, Pages & Tools', icon: 'settings', route: '/system', color: '#6b7280' },
   { id: 'documentation', title: 'Documentation', description: 'Learning Hub & Guides', icon: 'help', route: '/documentation', color: '#a855f7' },
-  { id: 'snackmachine', title: 'SnackMachine', description: 'Snack/MCP/Vault Scheduler', icon: 'snack', route: '/snackmachine', color: '#ec4899' },
+  { id: 'snackmachine', title: 'Snack Machine', description: 'Snack/MCP/Vault Scheduler', icon: 'snack', route: '/snackmachine', color: '#ec4899' },
   { id: 'browserui', title: 'Browser', description: 'Web Reader & Bookmarks', icon: 'globe', route: '/browserui', color: '#06b6d4' },
   { id: 'teletext', title: 'Teletext', description: 'Ceefax-style Information', icon: 'tv', route: '/teletext', color: '#f97316' },
   { id: 'terminal', title: 'Terminal', description: 'BBC BASIC Terminal', icon: 'terminal', route: '/terminal', color: '#84cc16' },
@@ -80,7 +123,6 @@ function navigate(route: string) {
 .dashboard-surface {
   max-width: var(--usx-max-width);
   margin: 0 auto;
-  padding: var(--usx-spacing-xl) var(--usx-spacing-lg);
   width: 100%;
   box-sizing: border-box;
 }

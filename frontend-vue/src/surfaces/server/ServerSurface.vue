@@ -1,5 +1,11 @@
 <template>
-  <div class="surface">
+  <div class="surface" :class="{ 'surface--tab-nav-vertical': shell.tabOrientation === 'vertical' }">
+    <SurfaceTabNav
+      v-model="srv.activeTab"
+      :tabs="SERVER_TABS"
+      :orientation="shell.tabOrientation"
+      @toggle-orientation="shell.toggleTabOrientation()"
+    />
     <!-- Panel Content -->
     <div class="surface__content">
       <!-- Dashboard -->
@@ -138,7 +144,7 @@
       <div v-else-if="srv.activeTab === 'snacks'">
         <h3 class="surface__panel-title">Snackbar</h3>
         <p class="usx-mb-md server-muted-text-sm">Snack management is handled from the SnackMachine surface.</p>
-        <UButton variant="secondary" size="sm" @click="$router.push('/snackmachine')">Open SnackMachine →</UButton>
+        <UButton variant="secondary" size="sm" @click="$router.push('/snackmachine')">Open Snack Machine →</UButton>
       </div>
     </div>
   </div>
@@ -155,11 +161,14 @@
  */
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useShellStore } from '../../stores/shell'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import UBadge from '../../skills/atoms/UBadge.vue'
 import UButton from '../../skills/atoms/UButton.vue'
 import { useServerStore, SERVER_TABS } from '../../stores/server'
+import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
+const shell = useShellStore()
 const srv = useServerStore()
 const $router = useRouter()
 

@@ -54,7 +54,7 @@ const routes: RouteRecordRaw[] = [
     path: '/snackmachine/:pathMatch(.*)*',
     name: 'snackmachine',
     component: () => import('../surfaces/snackmachine/SnackMachineSurface.vue'),
-    meta: { title: 'SnackMachine', icon: 'snack' },
+    meta: { title: 'Snack Machine', icon: 'snack' },
   },
   {
     path: '/browserui/:pathMatch(.*)*',

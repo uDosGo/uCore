@@ -66,7 +66,7 @@ const emit = defineEmits<{
   background: var(--usx-color-surface-variant);
   color: var(--usx-color-primary);
   flex-shrink: 0;
-  font-size: var(--usx-icon-size-lg);
+  font-size: var(--usx-icon-size-2lg);
 }
 
 .surface-card:hover .surface-card__icon {

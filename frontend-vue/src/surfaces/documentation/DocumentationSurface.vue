@@ -1,17 +1,11 @@
 <template>
-  <div class="surface">
-    <div class="surface__tabs">
-      <button
-        v-for="tab in DOC_TABS"
-        :key="tab.id"
-        class="surface__tab"
-        :class="{ 'surface__tab--active': activeTab === tab.id }"
-        @click="activeTab = tab.id"
-      >
-        <UIcon :name="tab.icon" />
-        <span>{{ tab.label }}</span>
-      </button>
-    </div>
+  <div class="surface" :class="{ 'surface--tab-nav-vertical': shell.tabOrientation === 'vertical' }">
+    <SurfaceTabNav
+      v-model="activeTab"
+      :tabs="DOC_TABS"
+      :orientation="shell.tabOrientation"
+      @toggle-orientation="shell.toggleTabOrientation()"
+    />
 
     <div class="surface__content">
       <!-- Learning Hub -->
@@ -64,9 +58,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useShellStore } from '../../stores/shell'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import UBadge from '../../skills/atoms/UBadge.vue'
+import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
+const shell = useShellStore()
 const activeTab = ref('learning')
 
 const DOC_TABS = [

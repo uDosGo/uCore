@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-06-30T20:15:29Z
+Date: 2026-07-02T01:30:08Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -19,26 +19,26 @@ Status: Refreshed by brain_sync
 - **`except` nesting bug in snackbar_menu.py**: A `release_lock()` function had a bare `except` nested inside `try:` at the wrong indentation level, causing `SyntaxError: invalid syntax` on line 1122. Always run `flake8` or `py_compile` on changed files; this error only surfaced in `stderr.log` after launchd restart.
 
 ## Recent Change Scan
-- backend/app/mcp/hivemind_server.py
-- backend/.venv/lib/python3.14/site-packages/snackmachine-1.0.0.dist-info/RECORD
-- backend/.venv/lib/python3.14/site-packages/snackmachine-1.0.0.dist-info/REQUESTED
-- backend/.venv/lib/python3.14/site-packages/snackmachine-1.0.0.dist-info/direct_url.json
-- backend/.venv/lib/python3.14/site-packages/snackmachine-1.0.0.dist-info/INSTALLER
-- backend/.venv/bin/snackmachine
-- backend/.venv/lib/python3.14/site-packages/snackmachine-1.0.0.dist-info/top_level.txt
-- backend/.venv/lib/python3.14/site-packages/snackmachine-1.0.0.dist-info/entry_points.txt
-- backend/.venv/lib/python3.14/site-packages/snackmachine-1.0.0.dist-info/WHEEL
-- backend/.venv/lib/python3.14/site-packages/snackmachine-1.0.0.dist-info/METADATA
-- backend/.venv/lib/python3.14/site-packages/__editable__.snackmachine-1.0.0.pth
-- backend/.venv/lib/python3.14/site-packages/__editable___snackmachine_1_0_0_finder.py
-- backend/pyproject.toml
-- backend/app/services/provider_router.py
-- backend/.venv/lib/python3.14/site-packages/langgraph-1.2.7.dist-info/RECORD
-- backend/.venv/lib/python3.14/site-packages/langgraph-1.2.7.dist-info/REQUESTED
-- backend/.venv/lib/python3.14/site-packages/langgraph-1.2.7.dist-info/INSTALLER
-- backend/.venv/lib/python3.14/site-packages/langgraph-1.2.7.dist-info/licenses/LICENSE
-- backend/.venv/lib/python3.14/site-packages/langgraph-1.2.7.dist-info/WHEEL
-- backend/.venv/lib/python3.14/site-packages/langgraph-1.2.7.dist-info/METADATA
+- backend/app/api/flow_router/__init__.py
+- backend/app/api/surface_registry_api.py
+- backend/app/core/snackbar.py
+- backend/app/api/routes.py
+- backend/app/skills/builtin/.mypy_cache/3.11/@plugins_snapshot.json
+- backend/app/skills/builtin/skill_ecosystem_audit.py
+- backend/app/api/.mypy_cache/missing_stubs
+- backend/app/api/.mypy_cache/3.11/@plugins_snapshot.json
+- backend/app/api/.mypy_cache/3.11/inspect.meta.json
+- backend/app/api/.mypy_cache/3.11/inspect.data.json
+- backend/app/api/.mypy_cache/3.11/dis.meta.json
+- backend/app/api/.mypy_cache/3.11/dis.data.json
+- backend/app/api/.mypy_cache/3.11/app/skills/builtin/__init__.meta.json
+- backend/app/api/.mypy_cache/3.11/app/skills/builtin/__init__.data.json
+- backend/app/api/.mypy_cache/3.11/importlib/util.meta.json
+- backend/app/api/.mypy_cache/3.11/importlib/util.data.json
+- backend/app/api/.mypy_cache/3.11/opcode.meta.json
+- backend/app/api/.mypy_cache/3.11/opcode.data.json
+- backend/app/skills/builtin/skill_surface_registry.py
+- backend/app/skills/builtin/usx_standard.py
 
 ## Memory Architecture
 - Short-term: active AI/chat session context.
@@ -66,41 +66,41 @@ Warnings: 0
 
 ### By Module
 - ucore-popcorn-stderr: 461 entries (0 errors)
-- ucore-menu-stderr: 17 entries (0 errors)
-- ucore-menu: 17 entries (0 errors)
-- stdout: 5 entries (0 errors)
+- stdout: 29 entries (0 errors)
+- ucore-menu-stderr: 5 entries (0 errors)
+- ucore-menu: 5 entries (0 errors)
 
 ### Recent Activity
-- ✅ 2026-07-01T04:05:25  stdout  [2026-07-01 04:05:25] INFO     ucore — Maintenance job ran: tasker_sync success=False
-- ✅ 2026-07-01T04:00:25  stdout  [2026-07-01 04:00:25] INFO     ucore — Maintenance job ran: vault_sync success=False
-- ✅ 2026-07-01T03:00:32  stdout  [2026-07-01 03:00:32] INFO     ucore — Maintenance job ran: daily_backup success=True
-- ℹ️ 2026-07-01T02:18:57  ucore-menu-stderr  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T02:18:57  ucore-menu  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T02:18:57  ucore-menu-stderr  ucore-menu: Opening UI Hub
-- ℹ️ 2026-07-01T02:18:57  ucore-menu  ucore-menu: Opening UI Hub
-- ℹ️ 2026-07-01T01:27:19  stdout  [2026-07-01 01:27:19] INFO     ucore.chat — Chat request: agent=vault, history_len=3, message=Pick u
-- ℹ️ 2026-07-01T01:18:59  ucore-menu-stderr  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T01:18:59  ucore-menu  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T01:18:59  ucore-menu-stderr  ucore-menu: Opening UI Hub
-- ℹ️ 2026-07-01T01:18:59  ucore-menu  ucore-menu: Opening UI Hub
-- ℹ️ 2026-07-01T01:18:17  ucore-menu-stderr  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T01:18:17  ucore-menu  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T01:18:17  ucore-menu-stderr  ucore-menu: Opening UI Hub
-- ℹ️ 2026-07-01T01:18:17  ucore-menu  ucore-menu: Opening UI Hub
-- ℹ️ 2026-07-01T00:59:00  ucore-menu-stderr  ucore-menu: Opened URL: http://localhost:5175/s310
-- ℹ️ 2026-07-01T00:59:00  ucore-menu  ucore-menu: Opened URL: http://localhost:5175/s310
-- ℹ️ 2026-07-01T00:11:42  ucore-menu-stderr  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T00:11:42  ucore-menu  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T00:11:42  ucore-menu-stderr  ucore-menu: Opening UI Hub
-- ℹ️ 2026-07-01T00:11:42  ucore-menu  ucore-menu: Opening UI Hub
-- ℹ️ 2026-07-01T00:10:37  ucore-menu-stderr  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T00:10:37  ucore-menu  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-07-01T00:10:36  ucore-menu-stderr  ucore-menu: Opening UI Hub
-- ℹ️ 2026-07-01T00:10:36  ucore-menu  ucore-menu: Opening UI Hub
-- ℹ️ 2026-06-30T23:41:11  ucore-menu-stderr  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-06-30T23:41:11  ucore-menu  ucore-menu: Opened URL: http://localhost:5175
-- ℹ️ 2026-06-30T23:41:11  ucore-menu-stderr  ucore-menu: Opening UI Hub
-- ℹ️ 2026-06-30T23:41:11  ucore-menu  ucore-menu: Opening UI Hub
+- ℹ️ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] WARNING  ucore.skills.registry — Skill load fail skill_dev_destroy_rebuild.py:
+- ℹ️ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] WARNING  ucore.skills.registry — Skill load fail skill_hardcoded_path_detector
+- ✅ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] INFO     ucore — Maintenance job ran: daily_backup success=True
+- ✅ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] INFO     ucore — Maintenance job ran: vault_sync success=False
+- ✅ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] INFO     ucore — Maintenance job ran: tasker_sync success=False
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] INFO     ucore.api.github — GitHub API routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Spool activity feed routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Identity routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Ceefax Teletext surface registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — BBCSDL surface registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Dashboard surface registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Library index routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore.vault_api — Vault topology routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Vault topology routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Catalog API routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Hivemind knowledge layer routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore.api.dev_layer — Dev Layer API routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Dev Layer API routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Tasker API routes registered (incl. /api/workflow/tasks)
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] INFO     ucore.api.feed — Feed API routes registered: ingest, query, suggest, 
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Feed API routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] INFO     ucore.api.surface_registry — Surface registry routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Surface Registry API routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — API module routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Catalog routes registered
+- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] INFO     ucore — Maintenance scheduler started with 6 jobs
+- ℹ️ 2026-07-02T09:29:48  ucore-menu-stderr  ucore-menu: Starting backend...
+- ℹ️ 2026-07-02T09:29:48  ucore-menu  ucore-menu: Starting backend...
+- ℹ️ 2026-07-02T09:29:48  ucore-menu-stderr  ucore-menu: Backend not running, attempting auto-start...
+- ℹ️ 2026-07-02T09:29:48  ucore-menu  ucore-menu: Backend not running, attempting auto-start...
 
 ## Test Failure Signals (last 24h)
 

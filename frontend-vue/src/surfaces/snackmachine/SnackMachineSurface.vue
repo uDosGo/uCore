@@ -1,17 +1,11 @@
 <template>
-  <div class="surface">
-    <div class="surface__tabs">
-      <button
-        v-for="tab in SNACKMACHINE_TABS"
-        :key="tab.id"
-        class="surface__tab"
-        :class="{ 'surface__tab--active': sm.activeTab === tab.id }"
-        @click="sm.setTab(tab.id)"
-      >
-        <UIcon :name="tab.icon" />
-        <span>{{ tab.label }}</span>
-      </button>
-    </div>
+  <div class="surface" :class="{ 'surface--tab-nav-vertical': shell.tabOrientation === 'vertical' }">
+    <SurfaceTabNav
+      v-model="sm.activeTab"
+      :tabs="SNACKMACHINE_TABS"
+      :orientation="shell.tabOrientation"
+      @toggle-orientation="shell.toggleTabOrientation()"
+    />
 
     <div class="surface__content">
       <!-- Snacks Queue -->
@@ -117,8 +111,11 @@
 import UIcon from '../../skills/atoms/UIcon.vue'
 import UBadge from '../../skills/atoms/UBadge.vue'
 import UButton from '../../skills/atoms/UButton.vue'
+import { useShellStore } from '../../stores/shell'
 import { useSnackMachineStore, SNACKMACHINE_TABS } from '../../stores/snackmachine'
+import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
+const shell = useShellStore()
 const sm = useSnackMachineStore()
 
 const workflows = [

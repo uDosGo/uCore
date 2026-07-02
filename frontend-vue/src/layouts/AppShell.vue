@@ -1,7 +1,6 @@
 <template>
   <div class="app-shell" :class="{ 'sidebar-open': shell.sidebarOpen }">
     <GlobalToolbar
-      :tabs="currentTabs"
       :chat-mode="shell.chatMode"
       :sidebar-open="shell.sidebarOpen"
       @toggle-chat="shell.toggleChat"
@@ -32,8 +31,6 @@
  * Replaces RootLayout + SurfaceShellContext from React.
  * @category layouts
  */
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { useShellStore } from '../stores/shell'
 import { useSettingsStore } from '../stores/settings'
 import GlobalToolbar from '../skills/organisms/GlobalToolbar.vue'
@@ -41,16 +38,10 @@ import FilepickerSidebar from '../skills/molecules/FilepickerSidebar.vue'
 import FloatingChat from '../surfaces/assistui/FloatingChat.vue'
 import SnackbarHost from '../skills/molecules/SnackbarHost.vue'
 
-const route = useRoute()
 const shell = useShellStore()
 
 // Initialize settings store to apply persisted theme (dark mode default)
 useSettingsStore()
-
-const currentTabs = computed(() => {
-  // Surface-specific tabs can be injected via route meta
-  return (route.meta.tabs as any[]) || []
-})
 </script>
 
 <style scoped>

@@ -1,6 +1,12 @@
 <template>
-  <div class="surface">
-    <!-- Content area (tabs are in GlobalToolbar) -->
+  <div class="surface" :class="{ 'surface--tab-nav-vertical': shell.tabOrientation === 'vertical' }">
+    <SurfaceTabNav
+      v-model="wf.activeTab"
+      :tabs="WORKFLOW_TABS"
+      :orientation="shell.tabOrientation"
+      @toggle-orientation="shell.toggleTabOrientation()"
+    />
+    <!-- Content area -->
     <div class="surface__content">
       <div class="workflow-layout">
         <!-- Left/Main panel: the active tab content -->
@@ -56,7 +62,9 @@
  * @usage Routed at '/workflow?tab=mission-control'
  */
 import { computed } from 'vue'
-import { useWorkflowStore } from '../../stores/workflow'
+import { useShellStore } from '../../stores/shell'
+import { useWorkflowStore, WORKFLOW_TABS } from '../../stores/workflow'
+import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 import MissionControlPanel from './panels/MissionControlPanel.vue'
 import MissionsPanel from './panels/MissionsPanel.vue'
 import BinderPanel from './panels/BinderPanel.vue'
@@ -66,6 +74,7 @@ import { EditorPanel } from '../../skills'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import UButton from '../../skills/atoms/UButton.vue'
 
+const shell = useShellStore()
 const wf = useWorkflowStore()
 
 function onEditorContentUpdate(value: string) {

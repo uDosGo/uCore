@@ -1,5 +1,11 @@
 <template>
-  <div class="surface">
+  <div class="surface" :class="{ 'surface--tab-nav-vertical': shell.tabOrientation === 'vertical' }">
+    <SurfaceTabNav
+      v-model="activeTab"
+      :tabs="SYSTEM_TABS"
+      :orientation="shell.tabOrientation"
+      @toggle-orientation="shell.toggleTabOrientation()"
+    />
     <div class="surface__content">
       <!-- Pages Browser -->
       <div v-if="currentTab === 'pages'">
@@ -87,15 +93,36 @@
   </div>
 </template>
 
+<script lang="ts">
+/**
+ * Separated from <script setup> to allow named exports.
+ */
+import type { TabDef } from '../../skills/molecules/SurfaceTabNav.vue'
+
+export const SYSTEM_TABS: TabDef[] = [
+  { id: 'pages', label: 'Pages', icon: 'dashboard' },
+  { id: 'tools', label: 'Tools', icon: 'build' },
+  { id: 'services', label: 'Services', icon: 'dns' },
+  { id: 'variables', label: 'Variables', icon: 'tune' },
+  { id: 'secrets', label: 'Secrets', icon: 'key' },
+  { id: 'global-settings', label: 'Global', icon: 'settings' },
+  { id: 'user-settings', label: 'User', icon: 'person' },
+]
+</script>
+
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useShellStore } from '../../stores/shell'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import UBadge from '../../skills/atoms/UBadge.vue'
+import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
 const route = useRoute()
+const shell = useShellStore()
 
-const currentTab = computed(() => (route.query.tab as string) || 'pages')
+const activeTab = ref((route.query.tab as string) || 'pages')
+const currentTab = computed(() => activeTab.value)
 
 const sPages = [
   { id: 'S100', title: 'Tool Builder', icon: 'build' },

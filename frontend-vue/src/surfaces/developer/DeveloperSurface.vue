@@ -1,5 +1,11 @@
 <template>
-  <div class="developer-surface">
+  <div class="developer-surface" :class="{ 'surface--tab-nav-vertical': shell.tabOrientation === 'vertical' }">
+    <SurfaceTabNav
+      v-model="dev.activeTab"
+      :tabs="DEVELOPER_TABS"
+      :orientation="shell.tabOrientation"
+      @toggle-orientation="shell.toggleTabOrientation()"
+    />
     <div class="developer-content-inner">
       <div class="developer-content">
         <ModelsPanel v-if="dev.activeTab === 'models'" />
@@ -27,8 +33,12 @@
  * @category surfaces
  * @usage Routed at '/developer/*'
  */
+import { useShellStore } from '../../stores/shell'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import { useDeveloperStore, DEVELOPER_TABS } from '../../stores/developer'
+import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
+
+const shell = useShellStore()
 import ModelsPanel from './panels/ModelsPanel.vue'
 import AgentsPanel from './panels/AgentsPanel.vue'
 import KanbanPanel from './panels/KanbanPanel.vue'

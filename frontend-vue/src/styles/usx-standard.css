@@ -51,6 +51,18 @@ input.usx-input--sm, .usx-input--sm {
   font-display: swap;
 }
 
+/* Topbar icons — slightly smaller */
+.global-toolbar__icon .material-symbols-outlined,
+.global-toolbar__icon-only .material-symbols-outlined {
+  font-size: var(--usx-icon-size-lg);
+}
+
+/* Content/UI icons — larger */
+.surface-tab-nav__icon .material-symbols-outlined,
+.assistui-prompt-card .material-symbols-outlined {
+  font-size: var(--usx-icon-size-2lg);
+}
+
 /* ─────────────────────────────────────────────────────────────────────
    LAYOUT PRIMITIVES
    ───────────────────────────────────────────────────────────────────── */
@@ -148,6 +160,28 @@ main.usx-main--wide,
   flex-direction: column;
   height: 100%;
   width: 100%;
+  overflow: hidden;
+}
+
+/* Vertical tab nav: surface becomes a horizontal flex row,
+   tab nav on left, content on right */
+.surface--tab-nav-vertical {
+  flex-direction: row;
+}
+
+.surface--tab-nav-vertical .surface__content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Surface body wrapper — wraps topbar + content for vertical tab nav layouts
+   where the surface has a topbar before the content area */
+.surface__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -733,11 +767,11 @@ button[type="submit"]:hover {
   display: none;
 }
 
-/* ─── Shared icon sizing — inherit from parent button (1.5em) ── */
+/* ─── Shared icon sizing — USX token-based ── */
 .global-toolbar__icon {
   flex-shrink: 0;
-  width: 1.35em;
-  height: 1.35em;
+  width: var(--usx-icon-size-lg);
+  height: var(--usx-icon-size-lg);
   display: flex;
   align-items: center;
   justify-content: center;

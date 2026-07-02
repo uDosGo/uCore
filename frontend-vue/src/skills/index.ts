@@ -22,6 +22,7 @@ export { default as USpinner } from './atoms/USpinner.vue'
 export { default as SurfaceCard } from './molecules/SurfaceCard.vue'
 export { default as FilepickerSidebar } from './molecules/FilepickerSidebar.vue'
 export { default as SnackbarHost } from './molecules/SnackbarHost.vue'
+export { default as SurfaceTabNav } from './molecules/SurfaceTabNav.vue'
 export { default as WorkspaceFilter } from './molecules/WorkspaceFilter.vue'
 export { default as BinderMissionFilter } from './molecules/BinderMissionFilter.vue'
 
@@ -53,6 +54,7 @@ export const skillRegistry: SkillMeta[] = [
   { name: 'SurfaceCard', category: 'molecule', description: 'Dashboard surface card', props: ['surface'], emits: ['click'], path: 'skills/molecules/SurfaceCard.vue' },
   { name: 'FilepickerSidebar', category: 'molecule', description: 'Unified file browser sidebar with vault layer filters, binder/mission filter, search, file type icons, and new file action', props: ['open', 'compact'], emits: ['fileSelect', 'newFile'], path: 'skills/molecules/FilepickerSidebar.vue' },
   { name: 'SnackbarHost', category: 'molecule', description: 'Global notification host', props: [], emits: [], path: 'skills/molecules/SnackbarHost.vue' },
+  { name: 'SurfaceTabNav', category: 'molecule', description: 'Reusable tab navigation bar with horizontal/vertical orientation toggle', props: ['tabs', 'modelValue', 'orientation', 'showToggle'], emits: ['update:modelValue', 'toggle-orientation'], path: 'skills/molecules/SurfaceTabNav.vue' },
   { name: 'WorkspaceFilter', category: 'molecule', description: 'Workspace selector filter', props: [], emits: [], path: 'skills/molecules/WorkspaceFilter.vue' },
   { name: 'BinderMissionFilter', category: 'molecule', description: 'Binder/mission selector filter', props: [], emits: [], path: 'skills/molecules/BinderMissionFilter.vue' },
   { name: 'MarkdownEditor', category: 'molecule', description: 'Full markdown editor (md-editor-v3 vendored)', props: ['modelValue', 'toolbars', 'preview', 'htmlPreview', 'noUpload', 'autofocus'], emits: ['update:modelValue', 'save', 'change'], path: 'skills/molecules/editor/MarkdownEditor.vue' },

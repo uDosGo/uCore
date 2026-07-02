@@ -190,10 +190,7 @@ const fallbackChar = computed(() => {
   flex-shrink: 0;
   line-height: 1;
   vertical-align: middle;
-  /* Default: inherit font-size from parent (1em) */
   font-size: 1em;
-  width: 1em;
-  height: 1em;
 }
 
 /* Iconify icons render as inline SVG */
@@ -207,7 +204,6 @@ const fallbackChar = computed(() => {
 /* Material Symbols — Material 3 compliant */
 .u-icon .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
-  font-size: inherit;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   line-height: 1;
   display: flex;
