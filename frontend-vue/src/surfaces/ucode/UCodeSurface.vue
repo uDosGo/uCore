@@ -67,54 +67,85 @@
       </div>
       <!-- Left: editor + layer overview -->
       <div class="grid-editor-main">
-        <!-- Top: 24×24 editor viewport -->
-        <div class="grid-editor-topbar">
-          <span class="grid-editor-label">Editor · {{ editorCols }}×{{ editorRows }}</span>
-          <div class="grid-editor-tools">
-            <button
-              v-for="t in TOOLS" :key="t.id"
-              class="grid-editor-tool-btn"
-              :class="{ active: currentTool === t.id }"
-              :title="t.label"
-              @click="currentTool = t.id"
-            ><UIcon :name="t.icon" /></button>
+        <!-- ─── Editor section: 24×24 with gridlines ─── -->
+        <div class="editor-section">
+          <div class="editor-section__bar">
+            <span class="editor-section__label">Editor · {{ editorCols }}×{{ editorRows }}</span>
+            <div class="editor-section__tools">
+              <button
+                v-for="t in TOOLS" :key="t.id"
+                class="editor-tool-btn"
+                :class="{ active: currentTool === t.id }"
+                :title="t.label"
+                @click="currentTool = t.id"
+              ><UIcon :name="t.icon" /></button>
+            </div>
+            <div class="editor-section__colours">
+              <button
+                v-for="(c, i) in PALETTE" :key="i"
+                class="editor-colour-swatch"
+                :class="{ 'fg-active': selectedFg === i, 'bg-active': selectedBg === i }"
+                :style="{ background: c.hex }"
+                :title="c.name"
+                @click="selectedFg = i"
+                @click.right.prevent="selectedBg = i"
+              >
+                <span v-if="selectedFg === i" class="colour-marker fg">F</span>
+                <span v-if="selectedBg === i" class="colour-marker bg">B</span>
+              </button>
+            </div>
           </div>
+          <div class="editor-section__viewport" ref="editorViewportRef"></div>
         </div>
-        <div class="grid-editor-viewport" ref="editorViewportRef"></div>
 
-        <!-- Bottom: layer overview -->
-        <div class="grid-layer-bar">
-          <span class="grid-editor-label">Layer · {{ layerCols }}×{{ layerRows }}</span>
-          <span class="grid-editor-label" style="color:var(--pico-muted-color);font-weight:400">
-            Focus: ({{ editorFocusX }}, {{ editorFocusY }})
-          </span>
+        <!-- ─── Layer section: 40×25 map ─── -->
+        <div class="layer-section">
+          <div class="layer-section__bar">
+            <span class="editor-section__label">Layer · {{ layerCols }}×{{ layerRows }}</span>
+            <span class="editor-section__label" style="opacity:0.5">
+              Focus: ({{ editorFocusX }}, {{ editorFocusY }})
+            </span>
+          </div>
+          <div class="layer-section__viewport" ref="layerViewportRef"></div>
         </div>
-        <div class="grid-layer-viewport" ref="layerViewportRef"></div>
       </div>
 
-      <!-- Right: sidebar -->
-      <aside v-if="showSidebar" class="grid-editor-sidebar">
+      <!-- ─── Right sidebar: full height ─── -->
+      <aside class="editor-sidebar">
+        <!-- Font mapping -->
         <div class="sidebar-section">
-          <h4 class="sidebar-title">Colours</h4>
-          <div class="sidebar-colour-grid">
+          <h4 class="sidebar-title">Font</h4>
+          <div class="sidebar-font-btns">
             <button
-              v-for="(c, i) in PALETTE" :key="i"
-              class="sidebar-colour-swatch"
-              :class="{ 'fg-active': selectedFg === i, 'bg-active': selectedBg === i }"
-              :style="{ background: c.hex }"
-              :title="c.name"
-              @click="selectedFg = i"
-              @click.right.prevent="selectedBg = i"
-            >
-              <span v-if="selectedFg === i" class="colour-marker fg">F</span>
-              <span v-if="selectedBg === i" class="colour-marker bg">B</span>
-            </button>
+              class="sidebar-font-btn"
+              :class="{ active: editorFont === 'pressstart2p' }"
+              @click="editorFont = 'pressstart2p'"
+            >Terminal</button>
+            <button
+              class="sidebar-font-btn"
+              :class="{ active: editorFont === 'mode7gx3' }"
+              @click="editorFont = 'mode7gx3'"
+            >Teletext</button>
           </div>
-          <div class="sidebar-colour-hint">Left-click: FG · Right-click: BG</div>
         </div>
 
+        <!-- Font character set -->
+        <div class="sidebar-section sidebar-font-chars">
+          <h4 class="sidebar-title">Characters</h4>
+          <div class="sidebar-chars-grid">
+            <button
+              v-for="ch in fontChars" :key="ch"
+              class="sidebar-char-chip"
+              :class="{ selected: selectedChar === ch }"
+              :title="`U+${ch.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0')}`"
+              @click="selectedChar = ch"
+            >{{ ch }}</button>
+          </div>
+        </div>
+
+        <!-- Character input -->
         <div class="sidebar-section">
-          <h4 class="sidebar-title">Character</h4>
+          <h4 class="sidebar-title">Active Char</h4>
           <div class="sidebar-char-row">
             <input
               class="sidebar-char-input"
@@ -122,28 +153,20 @@
               maxlength="1"
               placeholder="Char"
             />
-            <button
-              class="grid-editor-tool-btn"
-              :class="{ active: currentTool === 'eyedropper' }"
-              title="Eyedropper"
-              @click="currentTool = 'eyedropper'"
-            ><UIcon name="colorize" /></button>
+            <span class="sidebar-char-code">{{ selectedCharCode }}</span>
           </div>
         </div>
 
+        <!-- Tools -->
         <div class="sidebar-section">
-          <h4 class="sidebar-title">Tools</h4>
+          <h4 class="sidebar-title">Actions</h4>
           <div class="sidebar-tool-row">
-            <button class="grid-editor-tool-btn" @click="fillLayer">Fill All</button>
-            <button class="grid-editor-tool-btn" @click="clearLayer">Clear</button>
+            <button class="sidebar-action-btn" @click="fillLayer">Fill All</button>
+            <button class="sidebar-action-btn" @click="clearLayer">Clear</button>
           </div>
-        </div>
-
-        <div class="sidebar-section">
-          <h4 class="sidebar-title">Import / Export</h4>
-          <div class="sidebar-tool-row">
-            <button class="grid-editor-tool-btn" @click="exportGrid">Export JSON</button>
-            <button class="grid-editor-tool-btn" @click="triggerImport">Import JSON</button>
+          <div class="sidebar-tool-row" style="margin-top:var(--usx-spacing-xs)">
+            <button class="sidebar-action-btn" @click="exportGrid">Export JSON</button>
+            <button class="sidebar-action-btn" @click="triggerImport">Import JSON</button>
           </div>
           <input
             ref="importInputRef"
@@ -234,6 +257,30 @@ const currentTool = ref<'pencil' | 'fill' | 'erase' | 'eyedropper'>('pencil')
 const selectedFg = ref(7)
 const selectedBg = ref(0)
 const selectedChar = ref('#')
+const editorFont = ref<'pressstart2p' | 'mode7gx3'>('mode7gx3')
+
+/** Characters shown in the sidebar font char set */
+const fontChars = computed(() => {
+  if (editorFont.value === 'mode7gx3') {
+    // Teletext G0 character set: printable ASCII + block graphics
+    const chars: string[] = []
+    for (let i = 0x20; i <= 0x7E; i++) chars.push(String.fromCharCode(i))
+    // Add common teletext block chars
+    chars.push('█', '▄', '▀', '▐', '▌', '░', '▒', '▓', '│', '─', '║', '═')
+    chars.push('╔', '╗', '╚', '╝', '╠', '╣', '╦', '╩', '╬')
+    return chars
+  }
+  // Press Start 2P: restricted to printable ASCII
+  const chars: string[] = []
+  for (let i = 0x21; i <= 0x7E; i++) chars.push(String.fromCharCode(i))
+  return chars
+})
+
+const selectedCharCode = computed(() =>
+  selectedChar.value
+    ? `U+${selectedChar.value.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0')}`
+    : ''
+)
 
 // Layer grid dimensions (the full editable canvas)
 // Default: 40×25 Teletext standard with 24×24 base cell
@@ -318,6 +365,12 @@ function initGrid(tabId: string) {
     if (cfg.charWidth) el.setAttribute('char-width', String(cfg.charWidth))
     else el.removeAttribute('char-width')
     el.style.display = ''
+    // Force reflow so parent clientHeight is valid for _fitToContainer
+    void el.offsetHeight
+    // Re-attach if detached (v-if destroys parent between tab switches)
+    if (!gridContainer.value.contains(el)) {
+      gridContainer.value.appendChild(el)
+    }
     activeCanvas = el
     loadTabContent(tabId)
   }
@@ -368,16 +421,18 @@ function initGridEditor() {
   destroyGridEditor()
   if (!editorViewportRef.value || !layerViewportRef.value) return
 
-  // Editor view: 24×24 cells at 24px each (1x retro base cell)
-  editorCanvas = createGridUICanvas({ cols: editorCols, rows: editorRows, font: 'vt323', cellSize: 24 })
+  // Editor view: 24×24 cells at 24px each (1x retro base cell) with gridlines
+  editorCanvas = createGridUICanvas({ cols: editorCols, rows: editorRows, font: 'mode7gx3', cellSize: 24 })
   editorCanvas.setAttribute('fit-container', 'false')
+  editorCanvas.setAttribute('gridlines', '')
   editorCanvas.style.flexShrink = '0'
   editorCanvas.addEventListener('cell-click', onEditorCellClick as EventListener)
   editorViewportRef.value.appendChild(editorCanvas)
 
-  // Layer overview: 40×25 at 12px each (scaled to fit)
-  layerCanvas = createGridUICanvas({ cols: LAYER_COLS, rows: LAYER_ROWS, font: 'vt323', cellSize: 12 })
+  // Layer overview: 40×25 at 10px each (smaller to fit map)
+  layerCanvas = createGridUICanvas({ cols: LAYER_COLS, rows: LAYER_ROWS, font: 'mode7gx3', cellSize: 10 })
   layerCanvas.setAttribute('fit-container', 'false')
+  layerCanvas.setAttribute('char-width', '13')
   layerCanvas.style.flexShrink = '0'
   layerCanvas.addEventListener('cell-click', onLayerCellClick as EventListener)
   layerViewportRef.value.appendChild(layerCanvas)
@@ -450,6 +505,13 @@ function syncEditorToFocus() {
 /* ─── Grid Editor — Cell Click Handlers ───────────────────────────── */
 function onLayerCellClick(e: CustomEvent) {
   const { col, row } = e.detail
+  // Copy clicked cell's char/fg/bg to active editor state
+  const cell = layerBuffer[row]?.[col]
+  if (cell) {
+    selectedChar.value = cell.char
+    selectedFg.value = cell.fg
+    selectedBg.value = cell.bg
+  }
   // Center the editor viewport on the clicked chunk
   const chunkX = Math.floor(col / editorCols) * editorCols
   const chunkY = Math.floor(row / editorRows) * editorRows
@@ -573,7 +635,7 @@ function onPresetChange(name: string) {
     // Destroy and recreate the canvas for this tab
     const old = canvasCache.get(tab)
     if (old) { old.remove(); canvasCache.delete(tab) }
-    nextTick(() => loadTabContent(tab))
+    nextTick(() => initGrid(tab))
   }
 }
 
@@ -769,21 +831,95 @@ function clearGrid() {
   gap: var(--usx-spacing-sm);
 }
 
-/* Editor viewport (top half) */
-.grid-editor-topbar {
+/* ─── Editor section (top half) ─────────────────────────────────── */
+.editor-section {
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  flex-shrink: 0;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.grid-editor-tools {
+.editor-section__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.editor-section__label {
+  font-size: var(--usx-font-size-sm);
+  font-weight: 600;
+  color: var(--usx-color-on-surface);
+  font-family: monospace;
+}
+
+.editor-section__tools {
   display: flex;
   gap: 2px;
 }
 
-.grid-editor-viewport {
+.editor-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--usx-color-border);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
+  cursor: pointer;
+  border-radius: var(--usx-radius-sm, 4px);
+  font-size: var(--usx-font-size-sm);
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast);
+}
+
+.editor-tool-btn:hover {
+  background: var(--usx-color-surface-hover);
+  border-color: var(--usx-color-primary);
+}
+
+.editor-tool-btn.active {
+  background: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
+  border-color: var(--usx-color-primary);
+}
+
+.editor-section__colours {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.editor-colour-swatch {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--usx-color-border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: transform var(--usx-transition-fast), border-color var(--usx-transition-fast);
+  padding: 0;
+}
+
+.editor-colour-swatch:hover {
+  transform: scale(1.15);
+  z-index: 1;
+}
+
+.editor-colour-swatch.fg-active {
+  border-color: var(--usx-color-primary);
+  box-shadow: 0 0 0 2px var(--usx-color-primary);
+}
+
+.editor-colour-swatch.bg-active {
+  border-color: var(--usx-color-warning);
+  box-shadow: 0 0 0 2px var(--usx-color-warning);
+}
+
+.editor-section__viewport {
   flex: 1;
   display: flex;
   align-items: center;
@@ -794,69 +930,39 @@ function clearGrid() {
   border-radius: var(--usx-radius-md, 6px);
 }
 
-/* Layer overview (bottom half) */
-.grid-layer-bar {
+/* ─── Layer section (bottom half) ───────────────────────────────── */
+.layer-section {
+  flex: 0 0 auto;
+  max-height: 45%;
+  display: flex;
+  flex-direction: column;
+  min-height: 80px;
+  overflow: hidden;
+}
+
+.layer-section__bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   flex-shrink: 0;
 }
 
-.grid-layer-viewport {
+.layer-section__viewport {
   flex: 1;
-  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: auto;
-  max-height: 40%;
   background: var(--usx-color-background-alt, #111);
   border: 1px solid var(--usx-color-border);
   border-radius: var(--usx-radius-md, 6px);
-  padding: var(--usx-spacing-sm);
-}
-
-.grid-editor-label {
-  font-size: var(--usx-font-size-sm);
-  font-weight: 600;
-  color: var(--usx-color-on-surface);
-  font-family: monospace;
-}
-
-/* ─── Tool buttons ──────────────────────────────────────────────── */
-.grid-editor-tool-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--usx-spacing-xs);
-  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  border: 1px solid var(--usx-color-border);
-  background: var(--usx-color-surface);
-  color: var(--usx-color-on-surface);
-  cursor: pointer;
-  border-radius: var(--usx-radius-sm, 4px);
-  font-size: var(--usx-font-size-sm);
-  font-family: inherit;
-  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast);
-  min-height: 28px;
-  white-space: nowrap;
-}
-
-.grid-editor-tool-btn:hover {
-  background: var(--usx-color-surface-hover);
-  border-color: var(--usx-color-primary);
-}
-
-.grid-editor-tool-btn.active {
-  background: var(--usx-color-primary);
-  color: var(--usx-color-on-primary);
-  border-color: var(--usx-color-primary);
+  padding: var(--usx-spacing-xs);
 }
 
 /* ─── Sidebar ───────────────────────────────────────────────────── */
-.grid-editor-sidebar {
-  width: 220px;
+.editor-sidebar {
+  width: 240px;
   flex-shrink: 0;
   overflow-y: auto;
   border-left: 1px solid var(--usx-color-border);
@@ -882,38 +988,126 @@ function clearGrid() {
   letter-spacing: 0.05em;
 }
 
-/* Colour grid */
-.sidebar-colour-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
+/* Font mapping */
+.sidebar-font-btns {
+  display: flex;
+  gap: 2px;
 }
 
-.sidebar-colour-swatch {
-  position: relative;
+.sidebar-font-btn {
+  flex: 1;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border: 1px solid var(--usx-color-border);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
+  cursor: pointer;
+  border-radius: var(--usx-radius-sm, 4px);
+  font-size: var(--usx-font-size-sm);
+  font-family: monospace;
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast);
+}
+
+.sidebar-font-btn:hover {
+  background: var(--usx-color-surface-hover);
+  border-color: var(--usx-color-primary);
+}
+
+.sidebar-font-btn.active {
+  background: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
+  border-color: var(--usx-color-primary);
+}
+
+/* Font character grid */
+.sidebar-font-chars {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.sidebar-chars-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+
+.sidebar-char-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   aspect-ratio: 1;
-  border: 2px solid var(--usx-color-border);
-  border-radius: var(--usx-radius-sm, 4px);
+  border: 1px solid var(--usx-color-border);
+  border-radius: 3px;
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
   cursor: pointer;
-  transition: transform var(--usx-transition-fast), border-color var(--usx-transition-fast);
+  font-family: monospace;
+  font-size: var(--usx-font-size-lg, 18px);
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast);
 }
 
-.sidebar-colour-swatch:hover {
-  transform: scale(1.1);
-  z-index: 1;
-}
-
-.sidebar-colour-swatch.fg-active {
+.sidebar-char-chip:hover {
+  background: var(--usx-color-surface-hover);
   border-color: var(--usx-color-primary);
-  box-shadow: 0 0 0 2px var(--usx-color-primary);
 }
 
-.sidebar-colour-swatch.bg-active {
-  border-color: var(--usx-color-warning);
-  box-shadow: 0 0 0 2px var(--usx-color-warning);
+.sidebar-char-chip.selected {
+  border-color: var(--usx-color-primary);
+  background: var(--usx-color-primary-container, rgba(0,120,255,0.15));
 }
 
+/* Character input */
+.sidebar-char-row {
+  display: flex;
+  gap: var(--usx-spacing-xs);
+  align-items: center;
+}
+
+.sidebar-char-input {
+  width: 48px;
+  text-align: center;
+  font-size: 20px;
+  font-family: monospace;
+  padding: var(--usx-spacing-xs);
+  border: 1px solid var(--usx-color-border);
+  border-radius: var(--usx-radius-sm, 4px);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
+}
+
+.sidebar-char-code {
+  font-size: 10px;
+  font-family: monospace;
+  color: var(--usx-color-on-surface-muted);
+}
+
+/* Tool/action buttons */
+.sidebar-tool-row {
+  display: flex;
+  gap: var(--usx-spacing-xs);
+  flex-wrap: wrap;
+}
+
+.sidebar-action-btn {
+  flex: 1;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border: 1px solid var(--usx-color-border);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
+  cursor: pointer;
+  border-radius: var(--usx-radius-sm, 4px);
+  font-size: var(--usx-font-size-sm);
+  font-family: monospace;
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast);
+}
+
+.sidebar-action-btn:hover {
+  background: var(--usx-color-surface-hover);
+  border-color: var(--usx-color-primary);
+}
+
+/* Colour markers (F/B labels on swatches) */
 .colour-marker {
   position: absolute;
   font-size: 9px;
@@ -937,37 +1131,6 @@ function clearGrid() {
   right: 1px;
   background: rgba(255,255,255,0.8);
   color: #000;
-}
-
-.sidebar-colour-hint {
-  font-size: 10px;
-  color: var(--pico-muted-color);
-  text-align: center;
-}
-
-/* Character input */
-.sidebar-char-row {
-  display: flex;
-  gap: var(--usx-spacing-xs);
-  align-items: center;
-}
-
-.sidebar-char-input {
-  width: 48px;
-  text-align: center;
-  font-size: 20px;
-  font-family: monospace;
-  padding: var(--usx-spacing-xs);
-  border: 1px solid var(--usx-color-border);
-  border-radius: var(--usx-radius-sm, 4px);
-  background: var(--usx-color-surface);
-  color: var(--usx-color-on-surface);
-}
-
-.sidebar-tool-row {
-  display: flex;
-  gap: var(--usx-spacing-xs);
-  flex-wrap: wrap;
 }
 
 /* ─── Shared ────────────────────────────────────────────────────── */

@@ -65,10 +65,13 @@ export class GridUICanvasElement extends HTMLElement {
   /** Default render width per cell (CSS pixels). Square=cellSize, teletext=cellSize*1.3.
    *  Per-cell GridCell.width overrides this. */
   private _charWidth: number = 0 // 0 = use cellSize
+  /** Whether to draw gridlines between cells */
+  private _gridlines: boolean = false
+
   /* ─── Observed Attributes ─────────────────────────────────────── */
 
   static get observedAttributes(): string[] {
-    return ['cols', 'rows', 'cell-size', 'char-width', 'font', 'palette']
+    return ['cols', 'rows', 'cell-size', 'char-width', 'font', 'palette', 'gridlines']
   }
 
   /* ─── Constructor ─────────────────────────────────────────────── */
@@ -122,6 +125,7 @@ export class GridUICanvasElement extends HTMLElement {
     this._font = this.getAttribute('font') || 'monospace'
     this._fitToContainerEnabled = this.getAttribute('fit-container') !== 'false'
     this._charWidth = parseInt(this.getAttribute('char-width') || '0')
+    this._gridlines = this.getAttribute('gridlines') !== 'null' && this.getAttribute('gridlines') !== 'false'
 
     // Ensure buffer matches dimensions
     if (this._buffer.length === 0) {
@@ -361,6 +365,26 @@ export class GridUICanvasElement extends HTMLElement {
           this._drawMosaic(ctx, x, y, cellW, cellH, cell.char)
         }
       }
+    }
+
+    // Gridlines: draw 1px lines at cell boundaries (device-pixel crisp)
+    if (this._gridlines) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)'
+      ctx.lineWidth = 1
+      const gw = this._cols * cellW
+      const gh = this._rows * cellH
+      ctx.beginPath()
+      for (let c = 1; c < this._cols; c++) {
+        const lx = Math.round(c * cellW) + 0.5
+        ctx.moveTo(lx, 0)
+        ctx.lineTo(lx, gh)
+      }
+      for (let r = 1; r < this._rows; r++) {
+        const ly = Math.round(r * cellH) + 0.5
+        ctx.moveTo(0, ly)
+        ctx.lineTo(gw, ly)
+      }
+      ctx.stroke()
     }
   }
 
