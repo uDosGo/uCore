@@ -67,40 +67,48 @@
       </div>
       <!-- Left: editor + layer overview -->
       <div class="grid-editor-main">
-        <!-- ─── Editor section: 24×24 with gridlines ─── -->
+        <!-- ─── Editor section: 24×24 grid (left) + palette/tools (right) ─── -->
         <div class="editor-section">
-          <div class="editor-section__bar">
-            <span class="editor-section__label">Editor · {{ editorCols }}×{{ editorRows }}</span>
-            <div class="editor-section__tools">
-              <button
-                v-for="t in TOOLS" :key="t.id"
-                class="editor-tool-btn"
-                :class="{ active: currentTool === t.id }"
-                :title="t.label"
-                @click="currentTool = t.id"
-              ><UIcon :name="t.icon" /></button>
+          <div class="editor-section__viewport" ref="editorViewportRef">
+            <span class="editor-section__label editor-section__label--overlay">Editor · {{ editorCols }}×{{ editorRows }}</span>
+          </div>
+          <div class="editor-section__side">
+            <div class="editor-section__side-group">
+              <span class="editor-section__label">Tools</span>
+              <div class="editor-section__tools">
+                <button
+                  v-for="t in TOOLS" :key="t.id"
+                  class="editor-tool-btn"
+                  :class="{ active: currentTool === t.id }"
+                  :title="t.label"
+                  @click="currentTool = t.id"
+                ><UIcon :name="t.icon" /></button>
+              </div>
             </div>
-            <div class="editor-section__colours">
-              <button
-                v-for="(c, i) in PALETTE" :key="i"
-                class="editor-colour-swatch"
-                :class="{ 'fg-active': selectedFg === i, 'bg-active': selectedBg === i }"
-                :style="{ background: c.hex }"
-                :title="c.name"
-                @click="selectedFg = i"
-                @click.right.prevent="selectedBg = i"
-              >
-                <span v-if="selectedFg === i" class="colour-marker fg">F</span>
-                <span v-if="selectedBg === i" class="colour-marker bg">B</span>
-              </button>
+            <div class="editor-section__side-group">
+              <span class="editor-section__label">Palette</span>
+              <div class="editor-section__colours">
+                <button
+                  v-for="(c, i) in PALETTE" :key="i"
+                  class="editor-colour-swatch"
+                  :class="{ 'fg-active': selectedFg === i, 'bg-active': selectedBg === i }"
+                  :style="{ background: c.hex }"
+                  :title="c.name"
+                  @click="selectedFg = i"
+                  @click.right.prevent="selectedBg = i"
+                >
+                  <span v-if="selectedFg === i" class="colour-marker fg">F</span>
+                  <span v-if="selectedBg === i" class="colour-marker bg">B</span>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="editor-section__viewport" ref="editorViewportRef"></div>
         </div>
 
-        <!-- ─── Layer section: 40×25 map ─── -->
-        <div class="layer-section">
-          <div class="layer-section__bar">
+        <!-- ─── Layer section: 40×25 map (collapsible) ─── -->
+        <div class="layer-section" :class="{ 'layer-section--collapsed': !layerExpanded }">
+          <div class="layer-section__bar" @click="layerExpanded = !layerExpanded">
+            <UIcon :name="layerExpanded ? 'expand_less' : 'expand_more'" class="layer-section__toggle" />
             <span class="editor-section__label">Layer · {{ layerCols }}×{{ layerRows }}</span>
             <span class="editor-section__label" style="opacity:0.5">
               Focus: ({{ editorFocusX }}, {{ editorFocusY }})
@@ -253,6 +261,7 @@ const layerViewportRef = ref<HTMLDivElement>()
 const importInputRef = ref<HTMLInputElement>()
 
 const showSidebar = ref(true)
+const layerExpanded = ref(true)
 const currentTool = ref<'pencil' | 'fill' | 'erase' | 'eyedropper'>('pencil')
 const selectedFg = ref(7)
 const selectedBg = ref(0)
@@ -818,8 +827,7 @@ function clearGrid() {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  padding: 5%;
-  gap: var(--usx-spacing-md);
+  gap: var(--usx-spacing-sm);
 }
 
 .grid-editor-main {
@@ -831,22 +839,26 @@ function clearGrid() {
   gap: var(--usx-spacing-sm);
 }
 
-/* ─── Editor section (top half) ─────────────────────────────────── */
+/* ─── Editor section: grid left, tools+palette right ────────────── */
 .editor-section {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   min-height: 0;
   overflow: hidden;
+  gap: var(--usx-spacing-sm);
 }
 
-.editor-section__bar {
+.editor-section__viewport {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: var(--usx-spacing-sm);
-  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  flex-shrink: 0;
-  flex-wrap: wrap;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  background: var(--usx-color-background-alt, #111);
+  border: 1px solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md, 6px);
 }
 
 .editor-section__label {
@@ -856,8 +868,35 @@ function clearGrid() {
   font-family: monospace;
 }
 
+.editor-section__label--overlay {
+  position: absolute;
+  top: var(--usx-spacing-xs);
+  left: var(--usx-spacing-sm);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Side panel: tools and palette stacked */
+.editor-section__side {
+  width: 80px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xs);
+  overflow-y: auto;
+}
+
+.editor-section__side-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+}
+
 .editor-section__tools {
   display: flex;
+  flex-direction: column;
   gap: 2px;
 }
 
@@ -889,14 +928,14 @@ function clearGrid() {
 
 .editor-section__colours {
   display: flex;
+  flex-direction: column;
   gap: 2px;
-  margin-left: auto;
 }
 
 .editor-colour-swatch {
   position: relative;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border: 2px solid var(--usx-color-border);
   border-radius: 3px;
   cursor: pointer;
@@ -919,33 +958,43 @@ function clearGrid() {
   box-shadow: 0 0 0 2px var(--usx-color-warning);
 }
 
-.editor-section__viewport {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: var(--usx-color-background-alt, #111);
-  border: 1px solid var(--usx-color-border);
-  border-radius: var(--usx-radius-md, 6px);
-}
-
-/* ─── Layer section (bottom half) ───────────────────────────────── */
+/* ─── Layer section (bottom half, collapsible) ──────────────────── */
 .layer-section {
   flex: 0 0 auto;
-  max-height: 45%;
   display: flex;
   flex-direction: column;
   min-height: 80px;
+  max-height: 45%;
   overflow: hidden;
+  transition: max-height 0.25s ease, min-height 0.25s ease;
+}
+
+.layer-section--collapsed {
+  max-height: 32px;
+  min-height: 32px;
+}
+
+.layer-section--collapsed .layer-section__viewport {
+  display: none;
 }
 
 .layer-section__bar {
   display: flex;
   align-items: center;
-  gap: var(--usx-spacing-sm);
+  gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.layer-section__bar:hover {
+  background: var(--usx-color-surface-hover, rgba(128,128,128,0.05));
+}
+
+.layer-section__toggle {
+  font-size: 18px;
+  color: var(--usx-color-on-surface-muted);
 }
 
 .layer-section__viewport {
