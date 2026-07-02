@@ -17,6 +17,10 @@ export interface GridCell {
   bold?: boolean      // Bold flag
   blink?: boolean     // Blink flag (teletext)
   mosaic?: boolean    // Mosaic block graphic flag
+  /** Render width in CSS pixels within the fixed cell.
+   *  Defaults to cellSize (square). Teletext=26px, square fonts=24px, etc.
+   *  Background always fills full cell — only character rendering uses this. */
+  width?: number
 }
 
 /** A 2D grid buffer (rows x cols) */

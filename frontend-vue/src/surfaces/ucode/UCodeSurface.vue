@@ -180,11 +180,11 @@ const tabTitles: Record<string, string> = {
 const currentTitle = computed(() => tabTitles[activeTab.value] || 'uCode — GridCore')
 
 /* ─── Grid Configs ────────────────────────────────────────────────── */
-const tabConfigs: Record<string, { cols: number; rows: number; font: string; cellSize: number; cellAspect?: number }> = {
+const tabConfigs: Record<string, { cols: number; rows: number; font: string; cellSize: number; charWidth?: number }> = {
   terminal: { cols: 40, rows: 25, font: 'pressstart2p', cellSize: 20 },
-  teletext: { cols: 40, rows: 25, font: 'mode7gx3', cellSize: 20, cellAspect: 1.3 },
-  grid: { cols: 40, rows: 25, font: 'mode7gx3', cellSize: 20, cellAspect: 1.3 },
-  layer: { cols: 40, rows: 25, font: 'mode7gx3', cellSize: 20, cellAspect: 1.3 },
+  teletext: { cols: 40, rows: 25, font: 'mode7gx3', cellSize: 20, charWidth: 26 },
+  grid: { cols: 40, rows: 25, font: 'mode7gx3', cellSize: 20, charWidth: 26 },
+  layer: { cols: 40, rows: 25, font: 'mode7gx3', cellSize: 20, charWidth: 26 },
 }
 
 const gridCols = computed(() => tabConfigs[activeTab.value]?.cols ?? 60)
@@ -269,17 +269,17 @@ function initGrid(tabId: string) {
   let el = canvasCache.get(tabId)
   if (!el) {
     el = createGridUICanvas({ cols: cfg.cols, rows: cfg.rows, font: cfg.font, cellSize: cfg.cellSize })
-    if (cfg.cellAspect) el.setAttribute('cell-aspect', String(cfg.cellAspect))
+    if (cfg.charWidth) el.setAttribute('char-width', String(cfg.charWidth))
     el.style.flexShrink = '0'
     gridContainer.value.appendChild(el)
     canvasCache.set(tabId, el)
     activeCanvas = el
     loadTabContent(tabId)
   } else {
-    // Update font and aspect when reusing cached canvas
+    // Update font and char-width when reusing cached canvas
     el.setAttribute('font', cfg.font)
-    if (cfg.cellAspect) el.setAttribute('cell-aspect', String(cfg.cellAspect))
-    else el.removeAttribute('cell-aspect')
+    if (cfg.charWidth) el.setAttribute('char-width', String(cfg.charWidth))
+    else el.removeAttribute('char-width')
     el.style.display = ''
     activeCanvas = el
     loadTabContent(tabId)

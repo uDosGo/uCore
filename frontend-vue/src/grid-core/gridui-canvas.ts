@@ -57,13 +57,13 @@ export class GridUICanvasElement extends HTMLElement {
   private _configuredCellSize: number = 16
   /** Whether to auto-fit to container (default true, set fit-container="false" to disable) */
   private _fitToContainerEnabled: boolean = true
-  /** Cell aspect ratio: 1.0 = square, 1.3 = 30% wider (teletext) */
-  private _cellAspect: number = 1.0
-
+  /** Default render width per cell (CSS pixels). Square=cellSize, teletext=cellSize*1.3.
+   *  Per-cell GridCell.width overrides this. */
+  private _charWidth: number = 0 // 0 = use cellSize
   /* ─── Observed Attributes ─────────────────────────────────────── */
 
   static get observedAttributes(): string[] {
-    return ['cols', 'rows', 'cell-size', 'cell-aspect', 'font', 'palette']
+    return ['cols', 'rows', 'cell-size', 'char-width', 'font', 'palette']
   }
 
   /* ─── Constructor ─────────────────────────────────────────────── */
@@ -116,7 +116,7 @@ export class GridUICanvasElement extends HTMLElement {
     this._configuredCellSize = this._cellSize
     this._font = this.getAttribute('font') || 'monospace'
     this._fitToContainerEnabled = this.getAttribute('fit-container') !== 'false'
-    this._cellAspect = parseFloat(this.getAttribute('cell-aspect') || '1.0')
+    this._charWidth = parseInt(this.getAttribute('char-width') || '0')
 
     // Ensure buffer matches dimensions
     if (this._buffer.length === 0) {
@@ -147,7 +147,7 @@ export class GridUICanvasElement extends HTMLElement {
     }
 
     const dpr = window.devicePixelRatio || 1
-    const cssWidth = Math.round(this._cols * this._cellSize * this._cellAspect)
+    const cssWidth = this._cols * this._cellSize
     const cssHeight = this._rows * this._cellSize
     const pixelWidth = Math.round(cssWidth * dpr)
     const pixelHeight = Math.round(cssHeight * dpr)
@@ -247,8 +247,10 @@ export class GridUICanvasElement extends HTMLElement {
     // anti-aliased seams between adjacent filled rectangles.
     ctx.imageSmoothingEnabled = false
 
-    const cellW = Math.round(this._cellSize * this._cellAspect * dpr)
+    const cellW = Math.round(this._cellSize * dpr)
     const cellH = Math.round(this._cellSize * dpr)
+    // Character render width: per-cell `.width` or default char-width or cellSize
+    const defaultCharW = this._charWidth > 0 ? Math.round(this._charWidth * dpr) : cellW
 
     // Clear canvas
     ctx.fillStyle = '#000000'
@@ -313,24 +315,30 @@ export class GridUICanvasElement extends HTMLElement {
         if (cell.char && cell.char !== ' ') {
           ctx.fillStyle = getColour(cell.fg, this._palette)
 
+          // Character render width: per-cell override, or default for this font
+          const chW = cell.width ? Math.round(cell.width * dpr) : defaultCharW
+
           if (BLOCK_CHARS.has(cell.char) && this._font !== 'mode7gx3') {
             // Block chars: fill the entire cell as a solid rectangle.
-            // For Press Start 2P this compensates for narrow glyphs.
-            // MODE7GX3 has its own designed glyphs — no override needed.
             ctx.fillRect(x, y, cellW, cellH)
           } else {
-            // Text chars: render as font glyph, clipped to cell boundaries
+            // Text chars: render as font glyph, clipped to cell boundaries.
+            // Character is centered within its render width, which may differ
+            // from cell width (e.g. teletext=26px, square=24px).
             ctx.save()
             ctx.beginPath()
             ctx.rect(x, y, cellW, cellH)
             ctx.clip()
 
+            // Center the character within its render width
+            const cx = x + (cellW - chW) / 2 + chW / 2
+
             // Bold: draw twice for thicker appearance
             if (cell.bold) {
-              ctx.fillText(cell.char, x + cellW / 2 - 1, y + cellH / 2)
-              ctx.fillText(cell.char, x + cellW / 2 + 1, y + cellH / 2)
+              ctx.fillText(cell.char, cx - 1, y + cellH / 2)
+              ctx.fillText(cell.char, cx + 1, y + cellH / 2)
             } else {
-              ctx.fillText(cell.char, x + cellW / 2, y + cellH / 2)
+              ctx.fillText(cell.char, cx, y + cellH / 2)
             }
 
             ctx.restore()
