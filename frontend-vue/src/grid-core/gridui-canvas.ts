@@ -286,9 +286,15 @@ export class GridUICanvasElement extends HTMLElement {
         ? defaultCharW / cellW  // e.g. 52/40 = 1.3×
         : 1.0
     const fontSize = Math.round(this._cellSize * fontScale * dpr)
-    // G0 teletext renderer (mode7gx3) uses pixel-crisp bitmaps — no font calls during render loop.
-    // Regular fonts (pressstart2p) use fillText with clipping.
+    // G0 teletext renderer (mode7gx3) uses pixel-crisp bitmaps for block graphics.
+    // Regular text characters use fillText with the MODE7GX3 font for readability.
     const isTeletext = this._font === 'mode7gx3'
+    const TELETEXT_BLOCKS = new Set([
+      '█', '▄', '▀', '▐', '▌', '░', '▒', '▓',
+      '│', '─', '║', '═', '╔', '╗', '╚', '╝',
+      '╠', '╣', '╦', '╩', '╬', '·', '☼', '◄',
+      '►', '▲', '▼', '◆', '○', '●', '⬛',
+    ])
     const fontFamily = this._font === 'pressstart2p'
       ? '"Press Start 2P", monospace'
       : this._font === 'mode7gx3'
@@ -329,9 +335,20 @@ export class GridUICanvasElement extends HTMLElement {
           const bg = getColour(cell.bg, this._palette)
 
           if (isTeletext) {
-            // G0 bitmap renderer — pixel-crisp, zero anti-aliasing
-            const charCode = cell.char.charCodeAt(0)
-            g0.render(ctx, c * this._cellSize, r * this._cellSize, this._cellSize, charCode, fg, bg, dpr)
+            if (TELETEXT_BLOCKS.has(cell.char)) {
+              // G0 bitmap renderer — pixel-crisp for block graphics
+              const charCode = cell.char.charCodeAt(0)
+              g0.render(ctx, c * this._cellSize, r * this._cellSize, this._cellSize, charCode, fg, bg, dpr)
+            } else {
+              // Regular text: render with MODE7GX3 font via fillText (readable)
+              ctx.fillStyle = fg
+              ctx.save()
+              ctx.beginPath()
+              ctx.rect(x, y, cellW, cellH)
+              ctx.clip()
+              ctx.fillText(cell.char, x + cellW / 2, y + cellH / 2)
+              ctx.restore()
+            }
           } else {
             ctx.fillStyle = fg
 
