@@ -85,7 +85,11 @@ function clearGrid() {
   align-items: center;
   justify-content: center;
   overflow: auto;
-  padding: var(--usx-spacing-lg);
+  padding: 5%;
+}
+
+.teletext-viewport gridui-canvas {
+  flex-shrink: 0;
 }
 
 .teletext-info {

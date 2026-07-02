@@ -25,13 +25,22 @@ import type { ColumnSpec, Viewport, GridPreset } from './types'
 /* ─── Grid Presets ─────────────────────────────────────────────── */
 
 export const GRID_PRESETS: GridPreset[] = [
-  { name: 'teletext',       cols: 40, rows: 25, aspect: '4:3',  description: 'Classic Ceefax/Teletext' },
-  { name: 'teletext-wide',  cols: 48, rows: 36, aspect: '4:3',  description: 'Extended teletext (backend default)' },
-  { name: 'terminal',       cols: 80, rows: 24, aspect: '4:3',  description: 'Classic terminal' },
-  { name: 'terminal-wide',  cols: 120, rows: 36, aspect: '16:9', description: 'Wide terminal' },
-  { name: 'editor',         cols: 60, rows: 20, aspect: '3:1',  description: 'Grid editing workspace' },
-  { name: 'map',            cols: 60, rows: 20, aspect: '3:1',  description: 'Map/grid view' },
-  { name: 'mini',           cols: 28, rows: 28, aspect: '1:1',  description: 'Square widget' },
+  // ─── Teletext (40×25 base, 24×24 cell = 960×600 at 1x) ──────
+  { name: 'teletext',         cols: 40, rows: 25, aspect: '8:5',  description: 'Classic Ceefax/Teletext — 960×600 @1x, 1920×1200 @2x' },
+  { name: 'teletext-wide',    cols: 80, rows: 25, aspect: '16:5', description: 'Wide teletext — 1920×600 @1x, 3840×1200 @2x' },
+  { name: 'teletext-hd',      cols: 80, rows: 50, aspect: '8:5',  description: 'HD teletext — 1920×1200 @1x, 3840×2400 @2x' },
+
+  // ─── Terminal (80×24 base, 24×24 cell = 1920×576 at 1x) ─────
+  { name: 'terminal',         cols: 80, rows: 24, aspect: '10:3', description: 'Classic terminal — 1920×576 @1x, 3840×1152 @2x' },
+  { name: 'terminal-wide',    cols: 120, rows: 24, aspect: '5:1', description: 'Wide terminal — 2880×576 @1x, 5760×1152 @2x' },
+  { name: 'terminal-ultra',   cols: 160, rows: 24, aspect: '20:3',description: 'Ultra-wide terminal — 3840×576 @1x, 7680×1152 @2x' },
+
+  // ─── Grid Worlds ──────────────────────────────────────────────
+  { name: 'editor',           cols: 40, rows: 25, aspect: '8:5',  description: 'Grid editor — matches teletext standard' },
+  { name: 'world-square',     cols: 80, rows: 80, aspect: '1:1',  description: 'Square world — 1920×1920 @1x, 3840×3840 @2x' },
+  { name: 'world-classic',    cols: 80, rows: 60, aspect: '4:3',  description: 'Classic 4:3 world — 1920×1440 @1x, 3840×2880 @2x' },
+  { name: 'world-widescreen', cols: 128, rows: 72, aspect: '16:9',description: 'Widescreen world — 3072×1728 @1x, 6144×3456 @2x' },
+  { name: 'mini',             cols: 28, rows: 28, aspect: '1:1',  description: 'Square widget — 672×672 @1x' },
 ]
 
 /**

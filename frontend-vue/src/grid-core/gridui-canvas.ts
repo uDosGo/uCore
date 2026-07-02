@@ -10,7 +10,7 @@
  * - Zero-gap cell rendering (fixes the "big gaps aside and below each tile" issue)
  * - 8-colour palette (foreground + background)
  * - Bold, blink, mosaic modes
- * - Auto-scales to fit container
+ * - Intrinsic sizing: host width/height = cols × cellSize
  * - Emits cell-click and cell-hover events
  * - Supports setBuffer() for external buffer updates
  */
@@ -24,18 +24,13 @@ const template = document.createElement('template')
 template.innerHTML = `
   <style>
     :host {
-      display: block;
-      width: 100%;
-      height: 100%;
-      line-height: 0;        /* CRITICAL: removes line-height gaps */
-      font-size: 0;          /* CRITICAL: removes font-size gaps */
+      display: inline-block;  /* shrink-wrap to grid content */
+      line-height: 0;
+      font-size: 0;
       overflow: hidden;
-      position: relative;
     }
     canvas {
-      display: block;        /* CRITICAL: removes inline-block gap below canvas */
-      width: 100%;
-      height: 100%;
+      display: block;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
@@ -56,7 +51,6 @@ export class GridUICanvasElement extends HTMLElement {
   private _palette = PALETTE_DARK
   private _blinkState: boolean = true
   private _blinkInterval: number | null = null
-  private _resizeObserver: ResizeObserver | null = null
   private _hoveredCell: { col: number; row: number } | null = null
 
   /* ─── Observed Attributes ─────────────────────────────────────── */
@@ -85,9 +79,8 @@ export class GridUICanvasElement extends HTMLElement {
 
   connectedCallback(): void {
     this._parseAttributes()
-    this._setupResizeObserver()
     this._startBlink()
-    // Fit canvas to container before first render
+    // Size canvas to exact grid dimensions, then render
     this._fitCanvas()
     this._render()
   }
@@ -95,7 +88,6 @@ export class GridUICanvasElement extends HTMLElement {
 
   disconnectedCallback(): void {
     this._stopBlink()
-    this._resizeObserver?.disconnect()
   }
 
   attributeChangedCallback(): void {
@@ -117,32 +109,34 @@ export class GridUICanvasElement extends HTMLElement {
     }
   }
 
-  /* ─── Resize Observer ─────────────────────────────────────────── */
-
-  private _setupResizeObserver(): void {
-    this._resizeObserver = new ResizeObserver(() => {
-      this._fitCanvas()
-      this._render()
-    })
-    this._resizeObserver.observe(this)
-  }
-
   /**
-   * Fit the canvas to the element's display size.
-   * Uses devicePixelRatio for crisp rendering on Retina displays.
+   * Fit the canvas to the grid dimensions at the current DPR.
+   * The canvas pixel size = cols × cellSize × devicePixelRatio.
+   * CSS size = cols × cellSize (in CSS pixels).
+   */
+  /**
+   * Size the canvas to exactly match the grid dimensions at the current DPR.
+   * The canvas pixel size = cols × cellSize × devicePixelRatio.
+   * CSS size = cols × cellSize (in CSS pixels).
+   * This guarantees each cell is exactly cellSize×cellSize CSS pixels.
    */
   private _fitCanvas(): void {
-    const rect = this.getBoundingClientRect()
     const dpr = window.devicePixelRatio || 1
-    const pixelWidth = Math.round(rect.width * dpr)
-    const pixelHeight = Math.round(rect.height * dpr)
+    const cssWidth = this._cols * this._cellSize
+    const cssHeight = this._rows * this._cellSize
+    const pixelWidth = Math.round(cssWidth * dpr)
+    const pixelHeight = Math.round(cssHeight * dpr)
 
     if (this._canvas.width !== pixelWidth || this._canvas.height !== pixelHeight) {
       this._canvas.width = pixelWidth
       this._canvas.height = pixelHeight
-      this._canvas.style.width = `${rect.width}px`
-      this._canvas.style.height = `${rect.height}px`
+      this._canvas.style.width = `${cssWidth}px`
+      this._canvas.style.height = `${cssHeight}px`
     }
+
+    // Size the host element to match the canvas for proper intrinsic sizing
+    this.style.width = `${cssWidth}px`
+    this.style.height = `${cssHeight}px`
   }
 
   /* ─── Blink Support ───────────────────────────────────────────── */
@@ -222,31 +216,32 @@ export class GridUICanvasElement extends HTMLElement {
 
     const ctx = this._ctx
     const dpr = window.devicePixelRatio || 1
-    const rect = this.getBoundingClientRect()
 
-    // Calculate scale to fit the grid into the available space
-    const scaleX = (rect.width * dpr) / (this._cols * this._cellSize)
-    const scaleY = (rect.height * dpr) / (this._rows * this._cellSize)
-    const scale = Math.min(scaleX, scaleY) // Allow upscaling for zoom-to-fit
+    // Ensure canvas is sized to exact grid dimensions
+    this._fitCanvas()
 
-    const cellW = Math.round(this._cellSize * scale)
-    const cellH = Math.round(this._cellSize * scale)
+    const cellW = Math.round(this._cellSize * dpr)
+    const cellH = Math.round(this._cellSize * dpr)
 
     // Clear canvas
     ctx.fillStyle = '#000000'
     ctx.fillRect(0, 0, this._canvas.width, this._canvas.height)
 
-    // Set font for character rendering
-    // Monospace fonts are ~0.6× font-size in width, so we need
-    // fontSize ≈ cellW / 0.6 to make each char fill the cell width.
-    // We intentionally make font slightly larger than cell height;
-    // adjacent row backgrounds clip vertical overflow.
-    const fontSize = Math.round(cellW / 0.6)
+    // Font size = full cell height so characters fill the cell vertically.
+    // Clipping per cell prevents overflow into adjacent cells.
+    // Press Start 2P: pixel font at cellSize maps its pixel grid to cells
+    // VT323: teletext font slightly oversized to fill cell height
+    const fontSize = (this._font === 'pressstart2p' || this._font === '"pressstart2p"')
+      ? Math.round(this._cellSize * dpr)
+      : (this._font === 'vt323' || this._font === '"vt323"')
+        ? Math.round(this._cellSize * 1.05 * dpr)
+        : Math.round(cellW / 0.6)
     ctx.font = `${fontSize}px "${this._font}", monospace`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 
     // Draw each cell — NO gaps between cells
+    // cellW and cellH are in canvas-physical pixels (accounting for DPR)
     for (let r = 0; r < this._rows && r < this._buffer.length; r++) {
       const row = this._buffer[r]
       if (!row) continue
@@ -269,8 +264,13 @@ export class GridUICanvasElement extends HTMLElement {
         ctx.fillStyle = getColour(cell.bg, this._palette)
         ctx.fillRect(x, y, cellW, cellH)
 
-        // Draw character
+        // Draw character — clip to cell boundaries for true grid alignment
         if (cell.char && cell.char !== ' ') {
+          ctx.save()
+          ctx.beginPath()
+          ctx.rect(x, y, cellW, cellH)
+          ctx.clip()
+
           ctx.fillStyle = getColour(cell.fg, this._palette)
 
           // Bold: draw twice for thicker appearance
@@ -280,6 +280,8 @@ export class GridUICanvasElement extends HTMLElement {
           } else {
             ctx.fillText(cell.char, x + cellW / 2, y + cellH / 2)
           }
+
+          ctx.restore()
         }
 
         // Mosaic mode: draw block graphic
@@ -331,15 +333,10 @@ export class GridUICanvasElement extends HTMLElement {
     const rect = this._canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
-    const scaleX = rect.width / (this._cols * this._cellSize)
-    const scaleY = rect.height / (this._rows * this._cellSize)
-    const scale = Math.min(scaleX, scaleY)
 
-    const cellW = this._cellSize * scale
-    const cellH = this._cellSize * scale
-
-    const col = Math.floor(x / cellW)
-    const row = Math.floor(y / cellH)
+    // Cell size in CSS pixels (canvas is sized to exactly cols*cellSize × rows*cellSize)
+    const col = Math.floor(x / this._cellSize)
+    const row = Math.floor(y / this._cellSize)
 
     if (col >= 0 && col < this._cols && row >= 0 && row < this._rows) {
       return { col, row }

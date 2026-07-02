@@ -34,14 +34,16 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import {
   createGridUICanvas,
+  type GridUICanvasElement,
+} from '../../grid-core/gridui-canvas'
+import {
   createBuffer,
   writeString,
   scroll as scrollBuffer,
-  type GridUICanvasElement,
-} from '../../vendor/gridui-canvas'
+} from '../../grid-core/index'
 
-const cols = 80
-const rows = 24
+const cols = 40
+const rows = 25
 const gridContainer = ref<HTMLDivElement>()
 const cmdInput = ref<HTMLInputElement>()
 const command = ref('')
@@ -50,7 +52,7 @@ let cursorY = 0
 
 onMounted(() => {
   if (!gridContainer.value) return
-  gridEl = createGridUICanvas({ cols, rows, font: 'pressstart2p', cellSize: 16 })
+  gridEl = createGridUICanvas({ cols, rows, font: 'pressstart2p', cellSize: 20 })
   gridContainer.value.appendChild(gridEl)
   printWelcome()
 })
@@ -78,7 +80,7 @@ function printWelcome() {
   gridEl?.setBuffer(buf)
   printLine('uDosConnect BBC BASIC Terminal', 4, 0)
   printLine('='.repeat(cols), 3, 0)
-  printLine('GridUI Canvas Engine -- Framework-Agnostic Web Component', 2, 0)
+  printLine('GridUI Canvas Engine -- 40x25 Teletext Standard', 2, 0)
   printLine('Type "HELP" for commands, "DEMO" for a demo.', 7, 0)
   printLine('', 7, 0)
   cursorY = 6
@@ -93,11 +95,10 @@ function runDemo() {
   clearTerminal()
   printLine('uCore GridUI Terminal Demo', 4, 0)
   printLine('', 7, 0)
-  printLine('  Grid Buffer: 80x24 cells', 2, 0)
-  printLine('  Rendering:   CSS Grid of <span> elements', 2, 0)
-  printLine('  Engine:      grid-algebra (pure TypeScript)', 2, 0)
-  printLine('  Component:   <gridui-canvas> Web Component', 2, 0)
-  printLine('  Framework:   None (framework-agnostic)', 5, 0)
+  printLine('  Grid: 40x25 @20px cells', 2, 0)
+  printLine('  Font: pressstart2p + vt323', 2, 0)
+  printLine('  Renderer: Canvas 2D', 2, 0)
+  printLine('  Scaling: 1x retro base', 5, 0)
   printLine('', 7, 0)
   printLine('  Ready.', 2, 0)
 }
@@ -135,8 +136,11 @@ function executeCommand() {
 <style scoped>
 .terminal-viewport {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: auto;
-  padding: var(--usx-spacing-sm);
+  padding: 5%;
 }
 
 .terminal-prompt {
