@@ -142,11 +142,7 @@ function toggleOrientation() {
   transition: color var(--usx-transition-base), border-color var(--usx-transition-base);
   text-decoration: none;
   font-family: var(--usx-font-family-sans);
-  min-height: var(--usx-touch-min);
   margin-bottom: calc(var(--usx-border-overlap) * -1);
-  line-height: 1;
-  -webkit-appearance: none;
-  appearance: none;
 }
 
 /* No button-style effects */
@@ -195,7 +191,6 @@ function toggleOrientation() {
   gap: var(--usx-spacing-xs);
   margin-left: auto;
   flex-shrink: 0;
-  padding: var(--usx-spacing-sm) 0;
 }
 
 .surface-tab-nav--vertical .surface-tab-nav__actions {

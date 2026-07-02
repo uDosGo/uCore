@@ -18,16 +18,32 @@
         <button class="surface-tab-nav__action-btn" title="Load" @click="triggerImport">
           <UIcon name="folder_open" />
         </button>
-        <select class="ucode-viewport-select" v-model="selectedPreset" @change="onPresetChange">
-          <option v-for="p in VIEWPORT_PRESETS" :key="p.name" :value="p.name">
-            {{ p.cols }}×{{ p.rows }}
-          </option>
-        </select>
+        <button
+          class="surface-tab-nav__action-btn preset-toggle"
+          title="Viewport presets"
+          @click="showPresets = !showPresets"
+        >
+          <UIcon name="dashboard" />
+        </button>
       </template>
     </SurfaceTabNav>
 
     <!-- ─── Non-Grid tabs: single canvas ─── -->
     <div v-if="activeTab !== 'grid'" class="surface__body">
+      <!-- Slide-in preset popover (floats over canvas) -->
+      <div class="preset-popover" :class="{ open: showPresets }">
+        <div class="preset-popover__inner">
+          <button
+            v-for="(p, i) in VIEWPORT_PRESETS" :key="p.name"
+            class="preset-popover__item"
+            :class="{ active: viewportIndex === i }"
+            @click="selectPreset(i)"
+          >
+            <span class="preset-popover__dims">{{ p.cols }}×{{ p.rows }}</span>
+            <span class="preset-popover__desc">{{ p.description }}</span>
+          </button>
+        </div>
+      </div>
       <div class="surface__canvas">
         <div ref="gridContainer" class="ucode-viewport" role="region" :aria-label="`${currentTitle} viewport`"></div>
       </div>
@@ -35,6 +51,20 @@
 
     <!-- ─── Grid Editor tab: split layout ─── -->
     <div v-else class="grid-editor-layout">
+      <!-- Slide-in preset popover (floats over editor) -->
+      <div class="preset-popover" :class="{ open: showPresets }">
+        <div class="preset-popover__inner">
+          <button
+            v-for="(p, i) in VIEWPORT_PRESETS" :key="p.name"
+            class="preset-popover__item"
+            :class="{ active: viewportIndex === i }"
+            @click="selectPreset(i)"
+          >
+            <span class="preset-popover__dims">{{ p.cols }}×{{ p.rows }}</span>
+            <span class="preset-popover__desc">{{ p.description }}</span>
+          </button>
+        </div>
+      </div>
       <!-- Left: editor + layer overview -->
       <div class="grid-editor-main">
         <!-- Top: 24×24 editor viewport -->
@@ -210,13 +240,22 @@ const selectedChar = ref('#')
 let LAYER_COLS = 40
 let LAYER_ROWS = 25
 
-// Viewport preset dropdown options
+// Viewport presets — cycled by toggle icon button
 const VIEWPORT_PRESETS = GRID_PRESETS.filter(p =>
   ['editor','teletext','terminal','terminal-retro','teletext-retro',
    'square-60','square-80','classic-40x30','classic-80x60',
    'widescreen-80x45','widescreen-128x72','ultrawide-160x91'].includes(p.name)
 )
-const selectedPreset = ref('editor')
+const viewportIndex = ref(0)
+const currentPreset = computed(() => VIEWPORT_PRESETS[viewportIndex.value])
+const showPresets = ref(false)
+
+function selectPreset(i: number) {
+  viewportIndex.value = i
+  showPresets.value = false
+}
+
+watch(viewportIndex, () => onPresetChange(currentPreset.value.name))
 
 // Editor viewport dimensions (the visible 24x24 window into the layer)
 const editorCols = 24
@@ -505,8 +544,12 @@ function reloadGrid() {
   }
 }
 
-function onPresetChange() {
-  const p = GRID_PRESETS.find(x => x.name === selectedPreset.value)
+function cycleViewport() {
+  viewportIndex.value = (viewportIndex.value + 1) % VIEWPORT_PRESETS.length
+}
+
+function onPresetChange(name: string) {
+  const p = GRID_PRESETS.find(x => x.name === name)
   if (!p) return
   LAYER_COLS = p.cols
   LAYER_ROWS = p.rows
@@ -962,27 +1005,78 @@ function clearGrid() {
   color: var(--usx-color-primary-active, var(--usx-color-primary));
 }
 
-/* ─── Viewport preset dropdown ────────────────────────────────── */
+/* ─── Viewport preset floating popover ────────────────────────── */
 .ucode-actions-spacer {
   flex: 1;
 }
 
-.ucode-viewport-select {
-  font-family: monospace;
-  font-size: var(--usx-font-size-sm);
-  background: var(--usx-color-surface);
-  color: var(--usx-color-on-surface);
-  border: 1px solid var(--usx-color-border);
-  border-radius: var(--usx-border-radius-sm, 4px);
-  padding: 2px var(--usx-spacing-xs);
-  cursor: pointer;
-  height: var(--usx-touch-min, 32px);
-  max-width: 180px;
-  box-sizing: border-box;
-  align-self: center;
+.surface__body,
+.surface__canvas,
+.grid-editor-layout {
+  position: relative;
 }
 
-.ucode-viewport-select:hover {
+.preset-popover {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  z-index: 10;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+
+.preset-popover.open {
+  max-height: 500px;
+}
+
+.preset-popover__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--usx-spacing-xs);
+  background: var(--usx-color-surface);
+  border: 1px solid var(--usx-color-border);
+  border-radius: 0 0 var(--usx-radius-sm, 4px) var(--usx-radius-sm, 4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 260px;
+}
+
+.preset-popover__item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--usx-spacing-xs);
+  width: 100%;
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border: 1px solid transparent;
+  border-radius: var(--usx-radius-sm, 4px);
+  background: transparent;
+  color: var(--usx-color-on-surface);
+  cursor: pointer;
+  font-size: var(--usx-font-size-sm);
+  font-family: monospace;
+  white-space: nowrap;
+  text-align: right;
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast);
+}
+
+.preset-popover__item:hover {
+  background: var(--usx-color-surface-hover, rgba(128,128,128,0.1));
   border-color: var(--usx-color-primary);
+}
+
+.preset-popover__item.active {
+  border-color: var(--usx-color-primary);
+  background: var(--usx-color-primary-container, rgba(0,120,255,0.1));
+}
+
+.preset-popover__dims {
+  font-weight: var(--usx-font-weight-semibold, 600);
+}
+
+.preset-popover__desc {
+  color: var(--usx-color-on-surface-muted);
 }
 </style>
