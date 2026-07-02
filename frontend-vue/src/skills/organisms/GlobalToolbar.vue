@@ -56,7 +56,7 @@
     <!-- Right: Dev Mode toggle + Theme toggle + Settings -->
     <div class="global-toolbar__right">
       <button
-        v-if="devMode.devServerRunning"
+        v-if="!devMode.isOffline"
         class="global-toolbar__dev-toggle"
         :class="{ 'global-toolbar__dev-toggle--on': devMode.mode === 'on' || devMode.mode === 'minimal' }"
         @click="devMode.toggle()"
@@ -65,7 +65,7 @@
         <span class="global-toolbar__dev-dot"></span>
         <span class="global-toolbar__dev-label">Dev</span>
       </button>
-      <UBadge v-else-if="devMode.probed" type="info">Dev Offline</UBadge>
+      <UBadge v-else-if="!devMode.loading" type="info">Dev Offline</UBadge>
       <UBadge v-else type="warning" title="Probing dev server...">Probing...</UBadge>
       <button
         class="global-toolbar__icon-only global-toolbar__theme-toggle"

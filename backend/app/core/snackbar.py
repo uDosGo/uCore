@@ -157,22 +157,11 @@ async def budget_middleware(request: web.Request, handler):
 
 
 async def health_handler(request: web.Request) -> web.Response:
-    health = {
+    return web.json_response({
         "status": "ok",
         "service": "uCore",
         "version": settings.version,
-    }
-    
-    # Add Popcorn status on macOS
-    if plat_module.system() == "Darwin":
-        try:
-            from app.services.popcorn_manager import get_popcorn_status
-            health["popcorn"] = get_popcorn_status()
-        except Exception as e:
-            log.warning(f"Failed to get Popcorn status: {e}")
-            health["popcorn"] = {"error": str(e)}
-    
-    return web.json_response(health)
+    })
 
 
 async def version_handler(request: web.Request) -> web.Response:

@@ -29,14 +29,18 @@ UI_HUB_URL = "http://localhost:5175"
 
 
 def _is_backend_alive() -> bool:
-    """Check if the uCore backend (snackbar) is responding on port 8484."""
-    try:
-        import urllib.request
+    """Check if the uCore backend (snackbar) is listening on port 8484.
 
-        req = urllib.request.Request(f"{UCORE_URL}/api/health", method="HEAD")
-        with urllib.request.urlopen(req, timeout=2) as resp:
-            return resp.status < 500
-    except Exception:
+    Uses a socket connect check instead of hitting the health endpoint
+    to avoid a recursive loop (the health endpoint calls this function).
+    """
+    import socket
+
+    try:
+        sock = socket.create_connection(("127.0.0.1", 8484), timeout=2)
+        sock.close()
+        return True
+    except (OSError, socket.timeout):
         return False
 
 

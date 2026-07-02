@@ -21,12 +21,12 @@
           />
         </div>
 
-        <!-- Dev Mode hint when server is running but Dev Mode is off -->
-        <div v-if="devMode.devServerRunning && devMode.mode === 'off'" class="dashboard-surface__dev-hint">
+        <!-- Dev Mode hint when backend is reachable but Dev Mode is off -->
+        <div v-if="devMode.isOffline" class="dashboard-surface__dev-hint">
           <p>
             <UIcon name="code" />
             Developer tools are available.
-            <button class="dashboard-surface__dev-link" @click="devMode.enable()">Enable Dev Mode</button>
+            <button class="dashboard-surface__dev-link" @click="devMode.setMode('on')">Enable Dev Mode</button>
           </p>
         </div>
       </div>
@@ -69,7 +69,7 @@ const HUB_TABS = [
 const activeHubTab = ref('dashboard')
 
 const visibleHubTabs = computed(() =>
-  HUB_TABS.filter(t => t.id !== 'developer' || devMode.devServerRunning)
+  HUB_TABS.filter(t => t.id !== 'developer' || !devMode.isOffline)
 )
 
 watch(activeHubTab, (tabId) => {

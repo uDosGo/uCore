@@ -107,7 +107,7 @@ export const router = createRouter({
 router.beforeEach(async (to) => {
   if (to.meta.devOnly) {
     const devMode = useDevModeStore()
-    if (!devMode.probed) {
+    if (!devMode.loading) {
       await devMode.probe()
     }
     if (!devMode.showDevContent) {
