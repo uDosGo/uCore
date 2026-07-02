@@ -264,9 +264,9 @@ export class GridUICanvasElement extends HTMLElement {
     ])
 
     // Font sizing — text glyphs are clipped to cell boundaries.
-    // VT323: teletext font — boost to 2× so glyphs fill cell width
+    // VT323: teletext font — boost to 2× so glyphs fill cell width.
     // (measureText shows glyphs are ~40% of font-size at 1×)
-    // Press Start 2P: pixel font — natural size, user confirmed it looks good
+    // Press Start 2P: pixel font — natural size, user confirmed it looks good.
     const fontScale = this._font === 'vt323' ? 2.0 : 1.0
     const fontSize = Math.round(this._cellSize * fontScale * dpr)
     const fontFamily = this._font === 'pressstart2p'
