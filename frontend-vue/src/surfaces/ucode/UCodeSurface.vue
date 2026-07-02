@@ -438,9 +438,8 @@ function initGridEditor() {
   editorCanvas.addEventListener('cell-click', onEditorCellClick as EventListener)
   editorViewportRef.value.appendChild(editorCanvas)
 
-  // Layer overview: 40×25 at 10px each (smaller to fit map)
-  layerCanvas = createGridUICanvas({ cols: LAYER_COLS, rows: LAYER_ROWS, font: 'mode7gx3', cellSize: 10 })
-  layerCanvas.setAttribute('fit-container', 'false')
+  // Layer overview: 40×25 cells, auto-fits to container
+  layerCanvas = createGridUICanvas({ cols: LAYER_COLS, rows: LAYER_ROWS, font: 'mode7gx3', cellSize: 100 })
   layerCanvas.setAttribute('char-width', '13')
   layerCanvas.style.flexShrink = '0'
   layerCanvas.addEventListener('cell-click', onLayerCellClick as EventListener)
@@ -857,7 +856,6 @@ function clearGrid() {
   overflow: hidden;
   position: relative;
   background: var(--usx-color-background-alt, #111);
-  border: 1px solid var(--usx-color-border);
   border-radius: var(--usx-radius-md, 6px);
 }
 
@@ -1004,7 +1002,6 @@ function clearGrid() {
   justify-content: center;
   overflow: auto;
   background: var(--usx-color-background-alt, #111);
-  border: 1px solid var(--usx-color-border);
   border-radius: var(--usx-radius-md, 6px);
   padding: var(--usx-spacing-xs);
 }
