@@ -430,17 +430,15 @@ function initGridEditor() {
   destroyGridEditor()
   if (!editorViewportRef.value || !layerViewportRef.value) return
 
-  // Editor view: 24×24 cells at 24px each (1x retro base cell) with gridlines
-  editorCanvas = createGridUICanvas({ cols: editorCols, rows: editorRows, font: 'mode7gx3', cellSize: 24 })
-  editorCanvas.setAttribute('fit-container', 'false')
+  // Editor view: 24×24 cells, auto-fits container with gridlines
+  editorCanvas = createGridUICanvas({ cols: editorCols, rows: editorRows, font: 'mode7gx3', cellSize: 100 })
   editorCanvas.setAttribute('gridlines', '')
   editorCanvas.style.flexShrink = '0'
   editorCanvas.addEventListener('cell-click', onEditorCellClick as EventListener)
   editorViewportRef.value.appendChild(editorCanvas)
 
-  // Layer overview: 40×25 cells, auto-fits to container
+  // Layer overview: 40×25 cells, auto-fits container
   layerCanvas = createGridUICanvas({ cols: LAYER_COLS, rows: LAYER_ROWS, font: 'mode7gx3', cellSize: 100 })
-  layerCanvas.setAttribute('char-width', '13')
   layerCanvas.style.flexShrink = '0'
   layerCanvas.addEventListener('cell-click', onLayerCellClick as EventListener)
   layerViewportRef.value.appendChild(layerCanvas)
