@@ -924,7 +924,11 @@ function clearGrid() { activeCanvas?.clear() }
   background: var(--usx-color-background-alt, #111);
   border-radius: var(--usx-radius-md, 6px);
   outline: none;
-  padding: var(--usx-spacing-xl);
+  padding: var(--usx-spacing-lg);
+  width: calc(100% - 4rem);
+  height: calc(100% - 2rem);
+  max-width: 800px;
+  max-height: 800px;
 }
 .cell-canvas-wrapper:focus {
   outline: 2px solid var(--usx-color-primary);
