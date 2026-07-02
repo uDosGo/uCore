@@ -73,35 +73,47 @@
             <span class="editor-section__label editor-section__label--overlay">Editor · {{ editorCols }}×{{ editorRows }}</span>
           </div>
           <div class="editor-section__side">
-            <div class="editor-section__side-group">
-              <span class="editor-section__label">Tools</span>
-              <div class="editor-section__tools">
-                <button
-                  v-for="t in TOOLS" :key="t.id"
-                  class="editor-tool-btn"
-                  :class="{ active: currentTool === t.id }"
-                  :title="t.label"
-                  @click="currentTool = t.id"
-                ><UIcon :name="t.icon" /></button>
-              </div>
+            <span class="editor-section__label">Tools</span>
+            <div class="editor-section__tools">
+              <button
+                v-for="t in TOOLS" :key="t.id"
+                class="editor-tool-btn"
+                :class="{ active: currentTool === t.id }"
+                :title="t.label"
+                @click="currentTool = t.id"
+              ><UIcon :name="t.icon" /></button>
             </div>
-            <div class="editor-section__side-group">
-              <span class="editor-section__label">Palette</span>
-              <div class="editor-section__colours">
-                <button
-                  v-for="(c, i) in PALETTE" :key="i"
-                  class="editor-colour-swatch"
-                  :class="{ 'fg-active': selectedFg === i, 'bg-active': selectedBg === i }"
-                  :style="{ background: c.hex }"
-                  :title="c.name"
-                  @click="selectedFg = i"
-                  @click.right.prevent="selectedBg = i"
-                >
-                  <span v-if="selectedFg === i" class="colour-marker fg">F</span>
-                  <span v-if="selectedBg === i" class="colour-marker bg">B</span>
-                </button>
-              </div>
+
+            <span class="editor-section__label">Palette</span>
+            <div class="editor-section__colours">
+              <button
+                v-for="(c, i) in PALETTE" :key="i"
+                class="editor-colour-swatch"
+                :class="{ 'fg-active': selectedFg === i, 'bg-active': selectedBg === i }"
+                :style="{ background: c.hex }"
+                :title="c.name"
+                @click="selectedFg = i"
+                @click.right.prevent="selectedBg = i"
+              >
+                <span v-if="selectedFg === i" class="colour-marker fg">F</span>
+                <span v-if="selectedBg === i" class="colour-marker bg">B</span>
+              </button>
             </div>
+
+            <span class="editor-section__label">Actions</span>
+            <div class="editor-section__actions">
+              <button class="editor-action-btn" @click="fillLayer" title="Fill all cells">Fill</button>
+              <button class="editor-action-btn" @click="clearLayer" title="Clear layer">Clr</button>
+              <button class="editor-action-btn" @click="exportGrid" title="Export as JSON">Exp</button>
+              <button class="editor-action-btn" @click="triggerImport" title="Import JSON">Imp</button>
+            </div>
+            <input
+              ref="importInputRef"
+              type="file"
+              accept=".json"
+              style="display:none"
+              @change="onImportFile"
+            />
           </div>
         </div>
 
@@ -165,25 +177,6 @@
           </div>
         </div>
 
-        <!-- Tools -->
-        <div class="sidebar-section">
-          <h4 class="sidebar-title">Actions</h4>
-          <div class="sidebar-tool-row">
-            <button class="sidebar-action-btn" @click="fillLayer">Fill All</button>
-            <button class="sidebar-action-btn" @click="clearLayer">Clear</button>
-          </div>
-          <div class="sidebar-tool-row" style="margin-top:var(--usx-spacing-xs)">
-            <button class="sidebar-action-btn" @click="exportGrid">Export JSON</button>
-            <button class="sidebar-action-btn" @click="triggerImport">Import JSON</button>
-          </div>
-          <input
-            ref="importInputRef"
-            type="file"
-            accept=".json"
-            style="display:none"
-            @change="onImportFile"
-          />
-        </div>
       </aside>
     </div>
   </div>
@@ -469,19 +462,6 @@ function renderLayerOverview() {
         if (buf[r][c].char === ' ' || buf[r][c].char === '─') {
           buf[r][c] = { char: '│', fg: 6, bg: 0 }
         }
-      }
-    }
-  }
-  // Mark the current focus area
-  const fx = editorFocusX.value
-  const fy = editorFocusY.value
-  for (let r = fy; r < fy + editorRows && r < LAYER_ROWS; r++) {
-    for (let c = fx; c < fx + editorCols && c < LAYER_COLS; c++) {
-      const cell = buf[r][c]
-      if (cell.char !== ' ' && cell.char !== '│' && cell.char !== '─') continue
-      // Highlight with a subtle marker
-      if (r === fy || r === fy + editorRows - 1 || c === fx || c === fx + editorCols - 1) {
-        buf[r][c] = { char: '·', fg: 1, bg: 0 }
       }
     }
   }
@@ -794,6 +774,7 @@ function loadLayerDemo() {
   buf = writeString(buf, 40, 8, '║  3. Units    ║', 1, 0)
   buf = writeString(buf, 40, 9, '╚══════════════╝', 6, 0)
   buf = writeString(buf, 1, cfg.rows - 3, ' Layers: 3  |  Active: Terrain  |  Opacity: 100%', 7, 0)
+  buf = writeString(buf, 25, 0, 'Click a cell to edit', 6, 0)
   activeCanvas.setBuffer(buf)
 }
 
@@ -824,7 +805,7 @@ function clearGrid() {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  gap: var(--usx-spacing-sm);
+  gap: 0;
 }
 
 .grid-editor-main {
@@ -833,7 +814,7 @@ function clearGrid() {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  gap: var(--usx-spacing-sm);
+  gap: 0;
 }
 
 /* ─── Editor section: grid left, tools+palette right ────────────── */
@@ -874,41 +855,35 @@ function clearGrid() {
 
 /* Side panel: tools and palette stacked */
 .editor-section__side {
-  width: 80px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--usx-spacing-sm);
-  padding: var(--usx-spacing-xs);
-  overflow-y: auto;
-}
-
-.editor-section__side-group {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--usx-spacing-xs);
+  gap: 6px;
+  padding: 6px;
+  width: 140px;
 }
 
 .editor-section__tools {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 2px;
+  width: 100%;
 }
 
 .editor-tool-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 100%;
+  aspect-ratio: 1;
   border: 1px solid var(--usx-color-border);
+  border-radius: 4px;
   background: var(--usx-color-surface);
-  color: var(--usx-color-on-surface);
+  color: var(--usx-color-on-surface-muted);
+  font-size: 20px;
   cursor: pointer;
-  border-radius: var(--usx-radius-sm, 4px);
-  font-size: var(--usx-font-size-sm);
-  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast);
+  padding: 0;
 }
 
 .editor-tool-btn:hover {
@@ -923,20 +898,20 @@ function clearGrid() {
 }
 
 .editor-section__colours {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 2px;
+  width: 100%;
 }
 
 .editor-colour-swatch {
-  position: relative;
-  width: 28px;
-  height: 28px;
+  width: 100%;
+  aspect-ratio: 1;
   border: 2px solid var(--usx-color-border);
   border-radius: 3px;
   cursor: pointer;
-  transition: transform var(--usx-transition-fast), border-color var(--usx-transition-fast);
   padding: 0;
+  transition: transform 0.1s ease, border-color 0.1s ease;
 }
 
 .editor-colour-swatch:hover {
@@ -952,6 +927,40 @@ function clearGrid() {
 .editor-colour-swatch.bg-active {
   border-color: var(--usx-color-warning);
   box-shadow: 0 0 0 2px var(--usx-color-warning);
+}
+
+.editor-section__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  width: 100%;
+}
+
+.editor-action-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 600;
+  border: 1px solid var(--usx-color-border);
+  border-radius: 3px;
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editor-action-btn:hover {
+  color: var(--usx-color-primary);
+  border-color: var(--usx-color-primary);
+}
+
+.editor-action-btn:hover {
+  color: var(--usx-color-primary);
+  border-color: var(--usx-color-primary);
+  background: var(--usx-color-surface-hover);
 }
 
 /* ─── Layer section (bottom half, collapsible) ──────────────────── */
@@ -1006,12 +1015,12 @@ function clearGrid() {
 
 /* ─── Sidebar ───────────────────────────────────────────────────── */
 .editor-sidebar {
-  width: 240px;
+  width: var(--usx-sidebar-width, 280px);
   flex-shrink: 0;
   overflow-y: auto;
   border-left: 1px solid var(--usx-color-border);
   background: var(--usx-color-surface);
-  padding: var(--usx-spacing-md);
+  padding: var(--usx-sidebar-padding, var(--usx-spacing-md));
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-md);
@@ -1024,12 +1033,12 @@ function clearGrid() {
 }
 
 .sidebar-title {
-  font-size: var(--usx-font-size-sm);
+  font-size: 10px;
   font-weight: 600;
   margin: 0;
-  color: var(--usx-color-on-surface);
+  color: var(--usx-color-on-surface-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 /* Font mapping */
@@ -1040,13 +1049,13 @@ function clearGrid() {
 
 .sidebar-font-btn {
   flex: 1;
-  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  padding: 3px var(--usx-spacing-xs);
   border: 1px solid var(--usx-color-border);
   background: var(--usx-color-surface);
   color: var(--usx-color-on-surface);
   cursor: pointer;
-  border-radius: var(--usx-radius-sm, 4px);
-  font-size: var(--usx-font-size-sm);
+  border-radius: 3px;
+  font-size: 11px;
   font-family: monospace;
   transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast);
 }
@@ -1071,8 +1080,8 @@ function clearGrid() {
 
 .sidebar-chars-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 2px;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 1px;
 }
 
 .sidebar-char-chip {
@@ -1082,12 +1091,12 @@ function clearGrid() {
   width: 100%;
   aspect-ratio: 1;
   border: 1px solid var(--usx-color-border);
-  border-radius: 3px;
+  border-radius: 2px;
   background: var(--usx-color-surface);
   color: var(--usx-color-on-surface);
   cursor: pointer;
   font-family: monospace;
-  font-size: var(--usx-font-size-lg, 18px);
+  font-size: var(--usx-font-size-base, 14px);
   transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast);
 }
 
