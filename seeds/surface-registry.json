@@ -49,9 +49,9 @@
       "icon": "code",
       "devTab": true,
       "devOnly": true,
-      "description": "Developer hub with skills, models, MCP servers",
-      "runtimes": ["dev_layer", "tasker_ingest"],
-      "panels": ["AgentsPanel", "ClineCliPanel", "FeedPanel", "KanbanPanel", "MCPServersPanel", "ModelsPanel", "ReposPanel", "ReviewPanel", "SettingsPanel", "SkillsPanel", "WorkflowsPanel"]
+      "description": "Developer hub — Control Panel unifies ecosystem status, plus drill-down panels for models, agents, repos, MCP, skills, workflows",
+      "runtimes": ["dev_layer", "tasker_ingest", "control_service"],
+      "panels": ["ControlPanel", "AgentsPanel", "ClineCliPanel", "FeedPanel", "KanbanPanel", "MCPServersPanel", "ModelsPanel", "ReposPanel", "ReviewPanel", "SettingsPanel", "SkillsPanel", "WorkflowsPanel", "RegistryPanel"]
     },
     "workflow": {
       "component": "WorkflowSurface",
@@ -161,6 +161,12 @@
       "file": "backend/app/mcp/tasker_ingest.py",
       "protocols": ["MCP", "internal"],
       "endpoints": []
+    },
+    "control_service": {
+      "service": "Control Panel Aggregation Service",
+      "file": "backend/app/services/control_service.py",
+      "protocols": ["REST"],
+      "endpoints": ["/api/control/status"]
     },
     "cost_manager": {
       "service": "Cost Manager",

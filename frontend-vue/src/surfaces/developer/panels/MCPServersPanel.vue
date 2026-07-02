@@ -3,7 +3,7 @@
     <div class="developer-panel-header">
       <h3 class="developer-panel-title">MCP Servers</h3>
       <UBadge :type="onlineCount > 0 ? 'success' : 'warning'" size="sm">
-        {{ onlineCount }}/{{ servers.length }} online
+        {{ loading ? '...' : onlineCount + '/' + servers.length + ' online' }}
       </UBadge>
     </div>
     <div class="developer-card-list">
@@ -31,16 +31,84 @@
  * @description MCP server status and configuration panel.
  * @category surfaces/developer
  */
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 
-const servers = [
-  { id: 'snackbar', name: 'Snackbar', online: true, endpoint: 'localhost:8484', tools: 12, description: 'Core MCP server — clipboard, maintenance, workflows, skills' },
-  { id: 'ucore', name: 'uCore Backend', online: true, endpoint: 'localhost:8000', tools: 8, description: 'Knowledge, surfaces, health, MCP tool registry' },
-  { id: 'vault', name: 'Vault Indexer', online: false, endpoint: 'localhost:8765', tools: 5, description: 'AppFlowy vault search and document indexing' },
-  { id: 'gridsmith', name: 'GridSmith', online: false, endpoint: 'localhost:8888', tools: 6, description: 'Grid rendering, spatial algebra, map generation' },
-]
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
+
+interface MCPServer {
+  id: string
+  name: string
+  online: boolean
+  endpoint: string
+  tools: number
+  description: string
+}
+
+const servers = ref<MCPServer[]>([])
+const loading = ref(true)
+
+async function fetchServers() {
+  loading.value = true
+  try {
+    // Fetch MCP tools - group by server
+    const res = await fetch(`${API_BASE}/api/mcp/tools`, {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const tools = data.tools || data || []
+      // Group tools by server
+      const serverMap = new Map<string, { tools: number; endpoint: string }>()
+      for (const t of tools) {
+        const srv = t.server || 'unknown'
+        const entry = serverMap.get(srv) || { tools: 0, endpoint: t.endpoint || '' }
+        entry.tools++
+        if (!entry.endpoint && t.endpoint) entry.endpoint = t.endpoint
+        serverMap.set(srv, entry)
+      }
+
+      const knownServers: Record<string, { desc: string; id: string }> = {
+        'snackbar': { desc: 'Core MCP server — clipboard, maintenance, workflows, skills', id: 'snackbar' },
+        'ucore': { desc: 'Knowledge, surfaces, health, MCP tool registry', id: 'ucore' },
+        'vault': { desc: 'AppFlowy vault search and document indexing', id: 'vault' },
+        'gridsmith': { desc: 'Grid rendering, spatial algebra, map generation', id: 'gridsmith' },
+      }
+
+      servers.value = Array.from(serverMap.entries()).map(([name, info]) => ({
+        id: knownServers[name]?.id || name.toLowerCase(),
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        online: true,
+        endpoint: info.endpoint || '—',
+        tools: info.tools,
+        description: knownServers[name]?.desc || 'MCP Server',
+      }))
+    }
+  } catch {
+    // Backend offline — check known ports
+    const checks = [
+      { id: 'snackbar', name: 'Snackbar', endpoint: 'localhost:8484', port: 8484, desc: 'Core MCP server' },
+      { id: 'hivemind', name: 'Hivemind', endpoint: 'localhost:8490', port: 8490, desc: 'AI agent routing' },
+      { id: 'vault', name: 'Vault Indexer', endpoint: 'localhost:8765', port: 8765, desc: 'Vault search' },
+      { id: 'gridsmith', name: 'GridSmith', endpoint: 'localhost:8888', port: 8888, desc: 'Grid rendering' },
+    ]
+    servers.value = checks.map(c => ({
+      id: c.id,
+      name: c.name,
+      online: false,
+      endpoint: c.endpoint,
+      tools: 0,
+      description: c.desc,
+    }))
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchServers()
+})
 
 const onlineCount = computed(() => servers.filter(s => s.online).length)
 </script>

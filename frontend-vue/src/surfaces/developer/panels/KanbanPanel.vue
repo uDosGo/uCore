@@ -40,12 +40,14 @@
 /**
  * @component KanbanPanel
  * @description Kanban board for task management with drag-and-drop.
- * Ported from KanbanBoard.tsx (React).
+ * Wired to Tasker API (/api/tasker/tasks).
  * @category surfaces/developer
  */
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import UButton from '../../../skills/atoms/UButton.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
+
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 
 interface KanbanItem {
   id: string
@@ -62,38 +64,55 @@ interface KanbanColumn {
 }
 
 const columns = ref<KanbanColumn[]>([
-  {
-    id: 'backlog', title: 'Backlog', color: '#6b7280',
-    items: [
-      { id: '1', title: 'Port Server surface to Vue', type: 'task', date: 'Today' },
-      { id: '2', title: 'Add Vitest unit tests', type: 'task', date: 'This week' },
-      { id: '3', title: 'Storybook for Skills', type: 'feature', date: 'Next' },
-    ],
-  },
-  {
-    id: 'progress', title: 'In Progress', color: '#58a6ff',
-    items: [
-      { id: '4', title: 'Port Developer surface to Vue', type: 'task', date: 'Today' },
-      { id: '5', title: 'Wire UIHub to Vue dashboard', type: 'task', date: 'Today' },
-    ],
-  },
-  {
-    id: 'review', title: 'Review', color: '#d29922',
-    items: [
-      { id: '6', title: 'AssistUI Vue port', type: 'review', date: 'Today' },
-    ],
-  },
-  {
-    id: 'done', title: 'Done', color: '#2ea043',
-    items: [
-      { id: '7', title: 'Vue 3 foundation scaffold', type: 'task', date: 'Yesterday' },
-      { id: '8', title: 'AssistUI chat surface', type: 'task', date: 'Today' },
-      { id: '9', title: 'md-editor-v3 vendor integration', type: 'task', date: 'Today' },
-    ],
-  },
+  { id: 'backlog', title: 'Backlog', color: '#6b7280', items: [] },
+  { id: 'progress', title: 'In Progress', color: '#58a6ff', items: [] },
+  { id: 'review', title: 'Review', color: '#d29922', items: [] },
+  { id: 'done', title: 'Done', color: '#2ea043', items: [] },
 ])
 
 const dragItem = ref<{ item: KanbanItem; colId: string } | null>(null)
+
+const statusToColumn: Record<string, string> = {
+  'backlog': 'backlog',
+  'pending': 'backlog',
+  'todo': 'backlog',
+  'in-progress': 'progress',
+  'in_progress': 'progress',
+  'active': 'progress',
+  'review': 'review',
+  'done': 'done',
+  'completed': 'done',
+}
+
+async function fetchTasks() {
+  try {
+    const res = await fetch(`${API_BASE}/api/tasker/tasks?limit=100`, {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!res.ok) return
+    const data = await res.json()
+    const tasks = Array.isArray(data) ? data : (data.tasks || [])
+    if (tasks.length === 0) return
+
+    // Reset columns
+    for (const col of columns.value) col.items = []
+
+    for (const t of tasks) {
+      const colId = statusToColumn[t.status] || 'backlog'
+      const column = columns.value.find(c => c.id === colId)
+      if (column) {
+        column.items.push({
+          id: t.id || t.task_id || String(Date.now()),
+          title: t.title || t.name || 'Untitled',
+          type: t.type || 'task',
+          date: t.updated_at || t.date || '—',
+        })
+      }
+    }
+  } catch {
+    // Backend offline — leave columns empty
+  }
+}
 
 function handleDrop(targetColId: string) {
   if (!dragItem.value || dragItem.value.colId === targetColId) {
@@ -115,7 +134,7 @@ function addCard() {
   const title = prompt('Card title:')
   if (!title) return
   columns.value[0].items.push({
-    id: `card-${Date.now()}`,
+    id: 'card-' + Date.now(),
     title,
     type: 'task',
     date: 'Today',
@@ -128,6 +147,8 @@ function typeColor(type: string): 'info' | 'success' | 'warning' | 'error' {
   }
   return map[type] || 'info'
 }
+
+onMounted(() => { fetchTasks() })
 </script>
 
 <style scoped>
@@ -155,7 +176,6 @@ function typeColor(type: string): 'info' | 'success' | 'warning' | 'error' {
   justify-content: space-between;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border-top: 3px solid;
-  
 }
 
 .kanban-column-title {
@@ -172,7 +192,6 @@ function typeColor(type: string): 'info' | 'success' | 'warning' | 'error' {
 
 .kanban-card {
   padding: var(--usx-spacing-sm);
-  background: var(--pico-background-color, #0d1117);
   background: var(--pico-background-color, #30363d);
   border-radius: var(--usx-border-radius-md);
   cursor: grab;
@@ -184,9 +203,7 @@ function typeColor(type: string): 'info' | 'success' | 'warning' | 'error' {
   transform: translateY(-1px);
 }
 
-.kanban-card:active {
-  cursor: grabbing;
-}
+.kanban-card:active { cursor: grabbing; }
 
 .kanban-card-title {
   font-size: var(--usx-font-size-sm);

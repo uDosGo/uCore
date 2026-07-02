@@ -2,7 +2,7 @@
   <div class="developer-panel">
     <div class="developer-panel-header">
       <h3 class="developer-panel-title">Repositories</h3>
-      <UBadge type="info">{{ dev.repos.length }} repos</UBadge>
+      <UBadge type="info">{{ loading ? '...' : (repos.length || dev.repos.length) }} repos</UBadge>
     </div>
     <UInput v-model="filter" placeholder="Filter repos..." icon="search" class="developer-panel-search" />
     <div class="developer-card-list">
@@ -20,8 +20,7 @@
         </div>
         <div class="developer-card-remote">{{ repo.remote }}</div>
         <div class="developer-card-actions">
-          <UButton variant="secondary" size="sm" @click="dev.browseRepo(repo.name)">Browse</UButton>
-          <UButton variant="ghost" size="sm">Pull</UButton>
+          <UButton variant="secondary" size="sm" @click="browseRepo(repo.name)">Browse</UButton>
           <UButton variant="ghost" size="sm">Status</UButton>
         </div>
       </div>
@@ -35,20 +34,60 @@
  * @description Repository browser panel — list, filter, browse repos.
  * @category surfaces/developer
  */
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import UInput from '../../../skills/atoms/UInput.vue'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 import UButton from '../../../skills/atoms/UButton.vue'
 import { useDeveloperStore } from '../../../stores/developer'
 
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 const dev = useDeveloperStore()
 const filter = ref('')
+const loading = ref(true)
+
+interface RepoData {
+  id?: string
+  name: string
+  path: string
+  branch: string
+  status: string
+  changes: number
+  remote: string
+  fileCount?: number
+}
+
+const repos = ref<RepoData[]>([])
+
+async function fetchRepos() {
+  loading.value = true
+  try {
+    const res = await fetch(`${API_BASE}/api/developer/repos`, {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      repos.value = data.repos || []
+    }
+  } catch {
+    // Fallback to store samples
+    repos.value = dev.repos.map(r => ({ name: r.name, path: r.path, branch: r.branch, status: r.status, changes: r.changes, remote: r.remote }))
+  } finally {
+    loading.value = false
+  }
+}
+
+function browseRepo(name: string) {
+  dev.browseRepo(name)
+}
+
+onMounted(() => { fetchRepos() })
 
 const filteredRepos = computed(() => {
-  if (!filter.value) return dev.repos
+  const list = repos.value.length > 0 ? repos.value : dev.repos.map(r => ({ name: r.name, path: r.path, branch: r.branch, status: r.status, changes: r.changes, remote: r.remote }))
+  if (!filter.value) return list
   const q = filter.value.toLowerCase()
-  return dev.repos.filter(r => r.name.toLowerCase().includes(q))
+  return list.filter(r => r.name.toLowerCase().includes(q))
 })
 </script>
 

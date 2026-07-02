@@ -1,6 +1,6 @@
 {
   "name": "ucore",
-  "version": "4.0.1",
+  "version": "4.0.3",
   "private": true,
   "description": "uCore — unified daemon combining uServer + uConnect backend with MCP support",
   "scripts": {

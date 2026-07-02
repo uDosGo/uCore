@@ -47,6 +47,7 @@ class UCoreIndexSkill(BaseSkill):
             SkillParam(name="search", type="string", required=False, description="Search query"),
             SkillParam(name="category", type="string", required=False, description="Filter by category (Skill, Surface, Component, Documentation)"),
             SkillParam(name="limit", type="integer", required=False, default=20, description="Maximum results to return"),
+            SkillParam(name="action", type="string", required=False, default="index", description="'index', 'search', or 'health-report'"),
         ],
         requires_confirmation=False,
     )
@@ -69,15 +70,17 @@ class UCoreIndexSkill(BaseSkill):
 
     async def run(self, **kwargs) -> dict:
         """Execute the uCore index skill."""
-        skill = UCoreIndexSkill()
-
-        # Check if search query provided
+        action = kwargs.get("action", "index")
         search_query = kwargs.get("search", "")
         category = kwargs.get("category")
         limit = kwargs.get("limit", 20)
 
+        if action == "health-report":
+            return await self._health_report()
+
+        skill = UCoreIndexSkill()
+
         if search_query:
-            # Perform search
             result = skill.search(search_query, category, limit)
             return {
                 "success": True,
@@ -87,13 +90,112 @@ class UCoreIndexSkill(BaseSkill):
                 "results": result,
             }
         else:
-            # Generate full index
             index = skill.generate()
             return {
                 "success": True,
                 "action": "index",
                 "index": index,
             }
+
+    async def _health_report(self) -> dict:
+        """Generate health report by cross-referencing audit + runtime checks."""
+        import urllib.request
+        import json as _json
+
+        services: dict[str, dict] = {}
+        checks = [
+            ("ollama", "http://localhost:11434/api/tags"),
+            ("hivemind", "http://localhost:8490/health"),
+            ("snackbar", "http://localhost:8484/health"),
+            ("feed", "http://localhost:8484/api/feed/query?limit=1"),
+        ]
+        for name, url in checks:
+            try:
+                req = urllib.request.Request(url, method="GET")
+                with urllib.request.urlopen(req, timeout=2) as resp:
+                    services[name] = {
+                        "online": resp.status < 400,
+                        "status": "running",
+                    }
+            except Exception:
+                services[name] = {"online": False, "status": "offline"}
+
+        # Load skill audit report if available
+        skill_health: dict = {"working": 0, "untested": 0, "broken": 0, "total": 0}
+        audit_file = UCORE_ROOT / "seeds" / "skill-audit-report.json"
+        if audit_file.exists():
+            try:
+                audit_data = _json.loads(audit_file.read_text())
+                skill_health = {
+                    "working": audit_data.get("working", 0),
+                    "untested": audit_data.get("untested", 0),
+                    "broken": audit_data.get("broken", 0),
+                    "total": audit_data.get("total_skills", 0),
+                    "health_pct": audit_data.get("health_pct", 0),
+                }
+            except Exception:
+                pass
+
+        # Load ecosystem assess report
+        eco_health: dict = {}
+        eco_file = UCORE_ROOT / "seeds" / "ecosystem-registry.json"
+        if eco_file.exists():
+            try:
+                eco_data = _json.loads(eco_file.read_text())
+                h = eco_data.get("health", {})
+                eco_health = {
+                    "total_items": h.get("total_items", 0),
+                    "working": h.get("working", 0),
+                    "untested": h.get("untested", 0),
+                    "broken": h.get("broken", 0),
+                    "health_pct": h.get("health_pct", 0),
+                }
+            except Exception:
+                pass
+
+        all_online = all(v.get("online") for v in services.values())
+        overall = "healthy" if all_online else "degraded"
+        if sum(1 for v in services.values() if not v.get("online")) > 1:
+            overall = "critical"
+
+        return {
+            "success": True,
+            "action": "health-report",
+            "overall": overall,
+            "services": services,
+            "skill_health": skill_health,
+            "ecosystem_health": eco_health,
+            "recommendations": self._health_recs(
+                services, skill_health, eco_health
+            ),
+        }
+
+    @staticmethod
+    def _health_recs(
+        services: dict,
+        skills: dict,
+        eco: dict,
+    ) -> list[str]:
+        recs = []
+        offline = [k for k, v in services.items() if not v.get("online")]
+        if offline:
+            recs.append(
+                f"Services offline: {', '.join(offline)} — "
+                "check startup scripts"
+            )
+        if skills.get("broken", 0) > 0:
+            recs.append(
+                f"{skills['broken']} skill(s) broken — "
+                "run skill-audit for details"
+            )
+        if eco.get("broken", 0) > 0:
+            recs.append(
+                f"{eco['broken']} ecosystem items broken — "
+                "run ecosystem-audit assess"
+            )
+        if not recs:
+            recs.append("All services healthy, no issues detected")
+        return recs
 
     def generate(self) -> Dict[str, Any]:
         """Generate comprehensive uCore index."""

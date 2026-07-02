@@ -60,19 +60,52 @@
 /**
  * @component SettingsPanel
  * @description Developer preferences — model defaults, agent behavior, review settings.
+ * Persisted via localStorage.
  * @category surfaces/developer
  */
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 
-const settings = reactive({
-  defaultModel: 'llama3.2',
-  temperature: 0.7,
-  autoSave: true,
-  streaming: true,
-  showPrompts: true,
-  defaultRepo: 'uCore',
-  diffContext: 3,
-})
+const STORAGE_KEY = 'ucore-dev-settings'
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      const saved = JSON.parse(raw)
+      return {
+        defaultModel: saved.defaultModel || 'llama3.2',
+        temperature: saved.temperature ?? 0.7,
+        autoSave: saved.autoSave !== false,
+        streaming: saved.streaming !== false,
+        showPrompts: saved.showPrompts !== false,
+        defaultRepo: saved.defaultRepo || 'uCore',
+        diffContext: saved.diffContext || 3,
+      }
+    }
+  } catch {
+    // Fall through to defaults
+  }
+  return {
+    defaultModel: 'llama3.2',
+    temperature: 0.7,
+    autoSave: true,
+    streaming: true,
+    showPrompts: true,
+    defaultRepo: 'uCore',
+    diffContext: 3,
+  }
+}
+
+const settings = reactive(loadSettings())
+
+// Auto-persist on any change
+watch(settings, (val) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
+  } catch {
+    // Storage full or unavailable — silent
+  }
+}, { deep: true })
 </script>
 
 <style scoped>
@@ -86,7 +119,7 @@ const settings = reactive({
 .settings-row { display: flex; align-items: center; gap: var(--usx-spacing-md); padding: var(--usx-spacing-sm) 0; }
 .settings-row label { flex: 1; font-size: var(--usx-font-size-sm); }
 .settings-row select,
-.settings-row input[type="number"] { padding: var(--usx-spacing-xs) var(--usx-spacing-sm); background: var(--pico-background-color, #30363d); border-radius: var(--usx-border-radius-sm); background: var(--pico-background-color, #0d1117); color: var(--pico-color, #c9d1d9); font-size: var(--usx-font-size-sm); }
+.settings-row input[type="number"] { padding: var(--usx-spacing-xs) var(--usx-spacing-sm); background: var(--pico-background-color, #0d1117); border-radius: var(--usx-border-radius-sm); color: var(--pico-color, #c9d1d9); font-size: var(--usx-font-size-sm); }
 .settings-row input[type="range"] { flex: 1; }
 .settings-row input[type="checkbox"] { width: 16px; height: 16px; }
 </style>

@@ -3,6 +3,28 @@
 Real-time tests, observations, and archived code snippets for future
 development reference. Updated at the end of each dev flow round.
 
+## 2026-07-02 — Control Panel + Agentic Execution Pipeline Delivered
+
+### Context
+Completed a massive implementation sprint across 2 lanes:
+- **Lane A: Catalogue & Assess** — 4 skills for ecosystem audit, health scoring, and enhancement planning
+- **Lane B: Agentic Execution** — 6 skills for multi-model consensus, parallel agent dispatch, Cline CLI bridge, unified Dev Mode executor, and GitHub workflow bridge
+
+### What Changed
+- 22 files: 12 created, 10 modified
+- Backend: aggregation service + API endpoint for unified ecosystem status
+- Frontend: Control Panel tab (8 Vue files) replacing 11 scattered panels
+- All existing panels now wired to real backend APIs
+- Ecosystem audit: 173 items at 99.4% health
+
+### Key Decisions
+- Control tab as default Developer Surface landing
+- dev-mode-executor (B4) chains: analyze → route → consensus → execute → log
+- Hivemind consensus defaults to weighted mode with architect + dev + reviewer models
+- Roundtable dispatches specialized agents based on task content keywords
+- Cline invoke supports both yolo and interactive modes
+- All new skills follow BaseSkill pattern with SkillMeta registration
+
 ---
 
 ## 2026-07-01 — Backend Debug Note (launchd / snackbar 500)

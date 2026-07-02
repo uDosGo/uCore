@@ -2,7 +2,7 @@
   <div class="developer-panel">
     <div class="developer-panel-header">
       <h3 class="developer-panel-title">Models</h3>
-      <UBadge type="info">{{ models.length }} available</UBadge>
+      <UBadge type="info">{{ loading ? '...' : models.length + ' available' }}</UBadge>
     </div>
     <UInput v-model="filter" placeholder="Filter models..." icon="search" class="developer-panel-search" />
     <div class="developer-card-list">
@@ -31,25 +31,99 @@
  * @description Model management panel — list, filter, and select LLM models.
  * @category surfaces/developer
  */
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import UInput from '../../../skills/atoms/UInput.vue'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 
-const filter = ref('')
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 
-const models = ref([
-  { id: 'llama3.2', name: 'Llama 3.2', provider: 'ollama', status: 'ready', contextWindow: '128K', size: '3B', description: 'Fast local model for coding and general tasks' },
-  { id: 'mistral', name: 'Mistral 7B', provider: 'ollama', status: 'ready', contextWindow: '32K', size: '7B', description: 'Balanced performance for reasoning and code' },
-  { id: 'gpt-4o', name: 'GPT-4o', provider: 'openrouter', status: 'ready', contextWindow: '128K', size: '???', description: 'Premium model for complex analysis and generation' },
-  { id: 'deepseek-v3', name: 'DeepSeek V3', provider: 'openrouter', status: 'ready', contextWindow: '64K', size: '671B MoE', description: 'High-performance open model for code and reasoning' },
-  { id: 'claude-sonnet-4', name: 'Claude Sonnet 4', provider: 'openrouter', status: 'ready', contextWindow: '200K', size: '???', description: 'Anthropic\'s balanced model for agentic workflows' },
-])
+const filter = ref('')
+const models = ref<Array<{
+  id: string
+  name: string
+  provider: string
+  status: string
+  contextWindow: string
+  size: string
+  description: string
+}>>([])
+const loading = ref(true)
+const ollamaError = ref<string | null>(null)
+
+async function fetchModels() {
+  loading.value = true
+  try {
+    // Fetch from Ollama directly
+    const ollamaRes = await fetch('http://localhost:11434/api/tags', {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (ollamaRes.ok) {
+      const data = await ollamaRes.json()
+      const ollamaModels = (data.models || []).map((m: any) => ({
+        id: m.name,
+        name: m.name,
+        provider: 'ollama',
+        status: 'ready',
+        contextWindow: '—',
+        size: m.size ? `${(m.size / 1e9).toFixed(1)}GB` : '—',
+        description: `Local model (${m.digest?.slice(0, 12) || 'unknown'})`,
+      }))
+      models.value = ollamaModels
+    } else {
+      ollamaError.value = `Ollama returned ${ollamaRes.status}`
+    }
+  } catch (e: any) {
+    ollamaError.value = e.message || 'Ollama unreachable'
+  }
+
+  // Also fetch OpenRouter/catalog models from backend
+  try {
+    const catRes = await fetch(`${API_BASE}/api/models`, {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (catRes.ok) {
+      const data = await catRes.json()
+      const catalogModels = (data.models || data || []).map((m: any) => ({
+        id: m.id || m.name,
+        name: m.name || m.id,
+        provider: m.provider || 'openrouter',
+        status: 'ready',
+        contextWindow: m.context_window || '—',
+        size: m.size || '—',
+        description: m.description || `Available via ${m.provider || 'OpenRouter'}`,
+      }))
+      // Merge, avoiding duplicates
+      const existingIds = new Set(models.value.map(m => m.id))
+      for (const m of catalogModels) {
+        if (!existingIds.has(m.id)) {
+          models.value.push(m)
+          existingIds.add(m.id)
+        }
+      }
+    }
+  } catch {
+    // Catalog not available — that's fine, show Ollama models only
+  }
+
+  // If we still have nothing, show fallback
+  if (models.value.length === 0) {
+    models.value = [
+      { id: 'fallback', name: 'No models found', provider: '—', status: 'offline', contextWindow: '—', size: '—', description: ollamaError.value || 'Connect Ollama or configure OpenRouter' },
+    ]
+  }
+
+  loading.value = false
+}
 
 const filteredModels = computed(() => {
   if (!filter.value) return models.value
   const q = filter.value.toLowerCase()
   return models.value.filter(m => m.name.toLowerCase().includes(q) || m.provider.toLowerCase().includes(q))
+})
+
+onMounted(() => {
+  fetchModels()
 })
 </script>
 

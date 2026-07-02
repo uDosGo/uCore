@@ -1,0 +1,1712 @@
+{
+  "success": true,
+  "action": "assess",
+  "ecosystem": {
+    "skills": [
+      {
+        "file": "backend/app/skills/builtin/ask_vault.py",
+        "name": "Ask Vault",
+        "skill_id": "ask_vault",
+        "category": "knowledge",
+        "description": "",
+        "params": [],
+        "timeout": 30,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/attach_context.py",
+        "name": "Attach Context",
+        "skill_id": "attach_context",
+        "category": "assist",
+        "description": "Output format: system_prompt, raw,  or markdown_block",
+        "params": [
+          {
+            "name": "project",
+            "type": "string",
+            "description": "Output format: system_prompt, raw,  or markdown_block"
+          },
+          {
+            "name": "include_wisdom",
+            "type": "boolean",
+            "description": "Include wisdom.md alongside CONTEXT.md  when available"
+          }
+        ],
+        "timeout": 10,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/backup.py",
+        "name": "Backup Data",
+        "skill_id": "backup",
+        "category": "maintenance",
+        "description": "",
+        "params": [],
+        "timeout": 120,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/brain_sync.py",
+        "name": "Brain Sync",
+        "skill_id": "brain_sync",
+        "category": "assist",
+        "description": "Synthesize recent project changes, spool activity, and  AppFlowy events into wisdom.md",
+        "params": [
+          {
+            "name": "hours",
+            "type": "integer",
+            "description": "Include recent episodic log entries in wisdom.md"
+          }
+        ],
+        "timeout": 30,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/clipboard_maintenance.py",
+        "name": "Clipboard Maintenance",
+        "skill_id": "clipboard_maintenance",
+        "category": "maintenance",
+        "description": "Capture current clipboard text and clean clipboard history",
+        "params": [],
+        "timeout": 30,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/daily_backup.py",
+        "name": "Daily Backup",
+        "skill_id": "daily_backup",
+        "category": "maintenance",
+        "description": "",
+        "params": [],
+        "timeout": 120,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/episodic_log.py",
+        "name": "Episodic Log",
+        "skill_id": "episodic_log",
+        "category": "memory",
+        "description": "Append a correction, lesson, or decision to the  durable episodic log",
+        "params": [
+          {
+            "name": "type",
+            "type": "string",
+            "description": "f\"Entry type: {', .join(sorted(ENTRY_TYPES"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "description": "Short description of what happened or was learned"
+          },
+          {
+            "name": "context",
+            "type": "string",
+            "description": "f\"Importance level: {', .join(sorted(SEVERITIES"
+          },
+          {
+            "name": "tags",
+            "type": "string",
+            "description": "Comma-separated topic tags (or pass as a list"
+          }
+        ],
+        "timeout": 10,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/file_edit_enhancer.py",
+        "name": "File Edit Enhancer",
+        "skill_id": "file_edit_enhancer",
+        "category": "maintenance",
+        "description": "",
+        "params": [],
+        "timeout": 120,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/git_maintenance.py",
+        "name": "Git Maintenance",
+        "skill_id": "git_maintenance",
+        "category": "maintenance",
+        "description": "Detect and repair managed commits and branch merges.  Scans workspace git repos for uncommitted changes, orphaned  or stale branches, divergent branches, detached HEAD,  interrupted operations, and no",
+        "params": [],
+        "timeout": 120,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/lint_fix.py",
+        "name": "Lint Fix",
+        "skill_id": "lint_fix",
+        "category": "developer",
+        "description": "",
+        "params": [],
+        "timeout": 120,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/route_task.py",
+        "name": "Route Task",
+        "skill_id": "route_task",
+        "category": "assist",
+        "description": "Target agent: auto (routing matrix",
+        "params": [
+          {
+            "name": "task",
+            "type": "string",
+            "description": "Target agent: auto (routing matrix"
+          }
+        ],
+        "timeout": 30,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_audit.py",
+        "name": "Skill Auditor (Smoke-Test)",
+        "skill_id": "skill-audit",
+        "category": "developer",
+        "description": "Discover, import, instantiate, and execute all builtin skills.  Reports health status: working, untested, or broken.",
+        "params": [],
+        "timeout": 120,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_autostart.py",
+        "name": "autostart",
+        "skill_id": "",
+        "category": "unknown",
+        "description": "",
+        "params": [],
+        "timeout": 0,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_cline_invoke.py",
+        "name": "Cline Invoke",
+        "skill_id": "cline-invoke",
+        "category": "developer",
+        "description": "Invoke Cline CLI from uCore skills.  Supports yolo (autonomous",
+        "params": [],
+        "timeout": 2,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_dead_code_archiver.py",
+        "name": "Dead Code / Legacy Archiver",
+        "skill_id": "dead-code-archiver",
+        "category": "developer",
+        "description": "Identify unused code, legacy patterns, and archive findings.  Generates migration notes and removal recommendations.",
+        "params": [],
+        "timeout": 180,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_dev_destroy_rebuild.py",
+        "name": "dev destroy rebuild",
+        "skill_id": "",
+        "category": "unknown",
+        "description": "f\"Auto-saved before DESTROY of {', .join(targets",
+        "params": [],
+        "timeout": 0,
+        "requires_confirmation": false,
+        "health": "untested",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_dev_mode_executor.py",
+        "name": "Dev Mode Executor",
+        "skill_id": "dev-mode-executor",
+        "category": "developer",
+        "description": "Unified agentic orchestration pipeline.  Chains analyze \u2192 route \u2192 consensus \u2192 execute  \u2192 review \u2192 log.",
+        "params": [
+          {
+            "name": "task_uid",
+            "type": "string",
+            "description": "Execution mode: auto (select best"
+          }
+        ],
+        "timeout": 600,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_devlog_mcp.py",
+        "name": "Devlog MCP",
+        "skill_id": "devlog_mcp",
+        "category": "workflow",
+        "description": "",
+        "params": [],
+        "timeout": 60,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_docs_roundup.py",
+        "name": "Docs Roundup",
+        "skill_id": "docs_roundup",
+        "category": "workflow",
+        "description": "End-of-dev-round docs automation: archive completed tasks,  update devlog, organise docs, update/archive specs, plan new docs",
+        "params": [],
+        "timeout": 180,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_duplicate_detector.py",
+        "name": "Duplicate Code Detector",
+        "skill_id": "duplicate-detector",
+        "category": "developer",
+        "description": "Find duplicate code patterns across Python/JS/TS files.  Reports similarity scores and removal recommendations.  Also detects $VARIABLE consolidation and script duplication.",
+        "params": [],
+        "timeout": 180,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_ecosystem_audit.py",
+        "name": "Ecosystem Auditor v1",
+        "skill_id": "ecosystem-audit",
+        "category": "developer",
+        "description": "Comprehensive ecosystem audit: skills, paths,  variables, secrets, MCP servers, routes, runtimes.  Generates ecosystem-registry.json.",
+        "params": [
+          {
+            "name": "action",
+            "type": "string",
+            "description": "Action: audit-skills', audit-routes',  audit-secrets', audit-variables',  audit-mcp', audit-paths',  audit-runtimes', re"
+          }
+        ],
+        "timeout": 180,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_enhancement_planner.py",
+        "name": "Enhancement Planner",
+        "skill_id": "enhancement-planner",
+        "category": "developer",
+        "description": "Bridges ecosystem audits to actionable .tasker items.  Reads audit reports, groups gaps by area, and generates  prioritized enhancement tasks.",
+        "params": [],
+        "timeout": 60,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_gh_workflow_bridge.py",
+        "name": "GitHub Workflow Bridge",
+        "skill_id": "gh-workflow-bridge",
+        "category": "developer",
+        "description": "Bridge tasks to GitHub Actions/CLI.  Trigger CI, create PRs, run workflows.",
+        "params": [
+          {
+            "name": "action",
+            "type": "string",
+            "description": "GitHub action: trigger-ci', create-pr',  run-workflow', or status"
+          },
+          {
+            "name": "repo",
+            "type": "string",
+            "description": "GitHub repo in owner/repo format  (default: uDosGo/uCore"
+          }
+        ],
+        "timeout": 2,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_hardcoded_path_detector.py",
+        "name": "Hardcoded Path Detector",
+        "skill_id": "hardcoded-path-detector",
+        "category": "developer",
+        "description": "Find hardcoded paths in Python/JS/TS files.  Reports absolute paths, environment variable references,  and platform-specific paths that should be configurable.",
+        "params": [],
+        "timeout": 60,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_hivemind_consensus.py",
+        "name": "Hivemind Consensus",
+        "skill_id": "hivemind-consensus",
+        "category": "assist",
+        "description": "Trigger multi-model deliberation via Hivemind server.  Calls 3+ models in parallel, returns weighted consensus.",
+        "params": [
+          {
+            "name": "task",
+            "type": "string",
+            "description": "Consensus mode: majority', unanimous',  weighted', or deliberative"
+          },
+          {
+            "name": "models",
+            "type": "string",
+            "description": "Comma-separated model list. Empty = default set  (architect + dev agent models"
+          }
+        ],
+        "timeout": 120,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_mcp_self_heal.py",
+        "name": "MCP Self-Heal",
+        "skill_id": "mcp_self_heal",
+        "category": "maintenance",
+        "description": "",
+        "params": [],
+        "timeout": 30,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_modularisation_planner.py",
+        "name": "Modularisation Planner",
+        "skill_id": "modularisation-planner",
+        "category": "developer",
+        "description": "Assess large scripts (>1000 lines",
+        "params": [],
+        "timeout": 180,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_roundtable_dispatch.py",
+        "name": "Roundtable Dispatch",
+        "skill_id": "roundtable-dispatch",
+        "category": "assist",
+        "description": "Dispatch tasks to parallel specialized agents  via Roundtable. Collects and aggregates results.",
+        "params": [
+          {
+            "name": "task",
+            "type": "string",
+            "description": "Comma-separated agent list or auto for routing.  Options: architect, dev, reviewer, debugger,  docgen, gridsmith-dev"
+          },
+          {
+            "name": "mode",
+            "type": "string",
+            "description": "Execution mode: parallel (concurrent"
+          }
+        ],
+        "timeout": 180,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_self_heal.py",
+        "name": "Recover Port Conflict",
+        "skill_id": "recover_port_conflict",
+        "category": "system",
+        "description": "",
+        "params": [],
+        "timeout": 30,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_spool_manager.py",
+        "name": "SPOOL Archive",
+        "skill_id": "spool_archive",
+        "category": "maintenance",
+        "description": "",
+        "params": [],
+        "timeout": 30,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_surface_registry.py",
+        "name": "Surface Registry v1",
+        "skill_id": "surface-registry",
+        "category": "developer",
+        "description": "Discover, validate, scaffold, repair, and wire uCore  surfaces. Autonomous maintenance for the surface  ecosystem with backend runtime linking.",
+        "params": [
+          {
+            "name": "action",
+            "type": "string",
+            "description": "Action: discover', validate', scaffold',  repair', wire', report"
+          },
+          {
+            "name": "target",
+            "type": "string",
+            "description": "Backend runtime to wire (e.g., dev_layer',  feed_server"
+          }
+        ],
+        "timeout": 120,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_ucore_index.py",
+        "name": "uCore Index",
+        "skill_id": "ucore_index",
+        "category": "system",
+        "description": "",
+        "params": [],
+        "timeout": 30,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/skill_vault_discovery.py",
+        "name": "Vault Discovery",
+        "skill_id": "vault_discovery",
+        "category": "system",
+        "description": "",
+        "params": [],
+        "timeout": 120,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/spool_maintenance.py",
+        "name": "Spool Maintenance",
+        "skill_id": "spool_maintenance",
+        "category": "maintenance",
+        "description": "",
+        "params": [],
+        "timeout": 60,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/tasker_devlog_bridge.py",
+        "name": "Tasker Devlog Bridge",
+        "skill_id": "tasker_devlog_bridge",
+        "category": "workflow",
+        "description": "",
+        "params": [],
+        "timeout": 60,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/tasker_sync.py",
+        "name": "Tasker Sync",
+        "skill_id": "tasker_sync",
+        "category": "workflow",
+        "description": "",
+        "params": [],
+        "timeout": 120,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/usx_standard.py",
+        "name": "USX Standard Builder v3",
+        "skill_id": "usx-standard",
+        "category": "developer",
+        "description": "Audit/repair CSS to USX variable-only standard;  validate token system; scaffold surfaces compliantly",
+        "params": [
+          {
+            "name": "action",
+            "type": "string",
+            "description": "Action: audit', repair', validate-tokens',  audit-surface', scaffold-surface', report"
+          },
+          {
+            "name": "target",
+            "type": "string",
+            "description": "Optional: specific file, surface, or glob  to target"
+          }
+        ],
+        "timeout": 120,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/vault_sync.py",
+        "name": "Vault Sync",
+        "skill_id": "vault_sync",
+        "category": "maintenance",
+        "description": "",
+        "params": [],
+        "timeout": 300,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/workflow_audit.py",
+        "name": "Workflow Audit",
+        "skill_id": "workflow_audit",
+        "category": "system",
+        "description": "",
+        "params": [],
+        "timeout": 60,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/workflow_guard.py",
+        "name": "Workflow Guard",
+        "skill_id": "workflow_guard",
+        "category": "system",
+        "description": "",
+        "params": [],
+        "timeout": 30,
+        "requires_confirmation": false,
+        "health": "working",
+        "issues": []
+      },
+      {
+        "file": "backend/app/skills/builtin/workflow_pause.py",
+        "name": "Workflow Pause",
+        "skill_id": "workflow_pause",
+        "category": "system",
+        "description": "",
+        "params": [],
+        "timeout": 30,
+        "requires_confirmation": true,
+        "health": "working",
+        "issues": []
+      }
+    ],
+    "mcp_servers": [
+      {
+        "name": "hivemind",
+        "file": "backend/app/mcp/hivemind_server.py",
+        "source": "backend auto-discovery",
+        "command": "python3 -m app.mcp.hivemind_server",
+        "cwd": "/Users/fredbook/Code/uCore/backend/app",
+        "health": "working",
+        "issues": []
+      }
+    ],
+    "runtimes": [
+      {
+        "name": "dev_layer",
+        "file": "backend/app/services/dev_layer.py",
+        "endpoints": [
+          "enabled",
+          "mode",
+          "visible"
+        ],
+        "variables": {
+          "mode": "next_mode"
+        },
+        "commands": [
+          "describe",
+          "features",
+          "get_dev_layer",
+          "get_status",
+          "is_feature_enabled",
+          "is_surface_visible",
+          "mode",
+          "reset_dev_layer",
+          "set_surface_override",
+          "surfaces",
+          "to_dict",
+          "toggle"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "name": "feed_server",
+        "file": "backend/app/mcp/feed/feed_server.py",
+        "endpoints": [],
+        "variables": {},
+        "commands": [
+          "close",
+          "ingest_activity",
+          "link_task_to_activity",
+          "query_feed",
+          "suggest_binders"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "name": "feed_consumer",
+        "file": "backend/app/services/feed_consumer.py",
+        "endpoints": [],
+        "variables": {},
+        "commands": [
+          "consume_activity"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "name": "hivemind_server",
+        "file": "backend/app/mcp/hivemind_server.py",
+        "endpoints": [],
+        "variables": {
+          "registry": "SpecializedAgentRegistry(agents_config)",
+          "consensus": "ConsensusEngine()",
+          "llm_router": "LLMRouter(llm_config)",
+          "app": "web.Application()"
+        },
+        "commands": [
+          "handle_chat",
+          "handle_cost_status",
+          "handle_get_agent",
+          "handle_get_workflow",
+          "handle_health",
+          "handle_list_agents",
+          "handle_list_proposals",
+          "handle_list_workflows",
+          "handle_llm_health",
+          "handle_proposal_status",
+          "handle_propose",
+          "handle_roundtable_status",
+          "handle_route_task",
+          "handle_run_workflow",
+          "handle_vote",
+          "main",
+          "make_node",
+          "node_fn"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "name": "llm_router",
+        "file": "backend/app/mcp/llm_router.py",
+        "endpoints": [
+          "fallback",
+          "ollama",
+          "roundtable"
+        ],
+        "variables": {
+          "backends": "[]"
+        },
+        "commands": [
+          "chat_completion",
+          "close",
+          "health_check"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "name": "cost_manager",
+        "file": "backend/app/services/cost_manager.py",
+        "endpoints": [
+          "daily",
+          "monthly",
+          "weekly"
+        ],
+        "variables": {},
+        "commands": [
+          "agent_spend",
+          "budget_remaining",
+          "cheapest_model",
+          "cost_tiers",
+          "daily_budget",
+          "get_cost_manager",
+          "is_within_budget",
+          "monthly_budget",
+          "record_task",
+          "reset_agent",
+          "reset_all",
+          "reset_cost_manager",
+          "summary",
+          "to_dict",
+          "top_spenders",
+          "weekly_budget"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "name": "template_manager",
+        "file": "backend/app/services/template_manager.py",
+        "endpoints": [],
+        "variables": {},
+        "commands": [
+          "count_by_tier",
+          "create_template",
+          "delete_template",
+          "find_template",
+          "fork_template",
+          "from_dict",
+          "get_path",
+          "get_template_manager",
+          "has_cookiecutter",
+          "list_templates",
+          "reset_template_manager",
+          "scaffold_from_template",
+          "summary",
+          "to_dict"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "name": "tasker_ingest",
+        "file": "backend/app/mcp/tasker_ingest.py",
+        "endpoints": [
+          "action",
+          "auto_commit",
+          "checklist",
+          "dry_run",
+          "lessons",
+          "outcome",
+          "session_id",
+          "summary",
+          "tasker_file",
+          "workspace"
+        ],
+        "variables": {},
+        "commands": [
+          "run"
+        ],
+        "health": "working",
+        "issues": []
+      }
+    ],
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/api/agents",
+        "handler": "handle_list_agents",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/agents/spec/capability/{capability}",
+        "handler": "handle_agents_spec_capability",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/agents/spec/get/{agent_id}",
+        "handler": "handle_agents_spec_get",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/agents/spec/list",
+        "handler": "handle_agents_spec_list",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/agents/spec/plan",
+        "handler": "handle_agents_spec_plan",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/agents/spec/route",
+        "handler": "handle_agents_spec_route",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/agents/stats",
+        "handler": "handle_agents_stats",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/budget/reload",
+        "handler": "handle_budget_reload",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/budget/status",
+        "handler": "handle_budget_status",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/budget/usage",
+        "handler": "handle_budget_usage",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/chat",
+        "handler": "handle_chat",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/chat/prompts",
+        "handler": "handle_chat_prompts",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/config",
+        "handler": "handle_get_config",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/cost/estimate",
+        "handler": "handle_cost_estimate",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/cost/models",
+        "handler": "handle_cost_models",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/cost/providers",
+        "handler": "handle_cost_providers",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/cost/stats",
+        "handler": "handle_cost_stats",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/developer/repos",
+        "handler": "handle_list_repos",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/developer/repos/{repo_name}/commit",
+        "handler": "handle_commit_repo_files",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/developer/repos/{repo_name}/diff",
+        "handler": "handle_get_repo_file_diff",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/developer/repos/{repo_name}/file-preview",
+        "handler": "handle_get_repo_file_preview",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "PUT",
+        "path": "/api/developer/repos/{repo_name}/file-preview",
+        "handler": "handle_update_repo_file",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/developer/repos/{repo_name}/files",
+        "handler": "handle_list_repo_files",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/developer/repos/{repo_name}/review",
+        "handler": "handle_list_repo_review",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/developer/repos/{repo_name}/stage",
+        "handler": "handle_stage_repo_file",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/developer/repos/{repo_name}/unstage",
+        "handler": "handle_unstage_repo_file",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/developer/start",
+        "handler": "handle_start_developer",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/developer/status",
+        "handler": "handle_developer_status",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/developer/stop",
+        "handler": "handle_stop_developer",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/docker/ps",
+        "handler": "handle_docker_ps",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/exec",
+        "handler": "handle_exec",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/flow-router/analytics",
+        "handler": "handle_flow_router_analytics",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/flow-router/history",
+        "handler": "handle_flow_router_history",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/flow-router/route",
+        "handler": "handle_flow_router_route",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/gridsmith/grid/create",
+        "handler": "handle_gridsmith_grid_create",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/gridsmith/location/latlon-to-ucode",
+        "handler": "handle_gridsmith_latlon_to_ucode",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/gridsmith/location/ucode-to-latlon",
+        "handler": "handle_gridsmith_ucode_to_latlon",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/gridsmith/status",
+        "handler": "handle_gridsmith_status",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/gridsmith/tools",
+        "handler": "handle_gridsmith_tools",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/gridsmith/world/import-basic",
+        "handler": "handle_gridsmith_import_basic",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/documents",
+        "handler": "handle_list_documents",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/documents/{object_id}",
+        "handler": "handle_get_document",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/documents/{object_id}/content",
+        "handler": "handle_get_document_content",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/knowledge/import",
+        "handler": "handle_af_import",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/import/status",
+        "handler": "handle_import_status",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/index/coverage",
+        "handler": "handle_index_coverage",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/index/status",
+        "handler": "handle_af_index_status",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/local/databases",
+        "handler": "handle_local_databases",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/knowledge/local/export",
+        "handler": "handle_local_export",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/knowledge/local/query",
+        "handler": "handle_local_query",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/local/tables",
+        "handler": "handle_local_tables",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/search",
+        "handler": "handle_search",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/status",
+        "handler": "handle_af_status",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/knowledge/sync",
+        "handler": "handle_af_sync",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/knowledge/workspaces",
+        "handler": "handle_list_workspaces",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/mcp/call",
+        "handler": "handle_mcp_call",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/mcp/diagnostics",
+        "handler": "handle_mcp_diagnostics",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/mcp/tools",
+        "handler": "handle_mcp_discover",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/models",
+        "handler": "handle_models",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/ollama/models/available",
+        "handler": "handle_ollama_models_available",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/ollama/performance",
+        "handler": "handle_ollama_performance",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/ollama/status",
+        "handler": "handle_ollama_status",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/secrets",
+        "handler": "handle_list_secrets",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/secrets/audit",
+        "handler": "handle_secret_audit",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/secrets/env",
+        "handler": "handle_list_env_vars",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/secrets/export-env",
+        "handler": "handle_export_to_env",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/secrets/import-env",
+        "handler": "handle_import_from_env",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/secrets/sync-github",
+        "handler": "handle_sync_github",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/secrets/{name}",
+        "handler": "handle_get_secret",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/secrets/{name}",
+        "handler": "handle_set_secret",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/secrets/{name}",
+        "handler": "handle_delete_secret",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/skills",
+        "handler": "handle_list_skills",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/skills/health",
+        "handler": "handle_health",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/skills/run",
+        "handler": "handle_run_named_skill",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/skills/state",
+        "handler": "handle_skill_state",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/skills/{skill_id}/run",
+        "handler": "handle_run_skill",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/system",
+        "handler": "system_info_handler",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/system/maintenance",
+        "handler": "maintenance_status_handler",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/system/workflow",
+        "handler": "workflow_status_handler",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/tools",
+        "handler": "handle_list_tools",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/tools/{tool_id}/status",
+        "handler": "handle_tool_status",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/toon/clear",
+        "handler": "handle_toon_clear",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/toon/encode",
+        "handler": "handle_toon_encode",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/toon/stats",
+        "handler": "handle_toon_stats",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/variables",
+        "handler": "handle_get_variables",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/variables/install",
+        "handler": "handle_get_install_variables",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/variables/user",
+        "handler": "handle_get_user_variables",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "PUT",
+        "path": "/api/variables/user",
+        "handler": "handle_update_user_variables",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/workflow/tasks",
+        "handler": "handle_workflow_tasks",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/workflows",
+        "handler": "handle_list_workflows",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/workflows",
+        "handler": "handle_create_workflow",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/workflows/board/{board_id}/health",
+        "handler": "handle_board_health",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/workflows/runs",
+        "handler": "handle_workflow_runs",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/workflows/task/{task_id}",
+        "handler": "handle_get_task",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "PUT",
+        "path": "/api/workflows/task/{task_id}",
+        "handler": "handle_update_task",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/workflows/{workflow_id}/logs",
+        "handler": "handle_workflow_logs",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/workflows/{workflow_id}/run",
+        "handler": "handle_run_workflow",
+        "health": "working",
+        "issues": []
+      }
+    ],
+    "paths": [
+      {
+        "path": "config",
+        "type": "config",
+        "description": "Configuration directory",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "seeds",
+        "type": "config",
+        "description": "Configuration directory",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "docs",
+        "type": "config",
+        "description": "Configuration directory",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "backend/config",
+        "type": "config",
+        "description": "Configuration directory",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "frontend-vue/src/styles",
+        "type": "config",
+        "description": "Configuration directory",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "~/.config/hivemind/.env",
+        "type": "runtime",
+        "description": "User runtime path",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "~/.config/cline/mcp_config.json",
+        "type": "runtime",
+        "description": "User runtime path",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "~/.local/share/udos/Vault/",
+        "type": "runtime",
+        "description": "User runtime path",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "~/.local/share/udos/programs/",
+        "type": "runtime",
+        "description": "User runtime path",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "~/.local/share/udos/snacks/",
+        "type": "runtime",
+        "description": "User runtime path",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "backend/app/skills/builtin/",
+        "type": "skills",
+        "description": "Builtin skills directory",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "backend/app/api/",
+        "type": "api",
+        "description": "REST API handlers",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "backend/app/mcp/",
+        "type": "mcp",
+        "description": "MCP servers directory",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "path": "backend/app/services/",
+        "type": "services",
+        "description": "Backend service modules",
+        "health": "working",
+        "issues": []
+      }
+    ],
+    "secrets": [
+      {
+        "key": "OPENROUTER_API_KEY",
+        "scope": "environment",
+        "store": "~/.config/hivemind/.env",
+        "description": "Models: glm-5.1, claude-opus-4.7, deepseek-v4-flash, qwen3.6-27b",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "key": "OLLAMA_BASE_URL",
+        "scope": "environment",
+        "store": "~/.config/hivemind/.env",
+        "description": "Model: qwen2.5-coder:3b (run: ollama pull qwen2.5-coder:3b)",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "key": "ANTHROPIC_API_KEY",
+        "scope": "environment",
+        "store": "~/.config/hivemind/.env",
+        "description": "",
+        "health": "working",
+        "issues": []
+      },
+      {
+        "key": "OPENAI_API_KEY",
+        "scope": "environment",
+        "store": "~/.config/hivemind/.env",
+        "description": "",
+        "health": "working",
+        "issues": []
+      }
+    ],
+    "variables": [
+      {
+        "scope": "user",
+        "file": "~/.local/share/udos/Vault/variables/user.yaml",
+        "description": "User-level persistent variables",
+        "examples": [
+          "theme",
+          "editor_font_size",
+          "last_world"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "scope": "global",
+        "file": "~/.local/share/udos/Vault/variables/global.yaml",
+        "description": "System-wide variables",
+        "examples": [
+          "runtime_version",
+          "engine"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "scope": "snack",
+        "file": "snack manifest (per-container)",
+        "description": "Per-snack container state",
+        "examples": [
+          "level",
+          "player_hp"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "scope": "system",
+        "file": "memory only (not persisted)",
+        "description": "Runtime-only state",
+        "examples": [
+          "pid",
+          "uptime_seconds"
+        ],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "scope": "user",
+        "source": "variables_api.py",
+        "description": "Exposed via /api/variables/user",
+        "examples": [],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "scope": "install",
+        "source": "variables_api.py",
+        "description": "Exposed via /api/variables/install",
+        "examples": [],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "scope": "user",
+        "source": "variables_api.py",
+        "description": "Exposed via /api/variables/user",
+        "examples": [],
+        "health": "working",
+        "issues": []
+      },
+      {
+        "scope": "install",
+        "source": "variables_api.py",
+        "description": "Exposed via /api/variables/install",
+        "examples": [],
+        "health": "working",
+        "issues": []
+      }
+    ]
+  },
+  "health": {
+    "total_items": 173,
+    "working": 172,
+    "untested": 1,
+    "broken": 0,
+    "orphaned": 0,
+    "health_pct": 99.4
+  },
+  "recommendations": [
+    "Smoke-test 1 untested items to validate they work",
+    "Untested skills: dev destroy rebuild"
+  ]
+}

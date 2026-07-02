@@ -1,304 +1,365 @@
-#!/usr/bin/env python3
-"""Skill Audit — comprehensive skill health and compliance audit.
+"""Skill Audit — smoke-test all skills with import + execution checks.
 
-Audits all registered skills:
-1. Skill state persistence
-2. Recent execution logs
-3. Error rates
-4. Compliance with skill standards
-5. DevMode operation logging
+Comprehensive audit that actually tries to load and execute each skill:
+1. Discovers all skills in builtin/
+2. Attempts to import each skill module
+3. Attempts to instantiate BaseSkill subclasses and call run(dry_run=True)
+4. For module-level functions, attempts to call run() with safety wrapper
+5. Reports failures with exception traces
+6. Cross-references against skills audit status doc
 
-Integrates with health API and provides audit trail.
+Integrates with the uCore skill registry via BaseSkill pattern.
 """
 from __future__ import annotations
 
+import importlib
+import importlib.util
+import json
+import logging
+import sys
 import time
+import traceback
 from pathlib import Path
 from typing import Any
 
-from app.skills.state import read_state
-from app.core.logging import log
+from app.skills.base import BaseSkill, SkillMeta, SkillParam
+
+log = logging.getLogger("ucore.skills.audit")
+
+SKILLS_DIR = Path(__file__).resolve().parent
+UCORE_ROOT = SKILLS_DIR.parent.parent.parent.parent
+EXCLUDES = {
+    "__pycache__", "__archived__", ".mypy_cache",
+    "__init__", "base", "state",
+}
 
 
-def run(
-    skill_filter: str = "",
-    include_logs: bool = True,
-    check_compliance: bool = True,
+def _discover_skill_modules() -> list[str]:
+    """Discover all skill modules (files + base-skill classes)."""
+    modules: list[str] = []
+    for f in sorted(SKILLS_DIR.glob("*.py")):
+        name = f.stem
+        if name in EXCLUDES or name.startswith("."):
+            continue
+        modules.append(name)
+    return modules
+
+
+def _safe_import_module(name: str) -> tuple[Any | None, str | None]:
+    """Try to import a skill module. Returns (module, error)."""
+    try:
+        spec = importlib.util.spec_from_file_location(
+            name,
+            SKILLS_DIR / f"{name}.py",
+        )
+        if spec is None or spec.loader is None:
+            return None, "Could not create module spec"
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[name] = mod
+        spec.loader.exec_module(mod)
+        return mod, None
+    except Exception as exc:
+        return None, f"ImportError: {exc}"
+
+
+def _find_base_skill_subclass(mod: Any) -> type | None:
+    """Find the first BaseSkill subclass in a module."""
+    for attr_name in dir(mod):
+        attr = getattr(mod, attr_name)
+        if (
+            isinstance(attr, type)
+            and issubclass(attr, BaseSkill)
+            and attr is not BaseSkill
+        ):
+            return attr
+    return None
+
+
+def _has_module_run(mod: Any) -> bool:
+    """Check if module has a top-level async run() or def run()."""
+    return hasattr(mod, "run") and callable(mod.run)
+
+
+async def _smoke_test_skill(
+    name: str,
+    mod: Any,
+    skill_cls: type | None,
+    timeout: float = 10.0,
 ) -> dict[str, Any]:
-    """Run comprehensive skill audit.
-
-    Parameters
-    ----------
-    skill_filter : str
-        Optional filter to audit specific skills (e.g., "surface_").
-    include_logs : bool
-        Include recent log entries in audit.
-    check_compliance : bool
-        Check skill compliance with standards.
-
-    Returns
-    -------
-    dict with audit results, compliance status, and recommendations.
-    """
-    audit_start = time.time()
-
-    # Read current skill state
-    state = read_state()
-
-    # Get all skill modules
-    skills_dir = Path(__file__).parent / "builtin"
-    all_skills = _discover_skills(skills_dir)
-
-    # Filter if requested
-    if skill_filter:
-        all_skills = [s for s in all_skills if skill_filter in s]
-
-    audit_results: dict[str, Any] = {
-        "timestamp": int(audit_start),
-        "total_skills": len(all_skills),
-        "filtered": bool(skill_filter),
-        "skills": {},
-        "summary": {
-            "healthy": 0,
-            "warning": 0,
-            "error": 0,
-            "unknown": 0,
-        },
-        "dev_mode_operations": [],
-        "recommendations": [],
+    """Smoke-test a single skill: import, instantiate, execute."""
+    result: dict[str, Any] = {
+        "name": name,
+        "file": f"{name}.py",
+        "import_status": "success",
+        "instantiate_status": "skipped",
+        "execute_status": "skipped",
+        "error": None,
+        "traceback": None,
+        "duration_ms": 0,
+        "is_base_skill": skill_cls is not None,
+        "has_module_run": False,
     }
 
-    # Audit each skill
-    for skill_name in all_skills:
-        skill_audit = _audit_single_skill(
-            skill_name,
-            state.get(skill_name, {}),
-            include_logs,
-            check_compliance
-        )
-        audit_results["skills"][skill_name] = skill_audit
+    if skill_cls is None and not _has_module_run(mod):
+        result["import_status"] = "warning"
+        result["error"] = "No BaseSkill subclass or run() function found"
+        return result
 
-        # Update summary
-        status = skill_audit.get("status", "unknown")
-        audit_results["summary"][status] = audit_results["summary"].get(status, 0) + 1
+    t0 = time.perf_counter()
 
-        # Track DevMode operations
-        if skill_audit.get("dev_mode_operation"):
-            audit_results["dev_mode_operations"].append({
-                "skill": skill_name,
-                "operation": skill_audit.get("last_operation"),
-                "timestamp": skill_audit.get("last_updated_ts"),
-            })
+    # Instantiate BaseSkill
+    if skill_cls is not None:
+        try:
+            instance = skill_cls()
+            result["instantiate_status"] = "success"
+        except Exception as exc:
+            result["instantiate_status"] = "failed"
+            result["error"] = str(exc)
+            result["traceback"] = traceback.format_exc()
+            result["duration_ms"] = round((time.perf_counter() - t0) * 1000, 1)
+            return result
 
-    # Generate recommendations
-    audit_results["recommendations"] = _generate_recommendations(audit_results)
+        # Execute with dry_run / smoke-test
+        try:
+            t1 = time.perf_counter()
+            if hasattr(instance, "run"):
+                out = await instance.run(dry_run=True, smoke_test=True, action="report")
+            else:
+                out = {"dry_run": True, "status": "no run method"}
+            result["execute_status"] = "success"
+            result["output"] = out.get("success", True) if isinstance(out, dict) else True
+            result["duration_ms"] = round((time.perf_counter() - t1) * 1000, 1)
+        except TypeError:
+            # Skill doesn't accept dry_run — try without
+            try:
+                t1 = time.perf_counter()
+                out = await instance.run()
+                result["execute_status"] = "success"
+                result["output"] = True
+                result["duration_ms"] = round((time.perf_counter() - t1) * 1000, 1)
+            except Exception as exc2:
+                result["execute_status"] = "failed"
+                result["error"] = str(exc2)
+                result["traceback"] = traceback.format_exc()
+                result["duration_ms"] = round((time.perf_counter() - t1) * 1000, 1)
+        except Exception as exc:
+            result["execute_status"] = "failed"
+            result["error"] = str(exc)
+            result["traceback"] = traceback.format_exc()
+            result["duration_ms"] = round((time.perf_counter() - t0) * 1000, 1)
+    else:
+        # Module-level run() function
+        result["has_module_run"] = True
+        try:
+            t1 = time.perf_counter()
+            if hasattr(mod.run, "__code__"):
+                # Check if it's async
+                import inspect
+                if inspect.iscoroutinefunction(mod.run):
+                    out = await mod.run()
+                else:
+                    out = mod.run()
+                result["execute_status"] = "success"
+                result["output"] = out.get("success", True) if isinstance(out, dict) else True
+                result["duration_ms"] = round((time.perf_counter() - t1) * 1000, 1)
+            else:
+                result["execute_status"] = "skipped"
+                result["error"] = "run() is not a function"
+        except Exception as exc:
+            result["execute_status"] = "failed"
+            result["error"] = str(exc)
+            result["traceback"] = traceback.format_exc()
+            result["duration_ms"] = round((time.perf_counter() - t1) * 1000, 1)
 
-    # Log audit completion
-    audit_duration = time.time() - audit_start
-    log.info(
-        f"📊 [SKILL_AUDIT] Completed in {audit_duration:.2f}s - "
-        f"Healthy: {audit_results['summary']['healthy']}, "
-        f"Warnings: {audit_results['summary']['warning']}, "
-        f"Errors: {audit_results['summary']['error']}"
+    result["duration_ms"] = round((time.perf_counter() - t0) * 1000, 1)
+    return result
+
+
+def _classify_status(result: dict) -> str:
+    """Classify overall skill health."""
+    if result.get("import_status") == "failed":
+        return "broken"
+    if result.get("execute_status") == "failed":
+        return "broken"
+    if result.get("import_status") == "warning":
+        return "untested"
+    if result.get("execute_status") == "success":
+        return "working"
+    if result.get("instantiate_status") == "failed":
+        return "broken"
+    return "untested"
+
+
+class SkillAuditSkill(BaseSkill):
+    """Smoke-test all uCore builtin skills and report health."""
+
+    meta = SkillMeta(
+        id="skill-audit",
+        name="Skill Auditor (Smoke-Test)",
+        description=(
+            "Discover, import, instantiate, and execute all builtin skills."
+            " Reports health status: working, untested, or broken."
+        ),
+        category="developer",
+        params=[
+            SkillParam(
+                name="action",
+                type="string",
+                description="'audit' (full smoke-test), 'discover' (list only), or 'report' (last audit)",
+                required=False,
+                default="audit",
+            ),
+            SkillParam(
+                name="target",
+                type="string",
+                description="Specific skill name to test (omit for all)",
+                required=False,
+                default="",
+            ),
+            SkillParam(
+                name="timeout",
+                type="integer",
+                description="Per-skill timeout in seconds",
+                required=False,
+                default=10,
+            ),
+        ],
+        timeout=120,
+        requires_confirmation=False,
     )
 
-    # Persist audit results
-    _persist_audit_results(audit_results)
+    async def run(self, **kwargs) -> dict:
+        action = kwargs.get("action", "audit")
+        target = kwargs.get("target", "")
+        timeout = int(kwargs.get("timeout", 10))
 
-    return {
-        "success": True,
-        "action": "skill_audit",
-        "results": audit_results,
-    }
+        if action == "discover":
+            modules = _discover_skill_modules()
+            return {
+                "success": True,
+                "action": "discover",
+                "count": len(modules),
+                "skills": modules,
+            }
 
+        if action == "report":
+            return self._load_last_report()
 
-def _discover_skills(skills_dir: Path) -> list[str]:
-    """Discover all skill modules."""
-    skills = []
-    if not skills_dir.exists():
-        return skills
+        # Full audit / smoke-test
+        modules = _discover_skill_modules()
+        if target:
+            modules = [m for m in modules if target in m]
+            if not modules:
+                return {
+                    "success": False,
+                    "error": f"No skills match target '{target}'",
+                }
 
-    for skill_file in skills_dir.glob("skill_*.py"):
-        skill_name = skill_file.stem.replace("skill_", "")
-        skills.append(skill_name)
+        results: list[dict] = []
+        working = untested = broken = 0
+        start_time = time.perf_counter()
 
-    return sorted(skills)
+        for name in modules:
+            mod, import_err = _safe_import_module(name)
+            if import_err:
+                results.append({
+                    "name": name,
+                    "file": f"{name}.py",
+                    "import_status": "failed",
+                    "execute_status": "skipped",
+                    "error": import_err,
+                    "is_base_skill": False,
+                    "duration_ms": 0,
+                })
+                broken += 1
+                continue
 
+            skill_cls = _find_base_skill_subclass(mod)
+            result = await _smoke_test_skill(name, mod, skill_cls, timeout)
+            results.append(result)
 
-def _audit_single_skill(
-    skill_name: str,
-    skill_state: dict,
-    include_logs: bool,
-    check_compliance: bool,
-) -> dict[str, Any]:
-    """Audit a single skill."""
-    audit: dict[str, Any] = {
-        "name": skill_name,
-        "status": "unknown",
-        "state": skill_state,
-        "issues": [],
-        "dev_mode_operation": False,
-    }
+            status = _classify_status(result)
+            if status == "working":
+                working += 1
+            elif status == "broken":
+                broken += 1
+            else:
+                untested += 1
 
-    # Check if skill has state
-    if not skill_state:
-        audit["status"] = "unknown"
-        audit["issues"].append("No state recorded")
-        return audit
+        total_duration = round((time.perf_counter() - start_time) * 1000, 1)
 
-    # Check last updated
-    last_updated = skill_state.get("last_updated_ts", 0)
-    age_hours = (time.time() - last_updated) / 3600 if last_updated else None
+        report = {
+            "timestamp": int(time.time()),
+            "total_skills": len(modules),
+            "working": working,
+            "untested": untested,
+            "broken": broken,
+            "health_pct": round((working / len(modules)) * 100, 1) if modules else 0,
+            "duration_ms": total_duration,
+            "skills": results,
+            "recommendations": _generate_recommendations(working, untested, broken, results),
+        }
 
-    if age_hours is None:
-        audit["status"] = "unknown"
-        audit["issues"].append("No timestamp in state")
-    elif age_hours > 24:
-        audit["status"] = "warning"
-        audit["issues"].append(f"Stale state ({age_hours:.1f}h old)")
-    else:
-        audit["status"] = "healthy"
+        self._persist_report(report)
+        return {"success": True, "action": "audit", "report": report}
 
-    # Check for errors in state
-    if skill_state.get("error"):
-        audit["status"] = "error"
-        audit["issues"].append(f"Error in state: {skill_state['error']}")
-
-    # Check for convergence (surface_rebuild specific)
-    if "surface_rebuild" in skill_name:
-        attempts = skill_state.get("attempts", 0)
-        converged = skill_state.get("converged", False)
-
-        if attempts >= 3 and not converged:
-            audit["status"] = "error"
-            audit["issues"].append(f"Convergence guard tripped ({attempts} attempts)")
-        elif attempts > 0 and not converged:
-            audit["status"] = "warning"
-            audit["issues"].append(f"Pending convergence ({attempts} attempts)")
-
-        # Surface rebuild is a DevMode operation
-        audit["dev_mode_operation"] = True
-        audit["last_operation"] = "rebuild"
-        audit["last_updated_ts"] = last_updated
-
-    # Check compliance if requested
-    if check_compliance:
-        compliance_issues = _check_skill_compliance(skill_name)
-        audit["issues"].extend(compliance_issues)
-        if compliance_issues:
-            audit["status"] = "warning"
-
-    # Include recent logs if requested
-    if include_logs:
-        audit["recent_logs"] = _get_skill_logs(skill_name)
-
-    return audit
-
-
-def _check_skill_compliance(skill_name: str) -> list[str]:
-    """Check skill compliance with standards."""
-    issues = []
-
-    # Check if skill file exists and has proper structure
-    skills_dir = Path(__file__).parent / "builtin"
-    skill_file = skills_dir / f"skill_{skill_name}.py"
-
-    if not skill_file.exists():
-        issues.append(f"Skill file not found: {skill_file}")
-        return issues
-
-    try:
-        content = skill_file.read_text()
-
-        # Check for required elements
-        if "def run(" not in content:
-            issues.append("Missing run() function")
-
-        if "from __future__ import annotations" not in content:
-            issues.append("Missing future annotations import")
-
-        # Check for proper logging
-        if "log." not in content and "logging." not in content:
-            issues.append("No logging detected")
-
-    except Exception as e:
-        issues.append(f"Failed to read skill file: {e}")
-
-    return issues
-
-
-def _get_skill_logs(skill_name: str) -> list[str]:
-    """Get recent log entries for a skill."""
-    logs = []
-    log_dir = Path.home() / ".ucore" / "logs"
-
-    if not log_dir.exists():
-        return logs
-
-    # Check ucore.log for skill mentions
-    log_file = log_dir / "ucore.log"
-    if log_file.exists():
+    def _persist_report(self, report: dict) -> None:
+        """Save report to seeds/ for frontend consumption."""
         try:
-            lines = log_file.read_text().splitlines()
-            # Get last 10 lines mentioning this skill
-            relevant = [line for line in lines if skill_name in line]
-            logs.extend(relevant[-10:])
+            seeds = UCORE_ROOT / "seeds"
+            seeds.mkdir(exist_ok=True)
+            out = seeds / "skill-audit-report.json"
+            out.write_text(json.dumps(report, indent=2, default=str))
         except Exception:
             pass
 
-    return logs
+    def _load_last_report(self) -> dict:
+        """Load the last saved audit report."""
+        report_file = UCORE_ROOT / "seeds" / "skill-audit-report.json"
+        if report_file.exists():
+            try:
+                return {"success": True, "action": "report", "report": json.loads(report_file.read_text())}
+            except Exception:
+                pass
+        return {"success": False, "error": "No previous audit report found"}
 
 
-def _generate_recommendations(audit_results: dict) -> list[str]:
-    """Generate recommendations based on audit results."""
-    recommendations = []
+def _generate_recommendations(
+    working: int,
+    untested: int,
+    broken: int,
+    results: list[dict],
+) -> list[str]:
+    """Generate actionable recommendations."""
+    recs = []
 
-    summary = audit_results.get("summary", {})
-
-    if summary.get("error", 0) > 0:
-        recommendations.append(
-            f"Address {summary['error']} skills with errors"
+    if broken > 0:
+        names = [r["name"] for r in results if _classify_status(r) == "broken"]
+        recs.append(
+            f"Fix {broken} broken skill(s): {', '.join(names[:5])}"
+            + (f" +{len(names) - 5} more" if len(names) > 5 else "")
         )
 
-    if summary.get("warning", 0) > 0:
-        recommendations.append(
-            f"Review {summary['warning']} skills with warnings"
+    if untested > 0:
+        names = [r["name"] for r in results if _classify_status(r) == "untested"]
+        recs.append(
+            f"Verify {untested} untested skill(s): {', '.join(names[:5])}"
+            + (f" +{len(names) - 5} more" if len(names) > 5 else "")
         )
 
-    if summary.get("unknown", 0) > 0:
-        recommendations.append(
-            f"Run {summary['unknown']} skills without state to initialize them"
+    if working == 0 and broken == 0:
+        recs.append("No skills were tested — verify skill directory path")
+
+    if working > 0:
+        recs.append(f"{working} skills working correctly — no action needed")
+
+    # Check for skills with no BaseSkill subclass (skip the module-level ones)
+    no_base = [r["name"] for r in results if not r.get("is_base_skill") and r.get("import_status") != "failed"]
+    if no_base:
+        recs.append(
+            f"{len(no_base)} skill(s) without BaseSkill subclass: {', '.join(no_base[:5])}"
+            + (f" +{len(no_base) - 5} more" if len(no_base) > 5 else "")
+            + " — consider converting to BaseSkill pattern"
         )
 
-    # Check for stale skills
-    stale_skills = [
-        name for name, data in audit_results.get("skills", {}).items()
-        if any("Stale state" in issue for issue in data.get("issues", []))
-    ]
-    if stale_skills:
-        recommendations.append(
-            f"Consider running stale skills: {', '.join(stale_skills[:3])}"
-        )
-
-    # DevMode operations
-    dev_ops = audit_results.get("dev_mode_operations", [])
-    if dev_ops:
-        recommendations.append(
-            f"DevMode operations tracked: {len(dev_ops)} operations logged"
-        )
-
-    return recommendations
-
-
-def _persist_audit_results(audit_results: dict) -> None:
-    """Persist audit results to state."""
-    try:
-        from app.skills.state import update_skill_state
-
-        update_skill_state("skill_audit", {
-            "last_audit_ts": audit_results["timestamp"],
-            "summary": audit_results["summary"],
-            "total_skills": audit_results["total_skills"],
-        })
-    except Exception:
-        pass
+    return recs

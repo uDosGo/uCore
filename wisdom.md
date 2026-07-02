@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-07-02T01:30:08Z
+Date: 2026-07-02T12:02:46Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -19,26 +19,18 @@ Status: Refreshed by brain_sync
 - **`except` nesting bug in snackbar_menu.py**: A `release_lock()` function had a bare `except` nested inside `try:` at the wrong indentation level, causing `SyntaxError: invalid syntax` on line 1122. Always run `flake8` or `py_compile` on changed files; this error only surfaced in `stderr.log` after launchd restart.
 
 ## Recent Change Scan
-- backend/app/api/flow_router/__init__.py
-- backend/app/api/surface_registry_api.py
-- backend/app/core/snackbar.py
-- backend/app/api/routes.py
-- backend/app/skills/builtin/.mypy_cache/3.11/@plugins_snapshot.json
+- backend/app/skills/builtin/skill_enhancement_planner.py
+- backend/app/skills/builtin/skill_gh_workflow_bridge.py
+- backend/app/skills/builtin/skill_dev_mode_executor.py
+- backend/app/skills/builtin/skill_cline_invoke.py
+- backend/app/skills/builtin/skill_hivemind_consensus.py
+- backend/app/skills/builtin/skill_audit.py
+- backend/app/skills/builtin/skill_roundtable_dispatch.py
+- backend/app/skills/builtin/route_task.py
+- backend/app/skills/builtin/skill_ucore_index.py
 - backend/app/skills/builtin/skill_ecosystem_audit.py
-- backend/app/api/.mypy_cache/missing_stubs
-- backend/app/api/.mypy_cache/3.11/@plugins_snapshot.json
-- backend/app/api/.mypy_cache/3.11/inspect.meta.json
-- backend/app/api/.mypy_cache/3.11/inspect.data.json
-- backend/app/api/.mypy_cache/3.11/dis.meta.json
-- backend/app/api/.mypy_cache/3.11/dis.data.json
-- backend/app/api/.mypy_cache/3.11/app/skills/builtin/__init__.meta.json
-- backend/app/api/.mypy_cache/3.11/app/skills/builtin/__init__.data.json
-- backend/app/api/.mypy_cache/3.11/importlib/util.meta.json
-- backend/app/api/.mypy_cache/3.11/importlib/util.data.json
-- backend/app/api/.mypy_cache/3.11/opcode.meta.json
-- backend/app/api/.mypy_cache/3.11/opcode.data.json
-- backend/app/skills/builtin/skill_surface_registry.py
-- backend/app/skills/builtin/usx_standard.py
+- backend/app/api/routes.py
+- backend/app/api/control_api.py
 
 ## Memory Architecture
 - Short-term: active AI/chat session context.
@@ -52,6 +44,17 @@ Status: Refreshed by brain_sync
 - Test failures: 10 signals
 - Episodic log: not included
 
+## Durable Lessons (2026-07-02 — Agentic Execution Pipeline)
+
+- **Smoke-testing skills on import + dry-run catches broken dependencies** before they cause runtime failures. The `skill-audit` rewrites does this systematically.
+- **Health scoring ecosystem items** (working/untested/broken/orphaned) gives a clear, actionable picture of what needs attention. `ecosystem-audit assess` proved this at 99.4% health across 173 items.
+- **The `dev-mode-executor` pipeline pattern** (fetch → analyze → route → consensus → execute → log) is reusable for any task workflow. Keep it as the canonical agentic execution pattern.
+- **Route tasks to specialized agents based on content keywords**, not user selection. `roundtable-dispatch` auto-selects architect/dev/reviewer/debugger/docgen from the task description.
+- **Hivemind consensus defaults to weighted mode** with architect + dev + reviewer models for balanced deliberation. Majority mode for quick decisions, deliberative for deep analysis.
+- **Cline invoke should default to interactive mode** for safety, with `--yolo` opt-in for pre-approved autonomous tasks.
+- **Flake8 unused imports are the #1 lint issue** in new skill files — run `flake8 --select=F841` before every commit.
+- **Aggregation endpoints should run checks concurrently** — `control_service.py` uses `asyncio.gather` for all 8 status probes, keeping the `/api/control/status` response under 3 seconds.
+
 ## Next Synthesis Targets
 - Migration checklist status and canonical doc destinations.
 - Snackbar/system orchestration refinements and tray workflows.
@@ -62,45 +65,48 @@ Status: Refreshed by brain_sync
 
 Total entries: 500
 Errors: 0
-Warnings: 0
+Warnings: 2
 
 ### By Module
-- ucore-popcorn-stderr: 461 entries (0 errors)
-- stdout: 29 entries (0 errors)
-- ucore-menu-stderr: 5 entries (0 errors)
-- ucore-menu: 5 entries (0 errors)
+- stdout: 480 entries (0 errors)
+- ucore-menu-stderr: 10 entries (0 errors)
+- ucore-menu: 10 entries (0 errors)
+
+### Recent Warnings
+- [2026-07-02T19:20:10] ucore-menu: Backend failed to start within 8.0 seconds
+- [2026-07-02T19:20:10] ucore-menu: Backend failed to start within 8.0 seconds
 
 ### Recent Activity
-- ℹ️ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] WARNING  ucore.skills.registry — Skill load fail skill_dev_destroy_rebuild.py:
-- ℹ️ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] WARNING  ucore.skills.registry — Skill load fail skill_hardcoded_path_detector
-- ✅ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] INFO     ucore — Maintenance job ran: daily_backup success=True
-- ✅ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] INFO     ucore — Maintenance job ran: vault_sync success=False
-- ✅ 2026-07-02T09:29:51  stdout  [2026-07-02 09:29:51] INFO     ucore — Maintenance job ran: tasker_sync success=False
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] INFO     ucore.api.github — GitHub API routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Spool activity feed routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Identity routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Ceefax Teletext surface registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — BBCSDL surface registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Dashboard surface registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Library index routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore.vault_api — Vault topology routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Vault topology routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Catalog API routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Hivemind knowledge layer routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore.api.dev_layer — Dev Layer API routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Dev Layer API routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Tasker API routes registered (incl. /api/workflow/tasks)
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] INFO     ucore.api.feed — Feed API routes registered: ingest, query, suggest, 
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Feed API routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] INFO     ucore.api.surface_registry — Surface registry routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Surface Registry API routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — API module routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] DEBUG    ucore — Catalog routes registered
-- ℹ️ 2026-07-02T09:29:50  stdout  [2026-07-02 09:29:50] INFO     ucore — Maintenance scheduler started with 6 jobs
-- ℹ️ 2026-07-02T09:29:48  ucore-menu-stderr  ucore-menu: Starting backend...
-- ℹ️ 2026-07-02T09:29:48  ucore-menu  ucore-menu: Starting backend...
-- ℹ️ 2026-07-02T09:29:48  ucore-menu-stderr  ucore-menu: Backend not running, attempting auto-start...
-- ℹ️ 2026-07-02T09:29:48  ucore-menu  ucore-menu: Backend not running, attempting auto-start...
+- ℹ️ 2026-07-02T19:26:22  stdout  [2026-07-02 19:26:22] WARNING  ucore.skills.registry — Skill load fail skill_dev_destroy_rebuild.py:
+- ℹ️ 2026-07-02T19:26:22  stdout  [2026-07-02 19:26:22] WARNING  ucore.skills.registry — Skill load fail skill_hardcoded_path_detector
+- ℹ️ 2026-07-02T19:20:46  ucore-menu-stderr  ucore-menu: Opened URL: http://localhost:5175
+- ℹ️ 2026-07-02T19:20:46  ucore-menu  ucore-menu: Opened URL: http://localhost:5175
+- ℹ️ 2026-07-02T19:20:46  ucore-menu-stderr  ucore-menu: Opening UI Hub
+- ℹ️ 2026-07-02T19:20:46  ucore-menu  ucore-menu: Opening UI Hub
+- ℹ️ 2026-07-02T19:20:10  ucore-menu-stderr  ucore-menu: Global clipboard shortcut registered: Ctrl+Cmd+V
+- ℹ️ 2026-07-02T19:20:10  ucore-menu  ucore-menu: Global clipboard shortcut registered: Ctrl+Cmd+V
+- ℹ️ 2026-07-02T19:20:10  ucore-menu-stderr  ucore-menu: Registered snack: clipboard-buffer (clipboard)
+- ℹ️ 2026-07-02T19:20:10  ucore-menu  ucore-menu: Registered snack: clipboard-buffer (clipboard)
+- ⚠️ 2026-07-02T19:20:10  ucore-menu-stderr  ucore-menu: Backend failed to start within 8.0 seconds
+- ⚠️ 2026-07-02T19:20:10  ucore-menu  ucore-menu: Backend failed to start within 8.0 seconds
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] INFO     ucore.api.github — GitHub API routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Spool activity feed routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Identity routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Ceefax Teletext surface registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — BBCSDL surface registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Dashboard surface registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Library index routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore.vault_api — Vault topology routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Vault topology routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Catalog API routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Hivemind knowledge layer routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore.api.dev_layer — Dev Layer API routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Dev Layer API routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Tasker API routes registered (incl. /api/workflow/tasks)
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] INFO     ucore.api.feed — Feed API routes registered: ingest, query, suggest, 
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Feed API routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] INFO     ucore.api.surface_registry — Surface registry routes registered
+- ℹ️ 2026-07-02T19:20:00  stdout  [2026-07-02 19:20:00] DEBUG    ucore — Surface Registry API routes registered
 
 ## Test Failure Signals (last 24h)
 

@@ -372,6 +372,14 @@ def register_routes(app: web.Application) -> None:
     except ImportError as e:
         log.debug("Feed API routes not available: %s", e)
 
+    # ── Control Panel API (unified ecosystem status) ──────────────────
+    try:
+        from .control_api import register_control_routes
+        register_control_routes(app)
+        log.debug("Control Panel API routes registered")
+    except ImportError as e:
+        log.debug("Control Panel routes not available: %s", e)
+
     # ── Surface Registry API ───────────────────────────────────────────
     try:
         from .surface_registry_api import register_surface_routes

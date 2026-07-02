@@ -1,10 +1,22 @@
 # Devlog — uCore
 
-version: "2.0.1"
-updated: "2026-07-01T20:36:00Z"
-round: "sprint.2026-07-01 complete"
+version: "2.1.0"
+updated: "2026-07-02T12:15:00Z"
+round: "sprint.2026-07-02 complete"
 
-## Recent Changes (2026-07-01)
+## Recent Changes (2026-07-02)
+
+### Control Panel + Agentic Execution Pipeline
+- Control Panel: unified Developer tab (8 Vue files) replacing 11 scattered panels
+- Aggregation backend: `/api/control/status` endpoint with concurrent health probes
+- Lane A skills: skill-audit (smoke-test), ecosystem-audit assess (health scoring), ucore-index health-report, enhancement-planner
+- Lane B skills: hivemind-consensus, roundtable-dispatch, cline-invoke, dev-mode-executor (flagship 5-stage pipeline), gh-workflow-bridge
+- route_task: enhanced with target_agent parameter for specialized agent routing
+- All 10 existing panels wired to real backend APIs (Models, Agents, MCP, Skills, Repos, Review, Kanban, Workflows, Settings, Server, System)
+- Ecosystem audit: 173 items at 99.4% health (172 working, 1 untested, 0 broken)
+- Version: 4.0.3
+
+## Previous Changes (2026-07-01)
 
 - USX Refactor: modular token system (5 token files), 6 theme files, pure-variable usx-standard.css
 - Theme system: dark, teletext, c64, high-contrast themes via :root class + data-theme

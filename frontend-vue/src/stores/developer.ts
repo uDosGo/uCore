@@ -7,7 +7,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export type DeveloperTab =
-  | 'models' | 'agents' | 'kanban' | 'repos' | 'review'
+  | 'control' | 'models' | 'agents' | 'kanban' | 'repos' | 'review'
   | 'skills' | 'feed' | 'registry' | 'settings' | 'workflows' | 'mcp-servers'
 
 export interface RepoInfo {
@@ -27,6 +27,7 @@ export interface ReviewEntry {
 }
 
 export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[] = [
+  { id: 'control', label: 'Control', icon: 'dashboard' },
   { id: 'models', label: 'Models', icon: 'smart_toy' },
   { id: 'agents', label: 'Dev Agents', icon: 'group' },
   { id: 'kanban', label: 'Kanban', icon: 'view_kanban' },
@@ -44,7 +45,7 @@ export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[]
 const SNACKBAR_API = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 
 export const useDeveloperStore = defineStore('developer', () => {
-  const activeTab = ref<DeveloperTab>('models')
+  const activeTab = ref<DeveloperTab>('control')
   const repos = ref<RepoInfo[]>(SAMPLE_REPOS)
   const reviews = ref<ReviewEntry[]>(SAMPLE_REVIEWS)
   const loading = ref(false)

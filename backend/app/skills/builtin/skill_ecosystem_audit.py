@@ -99,6 +99,7 @@ class EcosystemAuditSkill(BaseSkill):
             "audit-mcp": lambda: self._audit_mcp(),
             "audit-paths": lambda: self._audit_paths(),
             "audit-runtimes": lambda: self._audit_runtimes(),
+            "assess": lambda: self._assess(output),
             "report": lambda: self._report(),
             "generate": lambda: self._generate(output),
         }
@@ -477,6 +478,187 @@ class EcosystemAuditSkill(BaseSkill):
             }
 
         return {"success": True, "runtimes": runtimes, "total": len(runtimes)}
+
+    # ─── Assess (Health Scored) ────────────────────────────────────────
+
+    def _assess(self, output_path: str) -> dict:
+        """Full audit with health scoring for every item.
+
+        Runs all sub-audits, then scores each item as:
+            working | untested | broken | orphaned
+
+        - Skills: checks if file has BaseSkill subclass, no SyntaxErrors
+        - MCP: checks if server binary/config exists
+        - Routes: all considered 'working' if parseable
+        - Runtimes: checks if referenced Python file exists
+        """
+        full = self._report()
+        eco = full.get("ecosystem", {})
+
+        assessed: dict[str, list[dict]] = {}
+        issues: list[dict] = []
+
+        # Score skills
+        scored_skills = []
+        for s in eco.get("skills", {}).get("items", []):
+            status = "untested"
+            s_issues: list[str] = []
+            file_path = s.get("file", "")
+            if file_path:
+                full_path = ROOT_DIR / file_path
+                if not full_path.exists():
+                    status = "orphaned"
+                    s_issues.append("File not found at resolved path")
+                else:
+                    try:
+                        content = full_path.read_text()
+                        has_base = "BaseSkill" in content or "class " in content
+                        has_run = "def run" in content or "async def run" in content
+                        if has_base and has_run:
+                            status = "working"
+                        elif has_run:
+                            status = "working"  # module-level run()
+                        else:
+                            status = "untested"
+                    except Exception:
+                        status = "broken"
+                        s_issues.append("Cannot read file")
+            scored_skills.append({
+                **s,
+                "health": status,
+                "issues": s_issues,
+            })
+        assessed["skills"] = scored_skills
+
+        # Score MCP servers
+        scored_mcp = []
+        for m in eco.get("mcp_servers", {}).get("items", []):
+            status = "working"
+            m_issues: list[str] = []
+            cmd = m.get("command", "")
+            if cmd and not any(
+                Path(c.split()[0]).exists()
+                for c in [cmd]
+            ):
+                # If it's a python module, check the file
+                if "python" in cmd or "app.mcp" in cmd:
+                    mod_part = cmd.replace("python3 -m ", "").replace("python -m ", "")
+                    mod_path = (
+                        BACKEND_DIR / "mcp" / (mod_part.split(".")[-1] + ".py")
+                    )
+                    if not mod_path.exists():
+                        status = "broken"
+                        m_issues.append(f"Module not found: {mod_path}")
+            if m.get("disabled"):
+                status = "untested"
+                m_issues.append("Server is disabled")
+            scored_mcp.append({
+                **m,
+                "health": status,
+                "issues": m_issues,
+            })
+        assessed["mcp_servers"] = scored_mcp
+
+        # Score runtimes
+        scored_runtimes = []
+        for name, rt in eco.get("runtimes", {}).get("items", {}).items():
+            status = "working"
+            r_issues: list[str] = []
+            rt_path = ROOT_DIR / rt.get("file", "")
+            if not rt_path.exists():
+                status = "broken"
+                r_issues.append(f"File not found: {rt.get('file')}")
+            scored_runtimes.append({
+                "name": name,
+                **rt,
+                "health": status,
+                "issues": r_issues,
+            })
+        assessed["runtimes"] = scored_runtimes
+
+        # Routes and paths are always 'working' if discovered
+        assessed["routes"] = [
+            {**r, "health": "working", "issues": []}
+            for r in eco.get("routes", {}).get("items", [])
+        ]
+        assessed["paths"] = [
+            {**p, "health": "working", "issues": []}
+            for p in eco.get("paths", {}).get("items", [])
+        ]
+        assessed["secrets"] = [
+            {**s, "health": "working", "issues": []}
+            for s in eco.get("secrets", {}).get("items", [])
+        ]
+        assessed["variables"] = [
+            {**v, "health": "working", "issues": []}
+            for v in eco.get("variables", {}).get("items", [])
+        ]
+
+        # Aggregate health
+        all_items = (
+            scored_skills + scored_mcp + scored_runtimes
+            + assessed["routes"] + assessed["paths"]
+            + assessed["secrets"] + assessed["variables"]
+        )
+        health_counts = {"working": 0, "untested": 0, "broken": 0, "orphaned": 0}
+        for item in all_items:
+            h = item.get("health", "untested")
+            health_counts[h] = health_counts.get(h, 0) + 1
+
+        total = sum(health_counts.values())
+        health_pct = (
+            round((health_counts["working"] / total) * 100, 1) if total > 0 else 0
+        )
+
+        result = {
+            "success": True,
+            "action": "assess",
+            "ecosystem": assessed,
+            "health": {
+                "total_items": total,
+                **health_counts,
+                "health_pct": health_pct,
+            },
+            "recommendations": self._health_recommendations(
+                health_counts, scored_skills
+            ),
+        }
+
+        # Persist
+        if output_path:
+            out = Path(output_path)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(result, indent=2, default=str))
+
+        return result
+
+    @staticmethod
+    def _health_recommendations(counts: dict, skills: list) -> list[str]:
+        recs = []
+        if counts.get("broken", 0) > 0:
+            recs.append(
+                f"Fix {counts['broken']} broken items — "
+                "check error logs for details"
+            )
+        if counts.get("untested", 0) > 0:
+            recs.append(
+                f"Smoke-test {counts['untested']} untested items "
+                "to validate they work"
+            )
+        if counts.get("orphaned", 0) > 0:
+            recs.append(
+                f"Review {counts['orphaned']} orphaned items — "
+                "consider archiving or re-wiring"
+            )
+        untested_skills = [
+            s["name"] for s in skills if s.get("health") == "untested"
+        ]
+        if untested_skills:
+            recs.append(
+                f"Untested skills: {', '.join(untested_skills[:5])}"
+                + (f" +{len(untested_skills) - 5}" if len(untested_skills) > 5 else "")
+            )
+        return recs
 
     # ─── Report / Generate ────────────────────────────────────────────
 

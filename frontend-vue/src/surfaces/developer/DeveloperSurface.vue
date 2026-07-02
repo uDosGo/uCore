@@ -8,7 +8,8 @@
     />
     <div class="developer-content-inner">
       <div class="developer-content">
-        <ModelsPanel v-if="dev.activeTab === 'models'" />
+        <ControlPanel v-if="dev.activeTab === 'control'" />
+        <ModelsPanel v-else-if="dev.activeTab === 'models'" />
         <AgentsPanel v-else-if="dev.activeTab === 'agents'" />
         <KanbanPanel v-else-if="dev.activeTab === 'kanban'" />
         <ReposPanel v-else-if="dev.activeTab === 'repos'" />
@@ -39,6 +40,7 @@ import { useDeveloperStore, DEVELOPER_TABS } from '../../stores/developer'
 import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
 const shell = useShellStore()
+import ControlPanel from './panels/ControlPanel.vue'
 import ModelsPanel from './panels/ModelsPanel.vue'
 import AgentsPanel from './panels/AgentsPanel.vue'
 import KanbanPanel from './panels/KanbanPanel.vue'

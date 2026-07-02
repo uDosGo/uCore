@@ -2,7 +2,7 @@
   <div class="developer-panel">
     <div class="developer-panel-header">
       <h3 class="developer-panel-title">Dev Agents</h3>
-      <UBadge type="success">{{ agents.length }} active</UBadge>
+      <UBadge type="success">{{ loading ? '...' : activeCount + ' active' }}</UBadge>
     </div>
     <div class="developer-card-list">
       <div v-for="agent in agents" :key="agent.id" class="developer-card">
@@ -29,15 +29,84 @@
  * @description Dev agents management panel.
  * @category surfaces/developer
  */
+import { ref, watch, onMounted } from 'vue'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 
-const agents = [
-  { id: 'cline', name: 'Cline', icon: 'code', active: true, model: 'Claude Sonnet 4', tasks: 12, description: 'AI coding assistant for complex multi-step tasks' },
-  { id: 'copilot', name: 'Copilot', icon: 'smart_toy', active: true, model: 'GPT-4o', tasks: 8, description: 'Code completion and chat assistant' },
-  { id: 'codex', name: 'Codex', icon: 'terminal', active: false, model: 'GPT-4o', tasks: 3, description: 'Autonomous code execution agent' },
-  { id: 'devagent', name: 'DevAgent', icon: 'engineering', active: true, model: 'DeepSeek V3', tasks: 5, description: 'Full-stack development workflow agent' },
-]
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
+
+interface Agent {
+  id: string
+  name: string
+  icon: string
+  active: boolean
+  model: string
+  tasks: number
+  description: string
+}
+
+const agents = ref<Agent[]>([])
+const loading = ref(true)
+
+async function fetchAgents() {
+  loading.value = true
+  try {
+    // Fetch agent list
+    const res = await fetch(`${API_BASE}/api/agents`, {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const list = data.agents || data || []
+      agents.value = list.map((a: any) => ({
+        id: a.id || a.name?.toLowerCase() || 'unknown',
+        name: a.name || a.id || 'Unknown Agent',
+        icon: a.icon || 'smart_toy',
+        active: a.active !== false,
+        model: a.model || a.default_model || '—',
+        tasks: a.tasks || a.task_count || 0,
+        description: a.description || a.specialization || '',
+      }))
+    }
+
+    // Try stats endpoint for richer data
+    try {
+      const statsRes = await fetch(`${API_BASE}/api/agents/stats`, {
+        signal: AbortSignal.timeout(3000),
+      })
+      if (statsRes.ok) {
+        const stats = await statsRes.json()
+        // Merge stats into agents
+        for (const agent of agents.value) {
+          if (stats[agent.id]) {
+            agent.active = stats[agent.id].active !== false
+            agent.tasks = stats[agent.id].tasks || agent.tasks
+          }
+        }
+      }
+    } catch {
+      // Stats optional
+    }
+  } catch {
+    // Backend offline — show fallback
+    agents.value = [
+      { id: 'backend-offline', name: 'Hivemind Backend', icon: 'dns', active: false, model: '—', tasks: 0, description: 'Agent backend unreachable. Start the Hivemind server.' },
+    ]
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchAgents()
+})
+
+const activeCount = ref(0)
+
+// Update activeCount whenever agents change
+watch(agents, (val) => {
+  activeCount.value = val.filter(a => a.active).length
+}, { immediate: true })
 </script>
 
 <style scoped>

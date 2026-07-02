@@ -2,7 +2,7 @@
   <div class="developer-panel">
     <div class="developer-panel-header">
       <h3 class="developer-panel-title">Dev Flow</h3>
-      <UBadge type="info">{{ workflows.length }} runs</UBadge>
+      <UBadge type="info">{{ loading ? '...' : workflows.length + ' runs' }}</UBadge>
     </div>
     <div class="developer-card-list">
       <div v-for="run in workflows" :key="run.id" class="developer-card">
@@ -31,17 +31,59 @@
 /**
  * @component WorkflowsPanel
  * @description Dev workflow runs panel — history, status, step progress.
+ * Wired to /api/workflows and /api/workflows/runs.
  * @category surfaces/developer
  */
+import { ref, onMounted } from 'vue'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 
-const workflows = [
-  { id: '1', name: 'Vue Port — AssistUI', status: 'done', trigger: 'manual', duration: '4m 12s', time: 'Today', steps: [{ name: 'Scaffold', status: 'done' }, { name: 'Port store', status: 'done' }, { name: 'Port template', status: 'done' }, { name: 'Style', status: 'done' }] },
-  { id: '2', name: 'Vue Port — Developer', status: 'running', trigger: 'manual', duration: '2m 30s', time: 'Today', steps: [{ name: 'Scaffold', status: 'done' }, { name: 'Port panels', status: 'running' }, { name: 'Wire APIs', status: 'pending' }] },
-  { id: '3', name: 'Vendor md-editor-v3', status: 'done', trigger: 'manual', duration: '1m 45s', time: 'Today', steps: [{ name: 'Clone', status: 'done' }, { name: 'Build', status: 'done' }, { name: 'Wire Skills', status: 'done' }] },
-  { id: '4', name: 'Foundation Scaffold', status: 'done', trigger: 'manual', duration: '3m 20s', time: 'Yesterday', steps: [{ name: 'Vue + Vite + Pinia', status: 'done' }, { name: 'Router', status: 'done' }, { name: 'Stores', status: 'done' }, { name: 'Atoms', status: 'done' }] },
-]
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
+
+interface WorkflowRun {
+  id: string
+  name: string
+  status: string
+  trigger: string
+  duration: string
+  time: string
+  steps?: Array<{ name: string; status: string }>
+}
+
+const workflows = ref<WorkflowRun[]>([])
+const loading = ref(true)
+
+async function fetchWorkflows() {
+  loading.value = true
+  try {
+    // Fetch workflow runs
+    const runsRes = await fetch(`${API_BASE}/api/workflows/runs?limit=20`, {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (runsRes.ok) {
+      const data = await runsRes.json()
+      const runs = data.runs || data || []
+      workflows.value = runs.map((r: any) => ({
+        id: r.id || r.run_id || String(Date.now()),
+        name: r.name || r.workflow_name || r.title || 'Workflow Run',
+        status: r.status || 'pending',
+        trigger: r.trigger || 'manual',
+        duration: r.duration || '—',
+        time: r.started_at || r.created_at || '—',
+        steps: (r.steps || []).map((s: any) => ({
+          name: s.name || s.step_name || 'Step',
+          status: s.status || 'pending',
+        })),
+      }))
+    }
+  } catch {
+    // Backend offline
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => { fetchWorkflows() })
 
 function statusIcon(status: string): string {
   const map: Record<string, string> = { done: 'check_circle', running: 'sync', failed: 'error', pending: 'circle' }
@@ -49,7 +91,9 @@ function statusIcon(status: string): string {
 }
 
 function statusColor(status: string): 'success' | 'warning' | 'error' | 'info' {
-  const map: Record<string, 'success' | 'warning' | 'error' | 'info'> = { done: 'success', running: 'warning', failed: 'error', pending: 'info' }
+  const map: Record<string, 'success' | 'warning' | 'error' | 'info'> = {
+    done: 'success', running: 'warning', failed: 'error', pending: 'info',
+  }
   return map[status] || 'info'
 }
 </script>

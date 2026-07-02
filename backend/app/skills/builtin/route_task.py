@@ -69,6 +69,18 @@ class RouteTask(BaseSkill):
                 default=False,
                 description="Execute the task immediately (vs advice-only)",
             ),
+            SkillParam(
+                name="target_agent",
+                type="string",
+                required=False,
+                default="auto",
+                description=(
+                    "Target agent: 'auto' (routing matrix), "
+                    "'architect', 'dev', 'reviewer', 'debugger', "
+                    "'docgen', 'gridsmith-dev', 'hivemind', "
+                    "'roundtable', 'cline', 'ollama', 'openrouter'"
+                ),
+            ),
         ],
         requires_confirmation=True,
     )

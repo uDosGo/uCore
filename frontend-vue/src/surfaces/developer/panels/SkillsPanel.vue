@@ -2,7 +2,7 @@
   <div class="developer-panel">
     <div class="developer-panel-header">
       <h3 class="developer-panel-title">Skills</h3>
-      <UBadge type="success">{{ skills.length }} installed</UBadge>
+      <UBadge type="success">{{ loading ? '...' : skills.length + ' installed' }}</UBadge>
     </div>
     <div class="developer-card-list">
       <div v-for="skill in skills" :key="skill.id" class="developer-card">
@@ -29,17 +29,71 @@
  * @description Skills management panel — list, run, configure Skills.
  * @category surfaces/developer
  */
+import { ref, onMounted } from 'vue'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 
-const skills = [
-  { id: 'vault-sync', name: 'Vault Sync', icon: 'sync', active: true, version: '2.1', runs: 48, description: 'Bidirectional markdown sync between AppFlowy and local vault' },
-  { id: 'tasker-sync', name: 'Tasker Sync', icon: 'task', active: true, version: '1.3', runs: 22, description: 'Export AppFlowy workflow rows into Markdown task files' },
-  { id: 'git-maintenance', name: 'Git Maintenance', icon: 'build', active: true, version: '1.0', runs: 15, description: 'Detect and repair uncommitted changes, orphaned branches' },
-  { id: 'usx-standard', name: 'USX Standard', icon: 'palette', active: false, version: '2.0', runs: 8, description: 'Audit CSS for overrides/duplicates, repair to canonical standard' },
-  { id: 'daily-backup', name: 'Daily Backup', icon: 'backup', active: true, version: '1.0', runs: 30, description: 'Scheduled daily backup of uCore data, config, and secrets' },
-  { id: 'brain-sync', name: 'Brain Sync', icon: 'psychology', active: false, version: '1.0', runs: 5, description: 'Synthesize project changes into wisdom.md' },
-]
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
+
+interface Skill {
+  id: string
+  name: string
+  icon: string
+  active: boolean
+  version: string
+  runs: number
+  description: string
+}
+
+const skills = ref<Skill[]>([])
+const loading = ref(true)
+
+const iconMap: Record<string, string> = {
+  'vault-sync': 'sync',
+  'tasker': 'task',
+  'git-maintenance': 'build',
+  'usx-standard': 'palette',
+  'daily-backup': 'backup',
+  'brain-sync': 'psychology',
+  'dev-destroy-rebuild': 'restart_alt',
+  'docs-roundup': 'description',
+  'tasker-ingest': 'input',
+  'ask-vault': 'search',
+  'file-edit-enhancer': 'edit',
+}
+
+async function fetchSkills() {
+  loading.value = true
+  try {
+    const res = await fetch(`${API_BASE}/api/skills`, {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const list = data.skills || data || []
+      skills.value = list.map((s: any) => ({
+        id: s.skill_id || s.id || s.name?.toLowerCase() || 'unknown',
+        name: s.name || s.skill_id || 'Unknown Skill',
+        icon: iconMap[s.skill_id] || iconMap[s.id] || 'extension',
+        active: s.active !== false,
+        version: s.version || '1.0',
+        runs: s.runs || s.run_count || 0,
+        description: s.description || s.skill_id || '',
+      }))
+    }
+  } catch {
+    // Fallback
+    skills.value = [
+      { id: 'backend-offline', name: 'Skills Unavailable', icon: 'error', active: false, version: '—', runs: 0, description: 'Skills backend unreachable. Start the uCore server.' },
+    ]
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchSkills()
+})
 </script>
 
 <style scoped>
