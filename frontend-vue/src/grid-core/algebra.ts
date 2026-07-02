@@ -25,22 +25,32 @@ import type { ColumnSpec, Viewport, GridPreset } from './types'
 /* ─── Grid Presets ─────────────────────────────────────────────── */
 
 export const GRID_PRESETS: GridPreset[] = [
-  // ─── Teletext (40×25 base, 24×24 cell = 960×600 at 1x) ──────
-  { name: 'teletext',         cols: 40, rows: 25, aspect: '8:5',  description: 'Classic Ceefax/Teletext — 960×600 @1x, 1920×1200 @2x' },
-  { name: 'teletext-wide',    cols: 80, rows: 25, aspect: '16:5', description: 'Wide teletext — 1920×600 @1x, 3840×1200 @2x' },
-  { name: 'teletext-hd',      cols: 80, rows: 50, aspect: '8:5',  description: 'HD teletext — 1920×1200 @1x, 3840×2400 @2x' },
+  // ─── Current Active Surfaces (40×25, 20px cell) ──────────────
+  { name: 'terminal',  cols: 40, rows: 25, aspect: '8:5',  description: 'Terminal — 800×500 @20px, pressstart2p' },
+  { name: 'teletext',  cols: 40, rows: 25, aspect: '8:5',  description: 'Teletext — 800×500 @20px, MODE7GX3 1.3:1 cells' },
+  { name: 'editor',    cols: 40, rows: 25, aspect: '8:5',  description: 'Grid editor — 40×25 teletext standard' },
 
-  // ─── Terminal (80×24 base, 24×24 cell = 1920×576 at 1x) ─────
-  { name: 'terminal',         cols: 80, rows: 24, aspect: '10:3', description: 'Classic terminal — 1920×576 @1x, 3840×1152 @2x' },
-  { name: 'terminal-wide',    cols: 120, rows: 24, aspect: '5:1', description: 'Wide terminal — 2880×576 @1x, 5760×1152 @2x' },
-  { name: 'terminal-ultra',   cols: 160, rows: 24, aspect: '20:3',description: 'Ultra-wide terminal — 3840×576 @1x, 7680×1152 @2x' },
+  // ─── Retro Terminal (80×24, 24px base cell) ──────────────────
+  { name: 'terminal-retro',    cols: 80, rows: 24, aspect: '10:3', description: '1920×576 @1x · 3840×1152 @2x · retro sweet spot' },
+  { name: 'terminal-wide',     cols: 120, rows: 24, aspect: '5:1', description: '2880×576 @1x · 5760×1152 @2x' },
 
-  // ─── Grid Worlds ──────────────────────────────────────────────
-  { name: 'editor',           cols: 40, rows: 25, aspect: '8:5',  description: 'Grid editor — matches teletext standard' },
-  { name: 'world-square',     cols: 80, rows: 80, aspect: '1:1',  description: 'Square world — 1920×1920 @1x, 3840×3840 @2x' },
-  { name: 'world-classic',    cols: 80, rows: 60, aspect: '4:3',  description: 'Classic 4:3 world — 1920×1440 @1x, 3840×2880 @2x' },
-  { name: 'world-widescreen', cols: 128, rows: 72, aspect: '16:9',description: 'Widescreen world — 3072×1728 @1x, 6144×3456 @2x' },
-  { name: 'mini',             cols: 28, rows: 28, aspect: '1:1',  description: 'Square widget — 672×672 @1x' },
+  // ─── Teletext (40×25, 24px base cell) ────────────────────────
+  { name: 'teletext-retro',    cols: 40, rows: 25, aspect: '8:5',  description: '960×600 @1x · 1920×1200 @2x · 2880×1800 @3x ideal' },
+  { name: 'teletext-hd',       cols: 80, rows: 50, aspect: '8:5',  description: '1920×1200 @1x · 3840×2400 @2x' },
+
+  // ─── Aspect Ratio Presets (24×24 base cell) ──────────────────
+  { name: 'square-80',         cols: 80, rows: 80, aspect: '1:1',  description: '1920×1920 @1x · 3840×3840 @2x' },
+  { name: 'square-60',         cols: 60, rows: 60, aspect: '1:1',  description: '1440×1440 @1x · 2880×2880 @2x' },
+  { name: 'mini',              cols: 28, rows: 28, aspect: '1:1',  description: '672×672 @1x · widget / dashboard tile' },
+
+  { name: 'classic-80x60',     cols: 80, rows: 60, aspect: '4:3',  description: '1920×1440 @1x · 3840×2880 @2x' },
+  { name: 'classic-40x30',     cols: 40, rows: 30, aspect: '4:3',  description: '960×720 @1x · 1920×1440 @2x' },
+
+  { name: 'widescreen-128x72', cols: 128, rows: 72, aspect: '16:9', description: '3072×1728 @1x · 6144×3456 @2x' },
+  { name: 'widescreen-80x45',  cols: 80, rows: 45, aspect: '16:9', description: '1920×1080 @1x · 3840×2160 @2x (4K exact)' },
+
+  { name: 'ultrawide-160x91',  cols: 160, rows: 91, aspect: '16:9.1', description: '3840×2184 @1x · 7680×4368 @2x' },
+  { name: 'ultrawide-80x45',   cols: 80, rows: 45, aspect: '16:9', description: '1920×1080 @1x · ultrawide compatible' },
 ]
 
 /**

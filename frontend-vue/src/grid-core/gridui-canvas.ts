@@ -57,11 +57,13 @@ export class GridUICanvasElement extends HTMLElement {
   private _configuredCellSize: number = 16
   /** Whether to auto-fit to container (default true, set fit-container="false" to disable) */
   private _fitToContainerEnabled: boolean = true
+  /** Cell aspect ratio: 1.0 = square, 1.3 = 30% wider (teletext) */
+  private _cellAspect: number = 1.0
 
   /* ─── Observed Attributes ─────────────────────────────────────── */
 
   static get observedAttributes(): string[] {
-    return ['cols', 'rows', 'cell-size', 'font', 'palette']
+    return ['cols', 'rows', 'cell-size', 'cell-aspect', 'font', 'palette']
   }
 
   /* ─── Constructor ─────────────────────────────────────────────── */
@@ -114,6 +116,7 @@ export class GridUICanvasElement extends HTMLElement {
     this._configuredCellSize = this._cellSize
     this._font = this.getAttribute('font') || 'monospace'
     this._fitToContainerEnabled = this.getAttribute('fit-container') !== 'false'
+    this._cellAspect = parseFloat(this.getAttribute('cell-aspect') || '1.0')
 
     // Ensure buffer matches dimensions
     if (this._buffer.length === 0) {
@@ -144,7 +147,7 @@ export class GridUICanvasElement extends HTMLElement {
     }
 
     const dpr = window.devicePixelRatio || 1
-    const cssWidth = this._cols * this._cellSize
+    const cssWidth = Math.round(this._cols * this._cellSize * this._cellAspect)
     const cssHeight = this._rows * this._cellSize
     const pixelWidth = Math.round(cssWidth * dpr)
     const pixelHeight = Math.round(cssHeight * dpr)
@@ -244,7 +247,7 @@ export class GridUICanvasElement extends HTMLElement {
     // anti-aliased seams between adjacent filled rectangles.
     ctx.imageSmoothingEnabled = false
 
-    const cellW = Math.round(this._cellSize * dpr)
+    const cellW = Math.round(this._cellSize * this._cellAspect * dpr)
     const cellH = Math.round(this._cellSize * dpr)
 
     // Clear canvas
@@ -267,10 +270,10 @@ export class GridUICanvasElement extends HTMLElement {
     // VT323: teletext font — boost to 2× so glyphs fill cell width.
     // (measureText shows glyphs are ~40% of font-size at 1×)
     // Press Start 2P: pixel font — natural size, user confirmed it looks good.
-    // MODE7GX3 is a 6×10 logical block font at 1.3:1 aspect. At 1× in a 20px cell
-    // its glyphs are ~15.6px wide. Scale 1.3× to fill 20px cell width.
+    // MODE7GX3: teletext bitmap font — cells are 1.3:1 aspect (wider than tall)
+    // via cell-aspect attribute. Font renders at 1× with no additional scaling.
     // VT323: fallback teletext font — boost to 2× to compensate for narrow glyphs.
-    const fontScale = this._font === 'mode7gx3' ? 1.3 : this._font === 'vt323' ? 2.0 : 1.0
+    const fontScale = this._font === 'mode7gx3' ? 1.0 : this._font === 'vt323' ? 2.0 : 1.0
     const fontSize = Math.round(this._cellSize * fontScale * dpr)
     const fontFamily = this._font === 'pressstart2p'
       ? '"Press Start 2P", monospace'
