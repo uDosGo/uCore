@@ -86,16 +86,14 @@ watch(activeHubTab, (tabId) => {
 })
 
 const ALL_SURFACES: SurfaceCardType[] = [
-  { id: 'assistui', title: 'AssistUI', description: 'AI Chat & Agent Workflows', icon: 'bolt', route: '/assistui', color: '#a855f7' },
-  { id: 'ucode', title: 'uCode', description: 'GridCore Terminal & Teletext', icon: 'grid', route: '/ucode', color: '#22c55e' },
+  { id: 'assistui', title: 'Assistant', description: 'Agent Assisted Workflows', icon: 'bolt', route: '/assistui', color: '#a855f7' },
+  { id: 'ucode', title: 'uCode', description: 'GridCore — Grid, Teletext & Terminal', icon: 'grid', route: '/ucode', color: '#22c55e' },
   { id: 'server', title: 'Server', description: 'Backend Operations & Services', icon: 'server', route: '/server', color: '#f59e0b' },
   { id: 'workflow', title: 'Workflow', description: 'Missions, Tasks & Binder', icon: 'workflow', route: '/workflow', color: '#3b82f6' },
   { id: 'system', title: 'System', description: 'Admin, Pages & Tools', icon: 'settings', route: '/system', color: '#6b7280' },
   { id: 'documentation', title: 'Documentation', description: 'Learning Hub & Guides', icon: 'help', route: '/documentation', color: '#a855f7' },
   { id: 'snackmachine', title: 'Snack Machine', description: 'Snack/MCP/Vault Scheduler', icon: 'snack', route: '/snackmachine', color: '#ec4899' },
   { id: 'browserui', title: 'Browser', description: 'Web Reader & Bookmarks', icon: 'globe', route: '/browserui', color: '#06b6d4' },
-  { id: 'teletext', title: 'Teletext', description: 'Ceefax-style Information', icon: 'tv', route: '/teletext', color: '#f97316' },
-  { id: 'terminal', title: 'Terminal', description: 'BBC BASIC Terminal', icon: 'terminal', route: '/terminal', color: '#84cc16' },
 ]
 
 const DEV_SURFACES: SurfaceCardType[] = [

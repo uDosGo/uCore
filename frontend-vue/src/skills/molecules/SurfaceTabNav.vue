@@ -28,6 +28,11 @@
       <UIcon :name="tab.icon" class="surface-tab-nav__icon" />
       <span class="surface-tab-nav__label">{{ tab.label }}</span>
     </a>
+
+    <!-- Right-side actions slot -->
+    <div class="surface-tab-nav__actions">
+      <slot name="actions" />
+    </div>
   </nav>
 </template>
 
@@ -181,6 +186,21 @@ function toggleOrientation() {
 .surface-tab-nav--vertical .surface-tab-nav__link--active {
   border-bottom-color: transparent;
   border-left-color: var(--usx-color-primary);
+}
+
+/* ─── Right-side actions ──────────────────────────────────────────── */
+.surface-tab-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.surface-tab-nav--vertical .surface-tab-nav__actions {
+  margin-left: 0;
+  margin-top: auto;
+  flex-direction: column;
 }
 
 /* ─── Toggle orientation button ────────────────────────────────────── */

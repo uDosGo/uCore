@@ -24,7 +24,9 @@ const template = document.createElement('template')
 template.innerHTML = `
   <style>
     :host {
-      display: inline-block;
+      display: block;
+      width: 100%;
+      height: 100%;
       line-height: 0;        /* CRITICAL: removes line-height gaps */
       font-size: 0;          /* CRITICAL: removes font-size gaps */
       overflow: hidden;
@@ -175,6 +177,13 @@ export class GridUICanvasElement extends HTMLElement {
   }
 
   /**
+   * Get the current grid buffer.
+   */
+  get buffer(): GridBuffer {
+    return this._buffer
+  }
+
+  /**
    * Set the grid buffer and re-render.
    * This is the primary API for external code to update the display.
    */
@@ -218,7 +227,7 @@ export class GridUICanvasElement extends HTMLElement {
     // Calculate scale to fit the grid into the available space
     const scaleX = (rect.width * dpr) / (this._cols * this._cellSize)
     const scaleY = (rect.height * dpr) / (this._rows * this._cellSize)
-    const scale = Math.min(scaleX, scaleY, 1) // Don't upscale beyond 1x
+    const scale = Math.min(scaleX, scaleY) // Allow upscaling for zoom-to-fit
 
     const cellW = Math.round(this._cellSize * scale)
     const cellH = Math.round(this._cellSize * scale)
@@ -324,7 +333,7 @@ export class GridUICanvasElement extends HTMLElement {
     const y = event.clientY - rect.top
     const scaleX = rect.width / (this._cols * this._cellSize)
     const scaleY = rect.height / (this._rows * this._cellSize)
-    const scale = Math.min(scaleX, scaleY, 1)
+    const scale = Math.min(scaleX, scaleY)
 
     const cellW = this._cellSize * scale
     const cellH = this._cellSize * scale

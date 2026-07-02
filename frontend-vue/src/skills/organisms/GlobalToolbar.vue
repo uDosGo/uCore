@@ -42,9 +42,9 @@
       </button>
       <button
         class="global-toolbar__tab global-toolbar__tab--nav"
-        :class="{ 'global-toolbar__tab--active': route.path.includes('/terminal') }"
-        @click="navigate('/terminal')"
-        title="Terminal"
+        :class="{ 'global-toolbar__tab--active': route.path.includes('/ucode') }"
+        @click="navigate('/ucode')"
+        title="GridCore"
       >
         <UIcon name="terminal" class="global-toolbar__icon" />
       </button>

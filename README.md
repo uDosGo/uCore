@@ -50,9 +50,9 @@ VS Code (Cline) → MCP Bridge → uCore (port 8484)
   ├── Knowledge — AppFlowy SQLite + vector DB bridge
   ├── Secrets — AES-256-GCM encrypted store
   ├── Chat — AI providers via OpenRouter/Ollama/Gemini
-  ├── Surfaces (12) — Dashboard, AssistUI, Server, Developer,
+  ├── Surfaces (10) — Dashboard, Assistant, Server, Developer,
   │                    System, Workflow, SnackMachine, BrowserUI,
-  │                    Documentation, Teletext, Terminal, uCode
+  │                    Documentation, uCode
   ├── Plates — Vault plates, surface templates (Cookiecutter)
   ├── Hivemind — MCP orchestration, template verification, audit
   ├── Distribution — GitHub pull wiring, package management
@@ -71,12 +71,12 @@ VS Code (Cline) → MCP Bridge → uCore (port 8484)
 | **HomeNest** | Home automation + multimedia runtimes | `~/Code/HomeNest` |
 | **uDocs** | Canonical documentation | GitHub |
 
-## Surfaces (12)
+## Surfaces (10)
 
 | Surface | Route | Description |
 |---------|-------|-------------|
 | Dashboard | `/` | Main landing, Dev Mode filtering |
-| AssistUI | `/assistui` | AI chat assistant |
+| Assistant | `/assistui` | AI chat & agent-assisted workflows |
 | Server | `/server` | Server management |
 | Developer | `/developer` | Developer tools |
 | System | `/system` | System settings |
@@ -84,9 +84,7 @@ VS Code (Cline) → MCP Bridge → uCore (port 8484)
 | SnackMachine | `/snackmachine` | Snack management |
 | BrowserUI | `/browserui` | Browser automation |
 | Documentation | `/documentation` | Docs viewer |
-| Teletext | `/teletext` | Teletext display |
-| Terminal | `/terminal` | Terminal emulator |
-| uCode | `/ucode` | uCode runtime interface |
+| uCode | `/ucode` | Grid, Teletext & Terminal (gridcore embeddable) |
 
 ## Documentation
 
