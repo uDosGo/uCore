@@ -267,11 +267,16 @@ export class GridUICanvasElement extends HTMLElement {
     // VT323: teletext font — boost to 2× so glyphs fill cell width.
     // (measureText shows glyphs are ~40% of font-size at 1×)
     // Press Start 2P: pixel font — natural size, user confirmed it looks good.
-    const fontScale = this._font === 'vt323' ? 2.0 : 1.0
+    // MODE7GX3 is a 6×10 logical block font at 1.3:1 aspect. At 1× in a 20px cell
+    // its glyphs are ~15.6px wide. Scale 1.3× to fill 20px cell width.
+    // VT323: fallback teletext font — boost to 2× to compensate for narrow glyphs.
+    const fontScale = this._font === 'mode7gx3' ? 1.3 : this._font === 'vt323' ? 2.0 : 1.0
     const fontSize = Math.round(this._cellSize * fontScale * dpr)
     const fontFamily = this._font === 'pressstart2p'
       ? '"Press Start 2P", monospace'
-      : `"${this._font}", monospace`
+      : this._font === 'mode7gx3'
+        ? '"MODE7GX3", monospace'
+        : `"${this._font}", monospace`
     ctx.font = `${fontSize}px ${fontFamily}`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
@@ -305,9 +310,10 @@ export class GridUICanvasElement extends HTMLElement {
         if (cell.char && cell.char !== ' ') {
           ctx.fillStyle = getColour(cell.fg, this._palette)
 
-          if (BLOCK_CHARS.has(cell.char)) {
+          if (BLOCK_CHARS.has(cell.char) && this._font !== 'mode7gx3') {
             // Block chars: fill the entire cell as a solid rectangle.
-            // This gives true grid-aligned rendering for graphic elements.
+            // For Press Start 2P this compensates for narrow glyphs.
+            // MODE7GX3 has its own designed glyphs — no override needed.
             ctx.fillRect(x, y, cellW, cellH)
           } else {
             // Text chars: render as font glyph, clipped to cell boundaries

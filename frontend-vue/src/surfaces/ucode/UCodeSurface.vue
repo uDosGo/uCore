@@ -182,9 +182,9 @@ const currentTitle = computed(() => tabTitles[activeTab.value] || 'uCode — Gri
 /* ─── Grid Configs ────────────────────────────────────────────────── */
 const tabConfigs: Record<string, { cols: number; rows: number; font: string; cellSize: number }> = {
   terminal: { cols: 40, rows: 25, font: 'pressstart2p', cellSize: 20 },
-  teletext: { cols: 40, rows: 25, font: 'vt323', cellSize: 20 },
-  grid: { cols: 40, rows: 25, font: 'vt323', cellSize: 20 },
-  layer: { cols: 40, rows: 25, font: 'vt323', cellSize: 20 },
+  teletext: { cols: 40, rows: 25, font: 'mode7gx3', cellSize: 20 },
+  grid: { cols: 40, rows: 25, font: 'mode7gx3', cellSize: 20 },
+  layer: { cols: 40, rows: 25, font: 'mode7gx3', cellSize: 20 },
 }
 
 const gridCols = computed(() => tabConfigs[activeTab.value]?.cols ?? 60)

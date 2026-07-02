@@ -32,7 +32,7 @@ let gridEl: GridUICanvasElement | null = null
 
 onMounted(() => {
   if (!gridContainer.value) return
-  gridEl = createGridUICanvas({ cols, rows, font: 'vt323', cellSize: 20 })
+  gridEl = createGridUICanvas({ cols, rows, font: 'mode7gx3', cellSize: 20 })
   gridContainer.value.appendChild(gridEl)
   loadDemoPage()
 })
