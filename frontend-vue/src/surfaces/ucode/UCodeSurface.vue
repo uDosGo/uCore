@@ -87,8 +87,17 @@
       <div class="grid-editor-main">
         <!-- ─── Editor section: 24×24 grid (left) + palette/tools (right) ─── -->
         <div class="editor-section">
-          <div class="editor-section__viewport" ref="editorViewportRef">
-            <span class="editor-section__label editor-section__label--overlay">Editor · {{ editorCols }}×{{ editorRows }}</span>
+          <div
+            class="editor-section__viewport"
+            ref="editorViewportRef"
+            tabindex="0"
+            @keydown="onEditorKeydown"
+            @mousedown="onEditorMouseDown"
+          >
+            <span class="editor-section__label editor-section__label--overlay">
+              Editor · {{ editorCols }}×{{ editorRows }}
+              <template v-if="activeTab === 'grid'"> · Cursor ({{ cursorCol }}, {{ cursorRow }})</template>
+            </span>
           </div>
           <div class="editor-section__side">
             <span class="editor-section__label">Tools</span>
@@ -175,10 +184,19 @@
               v-for="ch in fontChars" :key="ch"
               class="sidebar-char-chip"
               :class="{ selected: selectedChar === ch }"
-              :style="{ fontFamily: chipFont }"
               :title="`U+${ch.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0')}`"
               @click="placeChar(ch)"
             >{{ ch }}</button>
+          </div>
+        </div>
+
+        <!-- Canvas character preview (real render pipeline) -->
+        <div class="sidebar-section">
+          <h4 class="sidebar-title">Preview (Canvas)</h4>
+          <div class="sidebar-char-preview" ref="charPreviewRef">
+            <span class="sidebar-char-code" style="font-size:9px;opacity:0.6;text-align:center;display:block;width:100%">
+              {{ selectedCharCode }}
+            </span>
           </div>
         </div>
 
@@ -215,7 +233,7 @@ import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 import type { TabDef } from '../../skills/molecules/SurfaceTabNav.vue'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import { createGridUICanvas, type GridUICanvasElement } from '../../grid-core/gridui-canvas'
-import { createBuffer, writeString, fill, scroll as scrollBuffer, cloneBuffer, clear as clearBuffer } from '../../grid-core/index'
+import { createBuffer, writeString, fill, scroll as scrollBuffer, cloneBuffer, clear as clearBuffer, scaleBuffer } from '../../grid-core/index'
 import { PALETTE_DARK } from '../../grid-core/palette'
 import { GRID_PRESETS } from '../../grid-core/algebra'
 import type { GridBuffer, GridCell } from '../../grid-core/types'
@@ -270,7 +288,9 @@ const TOOLS = [
 
 const editorViewportRef = ref<HTMLDivElement>()
 const layerViewportRef = ref<HTMLDivElement>()
+const charPreviewRef = ref<HTMLDivElement>()
 const importInputRef = ref<HTMLInputElement>()
+let charPreviewCanvas: GridUICanvasElement | null = null
 
 const showSidebar = ref(true)
 const layerExpanded = ref(true)
@@ -299,12 +319,11 @@ const fontChars = computed(() => {
 
 function placeChar(ch: string) {
   selectedChar.value = ch
-  // Write char to center cell of the editor viewport
+  // Write char at cursor position (not viewport center)
   if (activeTab.value === 'grid') {
-    const cx = editorFocusX.value + Math.floor(editorCols / 2)
-    const cy = editorFocusY.value + Math.floor(editorRows / 2)
-    if (cx >= 0 && cx < LAYER_COLS && cy >= 0 && cy < LAYER_ROWS) {
-      layerBuffer[cy][cx] = { char: ch, fg: selectedFg.value, bg: selectedBg.value }
+    const { lx, ly } = cursorLayerPos()
+    if (lx >= 0 && lx < LAYER_COLS && ly >= 0 && ly < LAYER_ROWS) {
+      layerBuffer[ly][lx] = { char: ch, fg: selectedFg.value, bg: selectedBg.value }
       syncEditorToFocus()
       renderLayerOverview()
     }
@@ -327,6 +346,37 @@ const selectedCharCode = computed(() =>
 watch(editorFont, (font) => {
   if (editorCanvas) editorCanvas.setAttribute('font', font)
   if (layerCanvas) layerCanvas.setAttribute('font', font)
+  // Re-render char preview with new font
+  updateCharPreview()
+})
+
+// Canvas character preview — renders selected char via real gridui-canvas pipeline
+function initCharPreview() {
+  if (!charPreviewRef.value) return
+  charPreviewCanvas = createGridUICanvas({
+    cols: 1,
+    rows: 1,
+    font: editorFont.value,
+    cellSize: 48,
+  })
+  charPreviewCanvas.style.display = 'block'
+  charPreviewCanvas.style.margin = '0 auto'
+  charPreviewCanvas.setAttribute('fit-container', 'false')
+  charPreviewRef.value.appendChild(charPreviewCanvas)
+  updateCharPreview()
+}
+
+function updateCharPreview() {
+  if (!charPreviewCanvas || !charPreviewRef.value) return
+  charPreviewCanvas.setAttribute('font', editorFont.value)
+  const buf = createBuffer(1, 1)
+  buf[0][0] = { char: selectedChar.value || ' ', fg: selectedFg.value, bg: selectedBg.value }
+  charPreviewCanvas.setBuffer(buf)
+}
+
+// Watcher: update preview canvas whenever selection changes
+watch([selectedChar, selectedFg, selectedBg, editorFont], () => {
+  updateCharPreview()
 })
 
 // Layer grid dimensions (the full editable canvas)
@@ -369,6 +419,11 @@ let layerBuffer: GridBuffer = createBuffer(LAYER_COLS, LAYER_ROWS)
 // Canvas elements for the editor
 let editorCanvas: GridUICanvasElement | null = null
 let layerCanvas: GridUICanvasElement | null = null
+
+// Editor cursor state (relative to editor viewport, 0-based)
+const cursorCol = ref(0)
+const cursorRow = ref(0)
+let isDragging = false
 
 /* ─── Lifecycle ───────────────────────────────────────────────────── */
 onMounted(() => {
@@ -489,6 +544,8 @@ function initGridEditor() {
   loadGridEditorDemo()
   renderLayerOverview()
   syncEditorToFocus()
+  // Initialize the canvas character preview
+  initCharPreview()
 }
 
 function loadGridEditorDemo() {
@@ -528,7 +585,41 @@ function destroyGridEditor() {
 /* ─── Grid Editor — Layer Overview ────────────────────────────────── */
 function renderLayerOverview() {
   if (!layerCanvas) return
-  layerCanvas.setBuffer(cloneBuffer(layerBuffer))
+  const buf = cloneBuffer(layerBuffer)
+
+  // Draw a highlight rectangle showing the editor viewport window
+  const fx = editorFocusX.value
+  const fy = editorFocusY.value
+  const ex = fx + editorCols - 1
+  const ey = fy + editorRows - 1
+
+  // Highlight border cells of the editor viewport region with cyan
+  for (let c = fx; c <= ex; c++) {
+    if (c >= 0 && c < LAYER_COLS) {
+      // Top edge
+      if (fy >= 0 && fy < LAYER_ROWS) {
+        buf[fy][c] = { ...buf[fy][c], fg: 0, bg: 6 }
+      }
+      // Bottom edge
+      if (ey >= 0 && ey < LAYER_ROWS) {
+        buf[ey][c] = { ...buf[ey][c], fg: 0, bg: 6 }
+      }
+    }
+  }
+  for (let r = fy + 1; r < ey; r++) {
+    if (r >= 0 && r < LAYER_ROWS) {
+      // Left edge
+      if (fx >= 0 && fx < LAYER_COLS) {
+        buf[r][fx] = { ...buf[r][fx], fg: 0, bg: 6 }
+      }
+      // Right edge
+      if (ex >= 0 && ex < LAYER_COLS) {
+        buf[r][ex] = { ...buf[r][ex], fg: 0, bg: 6 }
+      }
+    }
+  }
+
+  layerCanvas.setBuffer(buf)
 }
 
 /* ─── Grid Editor — Sync Editor to Focus ──────────────────────────── */
@@ -548,7 +639,166 @@ function syncEditorToFocus() {
       }
     }
   }
+
+  // Highlight the cursor cell: invert fg/bg to show active position
+  const cr = cursorRow.value
+  const cc = cursorCol.value
+  if (cr >= 0 && cr < editorRows && cc >= 0 && cc < editorCols) {
+    const cell = buf[cr][cc]
+    // Invert foreground/background for cursor visibility
+    buf[cr][cc] = {
+      ...cell,
+      fg: cell.bg,
+      bg: cell.fg === cell.bg ? (cell.fg === 0 ? 7 : 0) : cell.fg,
+    }
+  }
+
   editorCanvas.setBuffer(buf)
+}
+
+/* ─── Grid Editor — Keyboard Input ────────────────────────────────── */
+
+/** Clamp cursor within editor viewport bounds */
+function clampCursor() {
+  cursorCol.value = Math.max(0, Math.min(cursorCol.value, editorCols - 1))
+  cursorRow.value = Math.max(0, Math.min(cursorRow.value, editorRows - 1))
+}
+
+/** Get the layer coordinates for the current cursor position */
+function cursorLayerPos(): { lx: number; ly: number } {
+  return {
+    lx: editorFocusX.value + cursorCol.value,
+    ly: editorFocusY.value + cursorRow.value,
+  }
+}
+
+/** Handle keyboard events on the editor viewport */
+function onEditorKeydown(e: KeyboardEvent) {
+  if (activeTab.value !== 'grid') return
+
+  switch (e.key) {
+    case 'ArrowLeft':
+      e.preventDefault()
+      cursorCol.value = Math.max(0, cursorCol.value - 1)
+      syncEditorToFocus()
+      break
+    case 'ArrowRight':
+      e.preventDefault()
+      cursorCol.value = Math.min(editorCols - 1, cursorCol.value + 1)
+      syncEditorToFocus()
+      break
+    case 'ArrowUp':
+      e.preventDefault()
+      if (cursorRow.value === 0 && editorFocusY.value > 0) {
+        // Scroll viewport up
+        editorFocusY.value = Math.max(0, editorFocusY.value - 1)
+      } else {
+        cursorRow.value = Math.max(0, cursorRow.value - 1)
+      }
+      syncEditorToFocus()
+      break
+    case 'ArrowDown':
+      e.preventDefault()
+      if (cursorRow.value === editorRows - 1 && editorFocusY.value < LAYER_ROWS - editorRows) {
+        // Scroll viewport down
+        editorFocusY.value = Math.min(LAYER_ROWS - editorRows, editorFocusY.value + 1)
+      } else {
+        cursorRow.value = Math.min(editorRows - 1, cursorRow.value + 1)
+      }
+      syncEditorToFocus()
+      break
+    case 'Tab':
+      // Tab cycles through tools
+      e.preventDefault()
+      {
+        const tools = TOOLS.map(t => t.id)
+        const idx = tools.indexOf(currentTool.value)
+        currentTool.value = tools[(idx + 1) % tools.length] as typeof currentTool.value
+      }
+      break
+    // Printable characters: type into the grid
+    default:
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault()
+        const { lx, ly } = cursorLayerPos()
+        if (lx >= 0 && lx < LAYER_COLS && ly >= 0 && ly < LAYER_ROWS) {
+          layerBuffer[ly][lx] = {
+            char: e.key,
+            fg: selectedFg.value,
+            bg: selectedBg.value,
+          }
+          syncEditorToFocus()
+          renderLayerOverview()
+        }
+      }
+      break
+  }
+}
+
+/** Handle mousedown on editor viewport — start drag, paint cell */
+function onEditorMouseDown(e: MouseEvent) {
+  // Let the canvas cell-click handler process the initial click
+  // Then set up drag tracking for continuous painting
+  isDragging = true
+
+  const onMove = (ev: MouseEvent) => {
+    if (!isDragging || !editorCanvas) return
+    // Get the cell from mouse position using the canvas's internal hit-testing
+    const rect = editorCanvas.getBoundingClientRect()
+    const localX = ev.clientX - rect.left
+    const localY = ev.clientY - rect.top
+    // canvas auto-fits, so col/row are computed from actual CSS cell size
+    const canvasStyle = editorCanvas.style
+    const cssW = parseFloat(canvasStyle.width || '0')
+    const cssH = parseFloat(canvasStyle.height || '0')
+    const cellW = cssW / editorCols
+    const cellH = cssH / editorRows
+    const col = Math.floor(localX / cellW)
+    const row = Math.floor(localY / cellH)
+    if (col >= 0 && col < editorCols && row >= 0 && row < editorRows) {
+      cursorCol.value = col
+      cursorRow.value = row
+      doEditorPaint()
+    }
+  }
+
+  const onUp = () => {
+    isDragging = false
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onUp)
+  }
+
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onUp)
+}
+
+/** Execute the current tool at the cursor's layer position */
+function doEditorPaint() {
+  const { lx, ly } = cursorLayerPos()
+  if (lx < 0 || lx >= LAYER_COLS || ly < 0 || ly >= LAYER_ROWS) return
+
+  const tool = currentTool.value
+
+  if (tool === 'eyedropper') {
+    const cell = layerBuffer[ly][lx]
+    selectedFg.value = cell.fg
+    selectedBg.value = cell.bg
+    selectedChar.value = cell.char
+    currentTool.value = 'pencil'
+    return
+  }
+
+  if (tool === 'erase') {
+    layerBuffer[ly][lx] = { char: ' ', fg: 7, bg: 0 }
+    syncEditorToFocus()
+    renderLayerOverview()
+    return
+  }
+
+  // Pencil and fill both paint the active char
+  layerBuffer[ly][lx] = { char: selectedChar.value, fg: selectedFg.value, bg: selectedBg.value }
+  syncEditorToFocus()
+  renderLayerOverview()
 }
 
 /* ─── Grid Editor — Cell Click Handlers ───────────────────────────── */
@@ -572,6 +822,9 @@ function onLayerCellClick(e: CustomEvent) {
 
 function onEditorCellClick(e: CustomEvent) {
   const { col, row } = e.detail
+  // Track cursor position from clicks
+  cursorCol.value = col
+  cursorRow.value = row
   const fx = editorFocusX.value
   const fy = editorFocusY.value
   const lx = fx + col
@@ -662,13 +915,18 @@ function cycleViewport() {
 function onPresetChange(name: string) {
   const p = GRID_PRESETS.find(x => x.name === name)
   if (!p) return
+
+  // Preserve existing buffer content via grid algebra scaling
+  const oldBuffer = cloneBuffer(layerBuffer)
+
   LAYER_COLS = p.cols
   LAYER_ROWS = p.rows
   layerCols.value = p.cols
   layerRows.value = p.rows
 
   if (activeTab.value === 'grid' || activeTab.value === 'layer') {
-    layerBuffer = createBuffer(p.cols, p.rows)
+    // Scale the old buffer content into the new dimensions
+    layerBuffer = scaleBuffer(oldBuffer, p.cols, p.rows)
     editorFocusX.value = 0
     editorFocusY.value = 0
     destroyGridEditor()
@@ -949,6 +1207,12 @@ function clearGrid() {
   position: relative;
   background: var(--usx-color-background-alt, #111);
   border-radius: var(--usx-radius-md, 6px);
+  outline: none;
+}
+
+.editor-section__viewport:focus {
+  outline: 2px solid var(--usx-color-primary);
+  outline-offset: -2px;
 }
 
 .editor-section__label {
@@ -1223,6 +1487,19 @@ function clearGrid() {
 .sidebar-char-chip.selected {
   border-color: var(--usx-color-primary);
   background: var(--usx-color-primary-container, rgba(0,120,255,0.15));
+}
+
+/* Canvas character preview */
+.sidebar-char-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  background: var(--usx-color-background-alt, #111);
+  border-radius: var(--usx-radius-sm, 4px);
+  padding: var(--usx-spacing-xs);
+  border: 1px solid var(--usx-color-border);
 }
 
 /* Character input */
