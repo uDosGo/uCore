@@ -284,6 +284,12 @@ const selectedCharCode = computed(() =>
     : ''
 )
 
+/** Update canvas fonts when font selector changes */
+watch(editorFont, (font) => {
+  if (editorCanvas) editorCanvas.setAttribute('font', font)
+  if (layerCanvas) layerCanvas.setAttribute('font', font)
+})
+
 // Layer grid dimensions (the full editable canvas)
 // Default: 40×25 Teletext standard with 24×24 base cell
 let LAYER_COLS = 40
@@ -424,14 +430,14 @@ function initGridEditor() {
   if (!editorViewportRef.value || !layerViewportRef.value) return
 
   // Editor view: 24×24 cells, auto-fits container with gridlines
-  editorCanvas = createGridUICanvas({ cols: editorCols, rows: editorRows, font: 'mode7gx3', cellSize: 100 })
+  editorCanvas = createGridUICanvas({ cols: editorCols, rows: editorRows, font: editorFont.value, cellSize: 100 })
   editorCanvas.setAttribute('gridlines', '')
   editorCanvas.style.flexShrink = '0'
   editorCanvas.addEventListener('cell-click', onEditorCellClick as EventListener)
   editorViewportRef.value.appendChild(editorCanvas)
 
   // Layer overview: 40×25 cells, auto-fits container
-  layerCanvas = createGridUICanvas({ cols: LAYER_COLS, rows: LAYER_ROWS, font: 'mode7gx3', cellSize: 100 })
+  layerCanvas = createGridUICanvas({ cols: LAYER_COLS, rows: LAYER_ROWS, font: editorFont.value, cellSize: 100 })
   layerCanvas.style.flexShrink = '0'
   layerCanvas.addEventListener('cell-click', onLayerCellClick as EventListener)
   layerViewportRef.value.appendChild(layerCanvas)
@@ -450,22 +456,7 @@ function destroyGridEditor() {
 /* ─── Grid Editor — Layer Overview ────────────────────────────────── */
 function renderLayerOverview() {
   if (!layerCanvas) return
-  // Show a miniaturized view of the full layer with chunk gridlines
-  const buf = cloneBuffer(layerBuffer)
-  // Draw chunk borders every 24 cells
-  for (let r = 0; r < LAYER_ROWS; r++) {
-    for (let c = 0; c < LAYER_COLS; c++) {
-      if (r > 0 && r % editorRows === 0) {
-        buf[r][c] = { char: '─', fg: 6, bg: 0 }
-      }
-      if (c > 0 && c % editorCols === 0) {
-        if (buf[r][c].char === ' ' || buf[r][c].char === '─') {
-          buf[r][c] = { char: '│', fg: 6, bg: 0 }
-        }
-      }
-    }
-  }
-  layerCanvas.setBuffer(buf)
+  layerCanvas.setBuffer(cloneBuffer(layerBuffer))
 }
 
 /* ─── Grid Editor — Sync Editor to Focus ──────────────────────────── */
