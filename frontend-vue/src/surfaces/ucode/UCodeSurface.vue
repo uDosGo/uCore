@@ -595,8 +595,8 @@ function loadTerminalWelcome() {
   activeCanvas.setBuffer(buf)
   terminalPrintLine('uDosConnect BBC BASIC Terminal', 4, 0)
   terminalPrintLine('='.repeat(tabConfigs.terminal.cols), 3, 0)
-  terminalPrintLine('GridUI Canvas Engine -- Framework-Agnostic Web Component', 2, 0)
-  terminalPrintLine('Type "HELP" for commands, "DEMO" for a demo.', 7, 0)
+  terminalPrintLine('GridUI Canvas Engine  ·  40x25 Teletext', 2, 0)
+  terminalPrintLine('Type HELP · DEMO · CLEAR · CLS · ABOUT', 7, 0)
   terminalPrintLine('', 7, 0)
   terminalCursorY = 6
 }

@@ -263,14 +263,15 @@ export class GridUICanvasElement extends HTMLElement {
       '█', '▄', '▀', '▐', '▌', '░', '▒', '▓',
     ])
 
-    // Font for text characters — oversized and clipped so glyphs fill the cell
-    const fontScale = (this._font === 'pressstart2p' || this._font === '"pressstart2p"')
-      ? 1.5   // Press Start 2P has narrow glyphs (±50% width) — boost to fill
-      : (this._font === 'vt323' || this._font === '"vt323"')
-        ? 1.2  // VT323 is wider
-        : 1.0
-    const fontSize = Math.round(this._cellSize * fontScale * dpr)
-    ctx.font = `${fontSize}px "${this._font}", monospace`
+    // Font renders at natural cell size — 1 character = 1 cell, no overflow.
+    // Map internal short names to Google Fonts CSS family names.
+    // "pressstart2p" → "Press Start 2P" (Google Fonts name with spaces/caps)
+    // "vt323" → "VT323" (matches Google Fonts name as-is)
+    const fontFamily = this._font === 'pressstart2p'
+      ? '"Press Start 2P", monospace'
+      : `"${this._font}", monospace`
+    const fontSize = Math.round(this._cellSize * dpr)
+    ctx.font = `${fontSize}px ${fontFamily}`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 

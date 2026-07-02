@@ -80,8 +80,8 @@ function printWelcome() {
   gridEl?.setBuffer(buf)
   printLine('uDosConnect BBC BASIC Terminal', 4, 0)
   printLine('='.repeat(cols), 3, 0)
-  printLine('GridUI Canvas Engine -- 40x25 Teletext Standard', 2, 0)
-  printLine('Type "HELP" for commands, "DEMO" for a demo.', 7, 0)
+  printLine('GridUI Canvas Engine  ·  40x25 Teletext', 2, 0)
+  printLine('Type HELP · DEMO · CLEAR · CLS · ABOUT', 7, 0)
   printLine('', 7, 0)
   cursorY = 6
 }
