@@ -9,9 +9,6 @@
     >
       <template #actions>
         <template v-if="activeTab === 'grid'">
-          <button class="surface-tab-nav__action-btn" title="Toggle sidebar" @click="showSidebar = !showSidebar">
-            <UIcon name="tune" />
-          </button>
           <button class="surface-tab-nav__action-btn" title="Reload" @click="reloadGrid">
             <UIcon name="refresh" />
           </button>
@@ -21,6 +18,7 @@
           <button class="surface-tab-nav__action-btn" title="Load layer" @click="triggerImport">
             <UIcon name="folder_open" />
           </button>
+          <span class="ucode-actions-spacer"></span>
           <select class="ucode-viewport-select" v-model="selectedPreset" @change="onPresetChange">
             <option v-for="p in VIEWPORT_PRESETS" :key="p.name" :value="p.name">
               {{ p.cols }}×{{ p.rows }} {{ p.description.split('·')[0].trim() }}
@@ -950,6 +948,10 @@ function clearGrid() {
 }
 
 /* ─── Viewport preset dropdown ────────────────────────────────── */
+.ucode-actions-spacer {
+  flex: 1;
+}
+
 .ucode-viewport-select {
   font-family: monospace;
   font-size: var(--usx-font-size-sm);
