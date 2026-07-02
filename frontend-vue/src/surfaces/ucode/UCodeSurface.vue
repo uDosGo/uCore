@@ -164,8 +164,8 @@ const shell = useShellStore()
 const UCODE_TABS: TabDef[] = [
   { id: 'terminal', label: 'Terminal', icon: 'terminal' },
   { id: 'teletext', label: 'Teletext', icon: 'tv' },
-  { id: 'grid', label: 'Grid', icon: 'grid_on' },
-  { id: 'layer', label: 'Layer', icon: 'layers' },
+  { id: 'grid', label: 'Grid Editor', icon: 'grid_on' },
+  { id: 'layer', label: 'Layer Composer', icon: 'layers' },
 ]
 
 const activeTab = ref('terminal')
