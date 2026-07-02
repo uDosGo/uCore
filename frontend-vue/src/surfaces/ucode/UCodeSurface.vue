@@ -12,10 +12,20 @@
           <button class="surface-tab-nav__action-btn" title="Toggle sidebar" @click="showSidebar = !showSidebar">
             <UIcon name="tune" />
           </button>
-          <button class="surface-tab-nav__action-btn" title="Clear layer" @click="clearLayer">
-            <UIcon name="delete_sweep" />
+          <button class="surface-tab-nav__action-btn" title="Reload" @click="reloadGrid">
+            <UIcon name="refresh" />
           </button>
-          <span class="ucode-info">{{ layerCols }}×{{ layerRows }} · edit 24×24</span>
+          <button class="surface-tab-nav__action-btn" title="Save layer" @click="exportGrid">
+            <UIcon name="save" />
+          </button>
+          <button class="surface-tab-nav__action-btn" title="Load layer" @click="triggerImport">
+            <UIcon name="folder_open" />
+          </button>
+          <select class="ucode-viewport-select" v-model="selectedPreset" @change="onPresetChange">
+            <option v-for="p in VIEWPORT_PRESETS" :key="p.name" :value="p.name">
+              {{ p.cols }}×{{ p.rows }} {{ p.description.split('·')[0].trim() }}
+            </option>
+          </select>
         </template>
         <template v-else>
           <button
@@ -156,6 +166,7 @@ import UIcon from '../../skills/atoms/UIcon.vue'
 import { createGridUICanvas, type GridUICanvasElement } from '../../grid-core/gridui-canvas'
 import { createBuffer, writeString, fill, scroll as scrollBuffer, cloneBuffer, clear as clearBuffer } from '../../grid-core/index'
 import { PALETTE_DARK } from '../../grid-core/palette'
+import { GRID_PRESETS } from '../../grid-core/algebra'
 import type { GridBuffer, GridCell } from '../../grid-core/types'
 
 const shell = useShellStore()
@@ -218,15 +229,24 @@ const selectedChar = ref('#')
 
 // Layer grid dimensions (the full editable canvas)
 // Default: 40×25 Teletext standard with 24×24 base cell
-const LAYER_COLS = 40
-const LAYER_ROWS = 25
+let LAYER_COLS = 40
+let LAYER_ROWS = 25
+
+// Viewport preset dropdown options
+const VIEWPORT_PRESETS = GRID_PRESETS.filter(p =>
+  ['editor','teletext','terminal','terminal-retro','teletext-retro',
+   'square-60','square-80','classic-40x30','classic-80x60',
+   'widescreen-80x45','widescreen-128x72','ultrawide-160x91'].includes(p.name)
+)
+const selectedPreset = ref('editor')
 
 // Editor viewport dimensions (the visible 24x24 window into the layer)
 const editorCols = 24
 const editorRows = 24
 
-const layerCols = LAYER_COLS
-const layerRows = LAYER_ROWS
+// Reactive layer dimensions for template binding
+const layerCols = ref(LAYER_COLS)
+const layerRows = ref(LAYER_ROWS)
 
 // Current focus — top-left corner of the editor viewport within the layer
 const editorFocusX = ref(0)
@@ -493,6 +513,28 @@ function clearLayer() {
   editorFocusY.value = 0
   syncEditorToFocus()
   renderLayerOverview()
+}
+
+function reloadGrid() {
+  layerBuffer = createBuffer(LAYER_COLS, LAYER_ROWS)
+  editorFocusX.value = 0
+  editorFocusY.value = 0
+  syncEditorToFocus()
+  renderLayerOverview()
+}
+
+function onPresetChange() {
+  const p = GRID_PRESETS.find(x => x.name === selectedPreset.value)
+  if (!p) return
+  LAYER_COLS = p.cols
+  LAYER_ROWS = p.rows
+  layerCols.value = p.cols
+  layerRows.value = p.rows
+  layerBuffer = createBuffer(p.cols, p.rows)
+  editorFocusX.value = 0
+  editorFocusY.value = 0
+  destroyGridEditor()
+  nextTick(() => initGridEditor())
 }
 
 function fillLayer() {
@@ -905,5 +947,23 @@ function clearGrid() {
 
 .surface-tab-nav__action-btn:active {
   color: var(--usx-color-primary-active, var(--usx-color-primary));
+}
+
+/* ─── Viewport preset dropdown ────────────────────────────────── */
+.ucode-viewport-select {
+  font-family: monospace;
+  font-size: var(--usx-font-size-sm);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
+  border: 1px solid var(--usx-color-border);
+  border-radius: var(--usx-border-radius-sm, 4px);
+  padding: 2px var(--usx-spacing-xs);
+  cursor: pointer;
+  min-height: 24px;
+  max-width: 180px;
+}
+
+.ucode-viewport-select:hover {
+  border-color: var(--usx-color-primary);
 }
 </style>
