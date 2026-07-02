@@ -8,41 +8,21 @@
       @toggle-orientation="shell.toggleTabOrientation()"
     >
       <template #actions>
-        <template v-if="activeTab === 'grid'">
-          <button class="surface-tab-nav__action-btn" title="Reload" @click="reloadGrid">
-            <UIcon name="refresh" />
-          </button>
-          <button class="surface-tab-nav__action-btn" title="Save layer" @click="exportGrid">
-            <UIcon name="save" />
-          </button>
-          <button class="surface-tab-nav__action-btn" title="Load layer" @click="triggerImport">
-            <UIcon name="folder_open" />
-          </button>
-          <span class="ucode-actions-spacer"></span>
-          <select class="ucode-viewport-select" v-model="selectedPreset" @change="onPresetChange">
-            <option v-for="p in VIEWPORT_PRESETS" :key="p.name" :value="p.name">
-              {{ p.cols }}×{{ p.rows }} {{ p.description.split('·')[0].trim() }}
-            </option>
-          </select>
-        </template>
-        <template v-else>
-          <button
-            v-if="activeTab === 'teletext'"
-            class="surface-tab-nav__action-btn" title="Teletext demo" @click="loadTeletextDemo"
-          ><UIcon name="tv" /></button>
-          <button
-            v-if="activeTab === 'terminal'"
-            class="surface-tab-nav__action-btn" title="Terminal demo" @click="loadTerminalWelcome"
-          ><UIcon name="play_arrow" /></button>
-          <button
-            v-if="activeTab === 'layer'"
-            class="surface-tab-nav__action-btn" title="Layer demo" @click="loadLayerDemo"
-          ><UIcon name="layers" /></button>
-          <button class="surface-tab-nav__action-btn" title="Clear" @click="clearGrid">
-            <UIcon name="delete_sweep" />
-          </button>
-          <span class="ucode-info">{{ gridCols }}×{{ gridRows }}</span>
-        </template>
+        <span class="ucode-actions-spacer"></span>
+        <button class="surface-tab-nav__action-btn" title="Reload" @click="reloadGrid">
+          <UIcon name="refresh" />
+        </button>
+        <button class="surface-tab-nav__action-btn" title="Save" @click="exportGrid">
+          <UIcon name="save" />
+        </button>
+        <button class="surface-tab-nav__action-btn" title="Load" @click="triggerImport">
+          <UIcon name="folder_open" />
+        </button>
+        <select class="ucode-viewport-select" v-model="selectedPreset" @change="onPresetChange">
+          <option v-for="p in VIEWPORT_PRESETS" :key="p.name" :value="p.name">
+            {{ p.cols }}×{{ p.rows }}
+          </option>
+        </select>
       </template>
     </SurfaceTabNav>
 
@@ -514,11 +494,15 @@ function clearLayer() {
 }
 
 function reloadGrid() {
-  layerBuffer = createBuffer(LAYER_COLS, LAYER_ROWS)
-  editorFocusX.value = 0
-  editorFocusY.value = 0
-  syncEditorToFocus()
-  renderLayerOverview()
+  if (activeTab.value === 'grid' || activeTab.value === 'layer') {
+    layerBuffer = createBuffer(LAYER_COLS, LAYER_ROWS)
+    editorFocusX.value = 0
+    editorFocusY.value = 0
+    syncEditorToFocus()
+    renderLayerOverview()
+  } else {
+    loadTabContent()
+  }
 }
 
 function onPresetChange() {
@@ -528,11 +512,26 @@ function onPresetChange() {
   LAYER_ROWS = p.rows
   layerCols.value = p.cols
   layerRows.value = p.rows
-  layerBuffer = createBuffer(p.cols, p.rows)
-  editorFocusX.value = 0
-  editorFocusY.value = 0
-  destroyGridEditor()
-  nextTick(() => initGridEditor())
+
+  if (activeTab.value === 'grid' || activeTab.value === 'layer') {
+    layerBuffer = createBuffer(p.cols, p.rows)
+    editorFocusX.value = 0
+    editorFocusY.value = 0
+    destroyGridEditor()
+    nextTick(() => initGridEditor())
+  } else {
+    // Rebuild single canvas at new size
+    const cfg = tabConfigs[activeTab.value]
+    if (cfg) {
+      cfg.cols = p.cols
+      cfg.rows = p.rows
+    }
+    const tab = activeTab.value
+    // Destroy and recreate the canvas for this tab
+    const old = canvasCache.get(tab)
+    if (old) { old.remove(); canvasCache.delete(tab) }
+    nextTick(() => loadTabContent(tab))
+  }
 }
 
 function fillLayer() {
@@ -545,18 +544,27 @@ function fillLayer() {
   renderLayerOverview()
 }
 
+function getExportBuffer(): GridBuffer {
+  if (activeTab.value === 'grid' || activeTab.value === 'layer') return layerBuffer
+  if (activeCanvas) return activeCanvas.buffer
+  return createBuffer(40, 25)
+}
+
 function exportGrid() {
+  const buf = getExportBuffer()
+  const cols = buf.length > 0 ? buf[0].length : 40
+  const rows = buf.length
   const data = {
     format: 'ucode-grid-v1',
-    cols: LAYER_COLS,
-    rows: LAYER_ROWS,
-    cells: layerBuffer.map(row => row.map(c => ({ c: c.char, f: c.fg, b: c.bg }))),
+    cols,
+    rows,
+    cells: buf.map(row => row.map(c => ({ c: c.char, f: c.fg, b: c.bg }))),
   }
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `ucode-layer-${LAYER_COLS}x${LAYER_ROWS}.json`
+  a.download = `ucode-grid-${cols}x${rows}.json`
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -572,25 +580,32 @@ function onImportFile(e: Event) {
   reader.onload = () => {
     try {
       const data = JSON.parse(reader.result as string)
-      if (data.format === 'ucode-grid-v1' && data.cells) {
-        const cols = Math.min(data.cols, LAYER_COLS)
-        const rows = Math.min(data.rows, LAYER_ROWS)
-        for (let r = 0; r < rows; r++) {
-          for (let c = 0; c < cols; c++) {
-            const src = data.cells[r]?.[c]
-            if (src) layerBuffer[r][c] = { char: src.c || ' ', fg: src.f ?? 7, bg: src.b ?? 0 }
-          }
+      if (data.format !== 'ucode-grid-v1' || !data.cells) return
+
+      const isGridLayer = activeTab.value === 'grid' || activeTab.value === 'layer'
+      const target = isGridLayer ? layerBuffer : (activeCanvas?.buffer || null)
+      if (!target) return
+
+      const cols = Math.min(data.cols, target[0]?.length || 40)
+      const rows = Math.min(data.rows, target.length)
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const src = data.cells[r]?.[c]
+          if (src) target[r][c] = { char: src.c || ' ', fg: src.f ?? 7, bg: src.b ?? 0 }
         }
+      }
+      if (isGridLayer) {
         layerBuffer = cloneBuffer(layerBuffer)
         syncEditorToFocus()
         renderLayerOverview()
+      } else if (activeCanvas) {
+        activeCanvas.setBuffer(cloneBuffer(target))
       }
     } catch (err) {
       console.error('Import failed:', err)
     }
   }
   reader.readAsText(file)
-  // Reset input so re-importing same file works
   ;(e.target as HTMLInputElement).value = ''
 }
 
