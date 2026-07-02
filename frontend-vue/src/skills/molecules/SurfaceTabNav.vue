@@ -195,6 +195,7 @@ function toggleOrientation() {
   gap: var(--usx-spacing-xs);
   margin-left: auto;
   flex-shrink: 0;
+  padding: var(--usx-spacing-xs) 0;
 }
 
 .surface-tab-nav--vertical .surface-tab-nav__actions {
