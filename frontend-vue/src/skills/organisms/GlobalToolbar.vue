@@ -38,7 +38,7 @@
         @click="navigate('/assistui')"
         title="Assistant"
       >
-        <UIcon name="power" class="global-toolbar__icon" />
+        <UIcon name="lightbulb" class="global-toolbar__icon" />
       </button>
       <button
         class="global-toolbar__tab global-toolbar__tab--nav"
