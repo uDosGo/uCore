@@ -183,6 +183,16 @@
                 >
                   <span v-if="selectedBg === i" class="colour-marker bg">B</span>
                 </button>
+                <!-- 9th cell: transparent/empty -->
+                <button
+                  class="layer-colour-popover__swatch layer-colour-popover__swatch--empty"
+                  :class="{ 'bg-active': selectedBg === -1 }"
+                  title="Transparent / Empty | R-click BG"
+                  @click="selectedFg = -1"
+                  @click.right.prevent="selectedBg = -1"
+                >
+                  <span v-if="selectedBg === -1" class="colour-marker bg">B</span>
+                </button>
               </div>
             </div>
             <span class="layer-editor__info">{{ currentTool }} · ({{ layerCursorCol }}, {{ layerCursorRow }})</span>
@@ -198,20 +208,6 @@
           <div class="sidebar-font-btns">
             <button class="sidebar-font-btn" :class="{ active: editorFont === 'pressstart2p' }" @click="editorFont = 'pressstart2p'">Terminal</button>
             <button class="sidebar-font-btn" :class="{ active: editorFont === 'mode7gx3' }" @click="editorFont = 'mode7gx3'">Teletext</button>
-          </div>
-        </div>
-        <div class="sidebar-section">
-          <h4 class="sidebar-title">Palette</h4>
-          <div class="editor-section__colours">
-            <button
-              v-for="(c, i) in PALETTE" :key="i"
-              class="editor-colour-swatch"
-              :class="{ 'fg-active': selectedFg === i, 'bg-active': selectedBg === i }"
-              :style="{ background: c.hex }" :title="c.name"
-              @click="selectedFg = i" @click.right.prevent="selectedBg = i"
-            >
-              <span v-if="selectedBg === i" class="colour-marker bg">B</span>
-            </button>
           </div>
         </div>
         <div class="sidebar-section sidebar-font-chars">
@@ -1262,24 +1258,6 @@ function clearGrid() { activeCanvas?.clear() }
   gap: 0;
 }
 
-.editor-section__colours {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  justify-content: center;
-}
-.editor-colour-swatch {
-  width: 20px; height: 20px; min-height: 0;
-  border: 2px solid var(--usx-color-border);
-  border-radius: 3px;
-  cursor: pointer; padding: 0;
-  box-sizing: border-box;
-  transition: transform 0.1s ease, border-color 0.1s ease;
-}
-.editor-colour-swatch:hover { transform: scale(1.15); z-index: 1; }
-.editor-colour-swatch.fg-active { border-color: var(--usx-color-primary); box-shadow: 0 0 0 2px var(--usx-color-primary); }
-.editor-colour-swatch.bg-active { border-color: var(--usx-color-warning); box-shadow: 0 0 0 2px var(--usx-color-warning); }
-
 /* ─── Layer Editor (primary pane) ────────────────────────────────── */
 .layer-editor-primary {
   flex: 1;
@@ -1398,6 +1376,14 @@ function clearGrid() { activeCanvas?.clear() }
 .layer-colour-popover__swatch:hover { transform: scale(1.15); z-index: 1; }
 .layer-colour-popover__swatch.fg-active { border-color: var(--usx-color-primary); box-shadow: 0 0 0 2px var(--usx-color-primary); }
 .layer-colour-popover__swatch.bg-active { border-color: var(--usx-color-warning); box-shadow: 0 0 0 2px var(--usx-color-warning); }
+.layer-colour-popover__swatch--empty {
+  background-image: linear-gradient(45deg, #333 25%, transparent 25%),
+                    linear-gradient(-45deg, #333 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #333 75%),
+                    linear-gradient(-45deg, transparent 75%, #333 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
 
 
 /* ─── Sidebar ───────────────────────────────────────────────────── */
