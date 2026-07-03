@@ -1139,10 +1139,10 @@ function clearGrid() { activeCanvas?.clear() }
   font-weight: 600;
   color: var(--usx-color-on-surface-muted);
   text-transform: uppercase;
-  line-height: 24px;
   height: 24px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
 }
 .pixel-toolbar__input {
   width: 42px;
@@ -1161,10 +1161,11 @@ function clearGrid() { activeCanvas?.clear() }
   font-size: 13px;
   color: var(--usx-color-on-surface-muted);
   font-weight: 600;
-  line-height: 24px;
   height: 24px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 .pixel-toolbar__palette {
   position: relative;
@@ -1183,8 +1184,8 @@ function clearGrid() { activeCanvas?.clear() }
   margin-top: 6px;
   display: grid;
   grid-template-columns: repeat(4, 28px);
-  gap: 3px;
-  padding: 6px;
+  gap: 6px;
+  padding: 8px;
   background: var(--usx-color-surface);
   border: 1px solid var(--usx-color-border);
   border-radius: 6px;
