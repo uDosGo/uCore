@@ -1183,7 +1183,7 @@ function clearGrid() { activeCanvas?.clear() }
   right: 0;
   margin-top: 6px;
   display: grid;
-  grid-template-columns: repeat(4, 28px);
+  grid-template-columns: repeat(3, 28px);
   gap: 6px;
   padding: 8px;
   background: var(--usx-color-surface);
