@@ -132,7 +132,7 @@
       </div>
     </div>
 
-    <!-- ─── Grid Builder tab: layer editor ─── -->
+    <!-- ─── Grid Builder tab: Layer Editor ─── -->
     <div v-else-if="activeTab === 'grid'" class="grid-editor-layout">
       <!-- Slide-in preset popover (floats over editor) -->
       <div class="preset-popover" :class="{ open: showPresets }">
@@ -149,34 +149,46 @@
         </div>
       </div>
       <div class="grid-editor-main">
-        <div class="editor-section">
-          <div class="editor-section__viewport" ref="editorViewportRef" tabindex="0" @keydown="onEditorKeydown" @mousedown="onEditorMouseDown">
-            <span class="editor-section__label editor-section__label--overlay">
-              Grid Builder · {{ editorCols }}×{{ editorRows }} · Cursor ({{ cursorCol }}, {{ cursorRow }})
-            </span>
-          </div>
-          <div class="editor-section__side">
-            <span class="editor-section__label">Tools</span>
-            <div class="editor-section__tools">
-              <button v-for="t in TOOLS" :key="t.id" class="editor-tool-btn" :class="{ active: currentTool === t.id }" :title="t.label" @click="currentTool = t.id"><UIcon :name="t.icon" /></button>
+        <!-- Layer Editor — full layer as primary editing surface -->
+        <div class="layer-editor-primary">
+          <div class="layer-editor__toolbar">
+            <div class="layer-editor__dims">
+              <input class="layer-editor__input" type="number" v-model.number="layerCols" min="4" max="256" @change="onLayerResize" />
+              <span class="layer-editor__sep">×</span>
+              <input class="layer-editor__input" type="number" v-model.number="layerRows" min="4" max="256" @change="onLayerResize" />
             </div>
-            <span class="editor-section__label">Actions</span>
-            <div class="editor-section__actions">
-              <button class="editor-action-btn" @click="fillLayer" title="Fill all cells">Fill</button>
-              <button class="editor-action-btn" @click="clearLayer" title="Clear layer">Clr</button>
-              <button class="editor-action-btn" @click="exportGrid" title="Export as JSON">Exp</button>
-              <button class="editor-action-btn" @click="triggerImport" title="Import JSON">Imp</button>
+            <div class="layer-editor__tools">
+              <button v-for="t in TOOLS" :key="t.id" class="pixel-tool-btn" :class="{ active: currentTool === t.id }" :title="t.label" @click="currentTool = t.id"><UIcon :name="t.icon" /></button>
             </div>
-            <input ref="importInputRef" type="file" accept=".json" style="display:none" @change="onImportFile" />
+            <div class="layer-editor__actions">
+              <button class="pixel-toolbar__action-btn" @click="fillLayer" title="Fill all cells">Fill</button>
+              <button class="pixel-toolbar__action-btn" @click="clearLayer" title="Clear layer">Clr</button>
+              <button class="pixel-toolbar__action-btn" @click="exportGrid" title="Export as JSON">Exp</button>
+              <button class="pixel-toolbar__action-btn" @click="triggerImport" title="Import JSON">Imp</button>
+            </div>
+            <div class="layer-editor__palette">
+              <button class="pixel-tool-btn" :class="{ active: showLayerColorPopover }" title="Colour Picker" @click="showLayerColorPopover = !showLayerColorPopover" @blur="hideLayerColorPopover">
+                <UIcon name="palette" />
+              </button>
+              <!-- 3×3 colour grid popover -->
+              <div class="layer-colour-popover" v-if="showLayerColorPopover" @mousedown.prevent>
+                <button
+                  v-for="(c, i) in PALETTE" :key="i"
+                  class="layer-colour-popover__swatch"
+                  :class="{ 'fg-active': selectedFg === i, 'bg-active': selectedBg === i }"
+                  :style="{ background: c.hex }"
+                  :title="c.name + (selectedFg === i ? ' FG' : selectedBg === i ? ' BG' : '') + ' | L-click FG · R-click BG'"
+                  @click="selectedFg = i"
+                  @click.right.prevent="selectedBg = i"
+                >
+                  <span v-if="selectedBg === i" class="colour-marker bg">B</span>
+                </button>
+              </div>
+            </div>
+            <span class="layer-editor__info">{{ currentTool }} · ({{ layerCursorCol }}, {{ layerCursorRow }})</span>
           </div>
-        </div>
-        <div class="layer-section" :class="{ 'layer-section--collapsed': !layerExpanded }">
-          <div class="layer-section__bar" @click="layerExpanded = !layerExpanded">
-            <UIcon :name="layerExpanded ? 'expand_less' : 'expand_more'" class="layer-section__toggle" />
-            <span class="editor-section__label">Layer · {{ layerCols }}×{{ layerRows }}</span>
-            <span class="editor-section__label" style="opacity:0.5">Focus: ({{ editorFocusX }}, {{ editorFocusY }})</span>
-          </div>
-          <div class="layer-section__viewport" ref="layerViewportRef"></div>
+          <div class="layer-editor__viewport" ref="layerViewportRef" tabindex="0" @keydown="onLayerKeydown" @mousedown="onLayerMouseDown"></div>
+          <input ref="importInputRef" type="file" accept=".json" style="display:none" @change="onImportFile" />
         </div>
       </div>
       <!-- Sidebar: brush palette for placing chars into grid -->
@@ -288,7 +300,7 @@ const tabTitles: Record<string, string> = {
   terminal: 'uCode — Terminal',
   teletext: 'uCode — Teletext',
   pixel: 'uCode — Pixel Editor',
-  grid: 'uCode — Grid Builder',
+  grid: 'uCode — Layer Editor',
   layer: 'uCode — Layer Composer',
 }
 
@@ -328,8 +340,10 @@ const PIXEL_TOOLS = [
 
 const pixelTool = ref<'pencil' | 'erase' | 'fill'>('pencil')
 const showColorPopover = ref(false)
+const showLayerColorPopover = ref(false)
 
 function hideColorPopover() { setTimeout(() => { showColorPopover.value = false }, 200) }
+function hideLayerColorPopover() { setTimeout(() => { showLayerColorPopover.value = false }, 200) }
 
 // Pixel Editor dimensions (editable by user from toolbar)
 const pixelW = ref(24)
@@ -422,31 +436,21 @@ function selectPreset(i: number) {
 
 watch(viewportIndex, () => onPresetChange(currentPreset.value.name))
 
-const editorCols = 24
-const editorRows = 24
-const editorFocusX = ref(0)
-const editorFocusY = ref(0)
+const layerCursorCol = ref(0)
+const layerCursorRow = ref(0)
 let layerBuffer: GridBuffer = createBuffer(LAYER_COLS, LAYER_ROWS)
+let layerIsDragging = false
 
 /* ─── Canvas refs & elements ──────────────────────────────────────── */
-const editorViewportRef = ref<HTMLDivElement>()
 const layerViewportRef = ref<HTMLDivElement>()
 const pixelCanvasRef = ref<HTMLDivElement>()
 const importInputRef = ref<HTMLInputElement>()
 
-let editorCanvas: GridUICanvasElement | null = null
 let layerCanvas: GridUICanvasElement | null = null
 let pixelCanvas: GridUICanvasElement | null = null
 
-const cursorCol = ref(0)
-const cursorRow = ref(0)
-let isDragging = false
-
-const layerExpanded = ref(true)
-
 /* ─── Watchers ────────────────────────────────────────────────────── */
 watch(editorFont, (font) => {
-  if (editorCanvas) editorCanvas.setAttribute('font', font)
   if (layerCanvas) layerCanvas.setAttribute('font', font)
 })
 
@@ -627,13 +631,7 @@ function onPixelKeydown(e: KeyboardEvent) {
 
 function initGridEditor() {
   destroyGridEditor()
-  if (!editorViewportRef.value || !layerViewportRef.value) return
-
-  editorCanvas = createGridUICanvas({ cols: editorCols, rows: editorRows, font: editorFont.value, cellSize: 100 })
-  editorCanvas.setAttribute('gridlines', '')
-  editorCanvas.style.flexShrink = '0'
-  editorCanvas.addEventListener('cell-click', onEditorCellClick as EventListener)
-  editorViewportRef.value.appendChild(editorCanvas)
+  if (!layerViewportRef.value) return
 
   layerCanvas = createGridUICanvas({ cols: LAYER_COLS, rows: LAYER_ROWS, font: editorFont.value, cellSize: 100 })
   layerCanvas.style.flexShrink = '0'
@@ -641,8 +639,7 @@ function initGridEditor() {
   layerViewportRef.value.appendChild(layerCanvas)
 
   loadGridEditorDemo()
-  renderLayerOverview()
-  syncEditorToFocus()
+  renderLayerBuffer()
 }
 
 function loadGridEditorDemo() {
@@ -654,87 +651,39 @@ function loadGridEditorDemo() {
     { label: 'Structures', color: 3, y: 8, fillChar: '&' },
     { label: 'Units', color: 1, y: 13, fillChar: '@' },
   ]
-  for (const layer of layers) {
-    layerBuffer = fill(layerBuffer, 4, layer.y, 30, 3, layer.fillChar, layer.color, 0)
-    layerBuffer = writeString(layerBuffer, 4, layer.y + 1, `  ~ ${layer.label} ~  `, 7, layer.color, true)
+  for (const lyr of layers) {
+    layerBuffer = fill(layerBuffer, 4, lyr.y, 30, 3, lyr.fillChar, lyr.color, 0)
+    layerBuffer = writeString(layerBuffer, 4, lyr.y + 1, `  ~ ${lyr.label} ~  `, 7, lyr.color, true)
   }
 }
 
 function destroyGridEditor() {
-  editorCanvas?.remove()
   layerCanvas?.remove()
-  editorCanvas = null
   layerCanvas = null
 }
 
-function renderLayerOverview() {
+function renderLayerBuffer() {
   if (!layerCanvas) return
   const buf = cloneBuffer(layerBuffer)
-  const fx = editorFocusX.value
-  const fy = editorFocusY.value
-  const ex = fx + editorCols - 1
-  const ey = fy + editorRows - 1
-  for (let c = fx; c <= ex; c++) {
-    if (c >= 0 && c < LAYER_COLS) {
-      if (fy >= 0 && fy < LAYER_ROWS) buf[fy][c] = { ...buf[fy][c], fg: 0, bg: 6 }
-      if (ey >= 0 && ey < LAYER_ROWS) buf[ey][c] = { ...buf[ey][c], fg: 0, bg: 6 }
-    }
-  }
-  for (let r = fy + 1; r < ey; r++) {
-    if (r >= 0 && r < LAYER_ROWS) {
-      if (fx >= 0 && fx < LAYER_COLS) buf[r][fx] = { ...buf[r][fx], fg: 0, bg: 6 }
-      if (ex >= 0 && ex < LAYER_COLS) buf[r][ex] = { ...buf[r][ex], fg: 0, bg: 6 }
-    }
+  // Highlight cursor cell
+  const cr = layerCursorRow.value
+  const cc = layerCursorCol.value
+  if (cr >= 0 && cr < LAYER_ROWS && cc >= 0 && cc < LAYER_COLS) {
+    const cell = buf[cr][cc]
+    buf[cr][cc] = { ...cell, fg: cell.bg, bg: cell.fg === cell.bg ? (cell.fg === 0 ? 7 : 0) : cell.fg }
   }
   layerCanvas.setBuffer(buf)
 }
 
-function syncEditorToFocus() {
-  if (!editorCanvas) return
-  const fx = editorFocusX.value
-  const fy = editorFocusY.value
-  const buf = createBuffer(editorCols, editorRows)
-  for (let r = 0; r < editorRows; r++) {
-    for (let c = 0; c < editorCols; c++) {
-      const lr = fy + r
-      const lc = fx + c
-      if (lr >= 0 && lr < LAYER_ROWS && lc >= 0 && lc < LAYER_COLS) {
-        buf[r][c] = { ...layerBuffer[lr][lc] }
-      }
-    }
-  }
-  const cr = cursorRow.value
-  const cc = cursorCol.value
-  if (cr >= 0 && cr < editorRows && cc >= 0 && cc < editorCols) {
-    const cell = buf[cr][cc]
-    buf[cr][cc] = { ...cell, fg: cell.bg, bg: cell.fg === cell.bg ? (cell.fg === 0 ? 7 : 0) : cell.fg }
-  }
-  editorCanvas.setBuffer(buf)
-}
-
 /* ─── Grid Tab — Interaction ──────────────────────────────────────── */
 
-function cursorLayerPos(): { lx: number; ly: number } {
-  return { lx: editorFocusX.value + cursorCol.value, ly: editorFocusY.value + cursorRow.value }
-}
-
-function onEditorKeydown(e: KeyboardEvent) {
+function onLayerKeydown(e: KeyboardEvent) {
   if (activeTab.value !== 'grid') return
   switch (e.key) {
-    case 'ArrowLeft': e.preventDefault(); cursorCol.value = Math.max(0, cursorCol.value - 1); syncEditorToFocus(); break
-    case 'ArrowRight': e.preventDefault(); cursorCol.value = Math.min(editorCols - 1, cursorCol.value + 1); syncEditorToFocus(); break
-    case 'ArrowUp':
-      e.preventDefault()
-      if (cursorRow.value === 0 && editorFocusY.value > 0) editorFocusY.value = Math.max(0, editorFocusY.value - 1)
-      else cursorRow.value = Math.max(0, cursorRow.value - 1)
-      syncEditorToFocus()
-      break
-    case 'ArrowDown':
-      e.preventDefault()
-      if (cursorRow.value === editorRows - 1 && editorFocusY.value < LAYER_ROWS - editorRows) editorFocusY.value = Math.min(LAYER_ROWS - editorRows, editorFocusY.value + 1)
-      else cursorRow.value = Math.min(editorRows - 1, cursorRow.value + 1)
-      syncEditorToFocus()
-      break
+    case 'ArrowLeft': e.preventDefault(); layerCursorCol.value = Math.max(0, layerCursorCol.value - 1); renderLayerBuffer(); break
+    case 'ArrowRight': e.preventDefault(); layerCursorCol.value = Math.min(LAYER_COLS - 1, layerCursorCol.value + 1); renderLayerBuffer(); break
+    case 'ArrowUp': e.preventDefault(); layerCursorRow.value = Math.max(0, layerCursorRow.value - 1); renderLayerBuffer(); break
+    case 'ArrowDown': e.preventDefault(); layerCursorRow.value = Math.min(LAYER_ROWS - 1, layerCursorRow.value + 1); renderLayerBuffer(); break
     case 'Tab':
       e.preventDefault()
       { const tools = TOOLS.map(t => t.id); const idx = tools.indexOf(currentTool.value); currentTool.value = tools[(idx + 1) % tools.length] as typeof currentTool.value }
@@ -742,39 +691,39 @@ function onEditorKeydown(e: KeyboardEvent) {
     default:
       if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault()
-        const { lx, ly } = cursorLayerPos()
+        const lx = layerCursorCol.value
+        const ly = layerCursorRow.value
         if (lx >= 0 && lx < LAYER_COLS && ly >= 0 && ly < LAYER_ROWS) {
           layerBuffer[ly][lx] = { char: e.key, fg: selectedFg.value, bg: selectedBg.value }
-          syncEditorToFocus()
-          renderLayerOverview()
+          renderLayerBuffer()
         }
       }
       break
   }
 }
 
-function onEditorMouseDown(e: MouseEvent) {
-  isDragging = true
+function onLayerMouseDown(e: MouseEvent) {
+  layerIsDragging = true
   const onMove = (ev: MouseEvent) => {
-    if (!isDragging || !editorCanvas) return
-    const rect = editorCanvas.getBoundingClientRect()
+    if (!layerIsDragging || !layerCanvas) return
+    const rect = layerCanvas.getBoundingClientRect()
     const localX = ev.clientX - rect.left
     const localY = ev.clientY - rect.top
-    const canvasStyle = editorCanvas.style
-    const cssW = parseFloat(canvasStyle.width || '0')
-    const cssH = parseFloat(canvasStyle.height || '0')
-    const cellW = cssW / editorCols
-    const cellH = cssH / editorRows
+    const cssW = parseFloat(layerCanvas.style.width || '0')
+    const cssH = parseFloat(layerCanvas.style.height || '0')
+    if (!cssW || !cssH) return
+    const cellW = cssW / LAYER_COLS
+    const cellH = cssH / LAYER_ROWS
     const col = Math.floor(localX / cellW)
     const row = Math.floor(localY / cellH)
-    if (col >= 0 && col < editorCols && row >= 0 && row < editorRows) {
-      cursorCol.value = col
-      cursorRow.value = row
-      doEditorPaint()
+    if (col >= 0 && col < LAYER_COLS && row >= 0 && row < LAYER_ROWS) {
+      layerCursorCol.value = col
+      layerCursorRow.value = row
+      doLayerPaint()
     }
   }
   const onUp = () => {
-    isDragging = false
+    layerIsDragging = false
     document.removeEventListener('mousemove', onMove)
     document.removeEventListener('mouseup', onUp)
   }
@@ -782,8 +731,9 @@ function onEditorMouseDown(e: MouseEvent) {
   document.addEventListener('mouseup', onUp)
 }
 
-function doEditorPaint() {
-  const { lx, ly } = cursorLayerPos()
+function doLayerPaint() {
+  const lx = layerCursorCol.value
+  const ly = layerCursorRow.value
   if (lx < 0 || lx >= LAYER_COLS || ly < 0 || ly >= LAYER_ROWS) return
   const tool = currentTool.value
   if (tool === 'eyedropper') {
@@ -792,42 +742,28 @@ function doEditorPaint() {
     currentTool.value = 'pencil'
     return
   }
-  if (tool === 'erase') { layerBuffer[ly][lx] = { char: ' ', fg: 7, bg: 0 }; syncEditorToFocus(); renderLayerOverview(); return }
+  if (tool === 'erase') { layerBuffer[ly][lx] = { char: ' ', fg: 7, bg: 0 }; renderLayerBuffer(); return }
   layerBuffer[ly][lx] = { char: selectedChar.value, fg: selectedFg.value, bg: selectedBg.value }
-  syncEditorToFocus()
-  renderLayerOverview()
+  renderLayerBuffer()
 }
 
 function onLayerCellClick(e: CustomEvent) {
   const { col, row } = e.detail
-  const cell = layerBuffer[row]?.[col]
-  if (cell) { selectedChar.value = cell.char; selectedFg.value = cell.fg; selectedBg.value = cell.bg }
-  const chunkX = Math.floor(col / editorCols) * editorCols
-  const chunkY = Math.floor(row / editorRows) * editorRows
-  editorFocusX.value = Math.max(0, Math.min(chunkX, LAYER_COLS - editorCols))
-  editorFocusY.value = Math.max(0, Math.min(chunkY, LAYER_ROWS - editorRows))
-  syncEditorToFocus()
-  renderLayerOverview()
-}
-
-function onEditorCellClick(e: CustomEvent) {
-  const { col, row } = e.detail
-  cursorCol.value = col; cursorRow.value = row
-  const fx = editorFocusX.value; const fy = editorFocusY.value
-  const lx = fx + col; const ly = fy + row
-  if (lx < 0 || lx >= LAYER_COLS || ly < 0 || ly >= LAYER_ROWS) return
+  layerCursorCol.value = col
+  layerCursorRow.value = row
+  if (col < 0 || col >= LAYER_COLS || row < 0 || row >= LAYER_ROWS) return
   const tool = currentTool.value
   if (tool === 'eyedropper') {
-    const cell = layerBuffer[ly][lx]
+    const cell = layerBuffer[row][col]
     selectedFg.value = cell.fg; selectedBg.value = cell.bg; selectedChar.value = cell.char
     currentTool.value = 'pencil'
+    renderLayerBuffer()
     return
   }
-  if (tool === 'erase') { layerBuffer[ly][lx] = { char: ' ', fg: 7, bg: 0 }; syncEditorToFocus(); renderLayerOverview(); return }
-  if (tool === 'fill') { floodFill(lx, ly, selectedFg.value, selectedBg.value, selectedChar.value); syncEditorToFocus(); renderLayerOverview(); return }
-  layerBuffer[ly][lx] = { char: selectedChar.value, fg: selectedFg.value, bg: selectedBg.value }
-  syncEditorToFocus()
-  renderLayerOverview()
+  if (tool === 'erase') { layerBuffer[row][col] = { char: ' ', fg: 7, bg: 0 }; renderLayerBuffer(); return }
+  if (tool === 'fill') { floodFill(col, row, selectedFg.value, selectedBg.value, selectedChar.value); renderLayerBuffer(); return }
+  layerBuffer[row][col] = { char: selectedChar.value, fg: selectedFg.value, bg: selectedBg.value }
+  renderLayerBuffer()
 }
 
 function floodFill(startX: number, startY: number, fg: number, bg: number, char: string) {
@@ -849,10 +785,10 @@ function floodFill(startX: number, startY: number, fg: number, bg: number, char:
   }
 }
 
-function clearLayer() { layerBuffer = createBuffer(LAYER_COLS, LAYER_ROWS); editorFocusX.value = 0; editorFocusY.value = 0; syncEditorToFocus(); renderLayerOverview() }
+function clearLayer() { layerBuffer = createBuffer(LAYER_COLS, LAYER_ROWS); renderLayerBuffer() }
 function fillLayer() {
   for (let r = 0; r < LAYER_ROWS; r++) for (let c = 0; c < LAYER_COLS; c++) layerBuffer[r][c] = { char: selectedChar.value, fg: selectedFg.value, bg: selectedBg.value }
-  syncEditorToFocus(); renderLayerOverview()
+  renderLayerBuffer()
 }
 
 function onPresetChange(name: string) {
@@ -863,7 +799,7 @@ function onPresetChange(name: string) {
   layerCols.value = p.cols; layerRows.value = p.rows
   if (activeTab.value === 'grid' || activeTab.value === 'layer') {
     layerBuffer = scaleBuffer(oldBuffer, p.cols, p.rows)
-    editorFocusX.value = 0; editorFocusY.value = 0
+    layerCursorCol.value = 0; layerCursorRow.value = 0
     destroyGridEditor()
     nextTick(() => initGridEditor())
   } else {
@@ -874,6 +810,21 @@ function onPresetChange(name: string) {
     if (old) { old.remove(); canvasCache.delete(tab) }
     nextTick(() => initGrid(tab))
   }
+}
+
+/* ─── Layer resize ──────────────────────────────────────────────── */
+function onLayerResize() {
+  const newCols = Math.max(4, Math.min(256, layerCols.value))
+  const newRows = Math.max(4, Math.min(256, layerRows.value))
+  if (newCols === LAYER_COLS && newRows === LAYER_ROWS) return
+  const oldBuffer = cloneBuffer(layerBuffer)
+  LAYER_COLS = newCols; LAYER_ROWS = newRows
+  layerCols.value = newCols; layerRows.value = newRows
+  layerBuffer = scaleBuffer(oldBuffer, newCols, newRows)
+  layerCursorCol.value = Math.min(layerCursorCol.value, newCols - 1)
+  layerCursorRow.value = Math.min(layerCursorRow.value, newRows - 1)
+  destroyGridEditor()
+  nextTick(() => initGridEditor())
 }
 
 /* ─── Lifecycle ───────────────────────────────────────────────────── */
@@ -887,8 +838,8 @@ onUnmounted(() => {
   canvasCache.forEach(el => el.remove())
   canvasCache.clear()
   activeCanvas = null
-  editorCanvas?.remove(); layerCanvas?.remove(); pixelCanvas?.remove()
-  editorCanvas = null; layerCanvas = null; pixelCanvas = null
+  layerCanvas?.remove(); pixelCanvas?.remove()
+  layerCanvas = null; pixelCanvas = null
 })
 
 /* ─── Single-Canvas Tab Management ────────────────────────────────── */
@@ -923,8 +874,8 @@ function initGrid(tabId: string) {
 watch(activeTab, (newTab) => {
   terminalCursorY = 0
   // Tear down previous grid editor
-  editorCanvas?.remove(); layerCanvas?.remove()
-  editorCanvas = null; layerCanvas = null
+  layerCanvas?.remove()
+  layerCanvas = null
   // Tear down pixel editor if leaving
   if (newTab !== 'pixel') { pixelCanvas?.remove(); pixelCanvas = null }
   nextTick(() => {
@@ -941,7 +892,7 @@ function loadTabContent(tabId?: string) {
 
 function reloadGrid() {
   if (activeTab.value === 'pixel') { pixelBuffer = createBuffer(pixelW.value, pixelH.value); pixelCanvas?.setBuffer(cloneBuffer(pixelBuffer)) }
-  else if (activeTab.value === 'grid' || activeTab.value === 'layer') { layerBuffer = createBuffer(LAYER_COLS, LAYER_ROWS); editorFocusX.value = 0; editorFocusY.value = 0; syncEditorToFocus(); renderLayerOverview() }
+  else if (activeTab.value === 'grid' || activeTab.value === 'layer') { layerBuffer = createBuffer(LAYER_COLS, LAYER_ROWS); renderLayerBuffer() }
   else loadTabContent()
 }
 
@@ -988,7 +939,7 @@ function onImportFile(e: Event) {
         }
       }
       if (isPixel) { pixelCanvas?.setBuffer(cloneBuffer(pixelBuffer)) }
-      else if (isGridLayer) { layerBuffer = cloneBuffer(layerBuffer); syncEditorToFocus(); renderLayerOverview() }
+      else if (isGridLayer) { layerBuffer = cloneBuffer(layerBuffer); renderLayerBuffer() }
       else if (activeCanvas) { activeCanvas.setBuffer(cloneBuffer(target)) }
     } catch (err) { console.error('Import failed:', err) }
   }
@@ -1312,75 +1263,6 @@ function clearGrid() { activeCanvas?.clear() }
   gap: 0;
 }
 
-/* ─── Editor section ────────────────────────────────────────────── */
-.editor-section {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  min-height: 0;
-  overflow: hidden;
-  gap: var(--usx-spacing-sm);
-}
-.editor-section__viewport {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-  background: var(--usx-color-background-alt, #111);
-  border-radius: var(--usx-radius-md, 6px);
-  outline: none;
-}
-.editor-section__viewport:focus {
-  outline: 2px solid var(--usx-color-primary);
-  outline-offset: -2px;
-}
-.editor-section__label {
-  font-size: var(--usx-font-size-sm);
-  font-weight: 600;
-  color: var(--usx-color-on-surface);
-  font-family: monospace;
-}
-.editor-section__label--overlay {
-  position: absolute;
-  top: var(--usx-spacing-xs);
-  left: var(--usx-spacing-sm);
-  opacity: 0.5;
-  pointer-events: none;
-}
-.editor-section__side {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 2px;
-  width: 180px;
-}
-.editor-section__tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  justify-content: center;
-}
-.editor-tool-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px; height: 28px; min-height: 0;
-  border: 1px solid var(--usx-color-border);
-  border-radius: 4px;
-  background: var(--usx-color-surface);
-  color: var(--usx-color-on-surface-muted);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 0;
-  box-sizing: border-box;
-}
-.editor-tool-btn:hover { background: var(--usx-color-surface-hover); border-color: var(--usx-color-primary); }
-.editor-tool-btn.active { background: var(--usx-color-primary); color: var(--usx-color-on-primary); border-color: var(--usx-color-primary); }
-
 .editor-section__colours {
   display: flex;
   flex-wrap: wrap;
@@ -1399,44 +1281,125 @@ function clearGrid() { activeCanvas?.clear() }
 .editor-colour-swatch.fg-active { border-color: var(--usx-color-primary); box-shadow: 0 0 0 2px var(--usx-color-primary); }
 .editor-colour-swatch.bg-active { border-color: var(--usx-color-warning); box-shadow: 0 0 0 2px var(--usx-color-warning); }
 
-.editor-section__actions { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
-.editor-action-btn {
-  font-size: 9px; font-family: monospace; font-weight: 600;
-  padding: 3px 4px; min-height: 0; height: auto;
-  border: 1px solid var(--usx-color-border);
-  border-radius: 3px;
-  background: var(--usx-color-surface);
-  color: var(--usx-color-on-surface-muted);
-  cursor: pointer;
-}
-.editor-action-btn:hover { color: var(--usx-color-primary); border-color: var(--usx-color-primary); background: var(--usx-color-surface-hover); }
-
-/* ─── Layer section ──────────────────────────────────────────────── */
-.layer-section {
-  flex: 0 0 auto;
+/* ─── Layer Editor (primary pane) ────────────────────────────────── */
+.layer-editor-primary {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 80px;
-  max-height: 45%;
+  min-height: 0;
   overflow: hidden;
-  transition: max-height 0.25s ease, min-height 0.25s ease;
 }
-.layer-section--collapsed { max-height: 32px; min-height: 32px; }
-.layer-section--collapsed .layer-section__viewport { display: none; }
-.layer-section__bar {
-  display: flex; align-items: center; gap: var(--usx-spacing-xs);
-  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  flex-shrink: 0; cursor: pointer; user-select: none;
+.layer-editor__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--usx-color-border);
+  background: var(--usx-color-surface);
+  min-height: 36px;
+  flex-wrap: nowrap;
 }
-.layer-section__bar:hover { background: var(--usx-color-surface-hover, rgba(128,128,128,0.05)); }
-.layer-section__toggle { font-size: 18px; color: var(--usx-color-on-surface-muted); }
-.layer-section__viewport {
-  flex: 1; display: flex; align-items: center; justify-content: center;
+.layer-editor__dims {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.layer-editor__input {
+  width: 42px;
+  height: 24px;
+  padding: 0 3px;
+  font-size: 12px;
+  font-family: monospace;
+  background: var(--usx-color-background-alt, #1a1a1a);
+  color: var(--usx-color-on-surface);
+  border: 1px solid var(--usx-color-border);
+  border-radius: 3px;
+  text-align: center;
+  line-height: 24px;
+}
+.layer-editor__sep {
+  font-size: 13px;
+  color: var(--usx-color-on-surface-muted);
+  font-weight: 600;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.layer-editor__tools {
+  display: flex;
+  gap: 3px;
+  padding: 0 6px;
+  border-left: 1px solid var(--usx-color-border);
+}
+.layer-editor__actions {
+  display: flex;
+  gap: 4px;
+}
+.layer-editor__palette {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  border-left: 1px solid var(--usx-color-border);
+}
+.layer-editor__info {
+  margin-left: auto;
+  font-size: var(--usx-font-size-sm);
+  font-family: monospace;
+  color: var(--usx-color-on-surface-muted);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+.layer-editor__viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: auto;
   background: var(--usx-color-background-alt, #111);
-  border-radius: var(--usx-radius-md, 6px);
-  padding: var(--usx-spacing-xs);
+  outline: none;
 }
+.layer-editor__viewport:focus {
+  outline: 2px solid var(--usx-color-primary);
+  outline-offset: -2px;
+}
+
+/* ─── Layer Colour Picker Popover ────────────────────────────────── */
+.layer-colour-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: repeat(3, 28px);
+  grid-template-rows: repeat(3, 28px);
+  gap: 6px;
+  padding: 8px;
+  width: fit-content;
+  background: var(--usx-color-surface);
+  border: 1px solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md, 8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+.layer-colour-popover__swatch {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--usx-color-border);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+  transition: transform 0.1s ease, border-color 0.1s ease;
+}
+.layer-colour-popover__swatch:hover { transform: scale(1.15); z-index: 1; }
+.layer-colour-popover__swatch.fg-active { border-color: var(--usx-color-primary); box-shadow: 0 0 0 2px var(--usx-color-primary); }
+.layer-colour-popover__swatch.bg-active { border-color: var(--usx-color-warning); box-shadow: 0 0 0 2px var(--usx-color-warning); }
+
 
 /* ─── Sidebar ───────────────────────────────────────────────────── */
 .editor-sidebar {
