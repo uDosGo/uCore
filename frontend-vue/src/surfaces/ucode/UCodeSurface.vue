@@ -210,7 +210,6 @@
               :style="{ background: c.hex }" :title="c.name"
               @click="selectedFg = i" @click.right.prevent="selectedBg = i"
             >
-              <span v-if="selectedFg === i" class="colour-marker fg">F</span>
               <span v-if="selectedBg === i" class="colour-marker bg">B</span>
             </button>
           </div>
