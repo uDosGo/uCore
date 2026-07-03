@@ -66,16 +66,24 @@
               <button class="pixel-toolbar__action-btn" title="Export pixel data" @click="exportPixelData">Export</button>
             </div>
             <div class="pixel-toolbar__palette">
-              <button
-                v-for="(c, i) in PALETTE" :key="i"
-                class="editor-colour-swatch editor-colour-swatch--toolbar"
-                :class="{ 'fg-active': pixelFg === i, 'bg-active': pixelBg === i }"
-                :style="{ background: c.hex }" :title="c.name + (pixelFg === i ? ' (FG)' : pixelBg === i ? ' (BG)' : '')"
-                @click="pixelFg = i" @click.right.prevent="pixelBg = i"
-              >
-                <span v-if="pixelFg === i" class="colour-marker fg">F</span>
-                <span v-if="pixelBg === i" class="colour-marker bg">B</span>
+              <button class="pixel-tool-btn" :class="{ active: showColorPopover }" title="Colour Picker" @click="showColorPopover = !showColorPopover" @blur="hideColorPopover">
+                <UIcon name="palette" />
               </button>
+              <!-- 4×2 colour grid popover -->
+              <div class="pixel-colour-popover" v-if="showColorPopover" @mousedown.prevent>
+                <button
+                  v-for="(c, i) in PALETTE" :key="i"
+                  class="pixel-colour-popover__swatch"
+                  :class="{ 'fg-active': pixelFg === i, 'bg-active': pixelBg === i }"
+                  :style="{ background: c.hex }"
+                  :title="c.name + (pixelFg === i ? ' FG' : pixelBg === i ? ' BG' : '') + ' | L-click FG · R-click BG'"
+                  @click="pixelFg = i"
+                  @click.right.prevent="pixelBg = i"
+                >
+                  <span v-if="pixelFg === i" class="colour-marker fg">F</span>
+                  <span v-if="pixelBg === i" class="colour-marker bg">B</span>
+                </button>
+              </div>
             </div>
           </div>
           <div class="pixel-canvas-wrapper" ref="pixelCanvasRef" tabindex="0" @keydown="onPixelKeydown">
@@ -311,6 +319,9 @@ const PIXEL_TOOLS = [
 ] as const
 
 const pixelTool = ref<'pencil' | 'erase' | 'fill'>('pencil')
+const showColorPopover = ref(false)
+
+function hideColorPopover() { setTimeout(() => { showColorPopover.value = false }, 200) }
 
 // Pixel Editor dimensions (editable by user from toolbar)
 const pixelW = ref(24)
@@ -1156,14 +1167,31 @@ function clearGrid() { activeCanvas?.clear() }
   align-items: center;
 }
 .pixel-toolbar__palette {
+  position: relative;
   display: flex;
-  gap: 3px;
-  padding-left: 8px;
-  margin-left: auto;
-  border-left: 1px solid var(--usx-color-border);
   align-items: center;
+  margin-left: auto;
+  padding-left: 8px;
+  border-left: 1px solid var(--usx-color-border);
 }
-.editor-colour-swatch--toolbar {
+
+/* ─── Colour Picker Popover ─────────────────────────────────────── */
+.pixel-colour-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: repeat(4, 28px);
+  gap: 3px;
+  padding: 6px;
+  background: var(--usx-color-surface);
+  border: 1px solid var(--usx-color-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  z-index: 100;
+}
+.pixel-colour-popover__swatch {
   width: 28px;
   height: 28px;
   border-radius: 4px;
@@ -1172,14 +1200,18 @@ function clearGrid() { activeCanvas?.clear() }
   position: relative;
   flex-shrink: 0;
 }
-.editor-colour-swatch--toolbar .colour-marker {
+.pixel-colour-popover__swatch:hover { border-color: var(--usx-color-on-surface-muted); }
+.pixel-colour-popover__swatch.fg-active { box-shadow: inset 0 0 0 2px #fff; }
+.pixel-colour-popover__swatch.bg-active { box-shadow: inset 0 0 0 2px #000; }
+.pixel-colour-popover__swatch .colour-marker {
   position: absolute;
-  font-size: 7px;
+  font-size: 9px;
   font-weight: 700;
   line-height: 1;
+  text-shadow: 0 0 2px rgba(0,0,0,0.8);
 }
-.editor-colour-swatch--toolbar .colour-marker.fg { top: 1px; left: 1px; }
-.editor-colour-swatch--toolbar .colour-marker.bg { bottom: 1px; right: 1px; }
+.pixel-colour-popover__swatch .colour-marker.fg { top: 1px; left: 2px; color: #fff; }
+.pixel-colour-popover__swatch .colour-marker.bg { bottom: 1px; right: 2px; color: #000; }
 .pixel-toolbar__tools {
   display: flex;
   gap: 3px;
