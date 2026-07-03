@@ -1362,17 +1362,15 @@ function clearGrid() { activeCanvas?.clear() }
 .layer-colour-popover__swatch {
   width: 36px;
   height: 36px;
-  border: 2px solid var(--usx-color-border);
   border-radius: 4px;
+  border: 1px solid var(--usx-color-border);
   cursor: pointer;
-  padding: 0;
-  box-sizing: border-box;
   position: relative;
-  transition: transform 0.1s ease, border-color 0.1s ease;
+  flex-shrink: 0;
 }
-.layer-colour-popover__swatch:hover { transform: scale(1.15); z-index: 1; }
-.layer-colour-popover__swatch.fg-active { border-color: var(--usx-color-primary); box-shadow: 0 0 0 2px var(--usx-color-primary); }
-.layer-colour-popover__swatch.bg-active { border-color: var(--usx-color-warning); box-shadow: 0 0 0 2px var(--usx-color-warning); }
+.layer-colour-popover__swatch:hover { border-color: var(--usx-color-on-surface-muted); }
+.layer-colour-popover__swatch.fg-active { box-shadow: inset 0 0 0 2px #fff; }
+.layer-colour-popover__swatch.bg-active { box-shadow: inset 0 0 0 2px #000; }
 .layer-colour-popover__swatch--empty {
   background-image: linear-gradient(45deg, #333 25%, transparent 25%),
                     linear-gradient(-45deg, #333 25%, transparent 25%),
@@ -1381,6 +1379,14 @@ function clearGrid() { activeCanvas?.clear() }
   background-size: 8px 8px;
   background-position: 0 0, 0 4px, 4px -4px, -4px 0;
 }
+.layer-colour-popover__swatch .colour-marker {
+  position: absolute;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 0 2px rgba(0,0,0,0.8);
+}
+.layer-colour-popover__swatch .colour-marker.bg { bottom: 1px; right: 2px; color: #000; }
 
 
 /* ─── Sidebar ───────────────────────────────────────────────────── */
