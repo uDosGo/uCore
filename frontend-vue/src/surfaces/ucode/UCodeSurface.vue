@@ -51,10 +51,8 @@
           <!-- Toolbar: dimensions, tools, actions, palette — inside same content div -->
           <div class="pixel-toolbar">
             <div class="pixel-toolbar__dims">
-              <label class="pixel-toolbar__label">W</label>
               <input class="pixel-toolbar__input" type="number" v-model.number="pixelW" min="4" max="128" @change="onPixelResize" />
               <span class="pixel-toolbar__sep">×</span>
-              <label class="pixel-toolbar__label">H</label>
               <input class="pixel-toolbar__input" type="number" v-model.number="pixelH" min="4" max="128" @change="onPixelResize" />
             </div>
             <div class="pixel-toolbar__tools">
