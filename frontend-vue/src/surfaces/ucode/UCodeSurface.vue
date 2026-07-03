@@ -48,7 +48,7 @@
     <div v-else-if="activeTab === 'pixel'" class="pixel-editor-layout">
       <div class="pixel-editor-body">
         <div class="pixel-editor-main">
-          <!-- Toolbar: dimensions, palette, tools, actions — inside same content div -->
+          <!-- Toolbar: dimensions, tools, actions, palette — inside same content div -->
           <div class="pixel-toolbar">
             <div class="pixel-toolbar__dims">
               <label class="pixel-toolbar__label">W</label>
@@ -56,6 +56,14 @@
               <span class="pixel-toolbar__sep">×</span>
               <label class="pixel-toolbar__label">H</label>
               <input class="pixel-toolbar__input" type="number" v-model.number="pixelH" min="4" max="128" @change="onPixelResize" />
+            </div>
+            <div class="pixel-toolbar__tools">
+              <button v-for="t in PIXEL_TOOLS" :key="t.id" class="pixel-tool-btn" :class="{ active: pixelTool === t.id }" :title="t.label" @click="pixelTool = t.id"><UIcon :name="t.icon" /></button>
+            </div>
+            <div class="pixel-toolbar__actions">
+              <button class="pixel-toolbar__action-btn" title="Clear all pixels" @click="clearPixelEditor">Clear</button>
+              <button class="pixel-toolbar__action-btn" title="Invert pixels" @click="invertPixelEditor">Invert</button>
+              <button class="pixel-toolbar__action-btn" title="Export pixel data" @click="exportPixelData">Export</button>
             </div>
             <div class="pixel-toolbar__palette">
               <button
@@ -68,14 +76,6 @@
                 <span v-if="pixelFg === i" class="colour-marker fg">F</span>
                 <span v-if="pixelBg === i" class="colour-marker bg">B</span>
               </button>
-            </div>
-            <div class="pixel-toolbar__tools">
-              <button v-for="t in PIXEL_TOOLS" :key="t.id" class="pixel-tool-btn" :class="{ active: pixelTool === t.id }" :title="t.label" @click="pixelTool = t.id"><UIcon :name="t.icon" /></button>
-            </div>
-            <div class="pixel-toolbar__actions">
-              <button class="pixel-toolbar__action-btn" title="Clear all pixels" @click="clearPixelEditor">Clear</button>
-              <button class="pixel-toolbar__action-btn" title="Invert pixels" @click="invertPixelEditor">Invert</button>
-              <button class="pixel-toolbar__action-btn" title="Export pixel data" @click="exportPixelData">Export</button>
             </div>
           </div>
           <div class="pixel-canvas-wrapper" ref="pixelCanvasRef" tabindex="0" @keydown="onPixelKeydown">
@@ -1128,7 +1128,10 @@ function clearGrid() { activeCanvas?.clear() }
   font-weight: 600;
   color: var(--usx-color-on-surface-muted);
   text-transform: uppercase;
-  line-height: 1;
+  line-height: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
 }
 .pixel-toolbar__input {
   width: 42px;
@@ -1147,19 +1150,23 @@ function clearGrid() { activeCanvas?.clear() }
   font-size: 13px;
   color: var(--usx-color-on-surface-muted);
   font-weight: 600;
-  line-height: 1;
+  line-height: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
 }
 .pixel-toolbar__palette {
   display: flex;
   gap: 3px;
-  padding: 0 6px;
+  padding-left: 8px;
+  margin-left: auto;
   border-left: 1px solid var(--usx-color-border);
   align-items: center;
 }
 .editor-colour-swatch--toolbar {
-  width: 24px;
-  height: 24px;
-  border-radius: 3px;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
   border: 1px solid var(--usx-color-border);
   cursor: pointer;
   position: relative;
