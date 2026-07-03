@@ -80,12 +80,19 @@
           </div>
           <div class="pixel-canvas-wrapper" ref="pixelCanvasRef" tabindex="0" @keydown="onPixelKeydown">
             <span class="editor-section__label editor-section__label--overlay">
-              Pixel Editor · {{ pixelW }}×{{ pixelH }} · {{ selectedChar || '?' }}
+              Pixel Editor · {{ pixelW }}×{{ pixelH }} · {{ selectedChar || '?' }} · {{ pixelFont === 'mode7gx3' ? 'Teletext' : 'Terminal' }}
             </span>
           </div>
         </div>
-        <!-- Sidebar: character library, preview, active glyph -->
+        <!-- Sidebar: font, character library, active glyph -->
         <aside class="editor-sidebar">
+          <div class="sidebar-section">
+            <h4 class="sidebar-title">Font</h4>
+            <div class="sidebar-font-btns">
+              <button class="sidebar-font-btn" :class="{ active: pixelFont === 'pressstart2p' }" @click="pixelFont = 'pressstart2p'">Terminal</button>
+              <button class="sidebar-font-btn" :class="{ active: pixelFont === 'mode7gx3' }" @click="pixelFont = 'mode7gx3'">Teletext</button>
+            </div>
+          </div>
           <div class="sidebar-section">
             <h4 class="sidebar-title">Active Glyph</h4>
             <div class="sidebar-char-row">
@@ -243,7 +250,10 @@ import { createGridUICanvas, type GridUICanvasElement } from '../../grid-core/gr
 import { createBuffer, writeString, fill, scroll as scrollBuffer, cloneBuffer, clear as clearBuffer, scaleBuffer } from '../../grid-core/index'
 import { PALETTE_DARK } from '../../grid-core/palette'
 import { GRID_PRESETS } from '../../grid-core/algebra'
+import { G0Renderer } from '../../grid-core/g0-renderer'
 import type { GridBuffer, GridCell } from '../../grid-core/types'
+
+const g0r = new G0Renderer()
 
 const shell = useShellStore()
 
@@ -322,13 +332,27 @@ const selectedCharCode = computed(() =>
     : ''
 )
 
-/** Characters shown in the Pixel sidebar character library (mode7gx3 set) */
+/** Characters shown in the Pixel sidebar character library — dynamic per font */
+const pixelFont = ref<'pressstart2p' | 'mode7gx3'>('mode7gx3')
+
 const pixelChars = computed(() => {
+    if (pixelFont.value === 'pressstart2p') {
+      const chars: string[] = []
+      for (let i = 0x21; i <= 0x7E; i++) chars.push(String.fromCharCode(i))
+      return chars
+    }
+    // mode7gx3: ASCII + G0 blocks
     const chars: string[] = []
     for (let i = 0x20; i <= 0x7E; i++) chars.push(String.fromCharCode(i))
     chars.push('█', '▄', '▀', '▐', '▌', '░', '▒', '▓', '│', '─', '║', '═')
     chars.push('╔', '╗', '╚', '╝', '╠', '╣', '╦', '╩', '╬')
     return chars
+})
+
+// Re-fill grid when font changes in Pixel tab
+watch(pixelFont, () => {
+  if (activeTab.value !== 'pixel') return
+  fillPixelGridWithChar()
 })
 
 /** Characters shown in the Grid sidebar font char set */
@@ -408,15 +432,41 @@ watch(editorFont, (font) => {
 })
 
 /* ─── Pixel Editor ─────────────────────────────────────────────────── */
+/** Solid block char used for "on" pixels — fills cell via G0 renderer */
+const PIXEL_ON = '█'
 let pixelBuffer: GridBuffer = createBuffer(24, 24)
 
+/** Render the selected character's glyph as a bitmap across the pixel grid.
+ *  Uses the G0 renderer to get a 12×10 binary bitmap, then nearest-neighbour
+ *  scales it to fill pixelW × pixelH cells. "On" pixels get █ + FG, "off" get space + BG. */
 function fillPixelGridWithChar() {
   const ch = selectedChar.value || ' '
   const w = pixelW.value
   const h = pixelH.value
+  const charCode = ch.charCodeAt(0)
+  const fg = pixelFg.value
+  const bg = pixelBg.value
+
+  // Get 12×10 glyph bitmap from G0 renderer (cached)
+  const bitmap = g0r.getBitmap(charCode)
+
+  // Nearest-neighbour scale 12×10 → pixelW × pixelH
+  // Scale factors: each source pixel maps to a block of (sw × sh) cells
+  const sw = Math.max(1, Math.round(w / 12))
+  const sh = Math.max(1, Math.round(h / 10))
+
   for (let r = 0; r < h; r++) {
+    const srcRow = Math.floor(r / sh)  // which source row does this belong to
+    const clampedRow = Math.min(srcRow, 9)  // clamp to 0-9
     for (let c = 0; c < w; c++) {
-      pixelBuffer[r][c] = { char: ch, fg: pixelFg.value, bg: pixelBg.value }
+      const srcCol = Math.floor(c / sw)
+      const clampedCol = Math.min(srcCol, 11)
+      const isFg = bitmap[clampedRow * 12 + clampedCol] === 1
+      if (isFg) {
+        pixelBuffer[r][c] = { char: PIXEL_ON, fg, bg: 0 }
+      } else {
+        pixelBuffer[r][c] = { char: ' ', fg: 0, bg }
+      }
     }
   }
   pixelCanvas?.setBuffer(cloneBuffer(pixelBuffer))
@@ -451,17 +501,23 @@ function onPixelResize() {
   initPixelEditor()
 }
 
+/** Toggle a single pixel cell on/off. On = █+FG, Off = space+BG. */
 function onPixelClick(e: CustomEvent) {
   const { col, row } = e.detail
   const w = pixelW.value
   const h = pixelH.value
   if (col < 0 || col >= w || row < 0 || row >= h) return
-  if (pixelTool.value === 'erase') {
-    pixelBuffer[row][col] = { char: ' ', fg: 0, bg: 0 }
+  const cell = pixelBuffer[row][col]
+  const isOn = cell.char === PIXEL_ON
+
+  if (pixelTool.value === 'erase' || (pixelTool.value === 'pencil' && isOn)) {
+    // Erase: set cell to off (BG only)
+    pixelBuffer[row][col] = { char: ' ', fg: 0, bg: pixelBg.value }
   } else if (pixelTool.value === 'fill') {
     floodFillPixel(col, row)
   } else {
-    pixelBuffer[row][col] = { char: selectedChar.value, fg: pixelFg.value, bg: pixelBg.value }
+    // Pencil: set cell to on (FG block)
+    pixelBuffer[row][col] = { char: PIXEL_ON, fg: pixelFg.value, bg: 0 }
   }
   pixelCanvas?.setBuffer(cloneBuffer(pixelBuffer))
 }
@@ -471,11 +527,10 @@ function floodFillPixel(startCol: number, startRow: number) {
   const h = pixelH.value
   const target = pixelBuffer[startRow]?.[startCol]
   if (!target) return
-  const targetChar = target.char
-  const newChar = selectedChar.value
-  const newFg = pixelFg.value
-  const newBg = pixelBg.value
-  if (targetChar === newChar && target.fg === newFg && target.bg === newBg) return
+  const targetIsOn = target.char === PIXEL_ON
+  const newChar = pixelTool.value === 'erase' ? ' ' : PIXEL_ON
+  const newFg = pixelTool.value === 'erase' ? 0 : pixelFg.value
+  if (target.char === newChar && target.fg === newFg) return
 
   const stack = [[startCol, startRow]]
   const visited = new Set<string>()
@@ -486,15 +541,25 @@ function floodFillPixel(startCol: number, startRow: number) {
     if (c < 0 || c >= w || r < 0 || r >= h) continue
     const cell = pixelBuffer[r]?.[c]
     if (!cell) continue
-    if (cell.char !== targetChar || cell.fg !== target.fg || cell.bg !== target.bg) continue
+    const cellIsOn = cell.char === PIXEL_ON
+    if (cellIsOn !== targetIsOn) continue
     visited.add(key)
-    pixelBuffer[r][c] = { char: newChar, fg: newFg, bg: newBg }
+    if (cellIsOn) {
+      pixelBuffer[r][c] = { char: newChar, fg: newFg, bg: 0 }
+    } else {
+      pixelBuffer[r][c] = { char: ' ', fg: 0, bg: pixelBg.value }
+    }
     stack.push([c - 1, r], [c + 1, r], [c, r - 1], [c, r + 1])
   }
+  pixelCanvas?.setBuffer(cloneBuffer(pixelBuffer))
 }
 
 function clearPixelEditor() {
-  pixelBuffer = createBuffer(pixelW.value, pixelH.value)
+  for (let r = 0; r < pixelH.value; r++) {
+    for (let c = 0; c < pixelW.value; c++) {
+      pixelBuffer[r][c] = { char: ' ', fg: 0, bg: 0 }
+    }
+  }
   pixelCanvas?.setBuffer(cloneBuffer(pixelBuffer))
 }
 
@@ -502,9 +567,15 @@ function invertPixelEditor() {
   for (let r = 0; r < pixelH.value; r++) {
     for (let c = 0; c < pixelW.value; c++) {
       const cell = pixelBuffer[r]?.[c]
-      if (cell) {
-        cell.fg = cell.fg === 0 ? 7 : 0
-        cell.bg = cell.bg === 0 ? 7 : 0
+      if (!cell) continue
+      if (cell.char === PIXEL_ON) {
+        cell.char = ' '
+        cell.fg = 0
+        cell.bg = pixelBg.value
+      } else {
+        cell.char = PIXEL_ON
+        cell.fg = pixelFg.value
+        cell.bg = 0
       }
     }
   }
