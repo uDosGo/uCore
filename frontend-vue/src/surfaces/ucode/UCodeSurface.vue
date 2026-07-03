@@ -69,7 +69,7 @@
               <button class="pixel-tool-btn" :class="{ active: showColorPopover }" title="Colour Picker" @click="showColorPopover = !showColorPopover" @blur="hideColorPopover">
                 <UIcon name="palette" />
               </button>
-              <!-- 4×2 colour grid popover -->
+              <!-- 3×3 colour grid popover -->
               <div class="pixel-colour-popover" v-if="showColorPopover" @mousedown.prevent>
                 <button
                   v-for="(c, i) in PALETTE" :key="i"
@@ -82,6 +82,16 @@
                 >
                   <span v-if="pixelFg === i" class="colour-marker fg">F</span>
                   <span v-if="pixelBg === i" class="colour-marker bg">B</span>
+                </button>
+                <!-- 9th cell: transparent/empty -->
+                <button
+                  class="pixel-colour-popover__swatch pixel-colour-popover__swatch--empty"
+                  :class="{ 'bg-active': pixelBg === -1 }"
+                  title="Transparent / Empty | L-click FG · R-click BG"
+                  @click="pixelFg = -1"
+                  @click.right.prevent="pixelBg = -1"
+                >
+                  <span v-if="pixelBg === -1" class="colour-marker bg">B</span>
                 </button>
               </div>
             </div>
@@ -515,9 +525,10 @@ function onPixelClick(e: CustomEvent) {
   if (col < 0 || col >= w || row < 0 || row >= h) return
   const cell = pixelBuffer[row][col]
   const isOn = cell.char !== ' '
+  const isTransparent = pixelFg.value === -1
 
-  if (pixelTool.value === 'erase' || (pixelTool.value === 'pencil' && isOn)) {
-    pixelBuffer[row][col] = { char: ' ', fg: 0, bg: pixelBg.value }
+  if (pixelTool.value === 'erase' || isTransparent || (pixelTool.value === 'pencil' && isOn)) {
+    pixelBuffer[row][col] = { char: ' ', fg: 0, bg: pixelBg.value < 0 ? 0 : pixelBg.value }
   } else if (pixelTool.value === 'fill') {
     floodFillPixel(col, row)
   } else {
@@ -1184,12 +1195,15 @@ function clearGrid() { activeCanvas?.clear() }
   margin-top: 6px;
   display: grid;
   grid-template-columns: repeat(3, 28px);
+  grid-template-rows: repeat(3, 28px);
   gap: 6px;
   padding: 8px;
+  width: fit-content;
   background: var(--usx-color-surface);
   border: 1px solid var(--usx-color-border);
   border-radius: 6px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  box-sizing: border-box;
   z-index: 100;
 }
 .pixel-colour-popover__swatch {
@@ -1204,6 +1218,14 @@ function clearGrid() { activeCanvas?.clear() }
 .pixel-colour-popover__swatch:hover { border-color: var(--usx-color-on-surface-muted); }
 .pixel-colour-popover__swatch.fg-active { box-shadow: inset 0 0 0 2px #fff; }
 .pixel-colour-popover__swatch.bg-active { box-shadow: inset 0 0 0 2px #000; }
+.pixel-colour-popover__swatch--empty {
+  background-image: linear-gradient(45deg, #333 25%, transparent 25%),
+                    linear-gradient(-45deg, #333 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #333 75%),
+                    linear-gradient(-45deg, transparent 75%, #333 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
 .pixel-colour-popover__swatch .colour-marker {
   position: absolute;
   font-size: 9px;
