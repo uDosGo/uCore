@@ -103,25 +103,34 @@ export class G0Renderer {
 
     const cellW = Math.round(cellSize * dpr)
     const cellH = Math.round(cellSize * dpr)
-    const gW = Math.round(RENDER_W * dpr)
-    const gH = Math.round(RENDER_H * dpr)
-    const offsetX = Math.round(Math.max(0, (cellW - gW) / 2))  // center if cell wider
-    const offsetY = Math.round(Math.max(0, (cellH - gH) / 2))  // center if cell taller
+
+    // Calculate per-pixel scale to fill the full cell
+    // Native glyph is 12×10; we scale to fill cellSize×cellSize
+    const bw = Math.round(cellW / GLYPH_W)
+    const totalW = bw * GLYPH_W
+    const offsetX = Math.round(Math.max(0, (cellW - totalW) / 2))
+
+    // Distribute remaining height evenly across rows for pixel-perfect fill
+    const baseH = Math.floor(cellH / GLYPH_H)
+    const extraPx = cellH - baseH * GLYPH_H
+    const rowHeights: number[] = []
+    for (let r = 0; r < GLYPH_H; r++) {
+      rowHeights.push(baseH + (r < extraPx ? 1 : 0))
+    }
 
     const px = Math.round(x * dpr) + offsetX
-    const py = Math.round(y * dpr) + offsetY
 
-    // Draw each pixel of the 12×10 bitmap at 2× NN scale
+    // Draw each pixel row by row, with distributed row heights to fill cell
+    let drawY = Math.round(y * dpr)
     for (let row = 0; row < GLYPH_H; row++) {
+      const bh = rowHeights[row]
       for (let col = 0; col < GLYPH_W; col++) {
         const isFg = bitmap[row * GLYPH_W + col] === 1
         ctx.fillStyle = isFg ? fg : bg
-        const bw = Math.round(RENDER_SCALE * dpr)
-        const bh = Math.round(RENDER_SCALE * dpr)
         const bx = px + col * bw
-        const by = py + row * bh
-        ctx.fillRect(bx, by, bw, bh)
+        ctx.fillRect(bx, drawY, bw, bh)
       }
+      drawY += bh
     }
   }
 
