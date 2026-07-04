@@ -27,6 +27,7 @@ def _discover():
                 spec = importlib.util.spec_from_file_location(f"skills_{f.stem}", f)
                 if spec and spec.loader:
                     mod = importlib.util.module_from_spec(spec)
+                    sys.modules[spec.name] = mod
                     spec.loader.exec_module(mod)
                     for _, obj in inspect.getmembers(mod):
                         if inspect.isclass(obj) and issubclass(obj, BaseSkill) and obj is not BaseSkill:

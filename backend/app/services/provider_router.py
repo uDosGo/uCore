@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -49,6 +50,17 @@ for _ep in _env_paths:
     _load_env_file(_ep)
 
 
+@dataclass
+class ProviderConfig:
+    """Configuration for a single LLM provider."""
+
+    name: str
+    type: str
+    base_url: str = ""
+    default_model: str = ""
+    priority: int = 1
+
+
 class ProviderRouter:
     """Multi-provider LLM router backed by LiteLLM."""
 
@@ -63,6 +75,7 @@ class ProviderRouter:
         if hasattr(self, "_initialized"):
             return
         self._initialized = True
+        self._load_config()
         self._litellm_available = False
         try:
             import litellm  # noqa: F401
@@ -70,6 +83,27 @@ class ProviderRouter:
             log.info("LiteLLM provider router ready")
         except ImportError:
             log.warning("LiteLLM not installed — falling back to HTTP calls")
+
+    def _load_config(self) -> None:
+        """Load provider configuration. Override in tests via monkeypatch."""
+        pass
+
+    def get_provider(self, name: str | None = None) -> ProviderConfig | None:
+        """Return a provider config by name, or default Ollama provider."""
+        if name and hasattr(self, "providers") and name in self.providers:
+            return self.providers[name]
+        return ProviderConfig(
+            name="ollama", type="ollama",
+            base_url="http://localhost:11434",
+            default_model="qwen2.5-coder:7b-instruct-q4_K_M",
+        )
+
+    async def _chat_ollama(
+        self, provider: ProviderConfig, messages: list[dict[str, str]],
+        model: str, timeout: int = 60,
+    ) -> dict[str, Any]:
+        """Legacy Ollama chat method for backward compat."""
+        return await self._chat_http(messages, model, provider.name)
 
     def list_providers(self) -> list[dict[str, Any]]:
         return [
@@ -97,10 +131,35 @@ class ProviderRouter:
     ) -> dict[str, Any]:
         """Send chat completion via LiteLLM or fallback HTTP."""
         model_name = model or self._default_model(provider)
+        provider_name = provider or "ollama"
 
-        if self._litellm_available:
-            return await self._chat_litellm(messages, model_name, **kwargs)
-        return await self._chat_http(messages, model_name, provider, **kwargs)
+        # Check cache if available
+        cache = getattr(self, "cache", None)
+        if cache is not None:
+            cached = cache.get(
+                provider=provider_name, model=model_name, messages=messages,
+            )
+            if cached is not None:
+                return cached
+
+        if provider_name == "ollama":
+            prov = self.get_provider("ollama")
+            result = await self._chat_ollama(prov, messages, model_name, 60)
+        elif self._litellm_available:
+            result = await self._chat_litellm(messages, model_name, **kwargs)
+        else:
+            result = await self._chat_http(
+                messages, model_name, provider_name, **kwargs,
+            )
+
+        # Store in cache if available
+        if cache is not None:
+            cache.set(
+                provider=provider_name, model=model_name,
+                messages=messages, response=result,
+            )
+
+        return result
 
     async def chat_stream(
         self,
