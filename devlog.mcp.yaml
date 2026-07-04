@@ -1,8 +1,19 @@
 # Devlog — uCore
 
-version: "2.1.0"
-updated: "2026-07-02T12:15:00Z"
-round: "sprint.2026-07-02 complete"
+version: "2.2.0"
+updated: "2026-07-04T13:42:00Z"
+round: "session.2026-07-04 PyCharm setup + Grid UI polish + handover"
+
+## Recent Changes (2026-07-04)
+
+### PyCharm Setup + Grid UI Polish + Docs Round
+- PyCharm (Girdui) IDE environment configured for uCore workspace
+- Grid colour popover: true 3x3 square grid, 36px cells, 1px border, inset shadow active states
+- Grid sidebar palette removed; colour popover is standalone component
+- Grid close-up editor pane removed; Layer with Pixel-style toolbar is primary editing surface
+- Version bumped to 4.0.4
+- Handover notes: .tasker/handover-pyrchard-2026-07-04.md
+- Modified: pyproject.toml, package.json, fieldnotes.md, devlog.mcp.yaml, wisdom.md, .tasker.dev-flow.yaml
 
 ## Recent Changes (2026-07-02)
 

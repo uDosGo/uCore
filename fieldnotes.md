@@ -3,6 +3,29 @@
 Real-time tests, observations, and archived code snippets for future
 development reference. Updated at the end of each dev flow round.
 
+## 2026-07-04 — PyCharm Setup + Grid UI Polish + Handover
+
+### Context
+- PyCharm (Girdui) IDE configured for uCore workspace
+- Grid UI refinements across 5 commits: colour popover unification, sidebar removal, Layer as primary editing surface
+- Session handover documentation prepared for next agent
+
+### What Changed
+- PyCharm project environment configured with all directories and venvs
+- Grid colour popover: true 3x3 square grid, 36px cells, 1px border, inset shadow active states
+- Grid sidebar palette removed; colour popover is standalone
+- Grid close-up editor pane removed; Layer with Pixel-style toolbar is primary surface
+- Handover notes written to `.tasker/handover-pyrchard-2026-07-04.md`
+- Version bumped to 4.0.4
+
+### Known Issues (carried forward)
+- 10 test failures: episodic_log (5), flow_router (3), chat_cache (1), snackbar (1)
+- Backend snackbar crash loop on launchd (event loop exit suspect)
+- 2 skill load warnings: dev_destroy_rebuild, hardcoded_path_detector
+- vault_sync and tasker_sync maintenance jobs failing
+
+---
+
 ## 2026-07-02 — Control Panel + Agentic Execution Pipeline Delivered
 
 ### Context
