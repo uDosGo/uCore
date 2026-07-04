@@ -18,10 +18,16 @@ development reference. Updated at the end of each dev flow round.
 - Handover notes written to `.tasker/handover-pyrchard-2026-07-04.md`
 - Version bumped to 4.0.4
 
+### Fixes Applied (2026-07-04)
+- skill_hardcoded_path_detector: missing `import logging` → fixed
+- skill_dev_destroy_rebuild: `importlib` loader missing `sys.modules` registration → fixed in registry.py
+- test_chat_cache: missing `ProviderConfig` + `_load_config` + `get_provider` + `_chat_ollama` + cache integration → all added to provider_router.py
+- test_flow_router (3 tests): missing `get_provider()` → added
+- All 27 tests pass (up from 17/27)
+- 54 skills load with 0 warnings (up from 53 with 2 warnings)
+
 ### Known Issues (carried forward)
-- 10 test failures: episodic_log (5), flow_router (3), chat_cache (1), snackbar (1)
-- Backend snackbar crash loop on launchd (event loop exit suspect)
-- 2 skill load warnings: dev_destroy_rebuild, hardcoded_path_detector
+- Backend snackbar crash loop on launchd — **currently healthy** on port 8484
 - vault_sync and tasker_sync maintenance jobs failing
 
 ---
