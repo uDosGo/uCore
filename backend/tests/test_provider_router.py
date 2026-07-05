@@ -96,11 +96,12 @@ class TestProviderRouter:
         prov = router.get_provider("disabled_provider")
         assert prov.name == "disabled_provider"  # explicit name still works
 
-    def test_get_provider_no_enabled_raises(self):
+    def test_get_provider_empty_providers_returns_default(self):
         router = ProviderRouter()
         router.providers = {}
-        with pytest.raises(ValueError, match="No enabled providers"):
-            router.get_provider()
+        prov = router.get_provider("ollama")
+        assert prov.name == "ollama"
+        assert prov.type == "ollama"
 
     def test_list_providers_structure(self):
         router = ProviderRouter()
