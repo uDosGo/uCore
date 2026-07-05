@@ -129,22 +129,9 @@ const currentTab = computed(() => activeTab.value)
 const loadingVars = ref(true)
 const loadingSecrets = ref(true)
 
-const sPages = [
-  { id: 'S100', title: 'Tool Builder', icon: 'build' },
-  { id: 'S101', title: 'Story Builder', icon: 'auto_stories' },
-  { id: 'S300', title: 'Workflow Builder', icon: 'account_tree' },
-  { id: 'S310', title: 'Clipboard Orchestration', icon: 'content_paste' },
-  { id: 'S320', title: 'Knowledge Tools', icon: 'psychology' },
-  { id: 'S330', title: 'Migration Dashboard', icon: 'migration' },
-  { id: 'S600', title: 'Learning Hub', icon: 'school' },
-]
+const sPages = ref<Array<{id: string; title: string; icon: string}>>([])
 
-const tools = [
-  { id: 'tool-builder', name: 'Tool Builder', icon: 'build', description: 'Create and edit system tools' },
-  { id: 'story-builder', name: 'Story Builder', icon: 'auto_stories', description: 'Build narrative content' },
-  { id: 'workflow-builder', name: 'Workflow Builder', icon: 'account_tree', description: 'Design automation workflows' },
-  { id: 'clipboard-ops', name: 'Clipboard Ops', icon: 'content_paste', description: 'Clipboard buffer management' },
-]
+const tools = ref<Array<{id: string; name: string; icon: string; description: string}>>([])
 
 interface ServiceItem { name: string; status: string; description: string }
 interface VariableItem { key: string; value: string; scope: string }
@@ -170,17 +157,45 @@ function loadSettings() {
   } catch {}
 }
 
-async function fetchSystemData() {
-  // Services — health checks
+async function fetchPages() {
   try {
-    const checks = [
-      (async () => ({ name: 'snackbar', status: await ping(8484) ? 'up' : 'down', description: 'Container orchestrator' }))(),
-      (async () => ({ name: 'hivemind', status: await ping(8490) ? 'up' : 'down', description: 'AI agent routing' }))(),
-      (async () => ({ name: 'vault-mcp', status: await ping(8765) ? 'up' : 'down', description: 'Vault MCP bridge' }))(),
-      (async () => ({ name: 'email-feed', status: 'down', description: 'Email processor (not running)' }))(),
-    ]
-    services.value = await Promise.all(checks)
+    const res = await fetch('/api/system/pages', { signal: AbortSignal.timeout(3000) })
+    if (res.ok) {
+      const data = await res.json()
+      sPages.value = data.pages || []
+    }
+  } catch { /* keep empty */ }
+}
+
+async function fetchTools() {
+  try {
+    const res = await fetch('/api/system/tools', { signal: AbortSignal.timeout(3000) })
+    if (res.ok) {
+      const data = await res.json()
+      tools.value = data.tools || []
+    }
+  } catch { /* keep empty */ }
+}
+
+async function fetchSystemData() {
+  // Services — use unified health endpoint
+  try {
+    const res = await fetch('/api/server/health', { signal: AbortSignal.timeout(3000) })
+    if (res.ok) {
+      const data = await res.json()
+      services.value = (data.services || []).map((s: any) => ({
+        name: s.name,
+        status: s.status,
+        description: s.description || '',
+      }))
+    }
   } catch {}
+
+  // Pages
+  fetchPages()
+
+  // Tools
+  fetchTools()
 
   // Variables
   loadingVars.value = true
@@ -212,13 +227,6 @@ async function fetchSystemData() {
 
   // Load persisted settings
   loadSettings()
-}
-
-async function ping(port: number): Promise<boolean> {
-  try {
-    const res = await fetch(`http://localhost:${port}/health`, { signal: AbortSignal.timeout(1500) })
-    return res.ok
-  } catch { return false }
 }
 
 onMounted(() => { fetchSystemData() })

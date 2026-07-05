@@ -70,15 +70,11 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/teletext/:pathMatch(.*)*',
-    name: 'teletext',
-    component: () => import('../surfaces/teletext/TeletextSurface.vue'),
-    meta: { title: 'Teletext', icon: 'tv' },
+    redirect: '/ucode?tab=teletext',
   },
   {
     path: '/terminal/:pathMatch(.*)*',
-    name: 'terminal',
-    component: () => import('../surfaces/terminal/TerminalSurface.vue'),
-    meta: { title: 'Terminal', icon: 'terminal' },
+    redirect: '/ucode?tab=terminal',
   },
   // Legacy redirects
   {

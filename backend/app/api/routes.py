@@ -287,24 +287,24 @@ def register_routes(app: web.Application) -> None:
     except ImportError as e:
         log.debug("Identity routes not available: %s", e)
 
-    # ── Surface extensions: Ceefax Teletext ─────────────────────────
+    # ── uCode Surface extensions: Ceefax Teletext ──────────────────
     try:
-        from ..surfaces.ceefax import CeefaxStore, register_ceefax_routes
+        from ..ucode.ceefax import CeefaxStore, register_ceefax_routes
         if not hasattr(app, "_ceefax_store"):
             app[CEEFAX_STORE_KEY] = CeefaxStore()
         register_ceefax_routes(app, app[CEEFAX_STORE_KEY])
-        log.debug("Ceefax Teletext surface registered")
+        log.debug("Ceefax Teletext (uCode) registered")
     except ImportError as e:
         log.debug("Ceefax not available: %s", e)
 
-    # ── Surface extensions: BBCSDL Bridge ──────────────────────────
+    # ── uCode Surface extensions: BBCSDL Bridge ────────────────────
     try:
-        from ..surfaces.bbcsdl import register_bbcsdl_routes
+        from ..ucode.bbcsdl import register_bbcsdl_routes
         if not hasattr(app, "_ceefax_store"):
-            from ..surfaces.ceefax import CeefaxStore
+            from ..ucode.ceefax import CeefaxStore
             app[CEEFAX_STORE_KEY] = CeefaxStore()
         register_bbcsdl_routes(app, app[CEEFAX_STORE_KEY])
-        log.debug("BBCSDL surface registered")
+        log.debug("BBCSDL (uCode) registered")
     except ImportError as e:
         log.debug("BBCSDL not available: %s", e)
 
@@ -317,6 +317,32 @@ def register_routes(app: web.Application) -> None:
         log.debug("Dashboard surface registered")
     except ImportError as e:
         log.debug("Dashboard not available: %s", e)
+
+    # ── Documentation Surface ────────────────────────────────────
+    try:
+        from ..surfaces.documentation_api import register_documentation_routes
+        register_documentation_routes(app)
+        log.debug("Documentation surface registered")
+    except ImportError as e:
+        log.debug("Documentation surface not available: %s", e)
+
+    # ── Server Surface ────────────────────────────────────────────
+    try:
+        from ..surfaces.server import ServerStore, register_server_routes
+        if not hasattr(app, "_server_store"):
+            app["_server_store"] = ServerStore()
+        register_server_routes(app, app["_server_store"])
+        log.debug("Server surface registered")
+    except ImportError as e:
+        log.debug("Server surface not available: %s", e)
+
+    # ── System Surface API ────────────────────────────────────────
+    try:
+        from ..surfaces.system_api import register_system_api_routes
+        register_system_api_routes(app)
+        log.debug("System surface API registered")
+    except ImportError as e:
+        log.debug("System surface API not available: %s", e)
 
     # ── Library Index (unified vault search) ────────────────────────
     try:

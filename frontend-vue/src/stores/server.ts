@@ -1,7 +1,7 @@
 /**
  * @module stores/server
- * @description Server operations state — services, logs, budget.
- * Ported from UServerSurface.tsx (React).
+ * @description Server operations state — services, logs, budget, models, agents.
+ * Wired to /api/server/* backend endpoints.
  */
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -24,6 +24,37 @@ export interface LogEntry {
   message: string
 }
 
+export interface ModelUsage {
+  id: string
+  name: string
+  pct: number
+  calls: number
+}
+
+export interface AgentInfo {
+  id: string
+  name: string
+  icon: string
+  active: boolean
+  description: string
+}
+
+export interface BudgetInfo {
+  remaining: number
+  used: number
+  limit: number
+  over_limit: boolean
+}
+
+export interface HealthInfo {
+  services: ServiceStatus[]
+  count: number
+  up: number
+  degraded: number
+  down: number
+  health_pct: number
+}
+
 export const SERVER_TABS: { id: ServerTab; label: string; icon: string }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
   { id: 'services', label: 'Services', icon: 'dns' },
@@ -35,31 +66,139 @@ export const SERVER_TABS: { id: ServerTab; label: string; icon: string }[] = [
 
 export const useServerStore = defineStore('server', () => {
   const activeTab = ref<ServerTab>('dashboard')
-  const services = ref<ServiceStatus[]>(DEFAULT_SERVICES)
-  const logs = ref<LogEntry[]>(DEFAULT_LOGS)
-  const budgetRemaining = ref<number | null>(42.50)
+  const services = ref<ServiceStatus[]>([])
+  const logs = ref<LogEntry[]>([])
+  const modelUsage = ref<ModelUsage[]>([])
+  const agents = ref<AgentInfo[]>([])
+  const budgetRemaining = ref<number | null>(null)
+  const budgetLimit = ref<number>(50.00)
+  const budgetUsed = ref<number>(0.00)
   const budgetOverLimit = ref(false)
+  const healthPct = ref(0)
+  const upCount = ref(0)
+  const degradedCount = ref(0)
+  const downCount = ref(0)
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
   function setTab(tab: ServerTab) {
     activeTab.value = tab
   }
 
-  return { activeTab, services, logs, budgetRemaining, budgetOverLimit, setTab }
+  async function fetchHealth(): Promise<void> {
+    try {
+      const res = await fetch('/api/server/health')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data: HealthInfo = await res.json()
+      services.value = data.services
+      upCount.value = data.up
+      degradedCount.value = data.degraded
+      downCount.value = data.down
+      healthPct.value = data.health_pct
+    } catch (e: any) {
+      console.warn('Server health fetch failed:', e.message)
+    }
+  }
+
+  async function fetchServices(): Promise<void> {
+    try {
+      const res = await fetch('/api/server/services')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      services.value = data.services || []
+    } catch (e: any) {
+      console.warn('Server services fetch failed:', e.message)
+    }
+  }
+
+  async function fetchLogs(limit = 20): Promise<void> {
+    try {
+      const res = await fetch(`/api/server/logs?limit=${limit}`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      logs.value = data.logs || []
+    } catch (e: any) {
+      console.warn('Server logs fetch failed:', e.message)
+    }
+  }
+
+  async function fetchModels(): Promise<void> {
+    try {
+      const res = await fetch('/api/server/models')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      modelUsage.value = data.models || []
+    } catch (e: any) {
+      console.warn('Server models fetch failed:', e.message)
+    }
+  }
+
+  async function fetchAgents(): Promise<void> {
+    try {
+      const res = await fetch('/api/server/agents')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      agents.value = data.agents || []
+    } catch (e: any) {
+      console.warn('Server agents fetch failed:', e.message)
+    }
+  }
+
+  async function fetchBudget(): Promise<void> {
+    try {
+      const res = await fetch('/api/server/budget')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data: BudgetInfo = await res.json()
+      budgetRemaining.value = data.remaining
+      budgetUsed.value = data.used
+      budgetLimit.value = data.limit
+      budgetOverLimit.value = data.over_limit
+    } catch (e: any) {
+      console.warn('Server budget fetch failed:', e.message)
+    }
+  }
+
+  async function fetchAll(): Promise<void> {
+    loading.value = true
+    error.value = null
+    try {
+      await Promise.all([
+        fetchHealth(),
+        fetchLogs(),
+        fetchModels(),
+        fetchAgents(),
+        fetchBudget(),
+      ])
+    } catch (e: any) {
+      error.value = e.message || 'Failed to load server data'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return {
+    activeTab,
+    services,
+    logs,
+    modelUsage,
+    agents,
+    budgetRemaining,
+    budgetLimit,
+    budgetUsed,
+    budgetOverLimit,
+    healthPct,
+    upCount,
+    degradedCount,
+    downCount,
+    loading,
+    error,
+    setTab,
+    fetchHealth,
+    fetchServices,
+    fetchLogs,
+    fetchModels,
+    fetchAgents,
+    fetchBudget,
+    fetchAll,
+  }
 })
-
-const DEFAULT_SERVICES: ServiceStatus[] = [
-  { name: 'snackbar', status: 'up', port: 8484, uptime: 99.9, type: 'system', description: 'Container orchestrator & workflow runner' },
-  { name: 'secret-server', status: 'up', port: 30001, uptime: 99.8, type: 'user', description: 'AES-256-GCM encrypted secret vault' },
-  { name: 'hivemind', status: 'up', port: 8485, uptime: 99.7, type: 'system', description: 'AI orchestration & agent routing' },
-  { name: 'feed-spool', status: 'up', port: 8486, uptime: 99.5, type: 'system', description: 'Feed spooler & transport' },
-  { name: 'vault-mcp', status: 'degraded', port: 0, uptime: 95.2, type: 'user', description: 'MCP server for Vault access' },
-  { name: 'email-feed', status: 'down', port: 0, uptime: 0, type: 'user', description: 'Email to feed processor' },
-]
-
-const DEFAULT_LOGS: LogEntry[] = [
-  { timestamp: '2026-06-28 18:15:22', service: 'snackbar', level: 'info', message: 'Workflow "vue-port-developer" completed successfully' },
-  { timestamp: '2026-06-28 18:14:00', service: 'hivemind', level: 'info', message: 'Agent "code-reviewer" dispatched to PR #142' },
-  { timestamp: '2026-06-28 18:10:30', service: 'email-feed', level: 'error', message: 'IMAP connection failed: invalid credentials' },
-  { timestamp: '2026-06-28 18:05:00', service: 'vault-mcp', level: 'info', message: 'MCP client connected: uCode Gateway' },
-  { timestamp: '2026-06-28 18:00:00', service: 'snackbar', level: 'warn', message: 'Budget threshold at 80% — review usage' },
-]

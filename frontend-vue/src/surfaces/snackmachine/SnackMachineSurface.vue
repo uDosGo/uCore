@@ -16,10 +16,10 @@
           <div v-if="sm.activeTab === 'snacks'">
             <div class="usx-flex-between usx-mb-md">
               <h3 class="surface__panel-title" style="margin:0">Snack Queue</h3>
-              <UButton variant="secondary" size="sm" icon="refresh" @click="fetchSnacks">Refresh</UButton>
+              <UButton variant="secondary" size="sm" icon="refresh" @click="sm.fetchSnacks">Refresh</UButton>
             </div>
-            <p v-if="loading" class="sm-status">Loading…</p>
-            <p v-else-if="error" class="sm-status sm-status--error">Error: {{ error }}</p>
+            <p v-if="sm.loading" class="sm-status">Loading…</p>
+            <p v-else-if="sm.error" class="sm-status sm-status--error">Error: {{ sm.error }}</p>
             <p v-else-if="sm.snacks.length === 0" class="sm-status">No snacks running.</p>
             <div v-else class="sm-snacks-list">
               <div v-for="snack in sm.snacks" :key="snack.id" class="surface__panel sm-snack-row">
@@ -39,7 +39,7 @@
               <UButton variant="primary" size="sm" icon="add">New Workflow</UButton>
             </div>
             <div class="sm-workflows-list">
-              <div v-for="wf in workflows" :key="wf.id" class="surface__panel">
+              <div v-for="wf in sm.workflows" :key="wf.id" class="surface__panel">
                 <div class="usx-flex-row">
                   <UIcon name="account_tree" />
                   <span style="font-weight:600;flex:1">{{ wf.name }}</span>
@@ -89,7 +89,7 @@
           <div v-else-if="sm.activeTab === 'variables'">
             <h3 class="surface__panel-title">Variables</h3>
             <div class="sm-vars-list">
-              <div v-for="v in variables" :key="v.key" class="sm-var-row">
+              <div v-for="v in sm.variables" :key="v.key" class="sm-var-row">
                 <code>{{ v.key }}</code>
                 <span>{{ v.value }}</span>
                 <UBadge type="info" size="sm">{{ v.scope }}</UBadge>
@@ -101,7 +101,7 @@
           <div v-else-if="sm.activeTab === 'scheduler'">
             <h3 class="surface__panel-title">Scheduler</h3>
             <div class="sm-schedule-list">
-              <div v-for="entry in schedule" :key="entry.id" class="sm-schedule-row">
+              <div v-for="entry in sm.schedule" :key="entry.id" class="sm-schedule-row">
                 <UIcon name="schedule" />
                 <span class="sm-schedule-name">{{ entry.workflow_name }}</span>
                 <code class="sm-schedule-cron">{{ entry.cron }}</code>
@@ -117,16 +117,16 @@
           <div class="surface__panel">
             <h4 class="surface__panel-title" style="margin-top:0">Backend Status</h4>
             <div class="usx-flex-row usx-gap-sm">
-              <UBadge :type="backendOk ? 'success' : 'error'" size="sm">
-                {{ backendOk ? 'connected' : 'disconnected' }}
+              <UBadge :type="sm.backendOk ? 'success' : 'error'" size="sm">
+                {{ sm.backendOk ? 'connected' : 'disconnected' }}
               </UBadge>
               <span style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color)">
-                {{ backendOk ? 'http://localhost:5175' : 'unreachable' }}
+                {{ sm.backendOk ? 'http://localhost:5175' : 'unreachable' }}
               </span>
             </div>
             <div class="usx-mt-sm">
-              <UButton variant="secondary" size="sm" icon="refresh" @click="fetchSnacks">
-                Refresh Snacks
+              <UButton variant="secondary" size="sm" icon="refresh" @click="sm.fetchAll">
+                Refresh All
               </UButton>
             </div>
           </div>
@@ -149,14 +149,12 @@
  * @component SnackMachineSurface
  * @description SnackMachine surface with tabbed navigation, snack queue, workflows,
  * MCP bridge, vault sync, variables, and scheduler.
- * Uses USX canonical .surface / SurfaceTabNav / .surface__content / column layout
- * matching the WorkflowSurface pattern.
- * Wired to backend http://localhost:5175/snackmachine
- *
+ * Uses USX canonical .surface / SurfaceTabNav / .surface__content / column layout.
+ * Data sourced from Pinia store (wired to backend endpoints).
  * @category surfaces
  * @usage Routed at '/snackmachine?tab=snacks'
  */
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import UBadge from '../../skills/atoms/UBadge.vue'
 import UButton from '../../skills/atoms/UButton.vue'
@@ -167,55 +165,7 @@ import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 const shell = useShellStore()
 const sm = useSnackMachineStore()
 
-const loading = ref(false)
-const error = ref('')
-const backendOk = ref(false)
-
-async function fetchSnacks() {
-  loading.value = true
-  error.value = ''
-  try {
-    const r = await fetch('http://localhost:5175/snackmachine')
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    backendOk.value = true
-    const data = await r.json()
-    const raw = (data as any)?.snacks ?? []
-    // Map backend snacks into store format
-    sm.snacks = raw.map((s: any, i: number) => ({
-      id: s.id ?? `backend-${i}`,
-      type: s.type ?? 'snack',
-      priority: s.priority ?? 'normal',
-      status: s.status ?? 'unknown',
-      source: s.source ?? 'backend',
-      timestamp: s.timestamp ?? new Date().toISOString(),
-    }))
-  } catch (e: any) {
-    backendOk.value = false
-    error.value = e.message ?? 'Unknown error'
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(fetchSnacks)
-
-const workflows = [
-  { id: 'wf1', name: 'Daily Docs Sync', description: 'Sync documentation to vault', schedule: '0 6 * * *', enabled: true, steps: [{ skill_id: 'vault_sync', params: {} }, { skill_id: 'git_commit', params: {} }] },
-  { id: 'wf2', name: 'Git Maintenance', description: 'Check and repair git state', schedule: '0 */12 * * *', enabled: true, steps: [{ skill_id: 'git_maintenance', params: {} }] },
-  { id: 'wf3', name: 'Brain Sync', description: 'Synthesize project changes', schedule: '0 0 * * 0', enabled: false, steps: [{ skill_id: 'brain_sync', params: {} }] },
-]
-
-const variables = [
-  { key: 'SNACKBAR_API', value: 'http://localhost:8484', scope: 'system' },
-  { key: 'UCORE_API', value: 'http://localhost:8000', scope: 'system' },
-  { key: 'VITE_DEV_MODE', value: 'true', scope: 'global' },
-]
-
-const schedule = [
-  { id: 's1', workflow_id: 'wf1', workflow_name: 'Daily Docs Sync', cron: '0 6 * * *', next_run: 'Tomorrow 06:00', enabled: true },
-  { id: 's2', workflow_id: 'wf2', workflow_name: 'Git Maintenance', cron: '0 */12 * * *', next_run: 'In 6 hours', enabled: true },
-  { id: 's3', workflow_id: 'wf3', workflow_name: 'Brain Sync', cron: '0 0 * * 0', next_run: 'In 2 days', enabled: false },
-]
+onMounted(() => { sm.fetchAll() })
 </script>
 
 <style scoped>
