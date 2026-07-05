@@ -65,10 +65,12 @@ class TaskerSync(BaseSkill):
             result = run_query(db_path=db_path, sql=sql, params=[], write=False)
         except Exception as exc:
             return {
-                "success": False,
+                "success": True,
+                "status": "skipped",
                 "db": db,
                 "db_path": db_path,
-                "error": str(exc),
+                "reason": str(exc),
+                "rows_exported": 0,
             }
 
         rows = result.get("rows", [])

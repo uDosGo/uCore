@@ -22,6 +22,10 @@ except ImportError:
     log.error("aiohttp required: pip install aiohttp")
     sys.exit(1)
 
+# AppKey instances (avoids NotAppKeyWarning)
+BUDGET_MANAGER_KEY = web.AppKey("budget_manager", object)
+MAINTENANCE_SCHEDULER_KEY = web.AppKey("maintenance_scheduler", object)
+
 
 # ─── Helpers ──────────────────────────────────────────────────────
 
@@ -418,7 +422,7 @@ async def maintenance_scheduler_ctx(app: web.Application):
 
     scheduler = MaintenanceScheduler()
     set_maintenance_scheduler(scheduler)
-    app["maintenance_scheduler"] = scheduler
+    app[MAINTENANCE_SCHEDULER_KEY] = scheduler
     await scheduler.start()
     try:
         yield
@@ -436,10 +440,10 @@ def create_app() -> web.Application:
     try:
         from app.services.budget_manager import BudgetManager
 
-        app["budget_manager"] = BudgetManager()
+        app[BUDGET_MANAGER_KEY] = BudgetManager()
         log.debug("Budget manager initialized")
     except Exception as e:
-        app["budget_manager"] = None
+        app[BUDGET_MANAGER_KEY] = None
         log.warning("Budget manager unavailable: %s", e)
 
     # Core routes (these are the canonical ones)

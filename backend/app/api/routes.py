@@ -5,6 +5,10 @@ import logging
 
 from aiohttp import web
 
+# AppKey instances (avoids NotAppKeyWarning)
+CEEFAX_STORE_KEY = web.AppKey("_ceefax_store", object)
+DASHBOARD_STORE_KEY = web.AppKey("_dashboard_store", object)
+
 log = logging.getLogger("ucore")
 
 
@@ -287,8 +291,8 @@ def register_routes(app: web.Application) -> None:
     try:
         from ..surfaces.ceefax import CeefaxStore, register_ceefax_routes
         if not hasattr(app, "_ceefax_store"):
-            app["_ceefax_store"] = CeefaxStore()
-        register_ceefax_routes(app, app["_ceefax_store"])
+            app[CEEFAX_STORE_KEY] = CeefaxStore()
+        register_ceefax_routes(app, app[CEEFAX_STORE_KEY])
         log.debug("Ceefax Teletext surface registered")
     except ImportError as e:
         log.debug("Ceefax not available: %s", e)
@@ -298,8 +302,8 @@ def register_routes(app: web.Application) -> None:
         from ..surfaces.bbcsdl import register_bbcsdl_routes
         if not hasattr(app, "_ceefax_store"):
             from ..surfaces.ceefax import CeefaxStore
-            app["_ceefax_store"] = CeefaxStore()
-        register_bbcsdl_routes(app, app["_ceefax_store"])
+            app[CEEFAX_STORE_KEY] = CeefaxStore()
+        register_bbcsdl_routes(app, app[CEEFAX_STORE_KEY])
         log.debug("BBCSDL surface registered")
     except ImportError as e:
         log.debug("BBCSDL not available: %s", e)
@@ -308,8 +312,8 @@ def register_routes(app: web.Application) -> None:
     try:
         from ..surfaces.dashboard import DashboardStore, register_dashboard_routes
         if not hasattr(app, "_dashboard_store"):
-            app["_dashboard_store"] = DashboardStore()
-        register_dashboard_routes(app, app["_dashboard_store"])
+            app[DASHBOARD_STORE_KEY] = DashboardStore()
+        register_dashboard_routes(app, app[DASHBOARD_STORE_KEY])
         log.debug("Dashboard surface registered")
     except ImportError as e:
         log.debug("Dashboard not available: %s", e)
