@@ -1,0 +1,44 @@
+{
+  "name": "Groovebox",
+  "folders": [
+    { "name": "Groovebox", "path": "." }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.DS_Store": true,
+      "**/.local": true,
+      "**/.compost": true,
+      "**/.venv": true,
+      "**/venv": true,
+      "**/node_modules": true,
+      "**/__pycache__": true,
+      "**/.git": true,
+      "**/.pytest_cache": true,
+      "**/dist": true,
+      "**/.turbo": true
+    },
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "files.associations": {
+      "*.surface.yaml": "yaml",
+      "*.tsx": "typescriptreact"
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "yzhang.markdown-all-in-one",
+      "dbaeumer.vscode-eslint",
+      "dsznajder.es7-react-js-snippets",
+      "chrisbracket.bootstrap-indentation"
+    ]
+  }
+}
