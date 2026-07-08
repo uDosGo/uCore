@@ -407,6 +407,29 @@ async def execute_skill_handler(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
+# ─── Unified Health & Repair ─────────────────────────────────────
+
+
+async def full_health_handler(request: web.Request) -> web.Response:
+    """GET /api/health/full — unified system health report."""
+    try:
+        from app.services.system_health import get_full_health
+        report = await get_full_health()
+        return web.json_response(report)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+async def system_repair_handler(request: web.Request) -> web.Response:
+    """POST /api/system/repair — attempt automatic system repair."""
+    try:
+        from app.services.system_health import run_self_repair
+        report = await run_self_repair()
+        return web.json_response(report)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 # ─── App factory ──────────────────────────────────────────────────
 
 
@@ -474,6 +497,10 @@ def create_app() -> web.Application:
     app.router.add_get("/api/diagnostics/ports", ports_handler)
     app.router.add_get("/api/skills", skills_handler)
     app.router.add_post("/api/skills/{skill_name}", execute_skill_handler)
+
+    # Unified health and repair endpoints
+    app.router.add_get("/api/health/full", full_health_handler)
+    app.router.add_post("/api/system/repair", system_repair_handler)
 
     # Run database migration on startup
     from app.core.database import migrate_db
