@@ -1,0 +1,35 @@
+/* ═══════════════════════════════════════════════════════════════════
+   tokens-typography.css — USX Typography Tokens
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ===== Font Families ===== */
+  --usx-font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --usx-font-family-mono: 'SF Mono', 'Fira Code', monospace;
+
+  /* ===== Font Sizes ===== */
+  --usx-font-size-xs: 0.75rem;
+  --usx-font-size-sm: 0.875rem;
+  --usx-font-size-base: 1rem;
+  --usx-font-size-lg: 1.125rem;
+  --usx-font-size-xl: 1.25rem;
+  --usx-font-size-2xl: 1.5rem;
+  --usx-font-size-3xl: 2rem;
+
+  /* ===== Font Weights ===== */
+  --usx-font-weight-normal: 400;
+  --usx-font-weight-medium: 500;
+  --usx-font-weight-semibold: 600;
+  --usx-font-weight-bold: 700;
+
+  /* ===== Line Heights ===== */
+  --usx-line-height-none: 1;
+  --usx-line-height-tight: 1.25;
+  --usx-line-height-normal: 1.5;
+  --usx-line-height-relaxed: 1.75;
+
+  /* ===== Letter Spacing ===== */
+  --usx-letter-spacing-tight: -0.02em;
+  --usx-letter-spacing-normal: 0;
+  --usx-letter-spacing-wide: 0.05em;
+}

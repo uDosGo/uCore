@@ -1,0 +1,240 @@
+/* ═══════════════════════════════════════════════════════════════════
+   media-player.css — HomeNest Media Player Bar
+   ═══════════════════════════════════════════════════════════════════
+   Now-playing bar, transport controls, volume slider, seek bar.
+   Optimised for 10-foot controller-first interaction.
+
+   Import AFTER console-grid.css.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Now-Playing Bar (fixed bottom) ────────────────────────────── */
+.hn-now-playing {
+  height: 96px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--usx-spacing-lg);
+  background: var(--usx-color-surface);
+  border-top: var(--usx-border-width) solid var(--usx-color-border);
+  gap: var(--usx-spacing-lg);
+  z-index: 50;
+}
+
+.hn-now-playing__artwork {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--usx-radius-md);
+  background: var(--usx-color-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: var(--usx-color-on-surface-muted);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.hn-now-playing__info {
+  flex-shrink: 0;
+  min-width: 0;
+  max-width: 300px;
+}
+
+.hn-now-playing__title {
+  font-size: var(--usx-font-size-base);
+  font-weight: var(--usx-font-weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hn-now-playing__artist {
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Transport Controls ────────────────────────────────────────── */
+.hn-transport {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  flex-shrink: 0;
+}
+
+.hn-transport__btn {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--usx-color-on-surface);
+  cursor: pointer;
+  border-radius: var(--usx-radius-full);
+  font-size: 28px;
+  transition: all var(--usx-transition-fast);
+  min-height: unset;
+}
+
+.hn-transport__btn:hover,
+.hn-transport__btn--focused {
+  background: var(--usx-color-surface-variant);
+  color: var(--usx-color-primary);
+}
+
+.hn-transport__btn--play {
+  width: 72px;
+  height: 72px;
+  background: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
+}
+
+.hn-transport__btn--play:hover,
+.hn-transport__btn--play.hn-transport__btn--focused {
+  background: var(--usx-color-primary-hover);
+  color: var(--usx-color-on-primary);
+}
+
+/* ─── Seek Bar ──────────────────────────────────────────────────── */
+.hn-seek {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.hn-seek__bar {
+  position: relative;
+  height: 8px;
+  background: var(--usx-color-border);
+  border-radius: var(--usx-radius-full);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.hn-seek__bar:hover {
+  height: 12px;
+}
+
+.hn-seek__progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--usx-color-primary);
+  border-radius: var(--usx-radius-full);
+  transition: width 0.3s linear;
+}
+
+.hn-seek__time {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Volume Control ────────────────────────────────────────────── */
+.hn-volume {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  flex-shrink: 0;
+}
+
+.hn-volume__btn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--usx-color-on-surface-muted);
+  cursor: pointer;
+  border-radius: var(--usx-radius-full);
+  font-size: 24px;
+  transition: color var(--usx-transition-fast);
+  min-height: unset;
+}
+
+.hn-volume__btn:hover {
+  color: var(--usx-color-on-surface);
+}
+
+.hn-volume__slider {
+  width: 120px;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--usx-color-border);
+  border-radius: var(--usx-radius-full);
+  outline: none;
+  cursor: pointer;
+}
+
+.hn-volume__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--usx-color-primary);
+  cursor: pointer;
+  border: 2px solid var(--usx-color-surface);
+}
+
+/* ─── Collapsed (when nothing is playing) ───────────────────────── */
+.hn-now-playing--idle {
+  opacity: 0.5;
+}
+
+.hn-now-playing--idle .hn-transport__btn {
+  cursor: default;
+  color: var(--usx-color-on-surface-muted);
+}
+
+/* ─── Full-screen overlay player ────────────────────────────────── */
+.hn-player-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.hn-player-overlay__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hn-player-overlay__controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  padding: var(--usx-spacing-xl) var(--usx-spacing-lg) var(--usx-spacing-lg);
+  opacity: 0;
+  transition: opacity var(--usx-transition-base);
+}
+
+.hn-player-overlay:hover .hn-player-overlay__controls,
+.hn-player-overlay__controls--visible {
+  opacity: 1;
+}
+
+.hn-player-overlay__title {
+  font-size: var(--usx-font-size-2xl);
+  font-weight: var(--usx-font-weight-bold);
+  color: #fff;
+  margin-bottom: var(--usx-spacing-md);
+}

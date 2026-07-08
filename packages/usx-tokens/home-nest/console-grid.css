@@ -1,0 +1,240 @@
+/* ═══════════════════════════════════════════════════════════════════
+   console-grid.css — HomeNest 10-Foot Console Grid System
+   ═══════════════════════════════════════════════════════════════════
+   Overrides USX tokens for big-screen TV (1920x1080, 4K).
+   12-column grid optimised for 10-foot viewing distance.
+
+   Import AFTER tokens and usx-standard.css to override defaults.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── Typography (scaled for 10-foot) ─────────────────────────── */
+  --usx-font-size-xs: 0.875rem;    /* 14px */
+  --usx-font-size-sm: 1rem;        /* 16px */
+  --usx-font-size-base: 1.25rem;   /* 20px */
+  --usx-font-size-lg: 1.5rem;      /* 24px */
+  --usx-font-size-xl: 1.75rem;     /* 28px */
+  --usx-font-size-2xl: 2.25rem;    /* 36px */
+  --usx-font-size-3xl: 3rem;       /* 48px */
+
+  /* ─── Touch Targets (bigger for controller/gamepad) ───────────── */
+  --usx-touch-min: 64px;
+  --usx-touch-min-sm: 48px;
+
+  /* ─── Topbar (taller for living-room TV) ──────────────────────── */
+  --usx-topbar-height: 72px;
+
+  /* ─── Grid (12-column poster wall) ────────────────────────────── */
+  --usx-grid-min-col-width: 220px;
+  --usx-grid-gap: 24px;
+  --usx-grid-gap-sm: 16px;
+  --usx-grid-gap-lg: 32px;
+
+  /* ─── Max Width (wider for TV) ────────────────────────────────── */
+  --usx-max-width: 1800px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   HomeNest Console Grid (12-column TV-optimised)
+   ───────────────────────────────────────────────────────────────────── */
+
+.hn-console {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--usx-color-background);
+}
+
+.hn-console__viewport {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--usx-spacing-xl);
+}
+
+/* ─── Launcher Tiles (4-column big-buttons) ─────────────────────── */
+.hn-launcher {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--usx-grid-gap);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--usx-spacing-2xl) 0;
+}
+
+.hn-launcher__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-spacing-xl);
+  min-height: 200px;
+  background: var(--usx-color-surface-variant);
+  border: var(--usx-border-width-thick) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-xl);
+  cursor: pointer;
+  transition: all var(--usx-transition-base);
+  text-decoration: none;
+  color: var(--usx-color-on-surface);
+}
+
+.hn-launcher__tile:hover,
+.hn-launcher__tile:focus-visible,
+.hn-launcher__tile--focused {
+  border-color: var(--usx-color-primary);
+  background: var(--usx-color-surface-hover);
+  transform: scale(1.02);
+  box-shadow: 0 0 24px rgba(77, 148, 255, 0.15);
+}
+
+.hn-launcher__tile-icon {
+  font-size: 48px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--usx-color-primary);
+}
+
+.hn-launcher__tile-label {
+  font-size: var(--usx-font-size-xl);
+  font-weight: var(--usx-font-weight-semibold);
+  text-align: center;
+}
+
+/* ─── Poster Wall (media grid — 6-column on TV) ─────────────────── */
+.hn-poster-wall {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--usx-grid-gap);
+  width: 100%;
+}
+
+.hn-poster-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--usx-radius-lg);
+  overflow: hidden;
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  transition: all var(--usx-transition-base);
+  cursor: pointer;
+}
+
+.hn-poster-card:hover,
+.hn-poster-card--focused {
+  border-color: var(--usx-color-primary);
+  transform: scale(1.03);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.hn-poster-card__image {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: var(--usx-color-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: var(--usx-color-on-surface-muted);
+}
+
+.hn-poster-card__meta {
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+}
+
+.hn-poster-card__title {
+  font-size: var(--usx-font-size-base);
+  font-weight: var(--usx-font-weight-semibold);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hn-poster-card__subtitle {
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
+  margin: 2px 0 0;
+}
+
+/* ─── TV Guide Grid ─────────────────────────────────────────────── */
+.hn-tv-guide {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  width: 100%;
+  height: 100%;
+}
+
+.hn-tv-guide__timebar {
+  display: flex;
+  overflow-x: auto;
+  background: var(--usx-color-surface);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
+  padding: var(--usx-spacing-sm) 0;
+}
+
+.hn-tv-guide__channels {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.hn-tv-guide__channel-row {
+  display: flex;
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border-light);
+  min-height: 64px;
+}
+
+.hn-tv-guide__channel-name {
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  background: var(--usx-color-surface);
+  border-right: var(--usx-border-width) solid var(--usx-color-border);
+  font-weight: var(--usx-font-weight-semibold);
+}
+
+.hn-tv-guide__program {
+  flex-shrink: 0;
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border-right: var(--usx-border-width) solid var(--usx-color-border-light);
+  cursor: pointer;
+  overflow: hidden;
+  transition: background var(--usx-transition-fast);
+}
+
+.hn-tv-guide__program:hover,
+.hn-tv-guide__program--focused {
+  background: var(--usx-color-primary-disabled);
+}
+
+.hn-tv-guide__program-title {
+  font-weight: var(--usx-font-weight-semibold);
+  font-size: var(--usx-font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hn-tv-guide__program-time {
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
+}
+
+/* ─── Responsive: fewer columns on smaller screens ──────────────── */
+@media (max-width: 1024px) {
+  .hn-launcher { grid-template-columns: repeat(2, 1fr); }
+  .hn-poster-wall { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .hn-launcher { grid-template-columns: 1fr; }
+  .hn-poster-wall { grid-template-columns: repeat(2, 1fr); }
+}

@@ -1,0 +1,17 @@
+/* ═══════════════════════════════════════════════════════════════════
+   tokens-spacing.css — USX Spacing Tokens
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --usx-spacing-xs: 4px;
+  --usx-spacing-sm: 8px;
+  --usx-spacing-md: 16px;
+  --usx-spacing-lg: 24px;
+  --usx-spacing-xl: 32px;
+  --usx-spacing-2xl: 48px;
+
+  /* Additional granular spacing */
+  --usx-spacing-1: 2px;
+  --usx-spacing-2: 4px;
+  --usx-spacing-3: 8px;
+}

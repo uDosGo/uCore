@@ -1,0 +1,79 @@
+/* ═══════════════════════════════════════════════════════════════════
+   teletext.css — USX Teletext Theme
+   ═══════════════════════════════════════════════════════════════════
+   BBC Ceefax-inspired: black background, high-contrast green/cyan/yellow text.
+   Applied via :root.teletext or [data-theme="teletext"]
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root.teletext,
+[data-theme="teletext"] {
+  /* ===== COLORS ===== */
+  --usx-color-background: #000000;
+  --usx-color-background-alt: #000000;
+
+  --usx-color-surface: #000000;
+  --usx-color-surface-hover: #0a0a0a;
+  --usx-color-surface-active: #1a1a1a;
+  --usx-color-surface-variant: #080808;
+
+  --usx-color-on-surface: #00ff00;
+  --usx-color-on-surface-muted: #00cc00;
+
+  --usx-color-border: #00ff00;
+  --usx-color-border-light: #00cc00;
+  --usx-color-border-dark: #009900;
+
+  --usx-color-primary: #ffff00;
+  --usx-color-primary-hover: #ffff44;
+  --usx-color-primary-active: #cccc00;
+  --usx-color-on-primary: #000000;
+
+  --usx-color-secondary: #00ffff;
+  --usx-color-secondary-hover: #44ffff;
+  --usx-color-on-secondary: #000000;
+
+  --usx-color-success: #00ff00;
+  --usx-color-success-hover: #44ff44;
+  --usx-color-on-success: #000000;
+
+  --usx-color-warning: #ffff00;
+  --usx-color-warning-hover: #ffff44;
+  --usx-color-on-warning: #000000;
+
+  --usx-color-danger: #ff0000;
+  --usx-color-danger-hover: #ff4444;
+  --usx-color-on-danger: #000000;
+
+  --usx-color-info: #00ffff;
+  --usx-color-info-hover: #44ffff;
+  --usx-color-on-info: #000000;
+
+  --usx-color-accent: #ff00ff;
+  --usx-color-accent-hover: #ff44ff;
+  --usx-color-on-accent: #000000;
+
+  /* ===== TYPOGRAPHY ===== */
+  --usx-font-family-sans: 'Courier New', monospace;
+  --usx-font-family-mono: 'Courier New', monospace;
+  --usx-font-family-serif: 'Courier New', monospace;
+
+  /* ===== RADIUS — sharp corners ===== */
+  --usx-radius-sm: 0;
+  --usx-radius-md: 0;
+  --usx-radius-lg: 0;
+  --usx-radius-xl: 0;
+  --usx-radius-2xl: 0;
+  --usx-radius-full: 0;
+
+  /* ===== BORDERS — thick ===== */
+  --usx-border-width: 2px;
+  --usx-border-width-thick: 4px;
+
+  color-scheme: dark;
+}
+
+:root.teletext *,
+[data-theme="teletext"] * {
+  text-shadow: none;
+  box-shadow: none;
+}

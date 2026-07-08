@@ -1,0 +1,11 @@
+/* ═══════════════════════════════════════════════════════════════════
+   light.css — USX Light Theme (default)
+   ═══════════════════════════════════════════════════════════════════
+   The light theme is the base in tokens-color.css.
+   This file exists as an explicit theme import for completeness.
+   Import this to explicitly stay in light mode regardless of OS pref.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* All values are the defaults from tokens/tokens-color.css.
+   This file is a no-op placeholder — tokens-color.css already
+   sets :root (light theme). Import this after dark.css to force light. */

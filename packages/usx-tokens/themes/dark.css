@@ -1,0 +1,39 @@
+/* ═══════════════════════════════════════════════════════════════════
+   dark.css — USX Dark Theme
+   ═══════════════════════════════════════════════════════════════════
+   Import after tokens-color.css to override light defaults.
+   Works with PicoCSS dark mode natively.
+   ═══════════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"],
+:root.dark,
+.dark {
+  /* ===== SURFACE ===== */
+  --usx-color-surface: #1e1e1e;
+  --usx-color-surface-hover: #2a2a2a;
+  --usx-color-surface-active: #333333;
+  --usx-color-surface-disabled: #2a2a2a;
+  --usx-color-surface-variant: #252525;
+  --usx-color-on-surface: #e0e0e0;
+  --usx-color-on-surface-muted: #999999;
+
+  /* ===== BACKGROUND ===== */
+  --usx-color-background: #121212;
+  --usx-color-background-alt: #1a1a1a;
+
+  /* ===== BORDER ===== */
+  --usx-color-border: #333333;
+  --usx-color-border-light: #2a2a2a;
+  --usx-color-border-dark: #444444;
+
+  /* ===== PRIMARY (slightly brighter for dark) ===== */
+  --usx-color-primary: #4d94ff;
+
+  /* ===== PICO CSS Overrides ===== */
+  --pico-color: var(--usx-color-on-surface);
+  --pico-muted-color: var(--usx-color-on-surface-muted);
+  --pico-background-color: var(--usx-color-background);
+  --pico-card-background-color: var(--usx-color-surface);
+  --pico-muted-background-color: var(--usx-color-surface-variant);
+  --pico-border-color: var(--usx-color-border);
+}

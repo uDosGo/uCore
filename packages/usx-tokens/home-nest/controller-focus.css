@@ -1,0 +1,169 @@
+/* ═══════════════════════════════════════════════════════════════════
+   controller-focus.css — HomeNest Controller-First Focus System
+   ═══════════════════════════════════════════════════════════════════
+   Provides dpad/gamepad focus ring styles for 10-foot console navigation.
+   Uses a CSS-based focus system that mirrors game console UI patterns.
+
+   Import AFTER usx-standard.css and console-grid.css.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Focus Ring (the "selected" highlight for controller nav) ──── */
+.hn-focus-ring {
+  outline: var(--usx-border-width-thick) solid var(--usx-color-primary) !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 4px var(--usx-color-primary-disabled) !important;
+  border-radius: var(--usx-radius-md);
+  transition: outline-color var(--usx-transition-fast), box-shadow var(--usx-transition-fast);
+}
+
+/* ─── Active (A button pressed) ─────────────────────────────────── */
+.hn-active-press {
+  transform: scale(0.95) !important;
+  transition: transform 0.1s ease !important;
+}
+
+/* ─── Focusable items (anything that can receive dpad focus) ────── */
+[data-focusable] {
+  cursor: pointer;
+  transition: outline var(--usx-transition-fast), transform var(--usx-transition-fast);
+}
+
+[data-focusable]:focus-visible {
+  outline: var(--usx-border-width-thick) solid var(--usx-color-primary);
+  outline-offset: 4px;
+  border-radius: var(--usx-radius-md);
+}
+
+/* ─── Focus groups (dpad navigable regions) ─────────────────────── */
+[data-focus-group] {
+  display: grid;
+  gap: var(--usx-grid-gap-sm);
+}
+
+/* ─── B-button back indicator ───────────────────────────────────── */
+.hn-back-indicator {
+  position: fixed;
+  bottom: var(--usx-spacing-lg);
+  left: var(--usx-spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-lg);
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
+  opacity: 0;
+  transition: opacity var(--usx-transition-slow);
+  pointer-events: none;
+  z-index: 200;
+}
+
+.hn-back-indicator--visible {
+  opacity: 0.8;
+}
+
+.hn-back-indicator__key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--usx-color-surface-variant);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-sm);
+  font-weight: var(--usx-font-weight-bold);
+  font-family: var(--usx-font-family-sans);
+  color: var(--usx-color-danger);
+}
+
+/* ─── Gamepad button hints (A, B, X, Y overlays) ────────────────── */
+.hn-button-hints {
+  position: fixed;
+  bottom: var(--usx-spacing-lg);
+  right: var(--usx-spacing-lg);
+  display: flex;
+  gap: var(--usx-spacing-md);
+  z-index: 200;
+  pointer-events: none;
+}
+
+.hn-button-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.6;
+  transition: opacity var(--usx-transition-fast);
+}
+
+.hn-button-hint--active {
+  opacity: 1;
+}
+
+.hn-button-hint__key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--usx-radius-full);
+  font-weight: var(--usx-font-weight-bold);
+  font-size: var(--usx-font-size-xs);
+  border: var(--usx-border-width) solid;
+}
+
+.hn-button-hint__key--a {
+  background: #22c55e22;
+  border-color: var(--usx-color-success);
+  color: var(--usx-color-success);
+}
+
+.hn-button-hint__key--b {
+  background: #ef444422;
+  border-color: var(--usx-color-danger);
+  color: var(--usx-color-danger);
+}
+
+.hn-button-hint__key--x {
+  background: #3b82f622;
+  border-color: var(--usx-color-info);
+  color: var(--usx-color-info);
+}
+
+.hn-button-hint__key--y {
+  background: #eab30822;
+  border-color: var(--usx-color-warning);
+  color: var(--usx-color-warning);
+}
+
+.hn-button-hint__label {
+  font-size: 9px;
+  color: var(--usx-color-on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--usx-letter-spacing-wide);
+}
+
+/* ─── Focus trap (modal/dialog focus boundary) ──────────────────── */
+[data-focus-trap] {
+  outline: none;
+}
+
+/* ─── Skip link (for keyboard/accessibility) ────────────────────── */
+.hn-skip-link {
+  position: absolute;
+  top: -100px;
+  left: var(--usx-spacing-lg);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  background: var(--usx-color-primary);
+  color: var(--usx-color-on-primary);
+  border-radius: var(--usx-radius-md);
+  z-index: 300;
+  font-weight: var(--usx-font-weight-semibold);
+  transition: top var(--usx-transition-base);
+}
+
+.hn-skip-link:focus {
+  top: var(--usx-spacing-lg);
+}

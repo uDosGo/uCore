@@ -1,0 +1,11 @@
+/* ═══════════════════════════════════════════════════════════════════
+   tokens-touch.css — USX Touch Target Minimums
+   ═══════════════════════════════════════════════════════════════════
+   Ensures all interactive elements meet accessibility minimums.
+   HomeNest 10-foot console scales these up via home-nest/ overrides.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --usx-touch-min: 48px;
+  --usx-touch-min-sm: 36px;
+}

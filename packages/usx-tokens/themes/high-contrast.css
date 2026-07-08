@@ -1,0 +1,78 @@
+/* ═══════════════════════════════════════════════════════════════════
+   high-contrast.css — USX High Contrast Accessibility Theme
+   ═══════════════════════════════════════════════════════════════════
+   Maximum contrast for accessibility: black/white with no subtlety.
+   Applied via :root.high-contrast or [data-theme="high-contrast"]
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root.high-contrast,
+[data-theme="high-contrast"] {
+  /* ===== COLORS ===== */
+  --usx-color-background: #000000;
+  --usx-color-background-alt: #000000;
+
+  --usx-color-surface: #000000;
+  --usx-color-surface-hover: #1a1a1a;
+  --usx-color-surface-active: #333333;
+  --usx-color-surface-variant: #111111;
+
+  --usx-color-on-surface: #ffffff;
+  --usx-color-on-surface-muted: #cccccc;
+
+  --usx-color-border: #ffffff;
+  --usx-color-border-light: #ffffff;
+  --usx-color-border-dark: #999999;
+
+  --usx-color-primary: #ffff00;
+  --usx-color-primary-hover: #ffff44;
+  --usx-color-primary-active: #cccc00;
+  --usx-color-on-primary: #000000;
+
+  --usx-color-secondary: #ffffff;
+  --usx-color-secondary-hover: #cccccc;
+  --usx-color-on-secondary: #000000;
+
+  --usx-color-success: #00ff00;
+  --usx-color-success-hover: #44ff44;
+  --usx-color-on-success: #000000;
+
+  --usx-color-warning: #ffff00;
+  --usx-color-warning-hover: #ffff44;
+  --usx-color-on-warning: #000000;
+
+  --usx-color-danger: #ff4444;
+  --usx-color-danger-hover: #ff7777;
+  --usx-color-on-danger: #000000;
+
+  --usx-color-info: #00ffff;
+  --usx-color-info-hover: #44ffff;
+  --usx-color-on-info: #000000;
+
+  --usx-color-accent: #ff00ff;
+  --usx-color-accent-hover: #ff44ff;
+  --usx-color-on-accent: #000000;
+
+  /* ===== BORDERS — extra thick ===== */
+  --usx-border-width: 2px;
+  --usx-border-width-thick: 4px;
+
+  /* ===== FONT WEIGHT — bolder ===== */
+  --usx-font-weight-light: 400;
+  --usx-font-weight-regular: 500;
+  --usx-font-weight-medium: 600;
+  --usx-font-weight-semibold: 700;
+  --usx-font-weight-bold: 800;
+
+  /* ===== FOCUS — extra visible ===== */
+  --usx-touch-min: 48px;
+  --usx-touch-min-sm: 40px;
+
+  color-scheme: dark;
+}
+
+/* Double focus outline for high contrast */
+:root.high-contrast *:focus-visible,
+[data-theme="high-contrast"] *:focus-visible {
+  outline: 4px solid var(--usx-color-primary);
+  outline-offset: 4px;
+}
