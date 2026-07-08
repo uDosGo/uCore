@@ -5,9 +5,14 @@
       <UIcon name="sync" spin :size="14" />
       <span>Connecting...</span>
     </div>
+    <div v-else-if="!data" class="control-status-bar control-status-bar--offline">
+      <UIcon name="cloud_off" :size="14" />
+      <span>Ecosystem offline — tap Retry to connect</span>
+      <UButton variant="ghost" size="sm" @click="retry">Retry</UButton>
+    </div>
     <div v-else-if="error" class="control-status-bar control-status-bar--error">
       <UIcon name="error" :size="14" />
-      <span>Offline — retrying in background</span>
+      <span>Update failed — showing last known data</span>
       <UButton variant="ghost" size="sm" @click="retry">Retry</UButton>
     </div>
 
@@ -112,7 +117,7 @@ interface ControlData {
 const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 
 const data = ref<ControlData | null>(null)
-const loading = ref(true)
+const loading = ref(false)
 const error = ref<string | null>(null)
 const actionLoading = ref<string | null>(null)
 let pollTimer: ReturnType<typeof setInterval> | null = null
@@ -128,8 +133,11 @@ async function fetchStatus() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     data.value = await res.json()
     error.value = null
+    // Start polling after successful connect
+    if (!pollTimer) pollTimer = setInterval(fetchStatus, 60000)
   } catch (e: any) {
-    error.value = e.message || 'Failed to fetch status'
+    // Only show error if we had data before (refresh failed)
+    if (data.value) error.value = 'Update failed'
     console.warn('Control panel status fetch failed:', e.message)
   } finally {
     loading.value = false
@@ -221,11 +229,8 @@ function retry() {
   fetchStatus()
 }
 
-onMounted(() => {
-  fetchStatus()
-  // Poll every 30 seconds for live updates
-  pollTimer = setInterval(fetchStatus, 30000)
-})
+// No auto-fetch on mount — user clicks Retry when ready
+onMounted(() => {})
 
 onUnmounted(() => {
   if (pollTimer) {
@@ -260,6 +265,10 @@ onUnmounted(() => {
 .control-status-bar--error {
   background: color-mix(in srgb, var(--usx-color-danger) 6%, transparent);
   color: var(--usx-color-danger);
+}
+.control-status-bar--offline {
+  background: color-mix(in srgb, var(--usx-color-on-surface-muted) 6%, transparent);
+  color: var(--usx-color-on-surface-muted);
 }
 .control-status-bar .usx-button {
   margin-left: auto;
