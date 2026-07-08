@@ -5,6 +5,7 @@ import asyncio
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
+
 from app.api.knowledge import handle_af_import
 
 

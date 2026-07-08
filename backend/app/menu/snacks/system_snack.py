@@ -1,16 +1,17 @@
 """System Snack — Backend/frontend/service management for uCore menu."""
 from __future__ import annotations
 
+import json
 import logging
 import os
 import subprocess
 import time
 import urllib.request
-import json
 from pathlib import Path
 from typing import Any, Optional
 
 from snackmachine.registry import SnackPlugin, SnackSpec, register_snack
+
 from app.skills.shared_utils import update_menu_delegate
 
 log = logging.getLogger("system-snack")
@@ -24,13 +25,13 @@ UCORE_BACKEND_DIR = os.environ.get("UCORE_BACKEND_DIR", str(Path.home() / "Code"
 
 class SystemSnack(SnackPlugin):
     """System services management snack."""
-    
+
     def __init__(self, menu_delegate=None):
         self._menu_delegate = menu_delegate
         self._backend_connected = False
         self._uihub_connected = False
         self._start_at_login = False
-    
+
     @property
     def spec(self) -> SnackSpec:
         return SnackSpec(
@@ -57,10 +58,10 @@ class SystemSnack(SnackPlugin):
                 "description": "System services and health management",
             },
         )
-    
+
     def is_available(self) -> bool:
         return True  # Always available
-    
+
     def execute(self, action: Optional[str] = None, **kwargs) -> Any:
         if action == "health-check":
             return self._health_check()
@@ -79,46 +80,46 @@ class SystemSnack(SnackPlugin):
         elif action == "open-s190-diagnostics":
             return self._open_s190_diagnostics()
         return False
-    
+
     def _health_check(self) -> bool:
         """Run health checks and show summary."""
         backend_ok = self._is_backend_alive()
         health = self._api_get("/api/health") if backend_ok else None
         uihub_ok = self._is_uihub_alive()
-        
+
         lines = [
             f"Backend: {'ok' if backend_ok else 'down'}",
             f"UI Hub: {'ok' if uihub_ok else 'down'}",
         ]
         if health:
             lines.append(f"API status: {health.get('status', 'unknown')}")
-        
+
         # Show alert (would need menu delegate)
         log.info("Health check: %s", "; ".join(lines))
         return True
-    
+
     def _heal_ui_hub(self) -> bool:
         """Try repair/restart/start flow for UI Hub."""
         if not self._is_backend_alive():
             log.warning("Heal failed: Backend not running")
             return False
-        
+
         self._api_post_json("/api/surfaces/ui-hub/repair")
         self._api_post_json("/api/surfaces/ui-hub/restart")
         self._api_post_json("/api/surfaces/ui-hub/start")
-        
+
         # Wait and check
         deadline = time.time() + 8.0
         while time.time() < deadline:
             if self._is_uihub_alive():
-                from AppKit import NSWorkspace, NSURL
+                from AppKit import NSURL, NSWorkspace
                 NSWorkspace.sharedWorkspace().openURL_(NSURL.URLWithString_(UI_HUB_URL))
                 return True
             time.sleep(0.3)
-        
+
         self._open_s190_diagnostics("uihub-heal-failed")
         return False
-    
+
     def _restart_backend(self) -> bool:
         """Restart the uCore backend daemon."""
         log.info("Restarting backend...")
@@ -126,11 +127,11 @@ class SystemSnack(SnackPlugin):
             # Kill existing backend
             subprocess.run(["pkill", "-f", "python.*-m app"], capture_output=True)
             time.sleep(1)
-            
+
             # Use venv python if available
             venv_python = Path(UCORE_BACKEND_DIR) / ".venv" / "bin" / "python"
             python_bin = str(venv_python) if venv_python.exists() else "/usr/bin/python3"
-            
+
             # Start new backend
             subprocess.Popen(
                 [python_bin, "-m", "app.core.snackbar", "--port", "8484"],
@@ -144,7 +145,7 @@ class SystemSnack(SnackPlugin):
         except Exception as e:
             log.exception("Failed to restart backend: %s", e)
             return False
-    
+
     def _restart_frontend(self) -> bool:
         """Restart the frontend dev server."""
         log.info("Restarting frontend dev server...")
@@ -152,7 +153,7 @@ class SystemSnack(SnackPlugin):
             # Kill existing vite
             subprocess.run(["pkill", "-f", "vite"], capture_output=True)
             time.sleep(1)
-            
+
             # Start frontend
             subprocess.Popen(
                 ["pnpm", "run", "dev"],
@@ -165,7 +166,7 @@ class SystemSnack(SnackPlugin):
         except Exception as e:
             log.exception("Failed to restart frontend: %s", e)
             return False
-    
+
     def _enable_start_at_login(self) -> bool:
         """Install and load the uCore launchd plist (delegates to launchd_manager)."""
         from app.menu.launchd_manager import install as launchd_install
@@ -184,17 +185,17 @@ class SystemSnack(SnackPlugin):
         from app.menu.launchd_manager import uninstall as launchd_uninstall
         self._start_at_login = not launchd_uninstall()
         return not self._start_at_login
-    
+
     def _open_s190_diagnostics(self, reason: str = "manual") -> bool:
         """Open local S190 diagnostics fallback page."""
         fallback_path = Path.home() / ".ucore" / "s190-uihub-fallback.html"
         fallback_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         safe_reason = reason.replace("<", "<").replace(">", ">")
         retry_url = UI_HUB_URL
         api_health_url = f"{UCORE_URL}/api/health"
         fallback_s190 = f"{UI_HUB_URL}/s190?reason={__import__('urllib.parse').quote(reason)}"
-        
+
         html = f"""<!doctype html>
 <html>
 <head>
@@ -227,12 +228,12 @@ class SystemSnack(SnackPlugin):
   </main
 </body>
 </html>"""
-        
+
         fallback_path.write_text(html)
-        from AppKit import NSWorkspace, NSURL
+        from AppKit import NSURL, NSWorkspace
         NSWorkspace.sharedWorkspace().openURL_(NSURL.URLWithString_(f"file://{fallback_path}"))
         return True
-    
+
     def _start_dev_server(self) -> bool:
         """Start the frontend dev server via pnpm."""
         log.info("Starting dev server...")
@@ -273,7 +274,7 @@ class SystemSnack(SnackPlugin):
                 return data.get("status") == "ok"
         except Exception:
             return False
-    
+
     def _is_uihub_alive(self) -> bool:
         try:
             req = urllib.request.Request(UI_HUB_URL)
@@ -281,7 +282,7 @@ class SystemSnack(SnackPlugin):
                 return resp.status == 200
         except Exception:
             return False
-    
+
     def _api_get(self, path: str, timeout: float = 3.0):
         try:
             req = urllib.request.Request(f"{UCORE_URL}{path}")
@@ -289,7 +290,7 @@ class SystemSnack(SnackPlugin):
                 return json.loads(resp.read().decode("utf-8"))
         except Exception:
             return None
-    
+
     def _api_post_json(self, path: str, payload: dict = None, timeout: float = 6.0):
         try:
             body = json.dumps(payload or {}).encode("utf-8")
@@ -303,7 +304,7 @@ class SystemSnack(SnackPlugin):
                 return json.loads(resp.read().decode("utf-8"))
         except Exception:
             return None
-    
+
     def update_status(self, backend: bool, uihub: bool, start_at_login: bool) -> None:
         """Update status from external refresh."""
         self._backend_connected = backend

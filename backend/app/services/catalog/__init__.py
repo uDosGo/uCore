@@ -5,6 +5,6 @@ and repositories with spatial UID-based relationships.
 """
 
 from .catalog_service import CatalogService
-from .models import CatalogEntry, SpatialUID, EntryType
+from .models import CatalogEntry, EntryType, SpatialUID
 
 __all__ = ["CatalogService", "CatalogEntry", "SpatialUID", "EntryType"]

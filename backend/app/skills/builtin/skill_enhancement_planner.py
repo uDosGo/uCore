@@ -321,12 +321,12 @@ class EnhancementPlannerSkill(BaseSkill):
         lines = [
             "# uCore Enhancement Plan",
             f"**Generated:** {now}",
-            f"**Source:** ecosystem-audit assess + skill-audit",
+            "**Source:** ecosystem-audit assess + skill-audit",
             "",
             "## Ecosystem Health Summary",
             "",
-            f"| Metric | Value |",
-            f"|--------|-------|",
+            "| Metric | Value |",
+            "|--------|-------|",
             f"| Total Items | {health.get('total_items', '—')} |",
             f"| Working | {health.get('working', '—')} |",
             f"| Untested | {health.get('untested', '—')} |",
@@ -339,8 +339,8 @@ class EnhancementPlannerSkill(BaseSkill):
 
         if skills_audit:
             lines += [
-                f"| Metric | Value |",
-                f"|--------|-------|",
+                "| Metric | Value |",
+                "|--------|-------|",
                 f"| Total Skills | {skills_audit.get('total_skills', '—')} |",
                 f"| Working | {skills_audit.get('working', '—')} |",
                 f"| Untested | {skills_audit.get('untested', '—')} |",

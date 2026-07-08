@@ -128,9 +128,13 @@ def perform_action(action: str) -> dict:
     """
     from app.menu.launchd_manager import (
         install as install_launchd,
-        uninstall as uninstall_launchd,
+    )
+    from app.menu.launchd_manager import (
         install_frontend,
         uninstall_frontend,
+    )
+    from app.menu.launchd_manager import (
+        uninstall as uninstall_launchd,
     )
 
     action = action.lower().strip()

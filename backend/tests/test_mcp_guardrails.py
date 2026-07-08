@@ -2,15 +2,16 @@
 from __future__ import annotations
 
 import pytest
+
 from app.api.mcp_guardrails import (
-    validate_mcp_integrity,
-    validate_mcp_syntax,
-    validate_mcp_exports,
-    validate_handler_signatures,
-    validate_tool_registry,
-    validate_dispatch_tool,
     REQUIRED_MCP_EXPORTS,
     REQUIRED_TOOL_NAMES,
+    validate_dispatch_tool,
+    validate_handler_signatures,
+    validate_mcp_exports,
+    validate_mcp_integrity,
+    validate_mcp_syntax,
+    validate_tool_registry,
 )
 
 
@@ -62,6 +63,7 @@ class TestMCPSelfHealSkill:
 
     def test_self_heal_dry_run(self):
         import asyncio
+
         from app.skills.builtin.skill_mcp_self_heal import MCPSelfHealSkill
 
         skill = MCPSelfHealSkill()
@@ -70,6 +72,7 @@ class TestMCPSelfHealSkill:
 
     def test_self_heal_detects_healthy_state(self):
         import asyncio
+
         from app.skills.builtin.skill_mcp_self_heal import MCPSelfHealSkill
 
         skill = MCPSelfHealSkill()

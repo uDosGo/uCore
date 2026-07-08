@@ -13,10 +13,10 @@ from typing import Any
 
 class MockRequest:
     """Mock aiohttp web.Request for testing and handler reuse."""
-    
+
     def __init__(self, body: dict):
         self._body = body
-    
+
     async def json(self) -> dict:
         return self._body
 
@@ -76,7 +76,7 @@ def get_source_files(target: str = "") -> list[Path]:
     """
     # Use UDOS_CODE as default root, fallback to shared_utils location
     root = Path(os.environ.get("UDOS_CODE", Path(__file__).parent.parent.parent.parent))
-    
+
     if target:
         target_path = root / target
         if target_path.is_file():

@@ -24,7 +24,7 @@ Usage:
     pm.remove_package("catalog")
 """
 
+from .models import DependencyInfo, PackageInfo, PackageStatus
 from .package_manager import PackageManager
-from .models import PackageInfo, PackageStatus, DependencyInfo
 
 __all__ = ["PackageManager", "PackageInfo", "PackageStatus", "DependencyInfo"]

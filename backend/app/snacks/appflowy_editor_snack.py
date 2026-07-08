@@ -16,6 +16,8 @@ import logging
 import sqlite3
 from typing import Any, Optional
 
+from snackmachine.registry import SnackPlugin, SnackSpec, register_snack
+
 from app.knowledge.appflowy import (
     _find_database,
     get_document,
@@ -23,7 +25,6 @@ from app.knowledge.appflowy import (
     list_documents,
     semantic_search,
 )
-from snackmachine.registry import SnackPlugin, SnackSpec, register_snack
 
 log = logging.getLogger("appflowy-editor-snack")
 
@@ -123,8 +124,8 @@ class AppFlowyEditorSnack(SnackPlugin):
                 return {"error": f"Path not found: {vault_path}"}
             content = path.read_text(encoding="utf-8")
             # Save as a new document in AppFlowy via the snack module
-            from app.af_manager.sync import run_import
             from app.af_manager.config import load_config
+            from app.af_manager.sync import run_import
 
             cfg = load_config()
             cfg.setdefault("sources", []).append({

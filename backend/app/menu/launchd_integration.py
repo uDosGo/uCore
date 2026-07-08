@@ -18,7 +18,7 @@ def install_launchd() -> bool:
     """
     try:
         from app.menu.launchd_manager import install
-        
+
         result = install()
         log.info("Launchd installed: %s", result)
         return result
@@ -35,7 +35,7 @@ def uninstall_launchd() -> bool:
     """
     try:
         from app.menu.launchd_manager import uninstall
-        
+
         result = uninstall()
         log.info("Launchd uninstalled: %s", result)
         return result
@@ -52,7 +52,7 @@ def is_launchd_installed() -> bool:
     """
     try:
         from app.menu.launchd_manager import is_installed
-        
+
         result = is_installed()
         log.debug("Launchd installed: %s", result)
         return result

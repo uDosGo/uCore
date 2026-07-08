@@ -9,8 +9,8 @@ Snacks follow the same pattern as Skills:
 from __future__ import annotations
 
 from typing import Any, Optional
-from pydantic import BaseModel
 
+from pydantic import BaseModel
 from snackmachine.registry import SnackPlugin, SnackSpec
 
 
@@ -41,9 +41,9 @@ class SnackMeta(BaseModel):
 
 class BaseSnack(SnackPlugin):
     """Base class for all snacks with template support."""
-    
+
     meta: SnackMeta
-    
+
     @property
     def spec(self) -> SnackSpec:
         """Convert meta to SnackSpec for registry compatibility."""
@@ -64,11 +64,11 @@ class BaseSnack(SnackPlugin):
                 "requires_confirmation": self.meta.requires_confirmation,
             },
         )
-    
+
     def validate(self, **kwargs) -> list[str]:
         """Validate required parameters."""
         return [f"Missing: {p.name}" for p in self.meta.params if p.required and p.name not in kwargs]
-    
+
     def execute(self, action: Optional[str] = None, **kwargs) -> Any:
         """Execute the snack action - to be overridden."""
         raise NotImplementedError

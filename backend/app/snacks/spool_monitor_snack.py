@@ -11,6 +11,7 @@ import time
 from typing import Any, Optional
 
 from snackmachine.registry import SnackPlugin, SnackSpec, register_snack
+
 from app.services.spool_reader import read_spool
 
 log = logging.getLogger("spool-monitor-snack")

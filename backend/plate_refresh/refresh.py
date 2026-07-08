@@ -872,8 +872,8 @@ def main():
         help="Filter spool list by domain",
     )
     # Add verification and monitoring arguments
-    from plate_refresh.verification import add_verification_args
     from plate_refresh.monitoring import add_monitoring_args
+    from plate_refresh.verification import add_verification_args
     add_verification_args(parser)
     add_monitoring_args(parser)
 
@@ -961,8 +961,8 @@ def main():
             print(f"Failed to read SPOOL archive: {args.spool_read}")
 
     # Handle verification and monitoring commands
-    from plate_refresh.verification import handle_verification_commands
     from plate_refresh.monitoring import handle_monitoring_commands
+    from plate_refresh.verification import handle_verification_commands
     handle_verification_commands(args)
     handle_monitoring_commands(args)
 

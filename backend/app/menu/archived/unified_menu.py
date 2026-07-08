@@ -49,10 +49,10 @@ try:
 except Exception:
     NSEvent = NSEventMaskKeyDown = None
 from PyObjCTools import AppHelper
+from snackmachine.registry import get_registry
 
 # Import snack registry and plugins
 from app.menu.backend_manager import ensure_backend_running
-from snackmachine.registry import get_registry
 from app.menu.snacks.appflowy_sync_snack import (
     register as register_appflowy_sync,
 )

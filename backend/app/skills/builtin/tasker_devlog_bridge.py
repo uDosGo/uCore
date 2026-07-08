@@ -284,8 +284,8 @@ class TaskerDevlogBridge(BaseSkill):
         lines = [
             f"# Devlog MCP — Generated: {datetime.now(UTC).isoformat()}",
             "",
-            f'version: "1.0.0"',
-            f'generated_by: "Copilot-Poolside-Laguana-M1"',
+            'version: "1.0.0"',
+            'generated_by: "Copilot-Poolside-Laguana-M1"',
             f"hours: {hours}",
             f"completed_tasks: {len(completed_tasks)}",
             f"spool_entries: {len(spool_entries)}",

@@ -5,7 +5,8 @@ from __future__ import annotations
 from typing import List
 
 from aiohttp import web
-from app.services.catalog import CatalogService, CatalogEntry, SpatialUID, EntryType
+
+from app.services.catalog import CatalogEntry, CatalogService, EntryType, SpatialUID
 
 log = __import__("logging").getLogger("ucore.api.catalog")
 

@@ -286,4 +286,5 @@ def register_server_routes(app: web.Application, store: ServerStore) -> None:  #
 
 # Needed for json import in handler closures
 import json  # noqa: E402
+
 import aiohttp  # noqa: E402

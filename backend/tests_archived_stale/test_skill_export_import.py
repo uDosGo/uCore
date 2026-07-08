@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import pytest
-from app.services.surface_manager import SurfaceManager
 from app.skills.builtin.export import ExportSurface
 from app.skills.builtin.import_skill import ImportSurface
+
+from app.services.surface_manager import SurfaceManager
 
 
 @pytest.mark.asyncio

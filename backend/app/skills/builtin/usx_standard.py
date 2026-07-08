@@ -44,7 +44,7 @@ VARIABLE_MAP = {
     "font_size": r"font-size:\s*\d+px",
     "spacing": (
         r"(?:padding|margin)(?:-top|-right|-bottom|-left)?:\s*\d+px"
-        "|gap:\s*\d+px"
+        r"|gap:\s*\d+px"
     ),
     "border_radius": r"border-radius:\s*\d+px",
 }

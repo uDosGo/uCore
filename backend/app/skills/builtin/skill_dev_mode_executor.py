@@ -201,7 +201,7 @@ class DevModeExecutorSkill(BaseSkill):
         # Try tasker API
         try:
             req = urllib.request.Request(
-                f"http://localhost:8484/api/tasker/tasks",
+                "http://localhost:8484/api/tasker/tasks",
                 method="GET",
             )
             with urllib.request.urlopen(req, timeout=3) as resp:

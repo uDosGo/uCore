@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from snackmachine.registry import SnackPlugin, SnackSpec, register_snack
+
 from app.secret.store import SecretStore
 
 log = logging.getLogger("appflowy-sync-snack")
@@ -67,8 +68,8 @@ class AppFlowySyncSnack(SnackPlugin):
             if not data_dir:
                 # Fallback to config file
                 from app.af_manager.config import (
-                    load_config,
                     get_appflowy_data_dir,
+                    load_config,
                 )
                 config = load_config(SYNC_CONFIG_PATH)
                 data_dir = get_appflowy_data_dir(config)

@@ -4,11 +4,11 @@
 Checks backend health endpoint and restarts services if needed.
 Integrates with MCP health API and self-healing skills.
 """
-import time
 import json
-import subprocess
-import urllib.request
 import os
+import subprocess
+import time
+import urllib.request
 from pathlib import Path
 
 HEALTH_URL = "http://localhost:8484/api/health"
@@ -40,12 +40,13 @@ def check_menu_running():
 
 def restart_services():
     """Restart uCore services via launchctl."""
-    from app.menu.launchd_manager import install as launchd_install, uninstall as launchd_uninstall
-    
+    from app.menu.launchd_manager import install as launchd_install
+    from app.menu.launchd_manager import uninstall as launchd_uninstall
+
     # Restart menu - uninstall then reinstall to ensure clean state
     launchd_uninstall()
     launchd_install()
-    
+
     # Restart server
     uid = os.getuid()
     subprocess.run(["launchctl", "bootout", f"gui/{uid}/{UCORE_SERVER_LABEL}"],
@@ -53,7 +54,7 @@ def restart_services():
     subprocess.run(["launchctl", "bootstrap", f"gui/{uid}",
                     str(Path.home() / "Library/LaunchAgents" / f"{UCORE_SERVER_LABEL}.plist")],
                    capture_output=True, check=False)
-    
+
     time.sleep(2)
 
 def main(loop_seconds: int = 60):
@@ -61,10 +62,10 @@ def main(loop_seconds: int = 60):
     if check_health():
         print("HEALTH_OK")
         return
-    
+
     print("HEALTH_FAIL_RESTARTING")
     restart_services()
-    
+
     # Wait and check again
     time.sleep(3)
     if check_health():

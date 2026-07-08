@@ -22,9 +22,9 @@ from aiohttp import web
 from app.mcp.consensus import ConsensusEngine, Vote
 from app.mcp.llm_router import LLMRouter
 from app.mcp.roundtable_integration import get_roundtable
+from app.secret.store import get_store
 from app.services.agent_specialization import SpecializedAgentRegistry
 from app.services.cost_manager import get_cost_manager
-from app.secret.store import get_store
 
 log = logging.getLogger("ucore.mcp.hivemind")
 
@@ -354,7 +354,8 @@ class HivemindServer:
     async def _run_workflow_langgraph(self, wt, context, workflow_id):
         """Execute workflow using LangGraph StateGraph."""
         from typing import Annotated, TypedDict
-        from langgraph.graph import StateGraph, END
+
+        from langgraph.graph import END, StateGraph
         from langgraph.graph.message import add_messages
 
         class WorkflowState(TypedDict):

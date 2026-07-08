@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
 from app.skills.builtin.git_maintenance import GitMaintenance
 
 

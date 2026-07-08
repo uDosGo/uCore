@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from app.knowledge.local_first import (
     discover_databases,
     export_to_vault,

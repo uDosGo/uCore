@@ -5,6 +5,7 @@ from datetime import UTC
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from app.services.mcp.github_client import GitHubClient
 from app.services.mcp.github_tools import GitHubTools
 

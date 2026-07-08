@@ -14,21 +14,18 @@ from typing import Any, Dict
 
 from aiohttp import web
 
-from app.api.mcp_handlers.knowledge import (
-    handle_knowledge_list_documents,
-    handle_knowledge_list_workspaces,
-    handle_knowledge_search,
+from app.api.mcp_handlers.autostart import (
+    handle_autostart_health_check,
 )
 from app.api.mcp_handlers.clipboard import (
     handle_clipboard_capture,
     handle_clipboard_delete,
     handle_clipboard_get,
 )
-from app.api.mcp_handlers.tasker import (
-    handle_tasker_list_boards,
-    handle_tasker_read_task,
-    handle_tasker_sync_export,
-    handle_tasker_write_task,
+from app.api.mcp_handlers.flow_router import (
+    handle_flow_router_analytics,
+    handle_flow_router_history,
+    handle_flow_router_route,
 )
 from app.api.mcp_handlers.gridsmith import (
     handle_gridsmith_create_grid,
@@ -37,21 +34,24 @@ from app.api.mcp_handlers.gridsmith import (
     handle_gridsmith_tools_list,
     handle_gridsmith_ucode_to_latlon,
 )
-from app.api.mcp_handlers.flow_router import (
-    handle_flow_router_analytics,
-    handle_flow_router_history,
-    handle_flow_router_route,
+from app.api.mcp_handlers.knowledge import (
+    handle_knowledge_list_documents,
+    handle_knowledge_list_workspaces,
+    handle_knowledge_search,
+)
+from app.api.mcp_handlers.skill import (
+    handle_skill_tool,
+)
+from app.api.mcp_handlers.tasker import (
+    handle_tasker_list_boards,
+    handle_tasker_read_task,
+    handle_tasker_sync_export,
+    handle_tasker_write_task,
 )
 from app.api.mcp_handlers.toon import (
     handle_toon_clear,
     handle_toon_encode,
     handle_toon_stats,
-)
-from app.api.mcp_handlers.autostart import (
-    handle_autostart_health_check,
-)
-from app.api.mcp_handlers.skill import (
-    handle_skill_tool,
 )
 
 log = logging.getLogger("ucore.api.mcp_handlers")

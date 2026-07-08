@@ -660,7 +660,7 @@ def handle_monitoring_commands(args: Any) -> None:
     if args.monitor_usage:
         if args.monitor_usage == "all":
             stats = monitor.get_usage_summary()
-            print(f"\n  Usage Summary:")
+            print("\n  Usage Summary:")
             print(f"    Total uses: {stats.get('total_uses', 0)}")
             print(f"    Successful: {stats.get('successful', 0)}")
             print(f"    Failed: {stats.get('failed', 0)}")
@@ -673,7 +673,7 @@ def handle_monitoring_commands(args: Any) -> None:
             print(f"    Successful: {stats.get('successful', 0)}")
             print(f"    Failed: {stats.get('failed', 0)}")
             print(f"    Avg duration: {stats.get('avg_duration_ms', 0):.0f}ms")
-            print(f"    Top operations:")
+            print("    Top operations:")
             for op in stats.get("top_operations", []):
                 print(f"      {op['operation']}: {op['count']}")
 
@@ -702,11 +702,11 @@ def handle_monitoring_commands(args: Any) -> None:
 
     if args.monitor_report:
         report = monitor.generate_report()
-        print(f"\n  Plate Monitoring Report")
+        print("\n  Plate Monitoring Report")
         print(f"  {'=' * 40}")
         print(f"  Generated: {report['generated_at']}")
         print()
-        print(f"  Health Summary:")
+        print("  Health Summary:")
         h = report.get("health", {})
         print(f"    Total: {h.get('total', 0)}")
         print(f"    Healthy: {h.get('healthy', 0)}")
@@ -714,16 +714,16 @@ def handle_monitoring_commands(args: Any) -> None:
         print(f"    Corrupted: {h.get('corrupted', 0)}")
         print(f"    Degraded: {h.get('degraded', 0)}")
         print()
-        print(f"  Usage Summary:")
+        print("  Usage Summary:")
         u = report.get("usage", {})
         print(f"    Total uses: {u.get('total_uses', 0)}")
         print(f"    Failed: {u.get('failed', 0)}")
         print()
-        print(f"  Most Used Plates:")
+        print("  Most Used Plates:")
         for p in report.get("most_used_plates", []):
             print(f"    {p['plate_id']}: {p['use_count']} uses")
         print()
-        print(f"  Plates Needing Attention:")
+        print("  Plates Needing Attention:")
         for p in h.get("plates_needing_attention", []):
             print(f"    {p['plate_id']}: {p['status']} ({p['error_count']} errors)")
 

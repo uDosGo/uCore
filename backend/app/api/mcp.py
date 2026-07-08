@@ -30,7 +30,8 @@ from app.services.tasker_ops import (
     read_task_markdown,
     write_task_markdown,
 )
-from app.skills.registry import get_skill, list_skills as _list_skills
+from app.skills.registry import get_skill
+from app.skills.registry import list_skills as _list_skills
 
 log = logging.getLogger("ucore.api.mcp")
 
@@ -451,5 +452,5 @@ async def handle_mcp_diagnostics(request: web.Request) -> web.Response:
 
 
 def _utc_now_iso() -> str:
-    from datetime import datetime, UTC
+    from datetime import UTC, datetime
     return datetime.now(UTC).isoformat()

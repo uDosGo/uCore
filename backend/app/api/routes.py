@@ -25,20 +25,39 @@ def register_routes(app: web.Application) -> None:
     from .containers import register_container_routes
     from .developer_api import (
         handle_commit_repo_files,
+        handle_developer_status,
         handle_get_repo_file_diff,
         handle_get_repo_file_preview,
         handle_list_repo_files,
         handle_list_repo_review,
         handle_list_repos,
         handle_stage_repo_file,
-        handle_stop_developer,
         handle_start_developer,
-        handle_developer_status,
+        handle_stop_developer,
         handle_unstage_repo_file,
         handle_update_repo_file,
     )
     from .docker import handle_docker_ps
     from .exec import handle_exec
+    from .flow_router import (
+        handle_api_registry_list,
+        handle_api_registry_resolve,
+        handle_budget_can_spend,
+        handle_budget_report,
+        handle_budget_status_new,
+        handle_cost_estimate,
+        handle_cost_models,
+        handle_cost_providers,
+        handle_cost_stats,
+        handle_flow_router_analytics,
+        handle_flow_router_history,
+        handle_flow_router_route,
+        handle_library_ai_search,
+        handle_library_ai_suggest,
+        handle_quality_rankings,
+        handle_quality_score,
+        handle_quality_stats,
+    )
     from .github import register_github_routes
     from .gridsmith_api import (
         handle_gridsmith_grid_create,
@@ -79,30 +98,6 @@ def register_routes(app: web.Application) -> None:
         handle_mcp_diagnostics,
         handle_mcp_discover,
     )
-    from .toon import (
-        handle_toon_encode,
-        handle_toon_stats,
-        handle_toon_clear,
-    )
-    from .flow_router import (
-        handle_flow_router_route,
-        handle_flow_router_analytics,
-        handle_flow_router_history,
-        handle_cost_providers,
-        handle_cost_models,
-        handle_cost_estimate,
-        handle_cost_stats,
-        handle_api_registry_resolve,
-        handle_api_registry_list,
-        handle_quality_score,
-        handle_quality_rankings,
-        handle_quality_stats,
-        handle_budget_status_new,
-        handle_budget_can_spend,
-        handle_budget_report,
-        handle_library_ai_search,
-        handle_library_ai_suggest,
-    )
     from .metadata import (
         maintenance_status_handler,
         system_info_handler,
@@ -123,6 +118,11 @@ def register_routes(app: web.Application) -> None:
     from .snacks import register_snack_routes
     from .surfaces import register_surface_routes
     from .tools import handle_list_tools, handle_tool_status
+    from .toon import (
+        handle_toon_clear,
+        handle_toon_encode,
+        handle_toon_stats,
+    )
     from .variables_api import (
         handle_get_install_variables,
         handle_get_user_variables,

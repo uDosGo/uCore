@@ -11,6 +11,7 @@ import sys
 from typing import Optional
 
 from AppKit import NSStatusBar, NSStatusItem, NSVariableStatusItemLength
+
 # NOTE: SEL removed in PyObjC 12.x / Python 3.14 — selectors use objc.selector type
 
 log = logging.getLogger("ucore.menu.status_icon")
@@ -32,17 +33,17 @@ def _make_status_icon(connected: bool = False) -> Optional[NSStatusItem]:
         status_item = NSStatusBar.systemStatusBar().statusItemWithLength_(
             NSVariableStatusItemLength
         )
-        
+
         if not status_item:
             log.error("Failed to create status item")
             return None
-        
+
         # Set emoji as button title (SF Symbols not available in PyObjC 12.x)
         button = status_item.button()
         if button:
             # Use popcorn emoji — changes based on connection status
             button.setTitle_("🍿" if connected else "🍿")
-        
+
         return status_item
     except Exception as exc:
         log.error("Failed to create status icon: %s", exc)

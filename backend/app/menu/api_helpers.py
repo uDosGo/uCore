@@ -23,16 +23,16 @@ async def post_notification(title: str, message: str, subtitle: Optional[str] = 
     """
     try:
         from AppKit import NSUserNotification, NSUserNotificationCenter
-        
+
         notification = NSUserNotification.alloc().init()
         notification.setTitle_(title)
         notification.setInformativeText_(message)
         if subtitle:
             notification.setSubtitle_(subtitle)
-        
+
         center = NSUserNotificationCenter.defaultUserNotificationCenter()
         center.deliverNotification_(notification)
-        
+
         log.info("Notification posted: %s - %s", title, message)
     except Exception as exc:
         log.error("Failed to post notification: %s", exc)
@@ -103,7 +103,7 @@ def is_uihub_alive() -> bool:
     """
     try:
         import urllib.request
-        
+
         req = urllib.request.Request("http://localhost:5175", method="HEAD")
         with urllib.request.urlopen(req, timeout=2) as resp:
             return resp.status < 500
@@ -119,7 +119,7 @@ def open_url(url: str) -> None:
     """
     try:
         import webbrowser
-        
+
         webbrowser.open(url)
         log.info("Opened URL: %s", url)
     except Exception as exc:

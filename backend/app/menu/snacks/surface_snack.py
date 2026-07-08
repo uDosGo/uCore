@@ -1,15 +1,16 @@
 """Surface Snack — Dynamic surface management for uCore menu."""
 from __future__ import annotations
 
+import json
 import logging
 import os
 import subprocess
 import urllib.request
-import json
 from pathlib import Path
 from typing import Any, Optional
 
 from snackmachine.registry import SnackPlugin, SnackSpec, register_snack
+
 from app.skills.shared_utils import update_menu_delegate
 
 log = logging.getLogger("surface-snack")
@@ -19,12 +20,12 @@ UCORE_URL = "http://127.0.0.1:8484"
 
 class SurfaceSnack(SnackPlugin):
     """Dynamic surface management snack - loads surfaces from backend API."""
-    
+
     def __init__(self, menu_delegate=None):
         self._menu_delegate = menu_delegate
         self._surfaces = []
         self._connected = False
-    
+
     @property
     def spec(self) -> SnackSpec:
         return SnackSpec(
@@ -41,10 +42,10 @@ class SurfaceSnack(SnackPlugin):
                 "description": "Open and manage UI surfaces",
             },
         )
-    
+
     def is_available(self) -> bool:
         return self._connected
-    
+
     def execute(self, action: Optional[str] = None, **kwargs) -> Any:
         if action == "refresh":
             self._refresh_surfaces()
@@ -57,7 +58,7 @@ class SurfaceSnack(SnackPlugin):
             self._open_surface(surface_id)
             return True
         return False
-    
+
     def _refresh_surfaces(self) -> None:
         """Fetch surfaces from backend API."""
         try:
@@ -70,12 +71,12 @@ class SurfaceSnack(SnackPlugin):
             log.warning(f"Failed to fetch surfaces: {e}")
             self._surfaces = []
             self._connected = False
-        
+
         if self._menu_delegate:
             self._menu_delegate.performSelectorOnMainThread_withObject_waitUntilDone_(
                 "updateUI:", None, False
             )
-    
+
     def _open_surface(self, surface_id: str) -> None:
         """Open a surface in browser, with auto-start if needed."""
         # Find surface URL
@@ -83,12 +84,12 @@ class SurfaceSnack(SnackPlugin):
         if not surface:
             log.warning(f"Surface not found: {surface_id}")
             return
-        
+
         url = surface.get("url") or surface.get("metadata", {}).get("url")
         if not url:
             # Default URL pattern
             url = f"http://localhost:5175/{surface_id}"
-        
+
         # Auto-start backend if needed
         if not self._is_backend_alive():
             log.info("Backend not running, attempting to start...")
@@ -104,12 +105,12 @@ class SurfaceSnack(SnackPlugin):
                 time.sleep(2)
             except Exception as e:
                 log.warning(f"Failed to auto-start backend: {e}")
-        
+
         # Open in browser
-        from AppKit import NSWorkspace, NSURL
+        from AppKit import NSURL, NSWorkspace
         NSWorkspace.sharedWorkspace().openURL_(NSURL.URLWithString_(url))
         log.info(f"Opened surface: {surface_id} -> {url}")
-    
+
     def _is_backend_alive(self) -> bool:
         try:
             req = urllib.request.Request(f"{UCORE_URL}/api/health")
@@ -118,7 +119,7 @@ class SurfaceSnack(SnackPlugin):
                 return data.get("status") == "ok"
         except Exception:
             return False
-    
+
     def update_surfaces(self, surfaces: list, connected: bool) -> None:
         """Update surfaces from external refresh."""
         self._surfaces = surfaces

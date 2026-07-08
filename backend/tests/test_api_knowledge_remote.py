@@ -1,9 +1,10 @@
 """Integration tests for Knowledge (AppFlowy Remote) API endpoints."""
 from __future__ import annotations
 
-import app.api.knowledge as knowledge_api
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
+
+import app.api.knowledge as knowledge_api
 from app.api.knowledge import (
     handle_af_index_status,
     handle_get_document,

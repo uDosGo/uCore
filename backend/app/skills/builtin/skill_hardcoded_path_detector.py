@@ -30,11 +30,11 @@ HARDCODED_PATH_PATTERNS = [
     (r'/tmp/', 'Temporary directory'),
     (r'/var/', 'System directory'),
     (r'/etc/', 'Configuration directory'),
-    
+
     # Project-specific hardcoded paths
     (r'/Users/fredbook/Code', 'Hardcoded UDOS_CODE path'),
     (r'/Users/fredbook/Vault', 'Hardcoded UDOS_VAULT path'),
-    
+
     # Common directories without env vars
     (r'~/Library/', 'Home directory (should use os.path.expanduser)'),
     (r'~/.', 'Home directory (should use os.path.expanduser)'),
@@ -89,12 +89,12 @@ class HardcodedPathDetectorSkill(BaseSkill):
     async def run(self, **kwargs) -> dict:
         target = str(kwargs.get("target", "backend/app"))
         severity = str(kwargs.get("severity", "high")).lower()
-        
+
         findings = self._scan_for_hardcoded_paths(target)
-        
+
         # Filter by severity
         filtered = self._filter_by_severity(findings, severity)
-        
+
         return {
             "success": True,
             "action": "hardcoded_path_detector",
@@ -109,28 +109,28 @@ class HardcodedPathDetectorSkill(BaseSkill):
     def _scan_for_hardcoded_paths(self, target: str) -> list[dict]:
         """Scan for hardcoded paths in source files."""
         from app.skills.shared_utils import get_source_files
-        
+
         files = get_source_files(target)
         findings = []
-        
+
         for file_path in files:
             try:
                 content = file_path.read_text(encoding="utf-8", errors="replace")
                 lines = content.split("\n")
-                
+
                 for line_num, line in enumerate(lines, 1):
                     for pattern, description in HARDCODED_PATH_PATTERNS:
                         if re.search(pattern, line):
                             # Check if it's using an environment variable
                             is_env_ref = any(
-                                f'os.environ.get("{var}"' in line or 
+                                f'os.environ.get("{var}"' in line or
                                 f'os.getenv("{var}"' in line or
                                 f'process.env.{var}' in line
                                 for var in ENV_VAR_REPLACEMENTS.keys()
                             )
-                            
+
                             severity = self._determine_severity(pattern, line)
-                            
+
                             findings.append({
                                 "file": str(file_path),
                                 "line": line_num,
@@ -145,7 +145,7 @@ class HardcodedPathDetectorSkill(BaseSkill):
             except Exception as exc:
                 log.warning("Failed to scan %s: %s", file_path, exc)
                 continue
-        
+
         return findings
 
     def _determine_severity(self, pattern: str, line: str) -> str:
@@ -174,7 +174,7 @@ class HardcodedPathDetectorSkill(BaseSkill):
         """Filter findings by severity level."""
         severity_map = {"low": 0, "medium": 1, "high": 2}
         min_level = severity_map.get(severity, 1)
-        
+
         return [
             f for f in findings
             if severity_map.get(f["severity"], 1) >= min_level
@@ -184,7 +184,7 @@ class HardcodedPathDetectorSkill(BaseSkill):
         """Generate markdown report of findings."""
         if not findings:
             return "No hardcoded paths found at the specified severity level."
-        
+
         lines = [
             "# Hardcoded Path Detector Report",
             "",
@@ -193,35 +193,35 @@ class HardcodedPathDetectorSkill(BaseSkill):
             "## Summary by Severity",
             "",
         ]
-        
+
         # Count by severity
         severity_counts = {}
         for f in findings:
             severity = f["severity"]
             severity_counts[severity] = severity_counts.get(severity, 0) + 1
-        
+
         for sev, count in sorted(severity_counts.items(), reverse=True):
             lines.append(f"- **{sev.upper()}:** {count} paths")
-        
+
         lines.extend(["", "## Findings", ""])
-        
+
         # Group by file
         by_file: dict[str, list[dict]] = {}
         for f in findings:
             by_file.setdefault(f["file"], []).append(f)
-        
+
         for file_path, file_findings in sorted(by_file.items()):
             lines.append(f"### {file_path}")
             lines.append("")
-            
+
             for f in file_findings:
                 lines.append(f"- **Line {f['line']}**: {f['description']}")
                 lines.append(f"  - Pattern: `{f['pattern']}`")
                 lines.append(f"  - Severity: {f['severity'].upper()}")
                 if f['is_env_ref']:
-                    lines.append(f"  - ⚠️ Already using environment variable")
+                    lines.append("  - ⚠️ Already using environment variable")
                 else:
                     lines.append(f"  - 💡 {f['recommendation']}")
                 lines.append("")
-        
+
         return "\n".join(lines)

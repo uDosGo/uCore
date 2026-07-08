@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 DEV_MODE = os.environ.get("DEV_MODE", "0").lower() in ("1", "true", "yes")
 

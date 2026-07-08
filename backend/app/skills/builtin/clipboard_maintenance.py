@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from app.core.logging import log
 from app.clipboard.clipboard_buffer import (
     DEFAULT_MAX_DAYS,
     DEFAULT_MAX_ITEMS,
     capture_current_clipboard,
     cleanup_history,
 )
+from app.core.logging import log
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 

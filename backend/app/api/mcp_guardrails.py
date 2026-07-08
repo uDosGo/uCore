@@ -98,14 +98,33 @@ REQUIRED_TOOL_NAMES = {
 # ─── Validation functions ──────────────────────────────────────
 
 def validate_mcp_syntax() -> dict[str, Any]:
-    """Check that mcp.py and mcp_handlers.py parse as valid Python."""
+    """Check that mcp.py, mcp_guardrails.py, and all mcp_handlers/ domain
+    modules parse as valid Python."""
     errors: list[str] = []
-    for name in ("mcp.py", "mcp_handlers.py", "mcp_guardrails.py"):
-        path = Path(__file__).parent / name
+    api_dir = Path(__file__).parent
+
+    # Top-level MCP source files
+    for name in ("mcp.py", "mcp_guardrails.py"):
+        path = api_dir / name
         try:
             ast.parse(path.read_text())
         except SyntaxError as e:
             errors.append(f"{name}:{e.lineno}: {e.msg}")
+        except FileNotFoundError:
+            errors.append(f"{name}: file not found")
+
+    # mcp_handlers package — walk all *.py files inside it
+    handlers_dir = api_dir / "mcp_handlers"
+    if not handlers_dir.is_dir():
+        errors.append("mcp_handlers/: directory not found")
+    else:
+        for py_file in sorted(handlers_dir.rglob("*.py")):
+            rel = py_file.relative_to(api_dir)
+            try:
+                ast.parse(py_file.read_text())
+            except SyntaxError as e:
+                errors.append(f"{rel}:{e.lineno}: {e.msg}")
+
     return {"check": "syntax", "errors": errors, "ok": len(errors) == 0}
 
 

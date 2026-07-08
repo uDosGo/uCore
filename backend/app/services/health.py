@@ -57,10 +57,10 @@ def get_health_summary() -> dict:
     """Return a small health summary combining skill-state and recent errors."""
     state = read_state()
     errors = recent_errors_from_logs()
-    
+
     # Check DevMode status (internal dev ops)
     dev_mode_active = _check_dev_mode_status()
-    
+
     return {
         "ok": len(errors) == 0,
         "recent_errors": errors[:50],
@@ -83,7 +83,7 @@ def _check_dev_mode_status() -> bool:
     Returns True if dev server is responding, False otherwise.
     """
     import urllib.request
-    
+
     try:
         # Check if Vite dev server is running
         req = urllib.request.Request("http://localhost:5174/developer", method="HEAD")

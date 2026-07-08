@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-import app.api.mcp as mcp_api
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
+
+import app.api.mcp as mcp_api
 from app.api.mcp import handle_mcp_call, handle_mcp_discover
 
 

@@ -30,6 +30,6 @@ Usage:
 """
 
 from .maintenance_service import MaintenanceService
-from .models import BackupInfo, ArchiveInfo, CompostResult, MaintenanceOperationResult
+from .models import ArchiveInfo, BackupInfo, CompostResult, MaintenanceOperationResult
 
 __all__ = ["MaintenanceService", "BackupInfo", "ArchiveInfo", "CompostResult", "MaintenanceOperationResult"]

@@ -302,8 +302,9 @@ async def handle_start_developer(request: web.Request) -> web.Response:
     """
     import subprocess
     from pathlib import Path
+
     from app.core.logging import log
-    
+
     try:
         # Check if already running
         try:
@@ -318,7 +319,7 @@ async def handle_start_developer(request: web.Request) -> web.Response:
                     })
         except Exception:
             pass
-        
+
         # Start Vite dev server
         frontend_dir = Path(__file__).resolve().parents[3] / "frontend"
         if not frontend_dir.exists():
@@ -326,9 +327,9 @@ async def handle_start_developer(request: web.Request) -> web.Response:
                 "success": False,
                 "error": "Frontend directory not found"
             }, status=404)
-        
+
         log.info("🚀 [DEVMODE] Starting developer server (internal dev ops)")
-        
+
         # Start in background
         subprocess.Popen(
             ["pnpm", "dev"],
@@ -337,7 +338,7 @@ async def handle_start_developer(request: web.Request) -> web.Response:
             stderr=subprocess.DEVNULL,
             start_new_session=True
         )
-        
+
         return web.json_response({
             "success": True,
             "message": "Developer server starting",
@@ -357,11 +358,12 @@ async def handle_stop_developer(request: web.Request) -> web.Response:
     Logs the stop operation for audit trail.
     """
     import subprocess
+
     from app.core.logging import log
-    
+
     try:
         log.info("🛑 [DEVMODE] Stopping developer server (internal dev ops)")
-        
+
         # Find and kill Vite process
         subprocess.run(
             ["pkill", "-f", "vite.*5174"],
@@ -369,7 +371,7 @@ async def handle_stop_developer(request: web.Request) -> web.Response:
             text=True,
             timeout=5
         )
-        
+
         return web.json_response({
             "success": True,
             "message": "Developer server stopped",
@@ -389,8 +391,9 @@ async def handle_developer_status(request: web.Request) -> web.Response:
     Returns whether the developer server is running and accessible.
     """
     import urllib.request
+
     from app.core.logging import log
-    
+
     try:
         req = urllib.request.Request("http://localhost:5174/developer", method="HEAD")
         with urllib.request.urlopen(req, timeout=2) as resp:

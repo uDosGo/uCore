@@ -91,7 +91,7 @@ def is_server_installed() -> bool:
 def is_appflowy_data_available() -> bool:
     """Check if AppFlowy data directory exists (self-hosted)."""
     try:
-        from app.af_manager.config import load_config, get_appflowy_data_dir
+        from app.af_manager.config import get_appflowy_data_dir, load_config
         from app.secret.store import SecretStore
 
         # Check secret store first (preferred)

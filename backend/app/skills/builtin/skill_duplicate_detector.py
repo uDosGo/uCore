@@ -648,7 +648,7 @@ class DuplicateDetectorSkill(BaseSkill):
                     large_files.append({
                         "file": str(file_path),
                         "lines": line_count,
-                        "recommendation": f"Split into smaller modules (target: <500 lines per module)",
+                        "recommendation": "Split into smaller modules (target: <500 lines per module)",
                     })
             except Exception:
                 continue

@@ -1,9 +1,9 @@
 """Maintenance Service Data Models"""
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Any
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List
 
 
 class BackupType(Enum):

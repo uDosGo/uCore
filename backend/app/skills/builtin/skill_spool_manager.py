@@ -623,7 +623,7 @@ class SpoolDestroySkill(BaseSkill):
                     content = src.read_text()
                     for key in salvage_keys:
                         if key in content:
-                            salvaged[key] = f"[found in source]"
+                            salvaged[key] = "[found in source]"
                 except Exception:
                     pass
 
@@ -902,25 +902,25 @@ class SpoolUnfurlSkill(BaseSkill):
         output_lines.append("")
 
         if plate_found:
-            output_lines.append(f"# Plate found — using plate definition")
+            output_lines.append("# Plate found — using plate definition")
             output_lines.append(plate_content)
         else:
-            output_lines.append(f"# No plate found — reconstructing from SPOOL metadata")
+            output_lines.append("# No plate found — reconstructing from SPOOL metadata")
             output_lines.append(f"# Salvaged state: {json.dumps(salvaged, indent=2)}")
             if schema:
                 output_lines.append(f"# Schema: {json.dumps(schema, indent=2)}")
 
         output_lines.append("")
-        output_lines.append(f"# Lessons learned:")
+        output_lines.append("# Lessons learned:")
         for i, lesson in enumerate(lessons, 1):
             output_lines.append(f"#   {i}. {lesson}")
 
         output_lines.append("")
-        output_lines.append(f"# --- Reconstruction metadata ---")
-        output_lines.append(f"# To fully restore, run:")
+        output_lines.append("# --- Reconstruction metadata ---")
+        output_lines.append("# To fully restore, run:")
         if plate_found:
             output_lines.append(f"#   python -m plate_refresh.refresh --destroy {component_id}")
-        output_lines.append(f"# Or use the plate directly from plates/")
+        output_lines.append("# Or use the plate directly from plates/")
 
         # Write reconstruction
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -1142,7 +1142,7 @@ def _generate_cookiecutter_template(
 
     # Create a temporary Cookiecutter template directory
     tmp_dir = Path(tempfile.mkdtemp(prefix=f"nugget_cc_{component_id}_"))
-    template_dir = tmp_dir / f"{{{{cookiecutter.component_id}}}}"
+    template_dir = tmp_dir / "{{cookiecutter.component_id}}"
     template_dir.mkdir(parents=True, exist_ok=True)
 
     # Write cookiecutter.json
@@ -1170,9 +1170,9 @@ def _generate_cookiecutter_template(
     # Write a README template
     readme = template_dir / "README.md"
     readme.write_text(
-        f"# {{{{cookiecutter.component_id}}}}\n\n"
-        f"Type: {{{{cookiecutter.component_type}}}}\n\n"
-        f"Reborn from a Nugget. Run `cookiecutter` to re-instantiate.\n"
+        "# {{cookiecutter.component_id}}\n\n"
+        "Type: {{cookiecutter.component_type}}\n\n"
+        "Reborn from a Nugget. Run `cookiecutter` to re-instantiate.\n"
     )
 
     return {"template_dir": str(tmp_dir), "context": context}
@@ -1203,8 +1203,8 @@ def _write_nugget_file(
 
     if cookiecutter_template:
         # Store as gzip'd tar: record.json + cookiecutter template dir
-        import tarfile
         import io as _io
+        import tarfile
         nugget_path = NUGGET_DIR / filename.replace(".json.gz", ".tar.gz")
         cc_dir = Path(cookiecutter_template)
         with tarfile.open(nugget_path, "w:gz") as tar:
@@ -1240,8 +1240,8 @@ def _read_nugget_file(
     Returns:
         Tuple of (record_dict_or_None, cookiecutter_template_dir_or_None)
     """
-    import tempfile
     import tarfile
+    import tempfile
 
     path = Path(nugget_path).expanduser()
     if not path.exists():

@@ -2,22 +2,29 @@
 
 version: "2.3.0"
 updated: "2026-07-08T12:14:00Z"
-round: "session.2026-07-08 USX npm packaging flow + uCore UI update"
+round: "session.2026-07-08 USX npm packaging + test fixes + sprint planning"
 
 ## Recent Changes (2026-07-08)
 
 ### USX npm Packaging — Resume & Complete
 - Installed @udos/usx-tokens v3.0.0 as file: dependency from HomeNest monorepo
 - Replaced local token copies with package imports in base.css + main.ts
-- Created usx-extensions.css for uCore-specific patterns (global toolbar, dev toggle, multi-column, responsive)
-- Removed duplicated files: styles/tokens/*.css, styles/themes/base.css, styles/usx-standard.css
-- Added Vite alias for @udos/usx-tokens to resolve file: dependency in build
-- Added TS declarations for CSS side-effect imports
-- PicoCSS compatibility mappings now come from package's tokens-color.css (light) and uCore's dark.css (dark)
+- Created usx-extensions.css for uCore-specific patterns
+- Removed duplicated local token files
+- Vite build passes with all CSS resolving from shared package
 - Version: 4.0.5
-- Modified: frontend-vue/package.json, frontend-vue/src/main.ts, frontend-vue/vite.config.ts, frontend-vue/src/types/vendor.d.ts
-- Added: frontend-vue/src/styles/base.css (rewritten), frontend-vue/src/styles/usx-extensions.css (new)
-- Deleted: frontend-vue/src/styles/tokens/*.css, frontend-vue/src/styles/themes/base.css, frontend-vue/src/styles/usx-standard.css
+
+### Test Suite Fixes — 502/502 Passing
+- Fixed mcp_guardrails.py: validate_mcp_syntax() now walks mcp_handlers/ package
+- Archived 5 stale tests (BudgetPolicy, container_start, export, surface_repair, surface_restart)
+- Fixed test_api_clipboard.py: clipboard_buffer import path
+- Fixed test_api_chat.py: model count + structure assertions
+- Result: 502 passed, 0 failed, 6 warnings (up from 483 passed, 19 failed, 5 collection errors)
+
+### Sprint Planning
+- Created .tasker/sprints/sprint-plan-2026-07-08.md
+- Sprint 1 complete, Sprint 2 (MCP self-identification/repair) and Sprint 3 (npm publish) planned
+- Documented overall health/maintenance/install/repair strategy
 
 ## Recent Changes (2026-07-04)
 

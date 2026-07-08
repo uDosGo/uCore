@@ -26,7 +26,7 @@ class SnackSpec:
     shortcut: Optional[str] = None
     metadata: dict = field(default_factory=dict)
     actions: list[str] = field(default_factory=list)  # for multi-action snacks
-    
+
     def to_dict(self) -> dict:
         """Convert to dictionary for API serialization."""
         return {
@@ -40,7 +40,7 @@ class SnackSpec:
             "metadata": self.metadata,
             "actions": self.actions,
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> "SnackSpec":
         """Create from dictionary (e.g., from backend API)."""
@@ -59,18 +59,18 @@ class SnackSpec:
 
 class SnackPlugin(ABC):
     """Base class for snack plugins."""
-    
+
     @property
     @abstractmethod
     def spec(self) -> SnackSpec:
         """Return the snack specification."""
         pass
-    
+
     @abstractmethod
     def execute(self, action: Optional[str] = None, **kwargs) -> Any:
         """Execute the snack action."""
         pass
-    
+
     def is_available(self) -> bool:
         """Check if snack is available (e.g., backend connected)."""
         return True
@@ -78,11 +78,11 @@ class SnackPlugin(ABC):
 
 class SnackRegistry:
     """Registry for managing snack plugins."""
-    
+
     def __init__(self):
         self._snacks: dict[str, SnackPlugin] = {}
         self._categories: dict[str, list[str]] = {}
-    
+
     def register(self, plugin: SnackPlugin) -> None:
         """Register a snack plugin."""
         spec = plugin.spec
@@ -92,7 +92,7 @@ class SnackRegistry:
         if spec.id not in self._categories[spec.category]:
             self._categories[spec.category].append(spec.id)
         log.info(f"Registered snack: {spec.id} ({spec.category})")
-    
+
     def unregister(self, snack_id: str) -> bool:
         """Unregister a snack plugin."""
         if snack_id in self._snacks:
@@ -103,11 +103,11 @@ class SnackRegistry:
             log.info(f"Unregistered snack: {snack_id}")
             return True
         return False
-    
+
     def get(self, snack_id: str) -> Optional[SnackPlugin]:
         """Get a snack plugin by ID."""
         return self._snacks.get(snack_id)
-    
+
     def get_all(self, category: Optional[str] = None, enabled_only: bool = True) -> list[SnackPlugin]:
         """Get all snacks, optionally filtered by category and enabled status."""
         snacks = list(self._snacks.values())
@@ -116,7 +116,7 @@ class SnackRegistry:
         if enabled_only:
             snacks = [s for s in snacks if s.spec.enabled and s.is_available()]
         return snacks
-    
+
     def get_by_category(self, enabled_only: bool = True) -> dict[str, list[SnackPlugin]]:
         """Get snacks grouped by category."""
         result = {}
@@ -127,11 +127,11 @@ class SnackRegistry:
             if snacks:
                 result[category] = snacks
         return result
-    
+
     def get_specs(self, category: Optional[str] = None, enabled_only: bool = True) -> list[dict]:
         """Get snack specifications as dictionaries (for API/menu building)."""
         return [s.spec.to_dict() for s in self.get_all(category, enabled_only)]
-    
+
     def update_from_backend(self, backend_snacks: list[dict]) -> None:
         """Update registry from backend API response."""
         backend_ids = set()
@@ -140,7 +140,7 @@ class SnackRegistry:
             if not snack_id:
                 continue
             backend_ids.add(snack_id)
-            
+
             # If we have a local plugin with this ID, update its spec
             if snack_id in self._snacks:
                 plugin = self._snacks[snack_id]
@@ -155,10 +155,10 @@ class SnackRegistry:
             else:
                 # Could dynamically create a generic plugin for backend-only snacks
                 log.debug(f"Backend-only snack (no local plugin): {snack_id}")
-        
+
         # Optionally remove snacks that are no longer in backend
         # (but keep local-only snacks)
-    
+
     def execute(self, snack_id: str, action: Optional[str] = None, **kwargs) -> Any:
         """Execute a snack by ID."""
         plugin = self.get(snack_id)

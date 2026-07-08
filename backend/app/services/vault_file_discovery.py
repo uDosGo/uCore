@@ -14,6 +14,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+
 # ─── Types ──────────────────────────────────────────────────────────
 @dataclass
 class FileEntry:

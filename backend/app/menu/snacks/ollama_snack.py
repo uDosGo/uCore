@@ -14,13 +14,13 @@ log = logging.getLogger("ollama-snack")
 
 class OllamaSnack(SnackPlugin):
     """Ollama server management snack."""
-    
+
     def __init__(self, menu_delegate=None):
         self._menu_delegate = menu_delegate
         self._status = "checking"
         self._models = []
         self._disable_file = Path("~/.ucore/ollama_disabled").expanduser()
-    
+
     @property
     def spec(self) -> SnackSpec:
         # Dynamic icon based on status
@@ -29,7 +29,7 @@ class OllamaSnack(SnackPlugin):
             icon = "⟳"
         elif self._disable_file.exists():
             icon = "○"
-        
+
         return SnackSpec(
             id="ollama-manager",
             name="Ollama",
@@ -44,10 +44,10 @@ class OllamaSnack(SnackPlugin):
                 "description": "Manage local Ollama LLM server",
             },
         )
-    
+
     def is_available(self) -> bool:
         return True  # Always available
-    
+
     def execute(self, action: Optional[str] = None, **kwargs) -> Any:
         if action == "start":
             return self._start_ollama()
@@ -58,7 +58,7 @@ class OllamaSnack(SnackPlugin):
             time.sleep(2)
             return self._start_ollama()
         return False
-    
+
     def _start_ollama(self) -> bool:
         """Start Ollama server explicitly."""
         log.info("Starting Ollama from menu...")
@@ -66,7 +66,7 @@ class OllamaSnack(SnackPlugin):
             # Remove disable flag so watchdog doesn't kill it
             if self._disable_file.exists():
                 self._disable_file.unlink()
-            
+
             # Start ollama serve as standalone process
             proc = subprocess.Popen(
                 ["ollama", "serve"],
@@ -86,7 +86,7 @@ class OllamaSnack(SnackPlugin):
         except Exception as e:
             log.exception("Failed to start Ollama: %s", e)
             return False
-    
+
     def _stop_ollama(self) -> bool:
         """Stop Ollama server permanently (sets disable flag)."""
         log.info("Stopping Ollama permanently...")
@@ -101,14 +101,14 @@ class OllamaSnack(SnackPlugin):
             )
             pids = [int(p) for p in result.stdout.strip().splitlines() if p.strip()]
             pids = [p for p in pids if p != __import__("os").getpid()]
-            
+
             if pids:
                 for pid in pids:
                     try:
                         __import__("os").kill(pid, 9)
                     except (ProcessLookupError, OSError):
                         pass
-            
+
             # Kill leftover processes
             for leftover in ["ollama_llama_server", "ollama-runner"]:
                 with __import__("contextlib").suppress(Exception):
@@ -118,11 +118,11 @@ class OllamaSnack(SnackPlugin):
                         timeout=3,
                         check=False,
                     )
-            
+
             # Set disable flag
             self._disable_file.parent.mkdir(parents=True, exist_ok=True)
             self._disable_file.write_text(f"disabled by menu at {time.time()}")
-            
+
             self._status = "stopped"
             self._models = []
             if self._menu_delegate:
@@ -134,13 +134,13 @@ class OllamaSnack(SnackPlugin):
         except Exception as e:
             log.exception("Failed to stop Ollama: %s", e)
             return False
-    
+
     def _refresh_status(self) -> None:
         """Refresh Ollama status and models."""
         try:
-            import urllib.request
             import json
-            
+            import urllib.request
+
             req = urllib.request.Request("http://localhost:11434/api/tags")
             with urllib.request.urlopen(req, timeout=3) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
@@ -152,12 +152,12 @@ class OllamaSnack(SnackPlugin):
             else:
                 self._status = "installed"
             self._models = []
-        
+
         if self._menu_delegate:
             self._menu_delegate.performSelectorOnMainThread_withObject_waitUntilDone_(
                 "updateUI:", None, False
             )
-    
+
     def update_status(self, status: str, models: list = None) -> None:
         """Update status from external refresh."""
         self._status = status

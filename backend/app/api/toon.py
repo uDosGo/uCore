@@ -28,19 +28,19 @@ async def handle_toon_encode(request: web.Request) -> web.Response:
             "error": "Invalid JSON",
             "status": "error",
         }, status=400)
-    
+
     content = body.get("content", "")
     content_type = body.get("content_type", "text")
-    
+
     if not content:
         return web.json_response({
             "error": "content is required",
             "status": "error",
         }, status=400)
-    
+
     try:
         toon_server = get_toon_server()
-        
+
         # Check cache first
         cached = toon_server.get(content, content_type)
         if cached:
@@ -52,13 +52,13 @@ async def handle_toon_encode(request: web.Request) -> web.Response:
                 "toon_size": cached.toon_size,
                 "hit_count": cached.hit_count,
             })
-        
+
         # Generate TOON content
         toon_content = toon_server.toon_encode(content, content_type)
-        
+
         # Cache the result
         toon_server.set(content, toon_content, content_type)
-        
+
         return web.json_response({
             "status": "encoded",
             "toon_content": toon_content,
@@ -66,7 +66,7 @@ async def handle_toon_encode(request: web.Request) -> web.Response:
             "original_size": len(content),
             "toon_size": len(toon_content),
         })
-        
+
     except Exception as e:
         log.error(f"TOON encoding error: {e}")
         return web.json_response({
@@ -80,12 +80,12 @@ async def handle_toon_stats(request: web.Request) -> web.Response:
     try:
         toon_server = get_toon_server()
         stats = toon_server.stats()
-        
+
         return web.json_response({
             "status": "ok",
             "stats": stats,
         })
-        
+
     except Exception as e:
         log.error(f"TOON stats error: {e}")
         return web.json_response({
@@ -99,12 +99,12 @@ async def handle_toon_clear(request: web.Request) -> web.Response:
     try:
         toon_server = get_toon_server()
         toon_server.clear()
-        
+
         return web.json_response({
             "status": "cleared",
             "message": "TOON cache cleared successfully",
         })
-        
+
     except Exception as e:
         log.error(f"TOON clear error: {e}")
         return web.json_response({

@@ -33,6 +33,7 @@ try:
 except Exception:
     NSEvent = NSEventMaskKeyDown = None
 from PyObjCTools import AppHelper
+from snackmachine.registry import get_registry
 
 # Import modular components
 from app.menu.api_helpers import (
@@ -41,18 +42,17 @@ from app.menu.api_helpers import (
     is_uihub_alive,
     open_url,
 )
-from app.menu.status_icon import _make_status_icon, update_status_icon
-from app.menu.lockfile import acquire_lock, release_lock
+
+# Import snack registry and plugins
+from app.menu.backend_manager import ensure_backend_running
 from app.menu.launchd_integration import (
     install_launchd,
     is_launchd_installed,
     uninstall_launchd,
 )
-
-# Import snack registry and plugins
-from app.menu.backend_manager import ensure_backend_running
-from snackmachine.registry import get_registry
+from app.menu.lockfile import acquire_lock, release_lock
 from app.menu.snacks.clipboard_snack import register as register_clipboard
+from app.menu.status_icon import _make_status_icon, update_status_icon
 
 # ─── Config ───────────────────────────────────────────────────────────
 UCORE_URL = "http://127.0.0.1:8484"
@@ -159,6 +159,7 @@ class UnifiedMenuDelegate(NSObject):
         """Register global shortcut for clipboard panel (Ctrl+Cmd+V)."""
         try:
             from AppKit import NSEvent, NSEventMaskKeyDown
+
             from app.menu.shortcut_utils import MOD_ALL, MOD_COMMAND, MOD_CONTROL
 
             wanted_mods = MOD_CONTROL | MOD_COMMAND

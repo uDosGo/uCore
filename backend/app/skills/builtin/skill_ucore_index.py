@@ -99,8 +99,8 @@ class UCoreIndexSkill(BaseSkill):
 
     async def _health_report(self) -> dict:
         """Generate health report by cross-referencing audit + runtime checks."""
-        import urllib.request
         import json as _json
+        import urllib.request
 
         services: dict[str, dict] = {}
         checks = [

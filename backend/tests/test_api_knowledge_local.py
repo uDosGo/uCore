@@ -6,6 +6,7 @@ from pathlib import Path
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
+
 from app.api.knowledge import (
     handle_local_databases,
     handle_local_export,

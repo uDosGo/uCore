@@ -19,12 +19,14 @@ from pathlib import Path
 from typing import Any, Optional
 
 from snackmachine.registry import SnackPlugin, SnackSpec, register_snack
+
 from app.services.spool_reader import read_spool
 
 log = logging.getLogger("snack-shack")
 
 UCORE_URL = "http://127.0.0.1:8484"
 import os
+
 SNACKS_REPO_PATH = Path(os.environ.get("UCORE_BACKEND_DIR", str(Path.home() / "Code" / "uCore" / "backend"))) / "app" / "snacks"
 SNACKS_USER_PATH = Path.home() / ".ucore/snacks"
 SNACKS_TEMPLATE_PATH = SNACKS_REPO_PATH / "templates"
@@ -133,48 +135,48 @@ class SnackShack(SnackPlugin):
     def _list_snacks(self) -> dict:
         """List all available snacks (repo + user)."""
         snacks = {"repo": [], "user": []}
-        
+
         # List repo snacks
         for f in SNACKS_REPO_PATH.glob("*.py"):
             if f.name.startswith("_"):
                 continue
             snacks["repo"].append(f.stem)
-        
+
         # List user snacks
         if SNACKS_USER_PATH.exists():
             for f in SNACKS_USER_PATH.glob("*.py"):
                 snacks["user"].append(f.stem)
-        
+
         return {"success": True, "snacks": snacks}
 
     def _publish_snack(self, snack_id: str) -> dict:
         """Publish a snack to the repo (GitHub flow)."""
         if not snack_id:
             return {"success": False, "error": "snack_id required"}
-        
+
         user_snack = SNACKS_USER_PATH / f"{snack_id}.py"
         if not user_snack.exists():
             return {"success": False, "error": f"Snack not found: {snack_id}"}
-        
+
         # Copy to repo (would be git commit in real flow)
         dest = SNACKS_REPO_PATH / f"{snack_id}.py"
         shutil.copy(user_snack, dest)
-        
+
         return {"success": True, "message": f"Published {snack_id} to repo"}
 
     def _restore_snack(self, snack_id: str) -> dict:
         """Restore a snack from repo to user space."""
         if not snack_id:
             return {"success": False, "error": "snack_id required"}
-        
+
         repo_snack = SNACKS_REPO_PATH / f"{snack_id}.py"
         if not repo_snack.exists():
             return {"success": False, "error": f"Snack not found in repo: {snack_id}"}
-        
+
         SNACKS_USER_PATH.mkdir(parents=True, exist_ok=True)
         dest = SNACKS_USER_PATH / f"{snack_id}.py"
         shutil.copy(repo_snack, dest)
-        
+
         return {"success": True, "message": f"Restored {snack_id} to user space"}
 
 

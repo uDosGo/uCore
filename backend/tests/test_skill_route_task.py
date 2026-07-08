@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import pytest
+
 from app.skills.builtin.route_task import RouteTask
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
+
 from app.surfaces.server import ServerStore, register_server_routes
 
 

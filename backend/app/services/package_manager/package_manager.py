@@ -3,14 +3,14 @@
 Module-aware package management for uCore.
 """
 
-import json
 import hashlib
+import json
 import logging
-from pathlib import Path
-from typing import List, Dict, Optional
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional
 
-from .models import PackageInfo, PackageStatus, DependencyInfo, PackageOperationResult
+from .models import DependencyInfo, PackageInfo, PackageOperationResult, PackageStatus
 
 log = logging.getLogger("package_manager")
 

@@ -286,7 +286,7 @@ async def popcorn_status_handler(request: web.Request) -> web.Response:
             return web.json_response(
                 {"error": "Popcorn is macOS-only"}, status=501
             )
-        
+
         from app.services.popcorn_manager import get_popcorn_status
         status = get_popcorn_status()
         return web.json_response(status)
@@ -301,10 +301,10 @@ async def popcorn_action_handler(request: web.Request) -> web.Response:
             return web.json_response(
                 {"error": "Popcorn is macOS-only"}, status=501
             )
-        
+
         action = request.match_info.get("action", "").lower()
         from app.services.popcorn_manager import perform_action
-        
+
         result = perform_action(action)
         status_code = 200 if result.get("success") else 400
         return web.json_response(result, status=status_code)
@@ -379,7 +379,7 @@ async def execute_skill_handler(request: web.Request) -> web.Response:
     """POST /api/skills/{skill_name} — execute a skill"""
     try:
         skill_name = request.match_info.get("skill_name", "").lower()
-        
+
         # Parse optional arguments
         kwargs = {}
         if request.can_read_body:
@@ -388,10 +388,10 @@ async def execute_skill_handler(request: web.Request) -> web.Response:
                 kwargs = body.get("params", {})
             except Exception:
                 pass
-        
+
         from app.skills.self_heal import execute_skill
         result = await execute_skill(skill_name, **kwargs)
-        
+
         status_code = 200 if result.success else 400
         return web.json_response(
             {
@@ -460,15 +460,15 @@ def create_app() -> web.Application:
 
     # Database / Admin routes
     app.router.add_get("/api/admin/migrate", migrate_admin_handler)
-    
+
     # Popcorn orchestration routes (macOS only)
     app.router.add_get("/api/surfaces/popcorn/status", popcorn_status_handler)
     app.router.add_post("/api/surfaces/popcorn/{action}", popcorn_action_handler)
-    
+
     # Health monitoring routes
     app.router.add_get("/api/health/status", health_status_handler)
     app.router.add_get("/api/health/logs", health_logs_handler)
-    
+
     # Diagnostics and self-healing routes
     app.router.add_get("/api/diagnostics", diagnostics_handler)
     app.router.add_get("/api/diagnostics/ports", ports_handler)

@@ -10,9 +10,9 @@ import os
 import subprocess
 from pathlib import Path
 
+from app.menu.launchd_manager import UCORE_PLIST
 from app.menu.launchd_manager import install as launchd_install
 from app.menu.launchd_manager import uninstall as launchd_uninstall
-from app.menu.launchd_manager import UCORE_PLIST
 
 LABEL = "com.udos.ucore-menu"
 

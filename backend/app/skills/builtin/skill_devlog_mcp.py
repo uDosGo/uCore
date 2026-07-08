@@ -76,7 +76,6 @@ class DevlogMCP(BaseSkill):
         completed_tasks = self._collect_completed_tasks(tasker_dir, include_archived)
 
         # Collect spool activity
-        from datetime import timedelta
         cutoff = (datetime.now(UTC) - timedelta(hours=hours)).isoformat()
         spool_entries = read_spool(since=cutoff)
 
@@ -151,8 +150,8 @@ class DevlogMCP(BaseSkill):
         lines = [
             f"# Devlog MCP — Generated: {timestamp}",
             "",
-            f"version: \"1.0.0\"",
-            f"generated_by: \"Copilot-Poolside-Laguana-M1\"",
+            "version: \"1.0.0\"",
+            "generated_by: \"Copilot-Poolside-Laguana-M1\"",
             f"hours: {hours}",
             f"completed_tasks: {len(completed_tasks)}",
             f"spool_entries: {len(spool_entries)}",

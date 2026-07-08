@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import pytest
+
 from app.tools.registry import check_tool, get_tool, list_tools
 
 

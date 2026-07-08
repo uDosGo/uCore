@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
+
 from app.api.skills import handle_list_skills, handle_run_named_skill, handle_run_skill
 
 

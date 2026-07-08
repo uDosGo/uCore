@@ -51,9 +51,9 @@ class MissionOpsSnack(SnackPlugin):
     def _queue_mission(self, params: dict) -> dict:
         """Queue a mission snack."""
         try:
-            import urllib.request
             import json
-            
+            import urllib.request
+
             data = json.dumps(params).encode()
             req = urllib.request.Request(
                 "http://127.0.0.1:8484/api/snacks",
@@ -69,9 +69,9 @@ class MissionOpsSnack(SnackPlugin):
     def _list_missions(self) -> dict:
         """List pending missions."""
         try:
-            import urllib.request
             import json
-            
+            import urllib.request
+
             req = urllib.request.Request("http://127.0.0.1:8484/api/snacks")
             with urllib.request.urlopen(req, timeout=5) as resp:
                 data = json.loads(resp.read().decode())
@@ -83,7 +83,7 @@ class MissionOpsSnack(SnackPlugin):
         """Clear all pending missions."""
         try:
             import urllib.request
-            
+
             req = urllib.request.Request(
                 "http://127.0.0.1:8484/api/snacks/queue",
                 method="DELETE",

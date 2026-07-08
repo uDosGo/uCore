@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from app.services.episodic_store import (
     append_entry,
     read_entries,
