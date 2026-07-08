@@ -49,7 +49,42 @@ def main():
     log.info("Debug: %s", settings.debug)
     log.info("Auto-start surfaces: %s", settings.auto_start)
 
-    # ── MCP Integrity Check ──────────────────────────────────
+    # ── Startup Health Check ──────────────────────────────────
+    log.info("Running startup health checks...")
+    try:
+        import asyncio
+
+        from .services.system_health import get_full_health, run_self_repair
+        health = asyncio.run(get_full_health())
+        status = health.get("status", "unknown")
+        passed = health.get("passed_checks", 0)
+        total = health.get("total_checks", 0)
+        if status == "healthy":
+            log.info("✅ Startup health: %s (%d/%d checks passed)",
+                     status, passed, total)
+        elif status == "degraded":
+            log.warning("⚠️  Startup health: DEGRADED (%d/%d checks passed)",
+                        passed, total)
+            for c in health.get("components", []):
+                if not c.get("ok"):
+                    log.warning("   ✗ %s: %s", c["name"], c["message"])
+            log.info("   Attempting self-repair...")
+            repair = asyncio.run(run_self_repair())
+            log.info("   Repair: %d successful, %d failed → health after: %s",
+                     repair.get("repairs_successful", 0),
+                     repair.get("repairs_failed", 0),
+                     repair.get("health_after_repair", "unknown"))
+        else:
+            log.error("❌ Startup health: UNHEALTHY (%d/%d checks passed)",
+                      passed, total)
+            for c in health.get("components", []):
+                if not c.get("ok"):
+                    log.error("   ✗ %s: %s", c["name"], c["message"])
+            log.error("   Server will start but may be unstable.")
+    except Exception as exc:
+        log.warning("⚠️  Startup health check error: %s", exc)
+
+    # MCP Integrity Check (fast structural only)
     try:
         from .api.mcp_guardrails import validate_mcp_integrity
         report = validate_mcp_integrity()

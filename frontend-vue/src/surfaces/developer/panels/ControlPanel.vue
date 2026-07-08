@@ -167,6 +167,29 @@ async function handleAction(id: string) {
   actionLoading.value = id
   try {
     switch (id) {
+      case 'health-check':
+        await fetchStatus()
+        // Also fetch full health from the new endpoint
+        try {
+          const healthRes = await fetch(`${API_BASE}/api/health/full`)
+          const healthData = await healthRes.json()
+          alert(`System Health: ${healthData.status}\n${healthData.passed_checks}/${healthData.total_checks} checks passed\n\n${
+            healthData.components.map((c: any) =>
+              `${c.ok ? '✓' : '✗'} ${c.name}: ${c.message}`
+            ).join('\n')
+          }`)
+        } catch (e: any) {
+          alert('Health check failed: ' + e.message)
+        }
+        break
+      case 'system-repair':
+        if (confirm('Run system self-repair? This will attempt to fix MCP structure, reload skills, and verify plates.')) {
+          const repairRes = await fetch(`${API_BASE}/api/system/repair`, { method: 'POST' })
+          const repairData = await repairRes.json()
+          alert(`Repair complete: ${repairData.health_after_repair}\n${repairData.repairs_successful} successful, ${repairData.repairs_failed} failed`)
+          await fetchStatus()
+        }
+        break
       case 'ingest-feed':
         await fetch(`${API_BASE}/api/feed/ingest`, {
           method: 'POST',
