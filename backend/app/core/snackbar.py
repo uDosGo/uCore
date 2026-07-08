@@ -192,6 +192,29 @@ async def info_handler(request: web.Request) -> web.Response:
 
 
 async def shutdown_handler(request: web.Request) -> web.Response:
+    """POST /api/shutdown — graceful shutdown.
+
+    Protected: only accepts POST with a valid JSON body containing a
+    confirmation token to prevent accidental shutdown from misrouted GETs.
+    """
+    if request.method != "POST":
+        return web.json_response(
+            {"error": "Use POST /api/shutdown with {\"confirm\": true}"},
+            status=405,
+        )
+    try:
+        body = await request.json()
+        if not body.get("confirm"):
+            return web.json_response(
+                {"error": "Send {\"confirm\": true} to confirm shutdown"},
+                status=400,
+            )
+    except Exception:
+        return web.json_response(
+            {"error": "Send {\"confirm\": true} to confirm shutdown"},
+            status=400,
+        )
+    log.warning("Shutdown requested via API — stopping server")
     asyncio.get_event_loop().stop()
     return web.json_response({"status": "shutting down"})
 
@@ -437,7 +460,12 @@ _start_time: float = time.time()
 
 
 async def maintenance_scheduler_ctx(app: web.Application):
-    """Run the lightweight overnight maintenance scheduler in the background."""
+    """Run the lightweight overnight maintenance scheduler in the background.
+
+    Wrapped in try/except to prevent a single scheduler failure from
+    crashing the entire server. Launchd will auto-restart the process
+    if the event loop exits — we log the error but keep running.
+    """
     from app.services.maintenance_scheduler import (
         MaintenanceScheduler,
         set_maintenance_scheduler,
@@ -446,11 +474,20 @@ async def maintenance_scheduler_ctx(app: web.Application):
     scheduler = MaintenanceScheduler()
     set_maintenance_scheduler(scheduler)
     app[MAINTENANCE_SCHEDULER_KEY] = scheduler
-    await scheduler.start()
+    try:
+        await scheduler.start()
+        log.info("Maintenance scheduler started successfully")
+    except Exception as exc:
+        log.error("Maintenance scheduler failed to start: %s", exc)
+        log.error("Server will continue without scheduled maintenance")
+        # Don't crash — the app still works without the scheduler
     try:
         yield
     finally:
-        await scheduler.stop()
+        try:
+            await scheduler.stop()
+        except Exception as exc:
+            log.warning("Maintenance scheduler stop error: %s", exc)
         set_maintenance_scheduler(None)
 
 

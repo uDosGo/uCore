@@ -1,19 +1,19 @@
 # Consolidated Dev Flow - Generated: 2026-06-28T10:00:00Z
 
-version: "1.3.2"
+version: "1.4.0"
 generated_by: "Cline-uCore"
 source_count: 7
-task_count: 44
-completed_count: 60
+task_count: 47
+completed_count: 63
 sprint:
-  id: "sprint.2026-07-08"
-  name: "USX npm Packaging Flow + uCore UI Update"
+  id: "sprint.2026-07-08-triple"
+  name: "USX npm Packaging + Test Fixes + Self-Heal Infrastructure"
   start: "2026-07-08"
   end: "2026-07-08"
   status: "complete"
-  total_tasks: 1
-  completed_tasks: 1
-  notes: "@udos/usx-tokens v3.0.0 linked as file: dependency. base.css rewritten to import from package. usx-extensions.css created for uCore-specific patterns. Duplicated local tokens/usx-standard.css/themes/base.css removed. Vite alias added. Build passes. Version 4.0.5."
+  total_tasks: 3
+  completed_tasks: 3
+  notes: "Sprint 1: Test fixes (502/502 passing, 5 stale archived). Sprint 2: Self-identification & repair (GET /api/health/full, POST /api/system/repair, startup health check, frontend Control Panel wiring). Sprint 3: USX tokens package v3.1.0 (c64/teletext/high-contrast synced, PUBLISH.md written, npm login pending). Version 4.0.5. 6-layer self-healing architecture documented."
   waves:
     - name: "Foundation"
       days: "1-3"
