@@ -1,0 +1,61 @@
+{
+  "name": "@udos/usx-tokens",
+  "version": "3.1.0",
+  "description": "USX Design Token System — shared CSS custom properties for uDos surfaces (uCore + HomeNest)",
+  "type": "module",
+  "main": "usx-standard.css",
+  "style": "usx-standard.css",
+  "files": [
+    "tokens/*.css",
+    "themes/*.css",
+    "home-nest/*.css",
+    "usx-standard.css",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./usx-standard.css",
+    "./tokens/color": "./tokens/tokens-color.css",
+    "./tokens/components": "./tokens/tokens-components.css",
+    "./tokens/spacing": "./tokens/tokens-spacing.css",
+    "./tokens/touch": "./tokens/tokens-touch.css",
+    "./tokens/typography": "./tokens/tokens-typography.css",
+    "./tokens/*": "./tokens/*.css",
+    "./themes/dark": "./themes/dark.css",
+    "./themes/light": "./themes/light.css",
+    "./themes/c64": "./themes/c64.css",
+    "./themes/teletext": "./themes/teletext.css",
+    "./themes/high-contrast": "./themes/high-contrast.css",
+    "./themes/*": "./themes/*.css",
+    "./home-nest/console-grid": "./home-nest/console-grid.css",
+    "./home-nest/controller-focus": "./home-nest/controller-focus.css",
+    "./home-nest/media-player": "./home-nest/media-player.css",
+    "./home-nest/*": "./home-nest/*.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uDosGo/uCore.git",
+    "directory": "packages/usx-tokens"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "usx",
+    "design-tokens",
+    "css",
+    "uDos",
+    "uCore",
+    "HomeNest",
+    "10-foot-ui",
+    "controller-first"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@picocss/pico": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@picocss/pico": {
+      "optional": true
+    }
+  }
+}

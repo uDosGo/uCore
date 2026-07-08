@@ -37,7 +37,7 @@
     "pinia-plugin-persistedstate": "^3.2.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
-    "@udos/usx-tokens": "file:../../HomeNest/packages/usx-tokens"
+    "@udos/usx-tokens": "workspace:*"
   },
   "devDependencies": {
     "@iconify/vue": "^4.3.0",

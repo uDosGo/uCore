@@ -5,15 +5,15 @@
 
 ## Summary
 
-The USX token system has been extracted from `uCore/frontend-vue/src/styles/` into a **shared npm package**: `@udos/usx-tokens` v3.0.0.
+The USX token system has been extracted from `uCore/frontend-vue/src/styles/` into a **shared npm package**: `@udos/usx-tokens` v3.1.0.
 
-This package is published from the **HomeNest monorepo** (`fredporter/HomeNest`, path `packages/usx-tokens/`) and will be consumed by both uCore and HomeNest.
+This package is now hosted in the **uCore monorepo** (`uDosGo/uCore`, path `packages/usx-tokens/`) and is consumed by both uCore and HomeNest.
 
 ## What Changed
 
 | Before | After |
 |--------|-------|
-| Tokens live in `frontend-vue/src/styles/tokens/` | Tokens live in `packages/usx-tokens/tokens/` in HomeNest |
+| Tokens live in `frontend-vue/src/styles/tokens/` | Tokens live in `packages/usx-tokens/tokens/` in uCore |
 | `usx-standard.css` in uCore only | `usx-standard.css` shared via npm package |
 | No 10-foot console support | `home-nest/` additions for console grid, controller focus, media player |
 | Ad-hoc PicoCSS mapping | Formal PicoCSS → USX mapping layer in `tokens-color.css` |
@@ -44,9 +44,9 @@ This package is published from the **HomeNest monorepo** (`fredporter/HomeNest`,
 
 ## Remaining
 
-- [ ] `npm publish --access public` from `~/Code/HomeNest/packages/usx-tokens/` — requires `npm login`
-- [ ] Switch uCore from `file:../../HomeNest/packages/usx-tokens` to `@udos/usx-tokens@^3.1.0` after publish
-- [ ] Remove Vite alias for `@udos/usx-tokens` in `vite.config.ts` after switching to versioned dependency
+- [ ] `npm publish --access public` from `~/Code/uCore/packages/usx-tokens/` — requires `npm login`
+- [ ] Optionally switch uCore from local workspace dependency to `@udos/usx-tokens@^3.1.0` after publish
+- [ ] Optionally remove Vite alias for `@udos/usx-tokens` in `vite.config.ts` after switching to versioned dependency
 
 ## Design Decisions
 
@@ -57,5 +57,5 @@ This package is published from the **HomeNest monorepo** (`fredporter/HomeNest`,
 
 ## Repository
 
-- **Package source:** `github.com/fredporter/HomeNest` → `packages/usx-tokens/`
+- **Package source:** `github.com/uDosGo/uCore` → `packages/usx-tokens/`
 - **Published as:** `@udos/usx-tokens` on npm/GitHub Packages

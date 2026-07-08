@@ -29,7 +29,7 @@ export default defineConfig({
       '@HomeNest': path.resolve(CODE_ROOT, 'uConnect/homenest-console'),
       '@usxd-browser': path.resolve(CODE_ROOT, 'uConnect/usxd-browser'),
       '@usx-pkg': path.resolve(CODE_ROOT, 'uConnect/packages/usx'),
-      '@udos/usx-tokens': path.resolve(CODE_ROOT, 'HomeNest/packages/usx-tokens'),
+      '@udos/usx-tokens': path.resolve(__dirname, '../packages/usx-tokens'),
       '@udos/gridcore': path.resolve(CODE_ROOT, 'uCode/packages/gridcore/src/index.ts'),
       '@udos/viewport-renderer': path.resolve(CODE_ROOT, 'uCode/packages/viewport-renderer/src/index.ts'),
     },
