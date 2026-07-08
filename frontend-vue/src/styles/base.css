@@ -1,15 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════
    base.css — USX Base Theme (light, always applied)
    ═══════════════════════════════════════════════════════════════════
-   Import tokens, then apply as :root defaults.
+   Imports token files from the shared @udos/usx-tokens package,
+   then applies :root defaults and PicoCSS compatibility mappings.
    Dark/teletext/c64 themes override only what changes.
    ═══════════════════════════════════════════════════════════════════ */
 
-@import '../tokens/tokens-color.css';
-@import '../tokens/tokens-typography.css';
-@import '../tokens/tokens-spacing.css';
-@import '../tokens/tokens-touch.css';
-@import '../tokens/tokens-components.css';
+@import '@udos/usx-tokens/tokens/tokens-color.css';
+@import '@udos/usx-tokens/tokens/tokens-typography.css';
+@import '@udos/usx-tokens/tokens/tokens-spacing.css';
+@import '@udos/usx-tokens/tokens/tokens-touch.css';
+@import '@udos/usx-tokens/tokens/tokens-components.css';
 
 :root {
   /* ===== GLOBAL TOUCH TARGETS ===== */

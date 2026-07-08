@@ -1,8 +1,23 @@
 # Devlog — uCore
 
-version: "2.2.0"
-updated: "2026-07-04T13:42:00Z"
-round: "session.2026-07-04 PyCharm setup + Grid UI polish + handover"
+version: "2.3.0"
+updated: "2026-07-08T12:14:00Z"
+round: "session.2026-07-08 USX npm packaging flow + uCore UI update"
+
+## Recent Changes (2026-07-08)
+
+### USX npm Packaging — Resume & Complete
+- Installed @udos/usx-tokens v3.0.0 as file: dependency from HomeNest monorepo
+- Replaced local token copies with package imports in base.css + main.ts
+- Created usx-extensions.css for uCore-specific patterns (global toolbar, dev toggle, multi-column, responsive)
+- Removed duplicated files: styles/tokens/*.css, styles/themes/base.css, styles/usx-standard.css
+- Added Vite alias for @udos/usx-tokens to resolve file: dependency in build
+- Added TS declarations for CSS side-effect imports
+- PicoCSS compatibility mappings now come from package's tokens-color.css (light) and uCore's dark.css (dark)
+- Version: 4.0.5
+- Modified: frontend-vue/package.json, frontend-vue/src/main.ts, frontend-vue/vite.config.ts, frontend-vue/src/types/vendor.d.ts
+- Added: frontend-vue/src/styles/base.css (rewritten), frontend-vue/src/styles/usx-extensions.css (new)
+- Deleted: frontend-vue/src/styles/tokens/*.css, frontend-vue/src/styles/themes/base.css, frontend-vue/src/styles/usx-standard.css
 
 ## Recent Changes (2026-07-04)
 

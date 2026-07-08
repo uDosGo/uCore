@@ -1,0 +1,339 @@
+/* ═══════════════════════════════════════════════════════════════════
+   usx-extensions.css — uCore-Specific USX Extensions
+   ═══════════════════════════════════════════════════════════════════
+   Import this AFTER @udos/usx-tokens (usx-standard.css).
+   Contains uCore-only patterns: global toolbar, dev toggle,
+   multi-column layout, responsive rules.
+   These are NOT in the shared @udos/usx-tokens package.
+
+   PicoCSS mappings are in the shared tokens-color.css.
+   Dark theme PicoCSS overrides are in themes/dark.css.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════
+   GLOBAL TOOLBAR
+   ═══════════════════════════════════════════════════════════════════ */
+
+.global-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--usx-spacing-lg);
+  background: var(--usx-color-surface);
+  min-height: var(--usx-topbar-height);
+  gap: var(--usx-spacing-xs);
+  box-sizing: border-box;
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
+  position: relative;
+}
+
+/* Neutralise Pico CSS button styling inside the toolbar */
+.global-toolbar button,
+.global-toolbar a[role="button"] {
+  --pico-border-width: 0 !important;
+  --pico-border-radius: 0 !important;
+  --pico-box-shadow: none !important;
+  --pico-background-color: transparent !important;
+  --pico-color: inherit !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
+}
+
+.global-toolbar__left,
+.global-toolbar__center,
+.global-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+}
+
+.global-toolbar__center {
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+  gap: var(--usx-spacing-2);
+}
+
+/* ─── Base tab (center labels) ─────────────────────────────────── */
+.global-toolbar__tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: none;
+  border-bottom: var(--usx-tab-border-width) solid transparent;
+  background: transparent;
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-base);
+  font-weight: var(--usx-font-weight-medium);
+  font-family: var(--usx-font-family-sans);
+  cursor: pointer;
+  transition: color var(--usx-transition-fast);
+  text-decoration: none;
+  white-space: nowrap;
+  margin-bottom: calc(var(--usx-border-overlap) * -1);
+  min-height: var(--usx-touch-min);
+  line-height: 1;
+}
+
+/* Label text in center tabs — keep at base size even when icon is larger */
+.global-toolbar__tab-label {
+  font-size: var(--usx-font-size-base);
+  line-height: 1.5;
+}
+
+.global-toolbar__tab:hover {
+  color: var(--usx-color-on-surface);
+}
+
+.global-toolbar__tab--active {
+  color: var(--usx-color-primary);
+  border-bottom-color: var(--usx-color-primary);
+}
+
+/* ─── Nav icons (left) ─────────────────────────────────────────── */
+.global-toolbar__tab--nav {
+  border-bottom: none;
+  padding: var(--usx-spacing-xs);
+  min-height: 0;
+  transition: color var(--usx-transition-fast);
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
+  font-size: 1.5em;
+  line-height: 1;
+}
+
+.global-toolbar__tab--nav:hover {
+  color: var(--usx-color-on-surface);
+}
+
+.global-toolbar__tab--nav.global-toolbar__tab--active {
+  color: var(--usx-color-primary);
+}
+
+/* ─── Icon-only mode ───────────────────────────────────────────── */
+.global-toolbar__tab--icon-only {
+  padding: var(--usx-spacing-xs);
+}
+
+.global-toolbar__tab--icon-only span {
+  display: none;
+}
+
+/* ─── Shared icon sizing — USX token-based ── */
+.global-toolbar__icon {
+  flex-shrink: 0;
+  width: var(--usx-icon-size-lg);
+  height: var(--usx-icon-size-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* ─── Right-side icon-only buttons (theme toggle, settings) ───── */
+.global-toolbar__icon-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--usx-spacing-xs);
+  border: none;
+  background: transparent;
+  color: var(--usx-color-on-surface-muted);
+  cursor: pointer;
+  transition: color var(--usx-transition-fast);
+  font-size: 1.5em;
+  line-height: 1;
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
+}
+
+.global-toolbar__icon-only:hover {
+  color: var(--usx-color-on-surface);
+}
+
+/* Ensure icon-inside-icon-only matches parent size */
+.global-toolbar__icon-only .u-icon {
+  font-size: 1em !important;
+}
+
+.global-toolbar__overflow-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.global-toolbar__more-btn {
+  padding: var(--usx-spacing-sm);
+}
+
+.global-toolbar__overflow-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  min-width: var(--usx-dropdown-min-width);
+  padding: var(--usx-spacing-xs);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.global-toolbar__overflow-item {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-icon-gap);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border: none;
+  background: transparent;
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-sm);
+  cursor: pointer;
+  font-family: var(--usx-font-family-sans);
+  transition: color var(--usx-transition-fast);
+  text-align: left;
+}
+
+.global-toolbar__overflow-item:hover {
+  color: var(--usx-color-on-surface);
+}
+
+.global-toolbar__overflow-item--active {
+  color: var(--usx-color-primary);
+}
+
+/* Toolbar Section Layout */
+.global-toolbar__left,
+.global-toolbar__center,
+.global-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-md);
+  min-height: fit-content;
+}
+
+/* Dev Mode toggle */
+.global-toolbar__dev-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-full);
+  background: transparent;
+  color: var(--usx-color-on-surface-muted);
+  cursor: pointer;
+  font-size: var(--usx-font-size-xs);
+  font-weight: var(--usx-font-weight-semibold);
+  font-family: var(--usx-font-family-sans);
+  transition: color var(--usx-transition-fast), border-color var(--usx-transition-fast), background var(--usx-transition-fast);
+  line-height: 1;
+}
+
+.global-toolbar__dev-toggle:hover {
+  color: var(--usx-color-on-surface);
+  border-color: var(--usx-color-on-surface-muted);
+}
+
+/* Dev dot indicator */
+.global-toolbar__dev-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--usx-color-on-surface-muted);
+  transition: background var(--usx-transition-fast);
+}
+
+.global-toolbar__dev-toggle--on {
+  color: var(--usx-color-on-surface);
+  border-color: var(--usx-color-success);
+  background: transparent;
+}
+
+.global-toolbar__dev-toggle--on .global-toolbar__dev-dot {
+  background: var(--usx-color-success);
+}
+
+.global-toolbar__dev-toggle--on:hover {
+  border-color: var(--usx-color-success-hover);
+  color: var(--usx-color-on-surface);
+}
+
+.global-toolbar__dev-label {
+  text-transform: uppercase;
+  letter-spacing: var(--usx-letter-spacing-wide);
+}
+
+/* ─── Responsive ────────────────────────────────────────────────── */
+/* At narrow widths, hide tab labels in the center — icons only */
+@media (max-width: 800px) {
+  .global-toolbar__tab:not(.global-toolbar__tab--nav) span {
+    display: none;
+  }
+  .global-toolbar__tab:not(.global-toolbar__tab--nav) {
+    padding: var(--usx-spacing-xs);
+  }
+  .global-toolbar__overflow-item span {
+    display: inline !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .global-toolbar {
+    padding: 0 var(--usx-spacing-sm);
+    gap: var(--usx-spacing-2);
+  }
+
+  .global-toolbar__left,
+  .global-toolbar__center,
+  .global-toolbar__right {
+    gap: var(--usx-spacing-2);
+  }
+
+  .global-toolbar__tab:not(.global-toolbar__tab--nav) {
+    padding: var(--usx-spacing-2);
+    min-width: var(--usx-touch-min);
+    justify-content: center;
+  }
+
+  .global-toolbar__tab span {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MULTI-COLUMN LAYOUT
+   ═══════════════════════════════════════════════════════════════════ */
+
+.usx-columns {
+  column-gap: var(--usx-grid-gap-lg);
+}
+
+.usx-columns-1 { columns: 1; }
+.usx-columns-2 { columns: 2; }
+.usx-columns-3 { columns: 3; }
+.usx-columns-4 { columns: 4; }
+.usx-columns-6 { columns: 6; }
+
+.usx-columns--responsive {
+  columns: 1;
+}
+@media (min-width: 480px) { .usx-columns--responsive { columns: 2; } }
+@media (min-width: 768px) { .usx-columns--responsive { columns: 2; } }
+@media (min-width: 1024px) { .usx-columns--responsive { columns: 3; } }
+@media (min-width: 1440px) { .usx-columns--responsive { columns: 3; } }
+@media (min-width: 1920px) { .usx-columns--responsive { columns: 4; } }
+
+.usx-prose--sm { max-width: var(--usx-prose-width); }
+.usx-prose--md { max-width: var(--usx-prose-width); }
+.usx-prose--lg { max-width: var(--usx-prose-width); }

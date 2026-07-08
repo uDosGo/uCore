@@ -1,6 +1,6 @@
 {
   "name": "@udos/ui-hub-vue",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "type": "module",
   "description": "uDosConnect UI Hub — Vue 3 Skills-First rewrite of the Developer Surface",
@@ -36,7 +36,8 @@
     "pinia": "^2.3.0",
     "pinia-plugin-persistedstate": "^3.2.0",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "@udos/usx-tokens": "file:../../HomeNest/packages/usx-tokens"
   },
   "devDependencies": {
     "@iconify/vue": "^4.3.0",

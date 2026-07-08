@@ -11,9 +11,12 @@ import { router } from './router'
 // External dependencies are already loaded in index.html
 
 // USX Design System - Import in correct order
-import './styles/themes/base.css'
-import './styles/themes/dark.css'
-import './styles/usx-standard.css'
+// Core tokens come from the shared @udos/usx-tokens package
+import './styles/base.css' // local: wraps package tokens + PicoCSS mappings
+import './styles/themes/dark.css' // uCore-specific themes
+import '@udos/usx-tokens/themes/light.css' // light theme from package
+import '@udos/usx-tokens' // usx-standard.css from package
+import './styles/usx-extensions.css' // uCore-specific extensions: toolbar, multi-column, dev toggle
 
 const app = createApp(App)
 const pinia = createPinia()

@@ -20,3 +20,13 @@ declare module '@vendor/md-editor-preview' {
   const style: string
   export default style
 }
+
+declare module '@udos/usx-tokens' {
+  const _: any
+  export default _
+}
+
+declare module '@udos/usx-tokens/*' {
+  const _: any
+  export default _
+}

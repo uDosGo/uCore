@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ucode-workspace"
-version = "4.0.4"
+version = "4.0.5"
 description = "uCode workspace — unified uCore + runtimes"
 requires-python = ">=3.12,<3.13"
 

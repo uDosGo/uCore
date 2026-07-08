@@ -3,6 +3,30 @@
 Real-time tests, observations, and archived code snippets for future
 development reference. Updated at the end of each dev flow round.
 
+## 2026-07-08 — USX npm Packaging Flow Resume + uCore UI Update
+
+### Context
+- @udos/usx-tokens v3.0.0 package existed in HomeNest monorepo but was never linked into uCore
+- uCore was still using local copies of all token files and usx-standard.css
+- Resume the packaging flow described in docs/USX_ALIGNMENT_2026-07.md
+
+### What Changed
+- Added @udos/usx-tokens as file: dependency in frontend-vue/package.json
+- base.css rewritten to import tokens from @udos/usx-tokens package instead of local files
+- usx-extensions.css created for uCore-only patterns (global toolbar, dev toggle, multi-column, responsive)
+- Removed duplicated local copies: styles/tokens/*.css, styles/themes/base.css, styles/usx-standard.css
+- Added Vite alias for @udos/usx-tokens to resolve file: dependency during build
+- Added TS module declarations for CSS side-effect imports
+- PicoCSS mappings come from package tokens-color.css (light) and uCore dark.css (dark) — no duplication
+- Vite build passes cleanly with all CSS resolving from shared package
+- uCore-specific themes (c64, teletext, high-contrast) preserved in styles/themes/
+- Version bumped to 4.0.5
+
+### Design Decisions
+- uCore extensions (global-toolbar, dev-toggle, multi-column) deliberately kept in usx-extensions.css — these are uCore-specific and not appropriate for the shared package
+- PicoCSS compat mappings removed from usx-extensions.css since they're already in the package's tokens-color.css
+- file: protocol used instead of publishing to npm — local-first, auditable per .clinerules
+
 ## 2026-07-04 — PyCharm Setup + Grid UI Polish + Handover
 
 ### Context
