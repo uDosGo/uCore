@@ -1,23 +1,16 @@
 <template>
   <div class="control-panel">
-    <!-- Loading State -->
-    <div v-if="loading" class="control-loading">
-      <UIcon name="sync" spin />
-      <span>Connecting to ecosystem...</span>
+    <!-- Status bar — always visible, non-blocking -->
+    <div v-if="!data && loading" class="control-status-bar control-status-bar--loading">
+      <UIcon name="sync" spin :size="14" />
+      <span>Connecting...</span>
+    </div>
+    <div v-else-if="error" class="control-status-bar control-status-bar--error">
+      <UIcon name="error" :size="14" />
+      <span>Offline — retrying in background</span>
+      <UButton variant="ghost" size="sm" @click="retry">Retry</UButton>
     </div>
 
-    <!-- Error State -->
-    <div v-else-if="error" class="control-error">
-      <UIcon name="error" />
-      <div>
-        <strong>Connection Failed</strong>
-        <p>{{ error }}</p>
-        <UButton variant="primary" size="sm" @click="retry">Retry</UButton>
-      </div>
-    </div>
-
-    <!-- Connected: Main Content -->
-    <template v-else>
     <!-- Alert Banner -->
     <div v-if="alerts.length > 0" class="control-alerts">
       <div
@@ -81,7 +74,6 @@
       :loading="actionLoading"
       @action="handleAction"
     />
-    </template>
   </div>
 </template>
 
@@ -131,7 +123,7 @@ const alerts = computed(() => data.value?.alerts ?? [])
 async function fetchStatus() {
   try {
     const res = await fetch(`${API_BASE}/api/control/status`, {
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(5000),
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     data.value = await res.json()
@@ -251,38 +243,26 @@ onUnmounted(() => {
   max-width: 1100px;
 }
 
-/* ─── Loading & Error States ──────────────────────── */
-.control-loading {
+/* ─── Status Bar (non-blocking) ─────────────────── */
+.control-status-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--usx-spacing-md);
-  padding: var(--usx-spacing-2xl);
-  color: var(--usx-color-on-surface-muted);
-  font-size: var(--usx-font-size-lg);
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border-radius: var(--usx-radius-sm);
+  font-size: var(--usx-font-size-xs);
+  margin-bottom: var(--usx-spacing-sm);
 }
-
-.control-error {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--usx-spacing-md);
-  padding: var(--usx-spacing-xl);
-  background: color-mix(in srgb, var(--usx-color-danger) 8%, transparent);
-  border: var(--usx-border-width) solid var(--usx-color-danger);
-  border-radius: var(--usx-radius-md);
-  color: var(--usx-color-on-surface);
+.control-status-bar--loading {
+  background: color-mix(in srgb, var(--usx-color-primary) 8%, transparent);
+  color: var(--usx-color-primary);
 }
-
-.control-error strong {
-  display: block;
-  margin-bottom: var(--usx-spacing-xs);
+.control-status-bar--error {
+  background: color-mix(in srgb, var(--usx-color-danger) 6%, transparent);
   color: var(--usx-color-danger);
 }
-
-.control-error p {
-  margin: 0 0 var(--usx-spacing-sm);
-  font-size: var(--usx-font-size-sm);
-  color: var(--usx-color-on-surface-muted);
+.control-status-bar .usx-button {
+  margin-left: auto;
 }
 
 /* ─── Alert Banner ─────────────────────────────────── */
