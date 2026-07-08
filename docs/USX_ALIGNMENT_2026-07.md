@@ -31,23 +31,22 @@ This package is published from the **HomeNest monorepo** (`fredporter/HomeNest`,
 | `src/styles/themes/dark.css` | `@udos/usx-tokens/themes/dark` |
 | `src/styles/themes/*.css` | `@udos/usx-tokens/themes/*` |
 
-## Next Steps for uCore (next dev round)
+**Last updated:** 2026-07-08 (Sprint 3 complete)
 
-1. Install `@udos/usx-tokens` as a dependency:
-   ```bash
-   cd ~/Code/uCore && pnpm add @udos/usx-tokens
-   ```
+## ✅ Completed (2026-07-08)
 
-2. Replace direct imports with npm package imports in `frontend-vue/src/main.ts` or wherever tokens are loaded.
+1. ✅ Installed `@udos/usx-tokens` as `file:` dependency in uCore
+2. ✅ Replaced direct imports with package imports in `main.ts`
+3. ✅ Removed local copies: `styles/tokens/*.css`, `styles/themes/base.css`, `styles/usx-standard.css`
+4. ✅ Created `styles/usx-extensions.css` for uCore-only patterns
+5. ✅ Synced c64, teletext, high-contrast themes into the shared package (v3.1.0)
+6. ✅ Published PUBLISH.md with publishing instructions
 
-3. Remove the local copies from `frontend-vue/src/styles/tokens/` and `frontend-vue/src/styles/usx-standard.css` (they now live in the npm package).
+## Remaining
 
-4. Use the HomeNest 10-foot console imports if building a media/TV surface:
-   ```css
-   @import '@udos/usx-tokens/home-nest/console-grid.css';
-   @import '@udos/usx-tokens/home-nest/controller-focus.css';
-   @import '@udos/usx-tokens/home-nest/media-player.css';
-   ```
+- [ ] `npm publish --access public` from `~/Code/HomeNest/packages/usx-tokens/` — requires `npm login`
+- [ ] Switch uCore from `file:../../HomeNest/packages/usx-tokens` to `@udos/usx-tokens@^3.1.0` after publish
+- [ ] Remove Vite alias for `@udos/usx-tokens` in `vite.config.ts` after switching to versioned dependency
 
 ## Design Decisions
 

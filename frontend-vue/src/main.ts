@@ -13,8 +13,11 @@ import { router } from './router'
 // USX Design System - Import in correct order
 // Core tokens come from the shared @udos/usx-tokens package
 import './styles/base.css' // local: wraps package tokens + PicoCSS mappings
-import './styles/themes/dark.css' // uCore-specific themes
-import '@udos/usx-tokens/themes/light.css' // light theme from package
+import '@udos/usx-tokens/themes/dark.css' // dark from package
+import '@udos/usx-tokens/themes/light.css' // light from package
+import '@udos/usx-tokens/themes/c64.css' // c64 from package
+import '@udos/usx-tokens/themes/teletext.css' // teletext from package
+import '@udos/usx-tokens/themes/high-contrast.css' // high-contrast from package
 import '@udos/usx-tokens' // usx-standard.css from package
 import './styles/usx-extensions.css' // uCore-specific extensions: toolbar, multi-column, dev toggle
 
