@@ -19,6 +19,7 @@
         <RegistryPanel v-else-if="dev.activeTab === 'registry'" />
         <WorkflowsPanel v-else-if="dev.activeTab === 'workflows'" />
         <MCPServersPanel v-else-if="dev.activeTab === 'mcp-servers'" />
+        <DocLangPanel v-else-if="dev.activeTab === 'doclang'" />
         <SettingsPanel v-else-if="dev.activeTab === 'settings'" />
       </div>
     </div>
@@ -55,6 +56,7 @@ const FeedPanel = defineAsyncComponent(() => import('./panels/FeedPanel.vue'))
 const RegistryPanel = defineAsyncComponent(() => import('./panels/RegistryPanel.vue'))
 const WorkflowsPanel = defineAsyncComponent(() => import('./panels/WorkflowsPanel.vue'))
 const MCPServersPanel = defineAsyncComponent(() => import('./panels/MCPServersPanel.vue'))
+const DocLangPanel = defineAsyncComponent(() => import('./panels/DocLangPanel.vue'))
 const SettingsPanel = defineAsyncComponent(() => import('./panels/SettingsPanel.vue'))
 
 const dev = useDeveloperStore()

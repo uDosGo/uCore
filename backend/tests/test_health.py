@@ -7,7 +7,7 @@ def test_settings_import():
     from app.core.settings import Settings
     s = Settings()
     assert s.app_name == "uCore"
-    assert s.version == "4.0.0"
+    assert s.version == "4.0.5"
 
 
 def test_logging_import():

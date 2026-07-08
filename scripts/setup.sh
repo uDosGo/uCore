@@ -10,10 +10,11 @@
 #   2. Creates Python virtual environment
 #   3. Installs Python dependencies (editable mode)
 #   4. Installs Node.js dependencies via pnpm
-#   5. Builds the Vue frontend
-#   6. Creates ~/.ucore/ directory structure
-#   7. Installs launchd agents for auto-start
-#   8. Sets up UDOS_ROOT environment variable
+#   5. Syncs locked vendor modules (snackmachine, udos-* packages)
+#   6. Builds the Vue frontend
+#   7. Creates ~/.ucore/ directory structure
+#   8. Installs launchd agents for auto-start
+#   9. Sets up UDOS_ROOT environment variable
 
 set -euo pipefail
 
@@ -52,6 +53,7 @@ Options:
 This script sets up the uCore development environment including:
   - Python virtual environment with all dependencies
   - Node.js dependencies via pnpm
+    - Locked vendor module sync via scripts/vendor_sync.sh
   - Vue frontend build
   - macOS launchd agents for auto-start
   - ~/.ucore/ data directory structure
@@ -198,17 +200,11 @@ ok "uCore Python package installed"
 pip install --quiet -e ".[dev]" 2>&1 | tail -1 || true
 ok "Dev dependencies installed"
 
-# Install snackmachine and other pip packages from vendor
+# Install and validate vendor modules from lock
 if [[ -f "$UCORE_ROOT/vendor/sources.yaml" ]]; then
-    info "Checking vendor packages..."
-    # snackmachine, udos-budget, udos-agents, udos-identity
-    for pkg in snackmachine udos-budget udos-agents udos-identity; do
-        if python -c "import $pkg" 2>/dev/null; then
-            ok "  $pkg already installed"
-        else
-            warn "  $pkg not found — install from: https://github.com/uDosGo/$pkg"
-        fi
-    done
+    info "Syncing locked vendor modules..."
+    bash "$UCORE_ROOT/scripts/vendor_sync.sh" --install-python --check
+    ok "Vendor modules synced from lock"
 fi
 
 cd "$UCORE_ROOT"

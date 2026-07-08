@@ -9,6 +9,7 @@ import { ref, computed } from 'vue'
 export type DeveloperTab =
   | 'control' | 'models' | 'agents' | 'kanban' | 'repos' | 'review'
   | 'skills' | 'feed' | 'registry' | 'settings' | 'workflows' | 'mcp-servers'
+  | 'doclang'
 
 export interface RepoInfo {
   name: string
@@ -39,6 +40,7 @@ export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[]
   { id: 'workflows', label: 'Dev Flow', icon: 'account_tree' },
 
   { id: 'mcp-servers', label: 'MCP', icon: 'dns' },
+  { id: 'doclang', label: 'DocLang', icon: 'description' },
   { id: 'settings', label: 'Settings', icon: 'settings' },
 ]
 

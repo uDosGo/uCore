@@ -1,0 +1,62 @@
+generated_at: '2026-07-08T14:58:48.660260+00:00'
+modules:
+  langgraph:
+    ref: main
+    resolved_ref: 23652c54be18ce59f697aa38f10075ee91913220
+    type: pip
+    url: https://github.com/langchain-ai/langgraph.git
+  litellm:
+    ref: main
+    resolved_ref: 999637883ce34d3944c614f38f32cfbe0bc9062d
+    type: pip
+    url: https://github.com/BerriAI/litellm.git
+  snackmachine:
+    ref: main
+    resolved_ref: c0e00619a2992101622a17abb06a90a097d2cab2
+    type: pip
+    url: https://github.com/uDosGo/snackmachine.git
+  ucore-core:
+    ref: main
+    resolved_ref: debc96998a97703db3dea029d54a75cbb27743cb
+    subpath: backend/
+    type: github
+    url: https://github.com/uDosGo/uCore.git
+  ucore-frontend:
+    ref: main
+    resolved_ref: debc96998a97703db3dea029d54a75cbb27743cb
+    subpath: frontend-vue/
+    type: github
+    url: https://github.com/uDosGo/uCore.git
+  ucore-plates:
+    ref: main
+    resolved_ref: debc96998a97703db3dea029d54a75cbb27743cb
+    subpath: plates/
+    type: github
+    url: https://github.com/uDosGo/uCore.git
+  ucore-vendor:
+    ref: main
+    resolved_ref: debc96998a97703db3dea029d54a75cbb27743cb
+    subpath: vendor/
+    type: github
+    url: https://github.com/uDosGo/uCore.git
+  udos-agents:
+    ref: main
+    resolved_ref: c605d1154f77b866c30cff6a6409ba2b15896eba
+    type: pip
+    url: https://github.com/uDosGo/udos-agents.git
+  udos-budget:
+    ref: main
+    resolved_ref: c7cbaebfeaeba01c4515bd61dc6a764a7d1cb86d
+    type: pip
+    url: https://github.com/uDosGo/udos-budget.git
+  udos-identity:
+    ref: main
+    resolved_ref: c71d4c9256d91c0ec132ae541efaff5e4fd269e5
+    type: pip
+    url: https://github.com/uDosGo/udos-identity.git
+  uplace:
+    ref: main
+    resolved_ref: 92c8876f29b50754d99c4cf1f7591d87e32a3eac
+    type: github
+    url: https://github.com/uDosGo/uPlace.git
+version: 1

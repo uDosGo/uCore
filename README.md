@@ -19,12 +19,26 @@ curl -fsSL https://raw.githubusercontent.com/uDosGo/uCore/main/scripts/bootstrap
 
 This installs Homebrew, Python 3.12, Node.js 22, pnpm, clones uCore, and starts everything.
 
+The installer also validates and syncs locked vendor modules for a consistent
+uDos experience (snackmachine, udos-agents, udos-budget, udos-identity).
+
 ### Already Have Prerequisites
 
 ```bash
 git clone https://github.com/uDosGo/uCore.git
 cd uCore
 ./scripts/setup.sh
+```
+
+### Vendor Module Lock (Deterministic)
+
+```bash
+# Refresh lock metadata from vendor/sources.yaml and validate
+./scripts/vendor_sync.sh --refresh-lock --check
+
+# Install locked Python vendor modules
+source backend/.venv/bin/activate
+./scripts/vendor_sync.sh --install-python --check
 ```
 
 ### Verify

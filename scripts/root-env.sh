@@ -8,7 +8,9 @@ export ROOT="$UDOS_ROOT"
 export UCORE_ROOT="$UDOS_ROOT/uCore"
 export UCODE_ROOT="$UDOS_ROOT/uCode"
 export UDOCS_ROOT="$UDOS_ROOT/uDocs"
-export UPALCE_ROOT="$UDOS_ROOT/uPlace"
+export UPLACE_ROOT="$UDOS_ROOT/uPlace"
+# Backward compatibility for legacy typo in older shell configs/scripts.
+export UPALCE_ROOT="${UPALCE_ROOT:-$UPLACE_ROOT}"
 export DEVELOPER_ROOT="$UDOS_ROOT/uCore"
 
 # Verify spine

@@ -24,7 +24,7 @@ class MetadataAPITest(AioHTTPTestCase):
         assert "app" in data
         assert "version" in data
         assert data["app"] == "uCore"
-        assert data["version"] == "4.0.0"
+        assert data["version"] == "4.0.5"
 
     async def test_system_info_has_python_version(self):
         resp = await self.client.get("/api/system")

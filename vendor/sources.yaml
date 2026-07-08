@@ -47,6 +47,12 @@ sources:
     ref: main
     description: UDos unique identity system
 
+  uplace:
+    type: github
+    url: https://github.com/uDosGo/uPlace.git
+    ref: main
+    description: uPlace spatial/place runtime module
+
   litellm:
     type: pip
     url: https://github.com/BerriAI/litellm.git

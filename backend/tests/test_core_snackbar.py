@@ -34,7 +34,7 @@ class TestCoreSnackbar:
         assert hasattr(settings, "app_name")
         assert settings.app_name == "uCore"
         assert hasattr(settings, "version")
-        assert settings.version == "4.0.0"
+        assert settings.version == "4.0.5"
 
     def test_logging_configured(self):
         """Logging module loads without errors."""

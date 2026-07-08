@@ -17,7 +17,7 @@ class Settings:
         "0",
     ).lower() in ("1", "true", "yes")
     app_name: str = "uCore"
-    version: str = "4.0.0"
+    version: str = "4.0.5"
 
     # ── Server ───────────────────────────────────────────────
     host: str = os.environ.get("UCORE_HOST", "0.0.0.0")

@@ -9,6 +9,7 @@ PackageManager services for install, update, and repair operations.
 ```
 vendor/
 ├── README.md              # This file
+├── lock.yaml              # Locked refs for deterministic installs
 ├── dist/                  # Distribution packages
 │   ├── ucore-core/        # Core backend distribution
 │   ├── ucore-frontend/    # Frontend distribution
@@ -38,3 +39,18 @@ uses this directory to:
 
 See `sources.yaml` for the canonical source definitions including
 GitHub repository URLs, release tags, and checksums.
+
+## Lock And Sync
+
+For consistent one-click installs, vendor modules are locked in `lock.yaml`
+and synced via `scripts/vendor_sync.sh`.
+
+Examples:
+
+```bash
+# Refresh lock from sources and validate consistency
+./scripts/vendor_sync.sh --refresh-lock --check
+
+# Install locked pip modules (snackmachine, udos-agents, etc.)
+./scripts/vendor_sync.sh --install-python --check
+```

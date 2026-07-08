@@ -46,6 +46,7 @@ Options:
 This script installs uCore for production use:
   - Clones from GitHub
   - Installs all dependencies
+    - Syncs locked vendor modules
   - Configures macOS launchd agents for auto-start
   - Starts all services
 
