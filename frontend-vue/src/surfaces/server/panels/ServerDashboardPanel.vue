@@ -60,7 +60,7 @@ const budgetDisplay = computed(() =>
 )
 const healthColor = computed(() => {
   const pct = srv.healthPct
-  return pct >= 80 ? '#3fb950' : pct >= 50 ? '#d29922' : '#f85149'
+  return pct >= 80 ? 'var(--usx-color-success)' : pct >= 50 ? 'var(--usx-color-warning)' : 'var(--usx-color-danger)'
 })
 </script>
 
@@ -72,18 +72,18 @@ const healthColor = computed(() => {
 .server-stats-row { display: flex; gap: var(--usx-spacing-lg); margin-top: var(--usx-spacing-md); }
 .server-stat { display: flex; flex-direction: column; }
 .server-stat-value { font-size: var(--usx-font-size-2xl); font-weight: var(--usx-font-weight-bold); }
-.server-stat-value--up { color: #3fb950; }
-.server-stat-value--degraded { color: #d29922; }
-.server-stat-value--down { color: #f85149; }
-.server-stat-value--budget { color: #58a6ff; }
+.server-stat-value--up { color: var(--usx-color-success); }
+.server-stat-value--degraded { color: var(--usx-color-warning); }
+.server-stat-value--down { color: var(--usx-color-danger); }
+.server-stat-value--budget { color: var(--usx-color-primary); }
 .server-stat-label { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); text-transform: uppercase; }
 .health-ring { width: 56px; height: 56px; border-radius: 50%; border: 3px solid; display: flex; align-items: center; justify-content: center; font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-bold); flex-shrink: 0; }
 .server-service-row { display: flex; align-items: center; justify-content: space-between; padding: var(--usx-spacing-sm) 0; }
 .server-service-info { display: flex; align-items: center; gap: var(--usx-spacing-sm); flex: 1; min-width: 0; }
 .server-service-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.server-service-dot--up { background: #3fb950; }
-.server-service-dot--degraded { background: #d29922; }
-.server-service-dot--down { background: #f85149; }
+.server-service-dot--up { background: var(--usx-color-success); }
+.server-service-dot--degraded { background: var(--usx-color-warning); }
+.server-service-dot--down { background: var(--usx-color-danger); }
 .server-service-name { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-medium); }
 .server-service-desc { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .server-service-uptime { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); }

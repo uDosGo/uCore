@@ -79,7 +79,7 @@ function missionProgress(mission: Mission): number {
   align-items: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-md);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
 }
 
@@ -91,14 +91,14 @@ function missionProgress(mission: Mission): number {
 
 .wf-mission-card {
   padding: var(--usx-spacing-md);
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-lg);
-  border-left: 3px solid var(--pico-primary);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-lg);
+  border-left: 3px solid var(--usx-color-primary);
   transition: border-color 0.15s ease;
 }
 
 .wf-mission-card:hover {
-  border-left-color: var(--pico-primary-hover, #58a6ff);
+  border-left-color: var(--usx-color-primary-hover);
 }
 
 .wf-mission-card-header {
@@ -109,13 +109,13 @@ function missionProgress(mission: Mission): number {
 }
 
 .wf-mission-card-title {
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   flex: 1;
 }
 
 .wf-mission-card-desc {
   margin: 0 0 var(--usx-spacing-sm) 0;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
 }
 
@@ -129,29 +129,29 @@ function missionProgress(mission: Mission): number {
 .wf-progress-bar-bg {
   flex: 1;
   height: 6px;
-  background: var(--pico-muted-background-color);
+  background: var(--usx-color-surface-variant);
   border-radius: 3px;
   overflow: hidden;
 }
 
 .wf-progress-bar-fill {
   height: 100%;
-  background: var(--pico-primary);
+  background: var(--usx-color-primary);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
 
 .wf-progress-text {
   font-size: var(--usx-font-size-sm);
-  font-weight: 600;
-  color: var(--pico-primary);
+  font-weight: var(--usx-font-weight-semibold);
+  color: var(--usx-color-primary);
   min-width: 36px;
   text-align: right;
 }
 
 .wf-mission-task-count {
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin-bottom: var(--usx-spacing-xs);
 }
 
@@ -164,13 +164,13 @@ function missionProgress(mission: Mission): number {
 
 .wf-more {
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .wf-empty {
   padding: var(--usx-spacing-xl);
   text-align: center;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
 }
 </style>

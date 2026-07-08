@@ -86,18 +86,18 @@ watch(activeHubTab, (tabId) => {
 })
 
 const ALL_SURFACES: SurfaceCardType[] = [
-  { id: 'assistui', title: 'Assistant', description: 'Agent Assisted Workflows', icon: 'bolt', route: '/assistui', color: '#a855f7' },
-  { id: 'ucode', title: 'uCode', description: 'GridCore — Grid, Teletext & Terminal', icon: 'grid', route: '/ucode', color: '#22c55e' },
-  { id: 'server', title: 'Server', description: 'Backend Operations & Services', icon: 'server', route: '/server', color: '#f59e0b' },
-  { id: 'workflow', title: 'Workflow', description: 'Missions, Tasks & Binder', icon: 'workflow', route: '/workflow', color: '#3b82f6' },
-  { id: 'system', title: 'System', description: 'Admin, Pages & Tools', icon: 'settings', route: '/system', color: '#6b7280' },
-  { id: 'documentation', title: 'Documentation', description: 'Learning Hub & Guides', icon: 'help', route: '/documentation', color: '#a855f7' },
-  { id: 'snackmachine', title: 'Snack Machine', description: 'Snack/MCP/Vault Scheduler', icon: 'snack', route: '/snackmachine', color: '#ec4899' },
-  { id: 'browserui', title: 'Browser', description: 'Web Reader & Bookmarks', icon: 'globe', route: '/browserui', color: '#06b6d4' },
+  { id: 'assistui', title: 'Assistant', description: 'Agent Assisted Workflows', icon: 'bolt', route: '/assistui', color: 'var(--usx-color-accent)' },
+  { id: 'ucode', title: 'uCode', description: 'GridCore — Grid, Teletext & Terminal', icon: 'grid', route: '/ucode', color: 'var(--usx-color-success)' },
+  { id: 'server', title: 'Server', description: 'Backend Operations & Services', icon: 'server', route: '/server', color: 'var(--usx-color-warning)' },
+  { id: 'workflow', title: 'Workflow', description: 'Missions, Tasks & Binder', icon: 'workflow', route: '/workflow', color: 'var(--usx-color-primary)' },
+  { id: 'system', title: 'System', description: 'Admin, Pages & Tools', icon: 'settings', route: '/system', color: 'var(--usx-color-on-surface-muted)' },
+  { id: 'documentation', title: 'Documentation', description: 'Learning Hub & Guides', icon: 'help', route: '/documentation', color: 'var(--usx-color-accent)' },
+  { id: 'snackmachine', title: 'Snack Machine', description: 'Snack/MCP/Vault Scheduler', icon: 'snack', route: '/snackmachine', color: 'var(--usx-color-danger)' },
+  { id: 'browserui', title: 'Browser', description: 'Web Reader & Bookmarks', icon: 'globe', route: '/browserui', color: 'var(--usx-color-info)' },
 ]
 
 const DEV_SURFACES: SurfaceCardType[] = [
-  { id: 'developer', title: 'Developer', description: 'Dev Lane — Models, Agents, Kanban', icon: 'code', route: '/developer', color: '#ef4444' },
+  { id: 'developer', title: 'Developer', description: 'Dev Lane — Models, Agents, Kanban', icon: 'code', route: '/developer', color: 'var(--usx-color-danger)' },
 ]
 
 const visibleSurfaces = computed(() => {
@@ -151,9 +151,9 @@ function navigate(route: string) {
   padding: var(--usx-spacing-md);
   background: rgba(88, 166, 255, 0.05);
   border: 1px solid rgba(88, 166, 255, 0.15);
-  border-radius: var(--usx-border-radius-md);
+  border-radius: var(--usx-radius-md);
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   display: flex;
   align-items: center;
   gap: var(--usx-spacing-sm);
@@ -169,7 +169,7 @@ function navigate(route: string) {
 .dashboard-surface__dev-link {
   background: none;
   border: none;
-  color: var(--pico-primary);
+  color: var(--usx-color-primary);
   cursor: pointer;
   font-size: inherit;
   font-family: inherit;
@@ -178,6 +178,6 @@ function navigate(route: string) {
 }
 
 .dashboard-surface__dev-link:hover {
-  color: var(--pico-primary-hover);
+  color: var(--usx-color-primary-hover);
 }
 </style>

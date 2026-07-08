@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-07-04T20:46:00Z
+Date: 2026-07-07T21:53:02Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -19,14 +19,7 @@ Status: Refreshed by brain_sync
 - **`except` nesting bug in snackbar_menu.py**: A `release_lock()` function had a bare `except` nested inside `try:` at the wrong indentation level, causing `SyntaxError: invalid syntax` on line 1122. Always run `flake8` or `py_compile` on changed files; this error only surfaced in `stderr.log` after launchd restart.
 
 ## Recent Change Scan
-- backend/.pytest_cache/v/cache/lastfailed
-- backend/.pytest_cache/v/cache/nodeids
-- backend/app/services/provider_router.py
-- backend/.pytest_cache/CACHEDIR.TAG
-- backend/.pytest_cache/README.md
-- backend/app/skills/registry.py
-- backend/app/skills/builtin/skill_hardcoded_path_detector.py
-- .tasker/handover-pyrchard-2026-07-04.md
+- No files changed in the selected window.
 
 ## Memory Architecture
 - Short-term: active AI/chat session context.
@@ -50,50 +43,44 @@ Status: Refreshed by brain_sync
 
 Total entries: 500
 Errors: 0
-Warnings: 2
+Warnings: 0
 
 ### By Module
-- ucore-popcorn-stderr: 400 entries (0 errors)
-- stdout: 68 entries (0 errors)
-- ucore-menu-stderr: 15 entries (0 errors)
-- ucore-menu: 15 entries (0 errors)
+- ucore-popcorn-stderr: 494 entries (0 errors)
+- stdout: 4 entries (0 errors)
 - ucore-server: 2 entries (0 errors)
 
-### Recent Warnings
-- [2026-07-04T21:28:21] ucore-menu: Backend failed to start within 8.0 seconds
-- [2026-07-04T21:28:21] ucore-menu: Backend failed to start within 8.0 seconds
-
 ### Recent Activity
-- ℹ️ 2026-07-05T04:30:01  stdout  [2026-07-05 04:30:01] INFO     ucore.skills.daily_backup — Cleaned up 1 old backups
-- ✅ 2026-07-05T04:30:01  stdout  [2026-07-05 04:30:01] INFO     ucore — Maintenance job ran: daily_backup success=True
-- ✅ 2026-07-05T04:30:01  stdout  [2026-07-05 04:30:01] INFO     ucore — Maintenance job ran: vault_sync success=False
-- ✅ 2026-07-05T04:30:01  stdout  [2026-07-05 04:30:01] INFO     ucore — Maintenance job ran: tasker_sync success=False
-- ℹ️ 2026-07-04T21:35:44  stdout  [2026-07-04 21:35:44] WARNING  ucore.skills.registry — Skill load fail skill_dev_destroy_rebuild.py:
-- ℹ️ 2026-07-04T21:35:44  stdout  [2026-07-04 21:35:44] WARNING  ucore.skills.registry — Skill load fail skill_hardcoded_path_detector
-- ℹ️ 2026-07-04T21:35:26  ucore-menu-stderr  ucore-menu: Global clipboard shortcut registered: Ctrl+Cmd+V
-- ℹ️ 2026-07-04T21:35:26  ucore-menu  ucore-menu: Global clipboard shortcut registered: Ctrl+Cmd+V
-- ℹ️ 2026-07-04T21:35:25  ucore-menu-stderr  ucore-menu: Registered snack: clipboard-buffer (clipboard)
-- ℹ️ 2026-07-04T21:35:25  ucore-menu  ucore-menu: Registered snack: clipboard-buffer (clipboard)
-- ℹ️ 2026-07-04T21:35:25  ucore-menu-stderr  ucore-menu: Lock acquired (PID 809)
-- ℹ️ 2026-07-04T21:35:25  ucore-menu  ucore-menu: Lock acquired (PID 809)
-- ℹ️ 2026-07-04T21:35:25  ucore-menu-stderr  ucore-menu: Lockfile mtime (1783171694) is before boot time (1783172092) — stale from previous sessi
-- ℹ️ 2026-07-04T21:35:25  ucore-menu-stderr  ucore-menu: Removing stale lock file
-- ℹ️ 2026-07-04T21:35:25  ucore-menu  ucore-menu: Lockfile mtime (1783171694) is before boot time (1783172092) — stale from previous sessi
-- ℹ️ 2026-07-04T21:35:25  ucore-menu  ucore-menu: Removing stale lock file
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — Budget manager initialized
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] INFO     ucore — Database migration: v1 (surfaces, snacks, containers tables)
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] INFO     ucore.api.github — GitHub API routes registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — Spool activity feed routes registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — Identity routes registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — Ceefax Teletext surface registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — BBCSDL surface registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — Dashboard surface registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — Library index routes registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore.vault_api — Vault topology routes registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — Vault topology routes registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — Catalog API routes registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore — Hivemind knowledge layer routes registered
-- ℹ️ 2026-07-04T21:35:25  stdout  [2026-07-04 21:35:25] DEBUG    ucore.api.dev_layer — Dev Layer API routes registered
+- ✅ 2026-07-08T05:52:59  stdout  [2026-07-08 05:52:59] INFO     ucore — Maintenance job ran: vault_sync success=False
+- ✅ 2026-07-08T05:52:59  stdout  [2026-07-08 05:52:59] INFO     ucore — Maintenance job ran: tasker_sync success=False
+- ℹ️ 2026-07-08T03:56:37  stdout  [2026-07-08 03:56:37] INFO     ucore.skills.daily_backup — Cleaned up 6 old backups
+- ✅ 2026-07-08T03:56:37  stdout  [2026-07-08 03:56:37] INFO     ucore — Maintenance job ran: daily_backup success=True
+- ℹ️ 2026-07-07T21:53:00  ucore-server  (Press CTRL+C to quit)
+- ℹ️ 2026-07-07T21:53:00  ucore-server  ======== Running on http://0.0.0.0:8484 ========
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
 
 ## Test Failure Signals (last 24h)
 

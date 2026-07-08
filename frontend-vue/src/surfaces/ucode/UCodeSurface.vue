@@ -1091,7 +1091,7 @@ function clearGrid() { activeCanvas?.clear() }
 }
 .pixel-toolbar__label {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface-muted);
   text-transform: uppercase;
   height: 24px;
@@ -1105,7 +1105,7 @@ function clearGrid() { activeCanvas?.clear() }
   padding: 0 3px;
   font-size: 12px;
   font-family: monospace;
-  background: var(--usx-color-background-alt, #1a1a1a);
+  background: var(--usx-color-background-alt);
   color: var(--usx-color-on-surface);
   border: 1px solid var(--usx-color-border);
   border-radius: 3px;
@@ -1115,7 +1115,7 @@ function clearGrid() { activeCanvas?.clear() }
 .pixel-toolbar__sep {
   font-size: 13px;
   color: var(--usx-color-on-surface-muted);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   height: 24px;
   display: inline-flex;
   align-items: center;
@@ -1171,7 +1171,7 @@ function clearGrid() { activeCanvas?.clear() }
 .pixel-colour-popover__swatch .colour-marker {
   position: absolute;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: var(--usx-font-weight-bold);
   line-height: 1;
   text-shadow: 0 0 2px rgba(0,0,0,0.8);
 }
@@ -1207,8 +1207,8 @@ function clearGrid() { activeCanvas?.clear() }
   height: 26px;
   padding: 0 8px;
   font-size: 10px;
-  font-weight: 600;
-  background: var(--usx-color-background-alt, #1a1a1a);
+  font-weight: var(--usx-font-weight-semibold);
+  background: var(--usx-color-background-alt);
   color: var(--usx-color-on-surface-muted);
   border: 1px solid var(--usx-color-border);
   border-radius: 4px;
@@ -1224,7 +1224,7 @@ function clearGrid() { activeCanvas?.clear() }
   align-items: center;
   justify-content: center;
   position: relative;
-  background: var(--usx-color-background-alt, #111);
+  background: var(--usx-color-background-alt);
   border-radius: var(--usx-radius-md, 6px);
   outline: none;
   padding: var(--usx-spacing-md);
@@ -1286,7 +1286,7 @@ function clearGrid() { activeCanvas?.clear() }
   padding: 0 3px;
   font-size: 12px;
   font-family: monospace;
-  background: var(--usx-color-background-alt, #1a1a1a);
+  background: var(--usx-color-background-alt);
   color: var(--usx-color-on-surface);
   border: 1px solid var(--usx-color-border);
   border-radius: 3px;
@@ -1296,7 +1296,7 @@ function clearGrid() { activeCanvas?.clear() }
 .layer-editor__sep {
   font-size: 13px;
   color: var(--usx-color-on-surface-muted);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   height: 24px;
   display: inline-flex;
   align-items: center;
@@ -1334,7 +1334,7 @@ function clearGrid() { activeCanvas?.clear() }
   align-items: center;
   justify-content: center;
   overflow: auto;
-  background: var(--usx-color-background-alt, #111);
+  background: var(--usx-color-background-alt);
   outline: none;
 }
 .layer-editor__viewport:focus {
@@ -1382,7 +1382,7 @@ function clearGrid() { activeCanvas?.clear() }
 .layer-colour-popover__swatch .colour-marker {
   position: absolute;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: var(--usx-font-weight-bold);
   line-height: 1;
   text-shadow: 0 0 2px rgba(0,0,0,0.8);
 }
@@ -1403,7 +1403,7 @@ function clearGrid() { activeCanvas?.clear() }
 }
 .sidebar-section { display: flex; flex-direction: column; gap: var(--usx-spacing-xs); }
 .sidebar-title {
-  font-size: 10px; font-weight: 600; margin: 0;
+  font-size: 10px; font-weight: var(--usx-font-weight-semibold); margin: 0;
   color: var(--usx-color-on-surface-muted);
   text-transform: uppercase; letter-spacing: 0.08em;
 }
@@ -1444,7 +1444,7 @@ function clearGrid() { activeCanvas?.clear() }
 .sidebar-char-preview {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   min-height: 64px;
-  background: var(--usx-color-background-alt, #111);
+  background: var(--usx-color-background-alt);
   border-radius: var(--usx-radius-sm, 4px);
   padding: var(--usx-spacing-xs);
   border: 1px solid var(--usx-color-border);
@@ -1464,7 +1464,7 @@ function clearGrid() { activeCanvas?.clear() }
 
 /* Colour markers */
 .colour-marker {
-  position: absolute; font-size: 9px; font-weight: 700; font-family: monospace;
+  position: absolute; font-size: 9px; font-weight: var(--usx-font-weight-bold); font-family: monospace;
   line-height: 1; padding: 1px 2px; border-radius: 2px; pointer-events: none;
 }
 .colour-marker.fg { top: 1px; left: 1px; background: rgba(0,0,0,0.6); color: #fff; }
@@ -1484,7 +1484,7 @@ function clearGrid() { activeCanvas?.clear() }
 /* ─── Shared ────────────────────────────────────────────────────── */
 .ucode-info {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-family: monospace;
   margin-left: var(--usx-spacing-xs);
   white-space: nowrap;
@@ -1495,7 +1495,7 @@ function clearGrid() { activeCanvas?.clear() }
   border: none; background: transparent;
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  border-radius: var(--usx-border-radius-sm, 4px);
+  border-radius: var(--usx-radius-sm);
   transition: color var(--usx-transition-fast), background var(--usx-transition-fast);
   -webkit-appearance: none; appearance: none; flex-shrink: 0;
 }

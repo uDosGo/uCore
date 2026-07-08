@@ -89,9 +89,9 @@ function handleKeyDown(e: KeyboardEvent) {
 .floating-chat__panel {
   width: 360px;
   height: 480px;
-  background: var(--pico-background-color, #0d1117);
-  background: var(--pico-background-color, #30363d);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-background);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-lg);
   
   display: flex;
   flex-direction: column;
@@ -105,7 +105,7 @@ function handleKeyDown(e: KeyboardEvent) {
   justify-content: space-between;
   padding: var(--usx-spacing-md) var(--usx-spacing-md);
   
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   font-size: var(--usx-font-size-base);
 }
 
@@ -131,8 +131,8 @@ function handleKeyDown(e: KeyboardEvent) {
 }
 
 .floating-chat__message--user .floating-chat__message-body {
-  background: var(--pico-background-color);
-  border-radius: var(--usx-border-radius-lg) 8px 2px 8px;
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-lg) 8px 2px 8px;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   font-size: var(--usx-font-size-sm);
 }
@@ -152,7 +152,7 @@ function handleKeyDown(e: KeyboardEvent) {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--pico-muted-color, #8b949e);
+  background: var(--usx-color-on-surface-muted);
   animation: bounce 1.4s infinite ease-in-out both;
 }
 
@@ -169,16 +169,16 @@ function handleKeyDown(e: KeyboardEvent) {
   align-items: center;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-sm);
-  border-top: 1px solid var(--pico-border-color, #30363d);
+  border-top: 1px solid var(--usx-color-border);
 }
 
 .floating-chat__input textarea {
   flex: 1;
-  background: var(--pico-background-color, #30363d);
-  border-radius: var(--usx-border-radius-md);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-md);
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  background: var(--pico-background-color, #0d1117);
-  color: var(--pico-color, #c9d1d9);
+  background: var(--usx-color-background);
+  color: var(--usx-color-on-surface);
   font-size: var(--usx-font-size-sm);
   font-family: inherit;
   resize: none;
@@ -193,7 +193,7 @@ function handleKeyDown(e: KeyboardEvent) {
   height: 56px;
   border-radius: 50%;
   border: none;
-  background: var(--pico-primary, #58a6ff);
+  background: var(--usx-color-primary);
   color: #fff;
   cursor: pointer;
   

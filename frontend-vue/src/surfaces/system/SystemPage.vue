@@ -14,5 +14,5 @@ const pageCode = computed(() => route.path.replace('/', '').toUpperCase())
 
 <style scoped>
 .system-page { padding: var(--usx-spacing-lg); }
-.system-page-note { color: var(--pico-muted-color, #8b949e); font-size: var(--usx-font-size-sm); }
+.system-page-note { color: var(--usx-color-on-surface-muted); font-size: var(--usx-font-size-sm); }
 </style>

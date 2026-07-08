@@ -32,14 +32,14 @@
  * @category surfaces
  * @usage Routed at '/server/*'
  */
-import { onMounted } from 'vue'
+import { onMounted, defineAsyncComponent } from 'vue'
 import { useShellStore } from '../../stores/shell'
 import ServerDashboardPanel from './panels/ServerDashboardPanel.vue'
-import ServerServicesPanel from './panels/ServerServicesPanel.vue'
-import ServerLogsPanel from './panels/ServerLogsPanel.vue'
-import ServerModelsPanel from './panels/ServerModelsPanel.vue'
-import ServerAgentsPanel from './panels/ServerAgentsPanel.vue'
-import ServerBudgetPanel from './panels/ServerBudgetPanel.vue'
+const ServerServicesPanel = defineAsyncComponent(() => import('./panels/ServerServicesPanel.vue'))
+const ServerLogsPanel = defineAsyncComponent(() => import('./panels/ServerLogsPanel.vue'))
+const ServerModelsPanel = defineAsyncComponent(() => import('./panels/ServerModelsPanel.vue'))
+const ServerAgentsPanel = defineAsyncComponent(() => import('./panels/ServerAgentsPanel.vue'))
+const ServerBudgetPanel = defineAsyncComponent(() => import('./panels/ServerBudgetPanel.vue'))
 import { useServerStore, SERVER_TABS } from '../../stores/server'
 import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 

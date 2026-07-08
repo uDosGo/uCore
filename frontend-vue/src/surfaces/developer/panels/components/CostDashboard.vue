@@ -153,10 +153,10 @@ const topModels = computed(() => props.cost?.top_models ?? [])
   min-width: 2px;
 }
 
-.cost-bar__fill--warn { background: #d29922; }
-.cost-bar__fill--danger { background: #f85149; }
-.cost-bar__fill--secondary { background: #3fb950; }
-.cost-bar__fill--tertiary { background: #a371f7; }
+.cost-bar__fill--warn { background: var(--usx-color-warning); }
+.cost-bar__fill--danger { background: var(--usx-color-danger); }
+.cost-bar__fill--secondary { background: var(--usx-color-success); }
+.cost-bar__fill--tertiary { background: var(--usx-color-accent); }
 
 .cost-dashboard__models {
   display: flex;

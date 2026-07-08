@@ -12,15 +12,15 @@
         <span class="wf-stat-label">Total Tasks</span>
       </div>
       <div class="wf-stat">
-        <span class="wf-stat-value" style="color:#58a6ff">{{ wf.inProgressCount }}</span>
+        <span class="wf-stat-value wf-stat-value--info">{{ wf.inProgressCount }}</span>
         <span class="wf-stat-label">In Progress</span>
       </div>
       <div class="wf-stat">
-        <span class="wf-stat-value" style="color:#3fb950">{{ wf.completedCount }}</span>
+        <span class="wf-stat-value wf-stat-value--success">{{ wf.completedCount }}</span>
         <span class="wf-stat-label">Completed</span>
       </div>
       <div class="wf-stat">
-        <span class="wf-stat-value" style="color:#d29922">{{ wf.missions.length }}</span>
+        <span class="wf-stat-value wf-stat-value--warning">{{ wf.missions.length }}</span>
         <span class="wf-stat-label">Missions</span>
       </div>
     </div>
@@ -175,22 +175,26 @@ onMounted(() => {
   align-items: center;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-md);
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-lg);
   min-width: 90px;
   flex: 1;
 }
 
 .wf-stat-value {
   font-size: var(--usx-font-size-xl);
-  font-weight: 700;
+  font-weight: var(--usx-font-weight-bold);
   line-height: var(--usx-line-height-tight);
 }
 
 .wf-stat-label {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
+
+.wf-stat-value--success { color: var(--usx-color-success); }
+.wf-stat-value--info { color: var(--usx-color-primary); }
+.wf-stat-value--warning { color: var(--usx-color-warning); }
 
 .wf-loading,
 .wf-error {
@@ -198,18 +202,18 @@ onMounted(() => {
   align-items: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-md);
-  border-radius: var(--usx-border-radius-md);
+  border-radius: var(--usx-radius-md);
   font-size: var(--usx-font-size-sm);
 }
 
 .wf-loading {
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .wf-error {
-  color: #f85149;
-  background: rgba(248, 81, 73, 0.1);
-  border: 1px solid rgba(248, 81, 73, 0.2);
+  color: var(--usx-color-danger);
+  background: color-mix(in srgb, var(--usx-color-danger) 10%, transparent);
+  border: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-danger) 20%, transparent);
 }
 
 .wf-section {
@@ -221,8 +225,8 @@ onMounted(() => {
 .wf-section-title {
   margin: 0;
   font-size: var(--usx-font-size-sm);
-  font-weight: 600;
-  color: var(--pico-muted-color);
+  font-weight: var(--usx-font-weight-semibold);
+  color: var(--usx-color-on-surface-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -235,8 +239,8 @@ onMounted(() => {
 
 .wf-board-card {
   padding: var(--usx-spacing-md);
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-md);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-md);
 }
 
 .wf-board-card-header {
@@ -244,7 +248,7 @@ onMounted(() => {
   align-items: center;
   gap: var(--usx-spacing-sm);
   font-size: var(--usx-font-size-sm);
-  font-weight: 500;
+  font-weight: var(--usx-font-weight-medium);
 }
 
 /* Dashboard-style mission card grid */
@@ -259,16 +263,16 @@ onMounted(() => {
   align-items: flex-start;
   gap: var(--usx-spacing-md);
   padding: var(--usx-spacing-lg);
-  background: var(--pico-card-background-color);
-  border: 1px solid rgba(88, 166, 255, 0.08);
-  border-radius: var(--usx-border-radius-md);
+  background: var(--usx-color-surface);
+  border: 1px solid color-mix(in srgb, var(--usx-color-primary) 8%, transparent);
+  border-radius: var(--usx-radius-md);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .wf-mission-card:hover {
-  background: rgba(88, 166, 255, 0.04);
-  border-color: rgba(88, 166, 255, 0.2);
+  background: color-mix(in srgb, var(--usx-color-primary) 4%, transparent);
+  border-color: color-mix(in srgb, var(--usx-color-primary) 20%, transparent);
   transform: translateY(-1px);
 }
 
@@ -297,14 +301,14 @@ onMounted(() => {
 
 .wf-mission-card-title {
   font-size: var(--usx-font-size-lg);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   margin: 0 0 var(--usx-spacing-xs) 0;
-  color: var(--pico-color);
+  color: var(--usx-color-on-surface);
 }
 
 .wf-mission-card-desc {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin: 0 0 var(--usx-spacing-sm) 0;
   line-height: var(--usx-line-height-tight);
 }
@@ -318,7 +322,7 @@ onMounted(() => {
 
 .wf-mission-task-count {
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin-left: auto;
 }
 
@@ -362,7 +366,7 @@ onMounted(() => {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--usx-spacing-2);
+  gap: var(--usx-spacing-xs);
 }
 
 .wf-run-card-name {

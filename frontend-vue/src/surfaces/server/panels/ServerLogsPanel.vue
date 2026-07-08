@@ -30,8 +30,8 @@ const srv = useServerStore()
 .log-timestamp { color: var(--usx-color-on-surface-muted); flex-shrink: 0; }
 .log-service { color: var(--usx-color-primary); flex-shrink: 0; min-width: 80px; }
 .log-level { flex-shrink: 0; min-width: 40px; font-weight: var(--usx-font-weight-semibold); text-transform: uppercase; font-size: var(--usx-font-size-xs); }
-.log-level--info { color: #58a6ff; }
-.log-level--warn { color: #d29922; }
-.log-level--error { color: #f85149; }
+.log-level--info { color: var(--usx-color-primary); }
+.log-level--warn { color: var(--usx-color-warning); }
+.log-level--error { color: var(--usx-color-danger); }
 .log-message { color: var(--usx-color-on-surface); }
 </style>

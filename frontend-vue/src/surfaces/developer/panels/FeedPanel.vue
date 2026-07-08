@@ -80,9 +80,9 @@ const suggestions = ref<any[]>([])
 const filteredActivities = computed(() => store.filteredActivities)
 
 function importanceColor(importance: number): string {
-  if (importance > 0.8) return '#f85149'
-  if (importance > 0.5) return '#d29922'
-  return '#3fb950'
+  if (importance > 0.8) return 'var(--usx-color-danger)'
+  if (importance > 0.5) return 'var(--usx-color-warning)'
+  return 'var(--usx-color-success)'
 }
 
 function formatTime(ts: string): string {
@@ -125,7 +125,7 @@ onMounted(() => {
 }
 .developer-panel-title {
   font-size: var(--usx-font-size-lg);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   margin: 0;
 }
 .developer-card-list {
@@ -135,8 +135,8 @@ onMounted(() => {
 }
 .developer-card {
   padding: var(--usx-spacing-md);
-  background: var(--pico-card-background-color, #161b22);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-lg);
 }
 .developer-card-header {
   display: flex;
@@ -146,96 +146,96 @@ onMounted(() => {
 }
 .developer-card-title {
   font-size: var(--usx-font-size-base);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   flex: 1;
 }
 .developer-card-desc {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--usx-color-on-surface-muted);
   margin: 0 0 var(--usx-spacing-xs);
 }
 .developer-card-meta {
   display: flex;
   gap: var(--usx-spacing-md);
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--usx-color-on-surface-muted);
   align-items: center;
 }
 
 .feed-header-actions { display: flex; gap: var(--usx-spacing-sm); align-items: center; }
 .feed-source-select {
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  background: var(--pico-background-color, #0d1117);
-  color: var(--pico-color, #c9d1d9);
-  border: 1px solid var(--pico-border-color, #30363d);
-  border-radius: var(--usx-border-radius-md);
+  background: var(--usx-color-background);
+  color: var(--usx-color-on-surface);
+  border: 1px solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
   font-size: var(--usx-font-size-sm);
 }
 .feed-btn {
   padding: var(--usx-spacing-xs) var(--usx-spacing-md);
-  background: var(--pico-primary, #58a6ff);
+  background: var(--usx-color-primary);
   color: #fff;
   border: none;
-  border-radius: var(--usx-border-radius-md);
+  border-radius: var(--usx-radius-md);
   cursor: pointer;
   font-size: var(--usx-font-size-sm);
 }
 .feed-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .feed-error {
-  background: #490202;
-  color: #f85149;
+  background: color-mix(in srgb, var(--usx-color-danger) 15%, transparent);
+  color: var(--usx-color-danger);
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border-radius: var(--usx-border-radius-md);
+  border-radius: var(--usx-radius-md);
   margin-bottom: var(--usx-spacing-md);
   font-size: var(--usx-font-size-sm);
 }
 .feed-source-badge {
   padding: 2px 8px;
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
   font-size: var(--usx-font-size-xs);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   text-transform: uppercase;
 }
-.feed-source--browser { background: #1a365d; color: #63b3ed; }
-.feed-source--email { background: #22543d; color: #68d391; }
-.feed-source--message { background: #553c9a; color: #b794f4; }
-.feed-source--alert { background: #744210; color: #f6ad55; }
-.feed-source--search { background: #234e52; color: #4fd1c5; }
-.feed-importance { font-size: var(--usx-font-size-xs); font-weight: 600; }
+.feed-source--browser { background: color-mix(in srgb, var(--usx-color-info) 15%, transparent); color: var(--usx-color-info); }
+.feed-source--email { background: color-mix(in srgb, var(--usx-color-success) 15%, transparent); color: var(--usx-color-success); }
+.feed-source--message { background: color-mix(in srgb, var(--usx-color-accent) 15%, transparent); color: var(--usx-color-accent); }
+.feed-source--alert { background: color-mix(in srgb, var(--usx-color-warning) 15%, transparent); color: var(--usx-color-warning); }
+.feed-source--search { background: color-mix(in srgb, var(--usx-color-info) 10%, transparent); color: var(--usx-color-info); }
+.feed-importance { font-size: var(--usx-font-size-xs); font-weight: var(--usx-font-weight-semibold); }
 .feed-link-btn {
   background: none;
-  border: 1px solid var(--pico-border-color, #30363d);
-  color: var(--pico-primary, #58a6ff);
+  border: 1px solid var(--usx-color-border);
+  color: var(--usx-color-primary);
   padding: 2px 8px;
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
   cursor: pointer;
   font-size: var(--usx-font-size-xs);
 }
-.feed-link-btn:hover { background: var(--pico-border-color, #30363d); }
+.feed-link-btn:hover { background: var(--usx-color-border); }
 .feed-empty {
   padding: var(--usx-spacing-xl);
   text-align: center;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
 }
 .feed-suggestions { margin-top: var(--usx-spacing-xl); }
 .feed-suggestions-title {
   font-size: var(--usx-font-size-base);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   margin: 0 0 var(--usx-spacing-sm);
 }
 .feed-suggestion-card {
   margin-bottom: var(--usx-spacing-sm);
-  border-left: 3px solid var(--pico-primary, #58a6ff);
+  border-left: 3px solid var(--usx-color-primary);
 }
-.feed-confidence { font-size: var(--usx-font-size-xs); color: var(--pico-primary, #58a6ff); }
+.feed-confidence { font-size: var(--usx-font-size-xs); color: var(--usx-color-primary); }
 .feed-suggest-btn {
   margin-top: var(--usx-spacing-md);
   padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
-  background: var(--pico-background-color, #0d1117);
-  color: var(--pico-primary, #58a6ff);
-  border: 1px solid var(--pico-primary, #58a6ff);
-  border-radius: var(--usx-border-radius-md);
+  background: var(--usx-color-background);
+  color: var(--usx-color-primary);
+  border: 1px solid var(--usx-color-primary);
+  border-radius: var(--usx-radius-md);
   cursor: pointer;
   font-size: var(--usx-font-size-sm);
 }

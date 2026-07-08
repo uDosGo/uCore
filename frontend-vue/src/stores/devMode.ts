@@ -14,36 +14,40 @@ export const useDevModeStore = defineStore('devMode', () => {
   const mode = ref<DevModeState>('off')
   const loading = ref(true)
 
-  /** Fetch mode from backend. Sets 'off' on failure. */
+  /** Fetch mode from backend. Falls back to localStorage if offline. */
   async function probe(): Promise<void> {
     loading.value = true
     try {
-      const res = await fetch(`${API}/api/dev-layer/state`)
+      const res = await fetch(`${API}/api/dev-layer/state`, { signal: AbortSignal.timeout(1500) })
       if (res.ok) {
         const data = await res.json()
-        if (data?.mode) mode.value = data.mode as DevModeState
-      } else {
-        mode.value = 'off'
+        if (data?.mode) {
+          mode.value = data.mode as DevModeState
+          localStorage.setItem('ucore-dev-mode', data.mode)
+          loading.value = false
+          return
+        }
       }
-    } catch {
-      mode.value = 'off'
-    } finally {
-      loading.value = false
+    } catch { /* backend offline, use localStorage */ }
+    // Fallback: check localStorage
+    const saved = localStorage.getItem('ucore-dev-mode')
+    if (saved === 'on' || saved === 'minimal') {
+      mode.value = saved as DevModeState
     }
+    loading.value = false
   }
 
   async function setMode(m: DevModeState): Promise<void> {
+    mode.value = m
+    localStorage.setItem('ucore-dev-mode', m)
     try {
-      const res = await fetch(`${API}/api/dev-layer/state`, {
+      await fetch(`${API}/api/dev-layer/state`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: m }),
+        signal: AbortSignal.timeout(1500),
       })
-      if (res.ok) {
-        const data = await res.json()
-        if (data?.mode) mode.value = data.mode as DevModeState
-      }
-    } catch { /* local state unchanged */ }
+    } catch { /* offline — local state is already set */ }
   }
 
   async function toggle(): Promise<void> {

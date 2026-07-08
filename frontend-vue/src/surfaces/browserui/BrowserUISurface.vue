@@ -38,14 +38,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import UInput from '../../skills/atoms/UInput.vue'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import UBadge from '../../skills/atoms/UBadge.vue'
 
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 const searchQuery = ref('')
+const loading = ref(true)
 
-const stacks = ref([
+interface StackItem {
+  id: string; title: string; url: string; description: string; tags: string[]
+}
+
+const stacks = ref<Array<{ id: string; title: string; icon: string; items: StackItem[] }>>([])
+
+const DEFAULT_STACKS = [
   {
     id: 'research', title: 'Research', icon: 'search',
     items: [
@@ -71,7 +79,34 @@ const stacks = ref([
       { id: 'l3', title: 'CodeMirror 6', url: 'https://codemirror.net', description: 'Code editor component', tags: ['#editor', '#code'] },
     ],
   },
-])
+]
+
+async function fetchBookmarks() {
+  loading.value = true
+  try {
+    const res = await fetch(`${API_BASE}/api/knowledge?type=bookmark`, {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const items = (data.items || data || []).map((b: any) => ({
+        id: b.id || b.url,
+        title: b.title || b.name || 'Untitled',
+        url: b.url || b.link || '#',
+        description: b.description || b.summary || '',
+        tags: (b.tags || b.keywords || []).map((t: string) => t.startsWith('#') ? t : `#${t}`),
+      }))
+      if (items.length > 0) {
+        stacks.value = [{ id: 'bookmarks', title: 'Bookmarks', icon: 'bookmark', items }]
+        return
+      }
+    }
+  } catch { /* backend offline, use defaults */ }
+  stacks.value = DEFAULT_STACKS
+  loading.value = false
+}
+
+onMounted(() => { fetchBookmarks() })
 
 const filteredStacks = computed(() => {
   if (!searchQuery.value) return stacks.value

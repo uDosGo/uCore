@@ -15,7 +15,7 @@
         :key="status"
         class="kanban-column"
       >
-        <div class="kanban-column-header" :style="{ borderTopColor: columnColor(status as string) }">
+        <div class="kanban-column-header" :class="`kanban-column-header--${status}`">
           <span>{{ formatStatus(status as string) }}</span>
           <UBadge type="info" size="sm">{{ items.length }}</UBadge>
         </div>
@@ -69,16 +69,6 @@ function formatStatus(status: string): string {
   return STATUS_LABELS[status] || status
 }
 
-function columnColor(status: string): string {
-  switch (status) {
-    case 'completed': return '#2ea043'
-    case 'in-progress': return '#58a6ff'
-    case 'review': return '#d29922'
-    case 'blocked': return '#f85149'
-    default: return '#6e7681'
-  }
-}
-
 function truncate(text: string, maxLength: number): string {
   if (!text) return ''
   if (text.length <= maxLength) return text
@@ -98,7 +88,7 @@ function truncate(text: string, maxLength: number): string {
   align-items: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-md);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
 }
 
@@ -110,8 +100,8 @@ function truncate(text: string, maxLength: number): string {
 }
 
 .kanban-column {
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-lg);
   display: flex;
   flex-direction: column;
   min-height: 200px;
@@ -122,10 +112,16 @@ function truncate(text: string, maxLength: number): string {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   font-size: var(--usx-font-size-sm);
   border-top: 3px solid;
 }
+
+.kanban-column-header--completed { border-top-color: var(--usx-color-success); }
+.kanban-column-header--in-progress { border-top-color: var(--usx-color-primary); }
+.kanban-column-header--review { border-top-color: var(--usx-color-warning); }
+.kanban-column-header--blocked { border-top-color: var(--usx-color-danger); }
+.kanban-column-header--todo { border-top-color: var(--usx-color-on-surface-muted); }
 
 .kanban-cards {
   flex: 1;
@@ -138,31 +134,31 @@ function truncate(text: string, maxLength: number): string {
 .kanban-empty {
   padding: var(--usx-spacing-lg);
   text-align: center;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
   font-style: italic;
 }
 
 .kanban-card {
   padding: var(--usx-spacing-md);
-  background: var(--pico-background-color);
-  border-radius: var(--usx-border-radius-md);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-md);
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .kanban-card:hover {
-  border-color: var(--pico-primary);
+  border-color: var(--usx-color-primary);
 }
 
 .kanban-card--selected {
-  border-color: var(--pico-primary);
-  background: rgba(88, 166, 255, 0.06);
+  border-color: var(--usx-color-primary);
+  background: color-mix(in srgb, var(--usx-color-primary) 6%, transparent);
 }
 
 .kanban-card-title {
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   margin-bottom: var(--usx-spacing-xs);
   font-size: var(--usx-font-size-sm);
 }
@@ -170,7 +166,7 @@ function truncate(text: string, maxLength: number): string {
 .kanban-card-desc {
   margin: 0 0 var(--usx-spacing-sm) 0;
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   line-height: var(--usx-line-height-tight);
 }
 
@@ -184,9 +180,9 @@ function truncate(text: string, maxLength: number): string {
 
 .kanban-tag {
   padding: var(--usx-spacing-xs) var(--usx-spacing-xs);
-  border-radius: var(--usx-border-radius-sm);
-  background: var(--pico-muted-background-color);
-  color: var(--pico-muted-color);
+  border-radius: var(--usx-radius-sm);
+  background: var(--usx-color-surface-variant);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-xs);
 }
 
@@ -195,6 +191,6 @@ function truncate(text: string, maxLength: number): string {
   align-items: center;
   gap: var(--usx-spacing-xs);
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 </style>

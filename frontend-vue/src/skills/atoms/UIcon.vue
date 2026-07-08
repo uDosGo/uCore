@@ -140,6 +140,26 @@ const MATERIAL_ICON_MAP: Record<string, string> = {
   'close': 'close',
   'view_column': 'view_column',
   'view_day': 'view_day',
+  // Status & action icons
+  'add_circle': 'add_circle',
+  'check_circle': 'check_circle',
+  'delete': 'delete',
+  'circle': 'circle',
+  'description': 'description',
+  'error': 'error',
+  'warning': 'warning',
+  'mail': 'mail',
+  'push_pin': 'push_pin',
+  'cable': 'cable',
+  'my_location': 'my_location',
+  'download': 'download',
+  'bar_chart': 'bar_chart',
+  'rss_feed': 'rss_feed',
+  'inventory': 'inventory',
+  'restart_alt': 'restart_alt',
+  'import_export': 'import_export',
+  'input': 'input',
+  'progress_activity': 'progress_activity',
 }
 
 /**

@@ -125,6 +125,41 @@ agents:
     timeout: 60
     priority: 5
 
+  usx-designer:
+    id: usx-designer
+    name: USX Designer Agent
+    description: USX design system — layout, color tokens, typography, spacing, surface scaffolding, theme auditing
+    model: qwen2.5-coder:3b
+    provider: ollama
+    system_prompt: |
+      You are a USX Design System expert specializing in:
+      - CSS variable-only design: NO hardcoded hex, px, rem, or em values
+      - `--usx-color-*` tokens for all colors (surface, text, border, status)
+      - `--usx-spacing-*` scale (xs/sm/md/lg/xl/2xl) for padding/margin/gap
+      - `--usx-font-size-*` and `--usx-font-weight-*` for all typography
+      - `--usx-radius-*` (sm/md/lg/full) for border-radius (NOT --usx-border-radius-*)
+      - Surface plate patterns: `.surface`, `.surface__content`, `.surface__tab`
+      - Material Symbols Outlined icons via `<UIcon name="..." />` — NO emojis as UI icons
+      - Theme compatibility: tokens defined in tokens-*.css, themed in themes/*.css
+
+      Your approach:
+      1. Audit surfaces for --pico-* references, hardcoded hex, raw px values
+      2. Replace with correct USX token from tokens-color.css / tokens-typography.css
+      3. Replace emojis with Material Symbol icon names via UIcon component
+      4. Scaffold new surfaces using .surface BEM classes from usx-standard.css
+      5. Validate all 5 token layers: color, spacing, typography, radius, touch targets
+      6. Ensure no --pico-* fallbacks remain; use --usx-color-* exclusively
+
+      Source of truth:
+      - Tokens: frontend-vue/src/styles/tokens/tokens-{color,typography,spacing,touch,components}.css
+      - Standard: frontend-vue/src/styles/usx-standard.css
+      - Skill: backend/app/skills/builtin/usx_standard.py
+      - Rule: .github/copilot-instructions.md
+    capabilities: [usx, design-system, css-tokens, layout, theming, surface-scaffold, icon-migration, color-audit]
+    cost_per_task: 0.0
+    timeout: 60
+    priority: 2
+
   gridsmith-dev:
     id: gridsmith-dev
     name: GridSmith Dev Agent
@@ -150,7 +185,7 @@ surface_taxonomy:
   developer:
     name: Developer Surface
     lane: build
-    owns: [repos, review, skills, models, dev-agents, kanban, tasks, dev-flow, run-history, benchmarks, dev-settings]
+    owns: [repos, review, skills, models, dev-agents, kanban, tasks, dev-flow, run-history, benchmarks, dev-settings, usx-designer]
     excludes: [service-health, logs, secrets, global-settings, system-pages-registry]
   server:
     name: Server Surface
@@ -224,6 +259,26 @@ routing:
     high: gridsmith-dev
     medium: gridsmith-dev
     low: gridsmith-dev
+
+  usx:
+    high: usx-designer
+    medium: usx-designer
+    low: usx-designer
+
+  style:
+    high: usx-designer
+    medium: usx-designer
+    low: usx-designer
+
+  layout:
+    high: usx-designer
+    medium: usx-designer
+    low: usx-designer
+
+  surface-audit:
+    high: usx-designer
+    medium: usx-designer
+    low: usx-designer
 
   surface-restructure:
     high: architect

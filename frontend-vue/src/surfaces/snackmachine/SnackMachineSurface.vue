@@ -36,7 +36,7 @@
           <div v-else-if="sm.activeTab === 'workflows'">
             <div class="usx-flex-between usx-mb-md">
               <h3 class="surface__panel-title" style="margin:0">Workflows</h3>
-              <UButton variant="primary" size="sm" icon="add">New Workflow</UButton>
+              <UButton variant="primary" size="sm" icon="add" @click="createWorkflow">New Workflow</UButton>
             </div>
             <div class="sm-workflows-list">
               <div v-for="wf in sm.workflows" :key="wf.id" class="surface__panel">
@@ -45,8 +45,8 @@
                   <span style="font-weight:600;flex:1">{{ wf.name }}</span>
                   <UBadge :type="wf.enabled ? 'success' : 'info'" size="sm">{{ wf.enabled ? 'enabled' : 'disabled' }}</UBadge>
                 </div>
-                <p style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color);margin:var(--usx-spacing-xs) 0">{{ wf.description }}</p>
-                <div class="usx-flex-row usx-gap-md" style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color)">
+                <p style="font-size:var(--usx-font-size-sm);color:var(--usx-color-on-surface-muted);margin:var(--usx-spacing-xs) 0">{{ wf.description }}</p>
+                <div class="usx-flex-row usx-gap-md" style="font-size:var(--usx-font-size-sm);color:var(--usx-color-on-surface-muted)">
                   <span>{{ wf.schedule }}</span>
                   <span>{{ wf.steps.length }} steps</span>
                 </div>
@@ -64,7 +64,7 @@
                   <span style="font-weight:600;flex:1">{{ server.name }}</span>
                   <UBadge :type="server.status === 'online' ? 'success' : 'error'" size="sm">{{ server.status }}</UBadge>
                 </div>
-                <div class="usx-flex-row usx-gap-md" style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color);margin:var(--usx-spacing-xs) 0">
+                <div class="usx-flex-row usx-gap-md" style="font-size:var(--usx-font-size-sm);color:var(--usx-color-on-surface-muted);margin:var(--usx-spacing-xs) 0">
                   <span>{{ server.transport }}</span>
                   <span>{{ server.tools.length }} tools</span>
                 </div>
@@ -78,10 +78,10 @@
           <!-- Vault Sync -->
           <div v-else-if="sm.activeTab === 'vault'">
             <h3 class="surface__panel-title">Vault Sync</h3>
-            <p class="usx-mb-md" style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color)">Bidirectional sync between AppFlowy and local vault.</p>
+            <p class="usx-mb-md" style="font-size:var(--usx-font-size-sm);color:var(--usx-color-on-surface-muted)">Bidirectional sync between AppFlowy and local vault.</p>
             <div class="usx-flex-row usx-gap-sm">
-              <UButton variant="primary" icon="sync">Sync Now</UButton>
-              <UButton variant="secondary" icon="history">View Log</UButton>
+              <UButton variant="primary" icon="sync" @click="syncVault">Sync Now</UButton>
+              <UButton variant="secondary" icon="history" @click="sm.fetchVariables">View Log</UButton>
             </div>
           </div>
 
@@ -120,7 +120,7 @@
               <UBadge :type="sm.backendOk ? 'success' : 'error'" size="sm">
                 {{ sm.backendOk ? 'connected' : 'disconnected' }}
               </UBadge>
-              <span style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color)">
+              <span style="font-size:var(--usx-font-size-sm);color:var(--usx-color-on-surface-muted)">
                 {{ sm.backendOk ? 'http://localhost:5175' : 'unreachable' }}
               </span>
             </div>
@@ -133,7 +133,7 @@
 
           <div class="surface__panel usx-mt-md">
             <h4 class="surface__panel-title" style="margin-top:0">Quick Info</h4>
-            <p style="font-size:var(--usx-font-size-sm);color:var(--pico-muted-color);margin:0">
+            <p style="font-size:var(--usx-font-size-sm);color:var(--usx-color-on-surface-muted);margin:0">
               {{ sm.snacks.length }} snack(s) in queue
             </p>
           </div>
@@ -164,6 +164,27 @@ import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
 const shell = useShellStore()
 const sm = useSnackMachineStore()
+
+async function syncVault() {
+  try {
+    await fetch(`${API_BASE}/api/skills/vault_sync/run`, { method: 'POST', signal: AbortSignal.timeout(30000) })
+    await sm.fetchAll()
+  } catch (e: any) { console.warn('Vault sync failed:', e.message) }
+}
+
+function createWorkflow() {
+  const name = prompt('Workflow name:')
+  if (!name) return
+  // POST to create workflow then refresh
+  fetch(`${API_BASE}/api/workflows`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, steps: [] }),
+    signal: AbortSignal.timeout(10000),
+  }).then(() => sm.fetchWorkflows()).catch(e => console.warn('Create workflow failed:', e.message))
+}
+
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 
 onMounted(() => { sm.fetchAll() })
 </script>
@@ -205,7 +226,7 @@ onMounted(() => { sm.fetchAll() })
 
 .sm-status {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin-bottom: var(--usx-spacing-md);
 }
 
@@ -230,18 +251,18 @@ onMounted(() => { sm.fetchAll() })
 
 .sm-snack-type {
   font-size: var(--usx-font-size-sm);
-  font-weight: 500;
+  font-weight: var(--usx-font-weight-medium);
   min-width: 100px;
 }
 
 .sm-snack-source {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .sm-snack-time {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin-left: auto;
 }
 
@@ -274,19 +295,19 @@ onMounted(() => { sm.fetchAll() })
   align-items: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
 }
 
 .sm-var-row code {
   font-family: monospace;
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-primary);
+  color: var(--usx-color-primary);
   min-width: 160px;
 }
 
 .sm-var-row span {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   flex: 1;
 }
 
@@ -303,25 +324,25 @@ onMounted(() => { sm.fetchAll() })
   align-items: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
-  background: var(--pico-background-color);
-  border-radius: var(--usx-border-radius-md);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-md);
 }
 
 .sm-schedule-name {
   font-size: var(--usx-font-size-sm);
-  font-weight: 500;
+  font-weight: var(--usx-font-weight-medium);
   min-width: 140px;
 }
 
 .sm-schedule-cron {
   font-family: monospace;
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .sm-schedule-next {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin-left: auto;
 }
 </style>

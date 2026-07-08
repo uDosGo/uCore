@@ -44,11 +44,11 @@
     <!-- Summary stats -->
     <div v-if="wf.missionTaskBinderRows.length > 0" class="wf-stats">
       <div class="wf-stat">
-        <span class="wf-stat-value" style="color:#d29922">{{ missionCount }}</span>
+        <span class="wf-stat-value wf-stat-value--warning">{{ missionCount }}</span>
         <span class="wf-stat-label">Missions</span>
       </div>
       <div class="wf-stat">
-        <span class="wf-stat-value" style="color:#58a6ff">{{ binderCount }}</span>
+        <span class="wf-stat-value wf-stat-value--info">{{ binderCount }}</span>
         <span class="wf-stat-label">Binders</span>
       </div>
       <div class="wf-stat">
@@ -252,9 +252,9 @@ async function compileBinder(): Promise<void> {
   justify-content: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-xl) var(--usx-spacing-lg);
-  border: 2px dashed rgba(88, 166, 255, 0.2);
-  border-radius: var(--usx-border-radius-lg);
-  background: rgba(88, 166, 255, 0.02);
+  border: 2px dashed color-mix(in srgb, var(--usx-color-primary) 20%, transparent);
+  border-radius: var(--usx-radius-lg);
+  background: color-mix(in srgb, var(--usx-color-primary) 2%, transparent);
   transition: all 0.15s ease;
   min-height: 120px;
   cursor: pointer;
@@ -262,19 +262,19 @@ async function compileBinder(): Promise<void> {
 
 .wf-launchpad-drop--active,
 .wf-launchpad-drop:hover {
-  border-color: rgba(88, 166, 255, 0.5);
-  background: rgba(88, 166, 255, 0.06);
+  border-color: color-mix(in srgb, var(--usx-color-primary) 50%, transparent);
+  background: color-mix(in srgb, var(--usx-color-primary) 6%, transparent);
 }
 
 .wf-launchpad-prompt {
   font-size: var(--usx-font-size-sm);
-  font-weight: 600;
-  color: var(--pico-color);
+  font-weight: var(--usx-font-weight-semibold);
+  color: var(--usx-color-on-surface);
 }
 
 .wf-launchpad-hint {
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .wf-launchpad-files {
@@ -290,14 +290,14 @@ async function compileBinder(): Promise<void> {
   align-items: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-xs) var(--usx-spacing-md);
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-sm);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-sm);
   font-size: var(--usx-font-size-sm);
 }
 
 .wf-launchpad-file-size {
   font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin-left: auto;
 }
 
@@ -308,15 +308,15 @@ async function compileBinder(): Promise<void> {
   padding: var(--usx-spacing-xs);
   border: none;
   background: transparent;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
   transition: all 0.1s ease;
 }
 
 .wf-launchpad-remove:hover {
-  color: #f85149;
-  background: rgba(248, 81, 73, 0.1);
+  color: var(--usx-color-danger);
+  background: color-mix(in srgb, var(--usx-color-danger) 10%, transparent);
 }
 
 .wf-loading {
@@ -324,7 +324,7 @@ async function compileBinder(): Promise<void> {
   align-items: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-md);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
 }
 
@@ -340,22 +340,25 @@ async function compileBinder(): Promise<void> {
   align-items: center;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-md);
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-lg);
   min-width: 90px;
   flex: 1;
 }
 
 .wf-stat-value {
   font-size: var(--usx-font-size-xl);
-  font-weight: 700;
+  font-weight: var(--usx-font-weight-bold);
   line-height: var(--usx-line-height-tight);
 }
 
 .wf-stat-label {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
+
+.wf-stat-value--warning { color: var(--usx-color-warning); }
+.wf-stat-value--info { color: var(--usx-color-primary); }
 
 .wf-binder-filters {
   display: flex;
@@ -367,22 +370,22 @@ async function compileBinder(): Promise<void> {
   flex: 1;
   min-width: 180px;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border: 1px solid var(--pico-border-color);
-  border-radius: var(--usx-border-radius-md);
-  background: var(--pico-card-background-color);
-  color: var(--pico-color);
+  border: 1px solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
   font-size: var(--usx-font-size-sm);
-  font-family: var(--usx-font-family);
+  font-family: var(--usx-font-family-sans);
 }
 
 .wf-filter-input::placeholder {
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .wf-binder-table-wrap {
   overflow-x: auto;
-  border-radius: var(--usx-border-radius-lg);
-  border: 1px solid var(--pico-border-color);
+  border-radius: var(--usx-radius-lg);
+  border: 1px solid var(--usx-color-border);
 }
 
 .wf-binder-table {
@@ -394,21 +397,21 @@ async function compileBinder(): Promise<void> {
 .wf-binder-table th {
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   text-align: left;
-  font-weight: 600;
-  color: var(--pico-muted-color);
-  background: var(--pico-card-background-color);
-  border-bottom: 1px solid var(--pico-border-color);
+  font-weight: var(--usx-font-weight-semibold);
+  color: var(--usx-color-on-surface-muted);
+  background: var(--usx-color-surface);
+  border-bottom: 1px solid var(--usx-color-border);
   white-space: nowrap;
 }
 
 .wf-binder-table td {
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border-bottom: 1px solid var(--pico-muted-background-color);
+  border-bottom: 1px solid var(--usx-color-surface-variant);
   vertical-align: top;
 }
 
 .wf-binder-table tbody tr:hover {
-  background: var(--pico-muted-background-color);
+  background: var(--usx-color-surface-variant);
 }
 
 .wf-monospace {
@@ -417,7 +420,7 @@ async function compileBinder(): Promise<void> {
 }
 
 .wf-muted {
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .wf-title-cell {
@@ -436,13 +439,13 @@ async function compileBinder(): Promise<void> {
 
 .wf-page-indicator {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .wf-empty {
   padding: var(--usx-spacing-xl);
   text-align: center;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
 }
 </style>

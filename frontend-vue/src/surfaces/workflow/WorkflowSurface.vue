@@ -61,15 +61,15 @@
  * @category surfaces
  * @usage Routed at '/workflow?tab=mission-control'
  */
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useShellStore } from '../../stores/shell'
 import { useWorkflowStore, WORKFLOW_TABS } from '../../stores/workflow'
 import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 import MissionControlPanel from './panels/MissionControlPanel.vue'
-import MissionsPanel from './panels/MissionsPanel.vue'
-import BinderPanel from './panels/BinderPanel.vue'
-import TasksPanel from './panels/TasksPanel.vue'
-import PublishPanel from './panels/PublishPanel.vue'
+const MissionsPanel = defineAsyncComponent(() => import('./panels/MissionsPanel.vue'))
+const BinderPanel = defineAsyncComponent(() => import('./panels/BinderPanel.vue'))
+const TasksPanel = defineAsyncComponent(() => import('./panels/TasksPanel.vue'))
+const PublishPanel = defineAsyncComponent(() => import('./panels/PublishPanel.vue'))
 import { EditorPanel } from '../../skills'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import UButton from '../../skills/atoms/UButton.vue'

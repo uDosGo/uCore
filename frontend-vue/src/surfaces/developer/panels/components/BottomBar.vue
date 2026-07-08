@@ -2,7 +2,7 @@
   <div class="bottom-bar">
     <!-- Tasker Overview -->
     <div class="bottom-bar__section">
-      <span class="bottom-bar__icon">📋</span>
+      <UIcon name="view_kanban" class="bottom-bar__icon" />
       <div class="bottom-bar__content">
         <span class="bottom-bar__label">Tasker</span>
         <span class="bottom-bar__detail" v-if="tasker">
@@ -16,7 +16,7 @@
 
     <!-- MCP Servers -->
     <div class="bottom-bar__section">
-      <span class="bottom-bar__icon">🔌</span>
+      <UIcon name="cable" class="bottom-bar__icon" />
       <div class="bottom-bar__content">
         <span class="bottom-bar__label">MCP Servers</span>
         <span class="bottom-bar__detail" v-if="mcp && mcp.length > 0">
@@ -30,7 +30,7 @@
 
     <!-- Slates -->
     <div class="bottom-bar__section">
-      <span class="bottom-bar__icon">🧩</span>
+      <UIcon name="extension" class="bottom-bar__icon" />
       <div class="bottom-bar__content">
         <span class="bottom-bar__label">Slates</span>
         <span class="bottom-bar__detail" v-if="slates && slates.length > 0">
@@ -44,7 +44,7 @@
 
     <!-- Next Task -->
     <div class="bottom-bar__section" v-if="tasker?.next">
-      <span class="bottom-bar__icon">🎯</span>
+      <UIcon name="my_location" class="bottom-bar__icon" />
       <div class="bottom-bar__content">
         <span class="bottom-bar__label">Next</span>
         <span class="bottom-bar__detail bottom-bar__detail--mono">{{ tasker.next }}</span>
@@ -60,6 +60,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import UIcon from '../../../../skills/atoms/UIcon.vue'
 
 const props = defineProps<{
   tasker: { total?: number; done?: number; next?: string } | null

@@ -64,10 +64,10 @@ interface KanbanColumn {
 }
 
 const columns = ref<KanbanColumn[]>([
-  { id: 'backlog', title: 'Backlog', color: '#6b7280', items: [] },
-  { id: 'progress', title: 'In Progress', color: '#58a6ff', items: [] },
-  { id: 'review', title: 'Review', color: '#d29922', items: [] },
-  { id: 'done', title: 'Done', color: '#2ea043', items: [] },
+  { id: 'backlog', title: 'Backlog', color: 'var(--usx-color-on-surface-muted)', items: [] },
+  { id: 'progress', title: 'In Progress', color: 'var(--usx-color-primary)', items: [] },
+  { id: 'review', title: 'Review', color: 'var(--usx-color-warning)', items: [] },
+  { id: 'done', title: 'Done', color: 'var(--usx-color-success)', items: [] },
 ])
 
 const dragItem = ref<{ item: KanbanItem; colId: string } | null>(null)
@@ -154,7 +154,7 @@ onMounted(() => { fetchTasks() })
 <style scoped>
 .developer-panel { max-width: 100%; }
 .developer-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--usx-spacing-md); }
-.developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: 600; margin: 0; }
+.developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-semibold); margin: 0; }
 
 .kanban-board {
   display: grid;
@@ -164,9 +164,9 @@ onMounted(() => { fetchTasks() })
 }
 
 .kanban-column {
-  background: var(--pico-card-background-color, #161b22);
-  background: var(--pico-background-color, #30363d);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-surface);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-lg);
   min-height: 300px;
 }
 
@@ -180,7 +180,7 @@ onMounted(() => { fetchTasks() })
 
 .kanban-column-title {
   font-size: var(--usx-font-size-sm);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
 }
 
 .kanban-cards {
@@ -192,14 +192,14 @@ onMounted(() => { fetchTasks() })
 
 .kanban-card {
   padding: var(--usx-spacing-sm);
-  background: var(--pico-background-color, #30363d);
-  border-radius: var(--usx-border-radius-md);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-md);
   cursor: grab;
   transition: all 0.15s ease;
 }
 
 .kanban-card:hover {
-  border-color: var(--pico-primary, #58a6ff);
+  border-color: var(--usx-color-primary);
   transform: translateY(-1px);
 }
 
@@ -207,7 +207,7 @@ onMounted(() => { fetchTasks() })
 
 .kanban-card-title {
   font-size: var(--usx-font-size-sm);
-  font-weight: 500;
+  font-weight: var(--usx-font-weight-medium);
   margin-bottom: var(--usx-spacing-xs);
 }
 
@@ -219,6 +219,6 @@ onMounted(() => { fetchTasks() })
 
 .kanban-card-date {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--usx-color-on-surface-muted);
 }
 </style>

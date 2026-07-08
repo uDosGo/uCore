@@ -34,24 +34,28 @@
  * @category surfaces
  * @usage Routed at '/developer/*'
  */
+import { defineAsyncComponent } from 'vue'
 import { useShellStore } from '../../stores/shell'
-import UIcon from '../../skills/atoms/UIcon.vue'
 import { useDeveloperStore, DEVELOPER_TABS } from '../../stores/developer'
 import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
 const shell = useShellStore()
+
+// Eager: Control is the default tab
 import ControlPanel from './panels/ControlPanel.vue'
-import ModelsPanel from './panels/ModelsPanel.vue'
-import AgentsPanel from './panels/AgentsPanel.vue'
-import KanbanPanel from './panels/KanbanPanel.vue'
-import ReposPanel from './panels/ReposPanel.vue'
-import ReviewPanel from './panels/ReviewPanel.vue'
-import SkillsPanel from './panels/SkillsPanel.vue'
-import FeedPanel from './panels/FeedPanel.vue'
-import RegistryPanel from './panels/RegistryPanel.vue'
-import WorkflowsPanel from './panels/WorkflowsPanel.vue'
-import MCPServersPanel from './panels/MCPServersPanel.vue'
-import SettingsPanel from './panels/SettingsPanel.vue'
+
+// Lazy: load other panels only when their tab is selected
+const ModelsPanel = defineAsyncComponent(() => import('./panels/ModelsPanel.vue'))
+const AgentsPanel = defineAsyncComponent(() => import('./panels/AgentsPanel.vue'))
+const KanbanPanel = defineAsyncComponent(() => import('./panels/KanbanPanel.vue'))
+const ReposPanel = defineAsyncComponent(() => import('./panels/ReposPanel.vue'))
+const ReviewPanel = defineAsyncComponent(() => import('./panels/ReviewPanel.vue'))
+const SkillsPanel = defineAsyncComponent(() => import('./panels/SkillsPanel.vue'))
+const FeedPanel = defineAsyncComponent(() => import('./panels/FeedPanel.vue'))
+const RegistryPanel = defineAsyncComponent(() => import('./panels/RegistryPanel.vue'))
+const WorkflowsPanel = defineAsyncComponent(() => import('./panels/WorkflowsPanel.vue'))
+const MCPServersPanel = defineAsyncComponent(() => import('./panels/MCPServersPanel.vue'))
+const SettingsPanel = defineAsyncComponent(() => import('./panels/SettingsPanel.vue'))
 
 const dev = useDeveloperStore()
 </script>
@@ -74,7 +78,7 @@ const dev = useDeveloperStore()
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   
-  background: var(--pico-card-background-color, #161b22);
+  background: var(--usx-color-surface);
   overflow-x: auto;
 }
 
@@ -85,23 +89,23 @@ const dev = useDeveloperStore()
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border: none;
   background: transparent;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--usx-color-on-surface-muted);
   cursor: pointer;
   font-size: var(--usx-font-size-sm);
-  font-weight: 500;
-  border-radius: var(--usx-border-radius-md);
+  font-weight: var(--usx-font-weight-medium);
+  border-radius: var(--usx-radius-md);
   white-space: nowrap;
   transition: all 0.15s ease;
 }
 
 .developer-tab:hover {
-  background: var(--pico-border-color, #30363d);
-  color: var(--pico-color, #c9d1d9);
+  background: var(--usx-color-border);
+  color: var(--usx-color-on-surface);
 }
 
 .developer-tab--active {
-  background: var(--pico-background-color);
-  color: var(--pico-primary, #58a6ff);
+  background: var(--usx-color-background);
+  color: var(--usx-color-primary);
 }
 
 .developer-content-inner {

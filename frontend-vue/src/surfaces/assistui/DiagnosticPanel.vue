@@ -104,7 +104,7 @@ onUnmounted(() => {
   background: rgba(0, 0, 0, 0.8);
   color: white;
   padding: var(--usx-spacing-md);
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
   font-size: var(--usx-font-size-sm);
 }
 
@@ -115,10 +115,10 @@ onUnmounted(() => {
 }
 
 .status-ok {
-  color: #3fb950;
+  color: var(--usx-color-success);
 }
 
 .status-error {
-  color: #f85149;
+  color: var(--usx-color-danger);
 }
 </style>

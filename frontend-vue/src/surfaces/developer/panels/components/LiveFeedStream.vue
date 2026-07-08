@@ -26,7 +26,7 @@
         class="live-feed__item"
         :class="{ 'live-feed__item--unprocessed': !item.processed }"
       >
-        <span class="live-feed__source-icon">{{ sourceIcon(item.source) }}</span>
+        <UIcon :name="sourceIcon(item.source)" class="live-feed__source-icon" />
         <div class="live-feed__content">
           <span class="live-feed__item-title">{{ item.title || 'Untitled' }}</span>
           <span class="live-feed__item-detail">{{ item.content?.slice(0, 100) || '' }}</span>
@@ -41,11 +41,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import UIcon from '../../../../skills/atoms/UIcon.vue'
 
 interface FeedItem {
   id: number
   source: string
-  type: string
+  type?: string
   title: string
   content?: string
   importance: number
@@ -67,21 +68,21 @@ const filteredActivities = computed(() => {
 })
 
 const sourceIcons: Record<string, string> = {
-  browser: '\uD83C\uDF10',
-  email: '\uD83D\uDCE7',
-  message: '\uD83D\uDCAC',
-  alert: '\uD83D\uDEA8',
-  search: '\uD83D\uDD0D',
+  browser: 'public',
+  email: 'mail',
+  message: 'chat',
+  alert: 'warning',
+  search: 'search',
 }
 
 function sourceIcon(source: string): string {
-  return sourceIcons[source] || '\uD83D\uDCCC'
+  return sourceIcons[source] || 'push_pin'
 }
 
 function importanceColor(importance: number): string {
-  if (importance > 0.8) return '#f85149'
-  if (importance > 0.5) return '#d29922'
-  return '#3fb950'
+  if (importance > 0.8) return 'var(--usx-color-danger)'
+  if (importance > 0.5) return 'var(--usx-color-warning)'
+  return 'var(--usx-color-success)'
 }
 </script>
 

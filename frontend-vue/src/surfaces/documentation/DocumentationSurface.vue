@@ -11,7 +11,7 @@
       <!-- Learning Hub -->
       <div v-if="activeTab === 'learning'">
         <h2 style="margin:0 0 var(--usx-spacing-xs);font-size:1.5rem">Learning Hub</h2>
-        <p class="usx-mb-lg" style="color:var(--pico-muted-color)">Tutorials, guides, courses, and skill tracking for mastering uCore.</p>
+        <p class="usx-mb-lg" style="color:var(--usx-color-on-surface-muted)">Tutorials, guides, courses, and skill tracking for mastering uCore.</p>
         <div class="docs-grid">
           <div v-for="course in courses" :key="course.id" class="docs-card">
             <UIcon :name="course.icon" />
@@ -27,7 +27,7 @@
       <!-- Guide & Docs -->
       <div v-else-if="activeTab === 'guide'">
         <h2 style="margin:0 0 var(--usx-spacing-xs);font-size:1.5rem">Guide & Docs</h2>
-        <p class="usx-mb-lg" style="color:var(--pico-muted-color)">Jekyll-based documentation site.</p>
+        <p class="usx-mb-lg" style="color:var(--usx-color-on-surface-muted)">Jekyll-based documentation site.</p>
         <div class="docs-iframes">
           <div class="docs-iframe-card">
             <h4>DevStudio Docs</h4>
@@ -43,7 +43,7 @@
       <!-- API Reference -->
       <div v-else-if="activeTab === 'api'">
         <h2 style="margin:0 0 var(--usx-spacing-xs);font-size:1.5rem">API Reference</h2>
-        <p class="usx-mb-lg" style="color:var(--pico-muted-color)">Backend API endpoints and MCP tool registry.</p>
+        <p class="usx-mb-lg" style="color:var(--usx-color-on-surface-muted)">Backend API endpoints and MCP tool registry.</p>
         <div class="docs-api-list">
           <div v-for="ep in apiEndpoints" :key="ep.path" class="api-endpoint">
             <UBadge :type="ep.method === 'GET' ? 'success' : 'warning'" size="sm">{{ ep.method }}</UBadge>
@@ -57,14 +57,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useShellStore } from '../../stores/shell'
 import UIcon from '../../skills/atoms/UIcon.vue'
 import UBadge from '../../skills/atoms/UBadge.vue'
 import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
+const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 const shell = useShellStore()
 const activeTab = ref('learning')
+const loading = ref(true)
 
 const DOC_TABS = [
   { id: 'learning', label: 'Learning Hub', icon: 'school' },
@@ -72,7 +74,7 @@ const DOC_TABS = [
   { id: 'api', label: 'API Reference', icon: 'code' },
 ]
 
-const courses = [
+const DEFAULT_COURSES = [
   { id: '1', title: 'Vue 3 Fundamentals', icon: 'school', description: 'Learn Vue 3 Composition API, reactivity, and component design', status: 'completed' },
   { id: '2', title: 'Pinia State Management', icon: 'storage', description: 'Master Pinia stores for predictable state', status: 'completed' },
   { id: '3', title: 'Skills-First Architecture', icon: 'extension', description: 'Build reusable AI-friendly component libraries', status: 'in-progress' },
@@ -81,7 +83,7 @@ const courses = [
   { id: '6', title: 'BBCSDL Terminal & Teletext', icon: 'terminal', description: 'Retro computing with BBC BASIC and Ceefax', status: 'available' },
 ]
 
-const apiEndpoints = [
+const DEFAULT_ENDPOINTS = [
   { method: 'GET', path: '/api/status', description: 'Snackbar server status' },
   { method: 'GET', path: '/api/knowledge', description: 'List knowledge documents' },
   { method: 'POST', path: '/api/chat', description: 'Send chat message (non-streaming)' },
@@ -91,6 +93,49 @@ const apiEndpoints = [
   { method: 'GET', path: '/health', description: 'uCore backend health check' },
   { method: 'GET', path: '/api/models', description: 'List available LLM models' },
 ]
+
+const courses = ref(DEFAULT_COURSES)
+const apiEndpoints = ref(DEFAULT_ENDPOINTS)
+
+async function fetchData() {
+  loading.value = true
+  // Fetch courses
+  try {
+    const res = await fetch(`${API_BASE}/api/courses`, { signal: AbortSignal.timeout(5000) })
+    if (res.ok) {
+      const data = await res.json()
+      const list = data.courses || data || []
+      if (list.length > 0) {
+        courses.value = list.map((c: any) => ({
+          id: c.id || c.course_id || String(Date.now()),
+          title: c.title || c.name || 'Untitled',
+          icon: c.icon || 'school',
+          description: c.description || '',
+          status: c.status || 'available',
+        }))
+      }
+    }
+  } catch { /* keep defaults */ }
+
+  // Fetch API endpoints
+  try {
+    const res = await fetch(`${API_BASE}/api/`, { signal: AbortSignal.timeout(3000) })
+    if (res.ok) {
+      const data = await res.json()
+      const eps = data.endpoints || data.routes || []
+      if (eps.length > 0) {
+        apiEndpoints.value = eps.map((e: any) => ({
+          method: e.method || 'GET',
+          path: e.path || e.route || '/',
+          description: e.description || e.doc || '',
+        }))
+      }
+    }
+  } catch { /* keep defaults */ }
+  loading.value = false
+}
+
+onMounted(() => { fetchData() })
 </script>
 
 <style scoped>
@@ -107,8 +152,8 @@ const apiEndpoints = [
   flex-direction: column;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-md);
-  background: var(--pico-card-background-color);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-lg);
 }
 
 .docs-card h4 {
@@ -118,7 +163,7 @@ const apiEndpoints = [
 
 .docs-card p {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   margin: 0;
 }
 
@@ -129,8 +174,8 @@ const apiEndpoints = [
 }
 
 .docs-iframe-card {
-  background: var(--pico-background-color);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-lg);
   overflow: hidden;
 }
 
@@ -138,7 +183,7 @@ const apiEndpoints = [
   margin: 0;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   font-size: var(--usx-font-size-sm);
-  background: var(--pico-card-background-color);
+  background: var(--usx-color-surface);
 }
 
 .docs-iframe-card iframe {
@@ -159,18 +204,18 @@ const apiEndpoints = [
   align-items: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
 }
 
 .api-endpoint code {
   font-family: monospace;
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-primary);
+  color: var(--usx-color-primary);
   min-width: 200px;
 }
 
 .api-endpoint span {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
 }
 </style>

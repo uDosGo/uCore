@@ -119,9 +119,9 @@ const badges = computed<StatusBadgeData[]>(() => {
   flex-wrap: wrap;
   align-items: center;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  background: var(--usx-color-surface-variant, #1c2128);
-  border-radius: var(--usx-radius-md, 6px);
-  border: var(--usx-border-width, 1px) solid var(--usx-color-border, #30363d);
+  background: var(--usx-color-surface-variant);
+  border-radius: var(--usx-radius-md);
+  border: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .status-badges--loading {
@@ -130,8 +130,8 @@ const badges = computed<StatusBadgeData[]>(() => {
 }
 
 .status-badges__loading {
-  color: var(--usx-color-on-surface-muted, #8b949e);
-  font-size: var(--usx-font-size-sm, 0.875rem);
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-sm);
 }
 
 .status-badge {
@@ -158,16 +158,16 @@ const badges = computed<StatusBadgeData[]>(() => {
 }
 
 .dot--online {
-  background: #3fb950;
-  box-shadow: 0 0 4px #3fb950;
+  background: var(--usx-color-success);
+  box-shadow: 0 0 4px var(--usx-color-success);
 }
 
 .dot--offline {
-  background: #f85149;
+  background: var(--usx-color-danger);
 }
 
 .status-badge__label {
-  color: var(--usx-color-on-surface, #c9d1d9);
+  color: var(--usx-color-on-surface);
   white-space: nowrap;
 }
 </style>

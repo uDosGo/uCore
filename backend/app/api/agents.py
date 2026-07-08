@@ -1,17 +1,51 @@
 """Agents compatibility API.
 
 Provides a stable `agent-router`-like schema for frontend tabs while the
-standalone router service is not deployed.
+standalone router service is not deployed. Merges config agents from
+agents.yaml with dynamic skill/tool registrations.
 """
 from __future__ import annotations
 
+import os
 from collections import Counter
+from pathlib import Path
 
+import yaml
 from aiohttp import web
 
 from app.services.spool_reader import read_spool
 from app.skills.registry import list_skills
 from app.tools.registry import list_tools
+
+
+def _load_config_agents() -> list[dict]:
+    """Load specialized agents from agents.yaml config."""
+    config_path = Path(__file__).parent.parent.parent / "config" / "agents.yaml"
+    if not config_path.exists():
+        return []
+    try:
+        with open(config_path) as f:
+            data = yaml.safe_load(f) or {}
+        agents_data = data.get("agents", {})
+        result: list[dict] = []
+        for agent_id, agent in agents_data.items():
+            result.append({
+                "id": agent.get("id", agent_id),
+                "name": agent.get("name", agent_id),
+                "capabilities": agent.get("capabilities", []),
+                "status": "online",
+                "load": "0/1",
+                "costPerTask": agent.get("cost_per_task", 0.0),
+                "avgLatencyMs": 0,
+                "successRate": 1.0,
+                "provider": agent.get("provider", "ollama"),
+                "model": agent.get("model", ""),
+                "description": agent.get("description", ""),
+                "config": True,
+            })
+        return result
+    except Exception:
+        return []
 
 
 def _skill_to_agent(skill: dict) -> dict:
@@ -51,12 +85,16 @@ def _tool_to_agent(tool: dict) -> dict:
 async def handle_list_agents(request: web.Request) -> web.Response:
     """GET /api/agents.
 
-    Aggregate skills and tools as router-compatible agents.
+    Merge config agents (agents.yaml) with dynamic skills and tools.
     """
     skills = list_skills()
     tools = await list_tools()
+    config_agents = _load_config_agents()
 
     agents: list[dict] = []
+    # Config agents first (highest priority)
+    agents.extend(config_agents)
+    # Then skills and tools
     agents.extend(_skill_to_agent(skill) for skill in skills)
     agents.extend(_tool_to_agent(tool.model_dump()) for tool in tools)
 

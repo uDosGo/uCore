@@ -7,7 +7,7 @@
     <div class="agent-status__grid">
       <!-- Hivemind -->
       <div class="agent-card">
-        <div class="agent-card__icon">🤖</div>
+        <div class="agent-card__icon"><UIcon name="smart_toy" /></div>
         <div class="agent-card__body">
           <span class="agent-card__name">Hivemind</span>
           <span class="agent-card__state" :class="hivemindOnline ? 'state--online' : 'state--offline'">
@@ -18,7 +18,7 @@
 
       <!-- Roundtable -->
       <div class="agent-card">
-        <div class="agent-card__icon">🌀</div>
+        <div class="agent-card__icon"><UIcon name="group" /></div>
         <div class="agent-card__body">
           <span class="agent-card__name">Roundtable</span>
           <span class="agent-card__state" :class="roundtableOnline ? 'state--online' : 'state--offline'">
@@ -29,7 +29,7 @@
 
       <!-- Cline -->
       <div class="agent-card">
-        <div class="agent-card__icon">⚡</div>
+        <div class="agent-card__icon"><UIcon name="bolt" /></div>
         <div class="agent-card__body">
           <span class="agent-card__name">Cline</span>
           <span class="agent-card__state" :class="clineActive ? 'state--online' : 'state--idle'">
@@ -40,7 +40,7 @@
 
       <!-- Ollama -->
       <div class="agent-card">
-        <div class="agent-card__icon">🦙</div>
+        <div class="agent-card__icon"><UIcon name="smart_toy" /></div>
         <div class="agent-card__body">
           <span class="agent-card__name">Ollama</span>
           <span class="agent-card__state" :class="ollamaOnline ? 'state--online' : 'state--offline'">
@@ -54,6 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import UIcon from '../../../../skills/atoms/UIcon.vue'
 
 const props = defineProps<{
   agents: {
@@ -141,7 +142,7 @@ const ollamaModelCount = computed(() => props.agents?.ollama?.model_count ?? 0)
   font-size: var(--usx-font-size-xs);
 }
 
-.state--online { color: #3fb950; }
-.state--offline { color: #f85149; }
+.state--online { color: var(--usx-color-success); }
+.state--offline { color: var(--usx-color-danger); }
 .state--idle { color: var(--usx-color-on-surface-muted); }
 </style>

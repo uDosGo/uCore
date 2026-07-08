@@ -91,9 +91,9 @@ const resetSpacing = () => {
   bottom: 20px;
   left: 20px;
   z-index: 10000;
-  background: #161b22;
-  background: var(--pico-background-color);
-  border-radius: var(--usx-border-radius-lg);
+  background: var(--usx-color-background);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-lg);
   padding: var(--usx-spacing-lg);
   color: white;
   font-size: var(--usx-font-size-base);
@@ -102,26 +102,26 @@ const resetSpacing = () => {
 .repair-section {
   margin-bottom: 16px;
   padding: var(--usx-spacing-md);
-  background: var(--pico-background-color);
-  border-radius: var(--usx-border-radius-sm);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-sm);
 }
 
 .repair-btn {
-  background: #58a6ff;
+  background: var(--usx-color-primary);
   color: white;
   border: none;
   padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
   cursor: pointer;
   margin: var(--usx-spacing-xs);
 }
 
 .repair-btn:hover {
-  background: #3b82f6;
+  background: var(--usx-color-primary);
 }
 
 .repair-success {
-  color: #3fb950;
+  color: var(--usx-color-success);
   font-size: var(--usx-font-size-sm);
   margin-top: 4px;
 }

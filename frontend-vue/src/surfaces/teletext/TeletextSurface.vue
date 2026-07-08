@@ -95,7 +95,7 @@ function clearGrid() {
 
 .teletext-info {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-family: monospace;
 }
 </style>

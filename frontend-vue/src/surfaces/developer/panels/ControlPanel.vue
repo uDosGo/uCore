@@ -1,5 +1,23 @@
 <template>
   <div class="control-panel">
+    <!-- Loading State -->
+    <div v-if="loading" class="control-loading">
+      <UIcon name="sync" spin />
+      <span>Connecting to ecosystem...</span>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="control-error">
+      <UIcon name="error" />
+      <div>
+        <strong>Connection Failed</strong>
+        <p>{{ error }}</p>
+        <UButton variant="primary" size="sm" @click="retry">Retry</UButton>
+      </div>
+    </div>
+
+    <!-- Connected: Main Content -->
+    <template v-else>
     <!-- Alert Banner -->
     <div v-if="alerts.length > 0" class="control-alerts">
       <div
@@ -63,6 +81,7 @@
       :loading="actionLoading"
       @action="handleAction"
     />
+    </template>
   </div>
 </template>
 
@@ -82,6 +101,8 @@ import CostDashboard from './components/CostDashboard.vue'
 import ActiveMission from './components/ActiveMission.vue'
 import BottomBar from './components/BottomBar.vue'
 import QuickActions from './components/QuickActions.vue'
+import UIcon from '../../../skills/atoms/UIcon.vue'
+import UButton from '../../../skills/atoms/UButton.vue'
 
 interface ControlData {
   statuses: Record<string, { online: boolean; detail: string }>
@@ -110,7 +131,7 @@ const alerts = computed(() => data.value?.alerts ?? [])
 async function fetchStatus() {
   try {
     const res = await fetch(`${API_BASE}/api/control/status`, {
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(8000),
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     data.value = await res.json()
@@ -202,6 +223,12 @@ function exportCostReport() {
   URL.revokeObjectURL(url)
 }
 
+function retry() {
+  loading.value = true
+  error.value = null
+  fetchStatus()
+}
+
 onMounted(() => {
   fetchStatus()
   // Poll every 30 seconds for live updates
@@ -224,6 +251,40 @@ onUnmounted(() => {
   max-width: 1100px;
 }
 
+/* ─── Loading & Error States ──────────────────────── */
+.control-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-spacing-2xl);
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-lg);
+}
+
+.control-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--usx-spacing-md);
+  padding: var(--usx-spacing-xl);
+  background: color-mix(in srgb, var(--usx-color-danger) 8%, transparent);
+  border: var(--usx-border-width) solid var(--usx-color-danger);
+  border-radius: var(--usx-radius-md);
+  color: var(--usx-color-on-surface);
+}
+
+.control-error strong {
+  display: block;
+  margin-bottom: var(--usx-spacing-xs);
+  color: var(--usx-color-danger);
+}
+
+.control-error p {
+  margin: 0 0 var(--usx-spacing-sm);
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
+}
+
 /* ─── Alert Banner ─────────────────────────────────── */
 .control-alerts {
   display: flex;
@@ -239,21 +300,21 @@ onUnmounted(() => {
 }
 
 .control-alert--warning {
-  background: #2e2a1a;
-  border: 1px solid #d29922;
-  color: #d29922;
+  background: color-mix(in srgb, var(--usx-color-warning) 10%, transparent);
+  border: var(--usx-border-width) solid var(--usx-color-warning);
+  color: var(--usx-color-warning);
 }
 
 .control-alert--error {
-  background: #3a1a1a;
-  border: 1px solid #f85149;
-  color: #f85149;
+  background: color-mix(in srgb, var(--usx-color-danger) 10%, transparent);
+  border: var(--usx-border-width) solid var(--usx-color-danger);
+  color: var(--usx-color-danger);
 }
 
 .control-alert--info {
-  background: #1a2e3a;
-  border: 1px solid #58a6ff;
-  color: #58a6ff;
+  background: color-mix(in srgb, var(--usx-color-primary) 10%, transparent);
+  border: var(--usx-border-width) solid var(--usx-color-primary);
+  color: var(--usx-color-primary);
 }
 
 .control-alert__message {
@@ -283,8 +344,8 @@ onUnmounted(() => {
 /* ─── Section Cards ─────────────────────────────────── */
 .control-section {
   padding: var(--usx-spacing-md);
-  background: var(--usx-color-surface, #161b22);
-  border-radius: var(--usx-radius-lg, 8px);
-  border: var(--usx-border-width, 1px) solid var(--usx-color-border, #30363d);
+  background: var(--usx-color-surface);
+  border-radius: var(--usx-radius-lg);
+  border: var(--usx-border-width) solid var(--usx-color-border);
 }
 </style>

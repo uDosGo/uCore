@@ -390,13 +390,13 @@ onMounted(() => {
 .assistui-status-dot {
   width: 8px;
   height: 8px;
-  border-radius: var(--usx-border-radius-full);
+  border-radius: var(--usx-radius-full);
   background: var(--usx-color-on-surface-muted);
   transition: background 0.3s ease;
 }
 
 .assistui-status-dot--online {
-  background: var(--usx-color-success, #3fb950);
+  background: var(--usx-color-success);
 }
 
 .assistui-status-text {
@@ -483,7 +483,7 @@ onMounted(() => {
 .assistui-conv-item-title {
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -543,7 +543,7 @@ onMounted(() => {
 
 .assistui-message-role {
   font-size: var(--usx-font-size-sm);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-primary);
 }
 
@@ -567,7 +567,7 @@ onMounted(() => {
 .assistui-message-body code {
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   background: var(--usx-color-surface-variant);
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
   font-family: monospace;
   color: var(--usx-color-primary);
 }
@@ -606,7 +606,7 @@ onMounted(() => {
 
 .assistui-prompt-card-label {
   font-size: var(--usx-font-size-base);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
 }
 
 .assistui-prompt-card-context {

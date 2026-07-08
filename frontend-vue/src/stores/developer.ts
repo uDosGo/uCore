@@ -29,7 +29,7 @@ export interface ReviewEntry {
 export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[] = [
   { id: 'control', label: 'Control', icon: 'dashboard' },
   { id: 'models', label: 'Models', icon: 'smart_toy' },
-  { id: 'agents', label: 'Dev Agents', icon: 'group' },
+  { id: 'agents', label: 'Agents', icon: 'group' },
   { id: 'kanban', label: 'Kanban', icon: 'view_kanban' },
   { id: 'repos', label: 'Repos', icon: 'folder' },
   { id: 'review', label: 'Review', icon: 'visibility' },

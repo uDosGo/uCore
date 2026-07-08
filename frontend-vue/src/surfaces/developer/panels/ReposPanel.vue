@@ -11,7 +11,12 @@
           <UIcon name="folder" />
           <span class="developer-card-title">{{ repo.name }}</span>
           <UBadge :type="repo.status === 'clean' ? 'success' : 'warning'" size="sm">
-            {{ repo.status === 'clean' ? '✓ Clean' : `⚠ ${repo.changes} changes` }}
+            <template v-if="repo.status === 'clean'">
+              <UIcon name="check" :size="14" /> Clean
+            </template>
+            <template v-else>
+              <UIcon name="warning" :size="14" /> {{ repo.changes }} changes
+            </template>
           </UBadge>
         </div>
         <div class="developer-card-meta">
@@ -94,13 +99,13 @@ const filteredRepos = computed(() => {
 <style scoped>
 .developer-panel { max-width: 800px; }
 .developer-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--usx-spacing-md); }
-.developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: 600; margin: 0; }
+.developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-semibold); margin: 0; }
 .developer-panel-search { margin-bottom: var(--usx-spacing-md); }
 .developer-card-list { display: flex; flex-direction: column; gap: var(--usx-spacing-sm); }
-.developer-card { padding: var(--usx-spacing-md); background: var(--pico-background-color, #30363d); border-radius: var(--usx-border-radius-lg); background: var(--pico-card-background-color, #161b22); }
+.developer-card { padding: var(--usx-spacing-md); background: var(--usx-color-background); border-radius: var(--usx-radius-lg); background: var(--usx-color-surface); }
 .developer-card-header { display: flex; align-items: center; gap: var(--usx-spacing-sm); margin-bottom: var(--usx-spacing-xs); }
-.developer-card-title { font-size: var(--usx-font-size-base); font-weight: 600; flex: 1; }
-.developer-card-meta { display: flex; gap: var(--usx-spacing-md); font-size: var(--usx-font-size-sm); color: var(--pico-muted-color, #8b949e); margin-bottom: var(--usx-spacing-xs); }
-.developer-card-remote { font-size: var(--usx-font-size-sm); color: var(--pico-muted-color, #8b949e); margin-bottom: var(--usx-spacing-sm); }
+.developer-card-title { font-size: var(--usx-font-size-base); font-weight: var(--usx-font-weight-semibold); flex: 1; }
+.developer-card-meta { display: flex; gap: var(--usx-spacing-md); font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); margin-bottom: var(--usx-spacing-xs); }
+.developer-card-remote { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); margin-bottom: var(--usx-spacing-sm); }
 .developer-card-actions { display: flex; gap: var(--usx-spacing-xs); }
 </style>

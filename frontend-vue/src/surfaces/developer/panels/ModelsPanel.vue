@@ -141,7 +141,7 @@ onMounted(() => {
 
 .developer-panel-title {
   font-size: var(--usx-font-size-lg);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   margin: 0;
 }
 
@@ -157,14 +157,14 @@ onMounted(() => {
 
 .developer-card {
   padding: var(--usx-spacing-md);
-  background: var(--pico-background-color, #30363d);
-  border-radius: var(--usx-border-radius-lg);
-  background: var(--pico-card-background-color, #161b22);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-lg);
+  background: var(--usx-color-surface);
   transition: border-color 0.15s ease;
 }
 
 .developer-card:hover {
-  border-color: var(--pico-primary, #58a6ff);
+  border-color: var(--usx-color-primary);
 }
 
 .developer-card-header {
@@ -176,7 +176,7 @@ onMounted(() => {
 
 .developer-card-title {
   font-size: var(--usx-font-size-base);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   flex: 1;
 }
 
@@ -184,13 +184,13 @@ onMounted(() => {
   display: flex;
   gap: var(--usx-spacing-md);
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--usx-color-on-surface-muted);
   margin-bottom: var(--usx-spacing-xs);
 }
 
 .developer-card-desc {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--usx-color-on-surface-muted);
   margin: 0;
 }
 </style>

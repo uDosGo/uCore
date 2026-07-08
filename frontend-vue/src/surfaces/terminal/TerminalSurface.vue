@@ -144,16 +144,16 @@ function executeCommand() {
 }
 
 .terminal-prompt {
-  color: #238636;
+  color: var(--usx-color-success);
   font-family: monospace;
   font-weight: bold;
 }
 
 .terminal-input {
   flex: 1;
-  background: var(--pico-background-color);
-  color: var(--pico-color);
-  border-radius: var(--usx-border-radius-sm);
+  background: var(--usx-color-background);
+  color: var(--usx-color-on-surface);
+  border-radius: var(--usx-radius-sm);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   font-family: monospace;
   font-size: var(--usx-font-size-sm);
@@ -161,12 +161,12 @@ function executeCommand() {
 }
 
 .terminal-input:focus {
-  border-color: #58a6ff;
+  border-color: var(--usx-color-primary);
 }
 
 .terminal-info {
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-family: monospace;
 }
 </style>

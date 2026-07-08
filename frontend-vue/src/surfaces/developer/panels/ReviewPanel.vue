@@ -80,16 +80,16 @@ function statusIcon(status: string): string {
 <style scoped>
 .developer-panel { max-width: 800px; }
 .developer-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--usx-spacing-md); }
-.developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: 600; margin: 0; }
+.developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-semibold); margin: 0; }
 .developer-review-list { display: flex; flex-direction: column; gap: var(--usx-spacing-sm); }
-.developer-review-card { padding: var(--usx-spacing-md); background: var(--pico-background-color, #30363d); border-radius: var(--usx-border-radius-lg); background: var(--pico-card-background-color, #161b22); }
+.developer-review-card { padding: var(--usx-spacing-md); background: var(--usx-color-background); border-radius: var(--usx-radius-lg); background: var(--usx-color-surface); }
 .developer-review-header { display: flex; align-items: center; gap: var(--usx-spacing-sm); margin-bottom: var(--usx-spacing-xs); }
-.developer-review-status { font-size: var(--usx-font-size-sm); font-weight: 600; text-transform: uppercase; }
-.developer-review-status--modified { color: #d29922; }
-.developer-review-status--added { color: #3fb950; }
-.developer-review-status--deleted { color: #f85149; }
-.developer-review-lines { font-size: var(--usx-font-size-sm); color: var(--pico-muted-color, #8b949e); }
-.developer-review-file { font-size: var(--usx-font-size-sm); font-family: monospace; margin-bottom: var(--usx-spacing-xs); }
-.developer-review-summary { font-size: var(--usx-font-size-sm); color: var(--pico-muted-color, #8b949e); margin: 0 0 var(--usx-spacing-sm); }
+.developer-review-status { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-semibold); text-transform: uppercase; }
+.developer-review-status--modified { color: var(--usx-color-warning); }
+.developer-review-status--added { color: var(--usx-color-success); }
+.developer-review-status--deleted { color: var(--usx-color-danger); }
+.developer-review-lines { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); }
+.developer-review-file { font-size: var(--usx-font-size-sm); font-family: var(--usx-font-family-mono); margin-bottom: var(--usx-spacing-xs); }
+.developer-review-summary { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); margin: 0 0 var(--usx-spacing-sm); }
 .developer-review-actions { display: flex; gap: var(--usx-spacing-xs); }
 </style>

@@ -8,28 +8,30 @@
       :disabled="action.disabled || loading === action.id"
       @click="$emit('action', action.id)"
     >
-      <span v-if="loading === action.id" class="quick-actions__spinner">⟳</span>
-      <span v-else class="quick-actions__icon">{{ action.icon }}</span>
+      <UIcon v-if="loading === action.id" name="sync" spin class="quick-actions__spinner" />
+      <UIcon v-else :name="action.icon" class="quick-actions__icon" />
       <span class="quick-actions__label">{{ action.label }}</span>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
+import UIcon from '../../../../skills/atoms/UIcon.vue'
+
 defineProps<{
   loading?: string | null
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'action', id: string): void
 }>()
 
-const actions = [
-  { id: 'destroy-rebuild', icon: '🔄', label: 'Destroy/Rebuild' },
-  { id: 'ingest-feed', icon: '📥', label: 'Ingest Feed' },
-  { id: 'suggest-binder', icon: '⚡', label: 'Suggest Binder' },
-  { id: 'export-cost', icon: '📊', label: 'Export Cost' },
-  { id: 'create-task', icon: '📋', label: 'Create Task' },
+const actions: Array<{ id: string; icon: string; label: string; disabled?: boolean }> = [
+  { id: 'destroy-rebuild', icon: 'sync', label: 'Destroy/Rebuild' },
+  { id: 'ingest-feed', icon: 'download', label: 'Ingest Feed' },
+  { id: 'suggest-binder', icon: 'bolt', label: 'Suggest Binder' },
+  { id: 'export-cost', icon: 'bar_chart', label: 'Export Cost' },
+  { id: 'create-task', icon: 'view_kanban', label: 'Create Task' },
 ]
 </script>
 

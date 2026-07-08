@@ -27,15 +27,17 @@ log = logging.getLogger("ucore.services.control")
 # ---------------------------------------------------------------------------
 
 async def _http_get(url: str, timeout: float = 3.0) -> dict | None:
-    """Lightweight HTTP GET with timeout. Returns parsed JSON or None."""
-    try:
-        import urllib.request
-        req = urllib.request.Request(url, method="GET")
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            body = resp.read().decode("utf-8")
-            return json.loads(body) if body else {}
-    except Exception:
-        return None
+    """Async HTTP GET — runs blocking urllib in thread pool to avoid blocking the event loop."""
+    def _sync_get() -> dict | None:
+        try:
+            import urllib.request
+            req = urllib.request.Request(url, method="GET")
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                body = resp.read().decode("utf-8")
+                return json.loads(body) if body else {}
+        except Exception:
+            return None
+    return await asyncio.to_thread(_sync_get)
 
 
 async def _httpx_get(url: str, timeout: float = 3.0) -> dict | None:
@@ -51,13 +53,15 @@ async def _httpx_get(url: str, timeout: float = 3.0) -> dict | None:
     return None
 
 
-def _run_shell(cmd: list[str], timeout: float = 3.0) -> str:
-    """Run a shell command, return stdout or ''."""
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, check=False)
-        return result.stdout.strip()
-    except Exception:
-        return ""
+async def _run_shell(cmd: list[str], timeout: float = 3.0) -> str:
+    """Run a shell command in a thread pool, return stdout or ''."""
+    def _sync_run() -> str:
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, check=False)
+            return result.stdout.strip()
+        except Exception:
+            return ""
+    return await asyncio.to_thread(_sync_run)
 
 
 def _tasker_dir() -> Path | None:
@@ -81,14 +85,14 @@ async def check_cline() -> dict:
     """Check Cline CLI availability."""
     result = {"online": False, "detail": "Cline CLI not reachable"}
     # Try Cline CLI health endpoint
-    data = await _http_get("http://localhost:8485/health", timeout=2.0)
+    data = await _http_get("http://localhost:8485/health", timeout=1.0)
     if data:
         result["online"] = True
         result["detail"] = "Cline CLI connected"
         result["data"] = data
         return result
     # Fallback: check if cline CLI is in PATH
-    cli_path = _run_shell(["which", "cline"], timeout=2.0)
+    cli_path = await _run_shell(["which", "cline"], timeout=1.0)
     if cli_path:
         result["online"] = True
         result["detail"] = f"Cline CLI available at {cli_path}"
@@ -135,7 +139,7 @@ async def check_openrouter() -> dict:
 
 async def check_hivemind() -> dict:
     """Check Hivemind health on port 8490."""
-    data = await _http_get("http://localhost:8490/health", timeout=2.0)
+    data = await _http_get("http://localhost:8490/health", timeout=1.0)
     if data:
         return {"online": True, "detail": "Hivemind responding", "data": data}
     return {"online": False, "detail": "Hivemind not reachable on port 8490"}
@@ -143,7 +147,7 @@ async def check_hivemind() -> dict:
 
 async def check_roundtable() -> dict:
     """Check Roundtable agent status."""
-    data = await _http_get("http://localhost:8490/api/hivemind/roundtable", timeout=2.0)
+    data = await _http_get("http://localhost:8490/api/hivemind/roundtable", timeout=1.0)
     if data:
         return {"online": True, "detail": "Roundtable available", "data": data}
     return {"online": False, "detail": "Roundtable not reachable"}
@@ -151,7 +155,7 @@ async def check_roundtable() -> dict:
 
 async def check_ollama() -> dict:
     """Check Ollama status."""
-    data = await _http_get("http://localhost:11434/api/tags", timeout=3.0)
+    data = await _http_get("http://localhost:11434/api/tags", timeout=1.5)
     if data and "models" in data:
         return {
             "online": True,
@@ -163,7 +167,7 @@ async def check_ollama() -> dict:
 
 async def check_feed() -> dict:
     """Check Feed Pod connectivity."""
-    data = await _http_get("http://localhost:8484/api/feed/query?limit=1", timeout=2.0)
+    data = await _http_get("http://localhost:8484/api/feed/query?limit=1", timeout=1.0)
     if data is not None:
         return {"online": True, "detail": "Feed Pod connected", "activity_count": data.get("count", 0)}
     return {"online": False, "detail": "Feed Pod not reachable"}
@@ -171,7 +175,7 @@ async def check_feed() -> dict:
 
 async def check_slate() -> dict:
     """Check Slate template system."""
-    data = await _http_get("http://localhost:8484/api/templates/list", timeout=2.0)
+    data = await _http_get("http://localhost:8484/api/templates/list", timeout=1.0)
     if data:
         templates = data if isinstance(data, list) else data.get("templates", [])
         return {"online": True, "detail": f"{len(templates)} templates", "template_count": len(templates)}
@@ -180,7 +184,7 @@ async def check_slate() -> dict:
 
 async def get_cost_status() -> dict:
     """Get budget/cost status."""
-    data = await _http_get("http://localhost:8484/api/hivemind/llm/cost", timeout=2.0)
+    data = await _http_get("http://localhost:8484/api/hivemind/llm/cost", timeout=1.0)
     if data:
         daily = data.get("daily", {})
         return {
@@ -191,7 +195,7 @@ async def get_cost_status() -> dict:
             "monthly": data.get("monthly", {}),
         }
     # Fallback: try budget API
-    data = await _http_get("http://localhost:8484/api/budget/status", timeout=2.0)
+    data = await _http_get("http://localhost:8484/api/budget/status", timeout=1.0)
     if data:
         return {"online": True, "detail": "Budget data available", **data}
     return {"online": False, "detail": "Cost/budget data unavailable", "daily": {}}
@@ -203,7 +207,7 @@ async def get_cost_status() -> dict:
 
 async def get_recent_feed(limit: int = 20) -> list[dict]:
     """Get recent feed activities."""
-    data = await _http_get(f"http://localhost:8484/api/feed/query?limit={limit}", timeout=3.0)
+    data = await _http_get(f"http://localhost:8484/api/feed/query?limit={limit}", timeout=1.5)
     if data:
         return data.get("activities", [])
     return []
@@ -211,7 +215,7 @@ async def get_recent_feed(limit: int = 20) -> list[dict]:
 
 async def get_unprocessed_count() -> int:
     """Count unprocessed feed items."""
-    data = await _http_get("http://localhost:8484/api/feed/query?limit=200", timeout=3.0)
+    data = await _http_get("http://localhost:8484/api/feed/query?limit=200", timeout=1.5)
     if data:
         activities = data.get("activities", [])
         return sum(1 for a in activities if not a.get("processed", False))
@@ -224,10 +228,10 @@ async def get_unprocessed_count() -> int:
 
 async def get_hivemind_status() -> dict:
     """Get Hivemind consensus status."""
-    data = await _http_get("http://localhost:8490/api/hivemind/status", timeout=2.0)
+    data = await _http_get("http://localhost:8490/api/hivemind/status", timeout=1.0)
     if data:
         return data
-    health = await _http_get("http://localhost:8490/health", timeout=2.0)
+    health = await _http_get("http://localhost:8490/health", timeout=1.0)
     if health:
         return {"status": "running", "detail": "Hivemind server alive", "data": health}
     return {"status": "offline", "detail": "Hivemind not reachable"}
@@ -235,7 +239,7 @@ async def get_hivemind_status() -> dict:
 
 async def get_roundtable_status() -> dict:
     """Get Roundtable swarm status."""
-    data = await _http_get("http://localhost:8490/api/hivemind/roundtable", timeout=2.0)
+    data = await _http_get("http://localhost:8490/api/hivemind/roundtable", timeout=1.0)
     if data:
         return data
     return {"status": "unknown", "detail": "Roundtable status unavailable"}
@@ -243,7 +247,7 @@ async def get_roundtable_status() -> dict:
 
 async def get_cline_status() -> dict:
     """Get current Cline session info."""
-    data = await _http_get("http://localhost:8485/status", timeout=2.0)
+    data = await _http_get("http://localhost:8485/status", timeout=1.0)
     if data:
         return {"active": True, "data": data}
     return {"active": False, "detail": "No active Cline session"}
@@ -251,7 +255,7 @@ async def get_cline_status() -> dict:
 
 async def get_ollama_status() -> dict:
     """Get detailed Ollama status."""
-    data = await _http_get("http://localhost:11434/api/tags", timeout=3.0)
+    data = await _http_get("http://localhost:11434/api/tags", timeout=1.5)
     if not data:
         return {"online": False, "models": []}
     models = data.get("models", [])
@@ -268,7 +272,7 @@ async def get_ollama_status() -> dict:
 
 async def get_cost_summary() -> dict:
     """Get cost summary (daily, weekly, monthly, top models)."""
-    data = await _http_get("http://localhost:8484/api/hivemind/llm/cost", timeout=2.0)
+    data = await _http_get("http://localhost:8484/api/hivemind/llm/cost", timeout=1.0)
     if data:
         return {
             "daily": data.get("daily", {}),
@@ -277,7 +281,7 @@ async def get_cost_summary() -> dict:
             "top_models": data.get("top_models", []),
         }
     # Fallback
-    budget = await _http_get("http://localhost:8484/api/budget/status", timeout=2.0)
+    budget = await _http_get("http://localhost:8484/api/budget/status", timeout=1.0)
     if budget:
         return {"daily": budget, "weekly": {}, "monthly": {}, "top_models": []}
     return {"daily": {}, "weekly": {}, "monthly": {}, "top_models": []}
@@ -311,7 +315,7 @@ async def get_active_mission() -> dict:
     progress_pct = round((tasks_done / tasks_total) * 100) if tasks_total > 0 else 0
 
     # Try tasker API for richer data
-    api_data = await _http_get("http://localhost:8484/api/tasker/tasks?limit=50", timeout=2.0)
+    api_data = await _http_get("http://localhost:8484/api/tasker/tasks?limit=50", timeout=1.0)
     if api_data:
         tasks = api_data if isinstance(api_data, list) else api_data.get("tasks", [])
         tasks_total = max(tasks_total, len(tasks))
@@ -333,7 +337,7 @@ async def get_active_mission() -> dict:
 
 async def get_tasker_overview() -> dict:
     """Get tasker summary."""
-    data = await _http_get("http://localhost:8484/api/tasker/tasks?limit=100", timeout=2.0)
+    data = await _http_get("http://localhost:8484/api/tasker/tasks?limit=100", timeout=1.0)
     if data:
         tasks = data if isinstance(data, list) else data.get("tasks", [])
         done = sum(1 for t in tasks if t.get("status") in ("done", "completed"))
@@ -364,7 +368,7 @@ async def get_tasker_overview() -> dict:
 
 async def get_mcp_servers() -> list[dict]:
     """Get MCP server status."""
-    data = await _http_get("http://localhost:8484/api/mcp/tools", timeout=2.0)
+    data = await _http_get("http://localhost:8484/api/mcp/tools", timeout=1.0)
     if data:
         tools = data if isinstance(data, list) else data.get("tools", [])
         # Group by server
@@ -401,7 +405,7 @@ async def get_mcp_servers() -> list[dict]:
 
 async def get_slate_list() -> list[dict]:
     """Get available Slates."""
-    data = await _http_get("http://localhost:8484/api/templates/list", timeout=2.0)
+    data = await _http_get("http://localhost:8484/api/templates/list", timeout=1.0)
     if data:
         if isinstance(data, list):
             return data
