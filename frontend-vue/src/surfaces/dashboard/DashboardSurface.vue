@@ -64,6 +64,7 @@ const HUB_TABS = [
   { id: 'server', label: 'Server', icon: 'server' },
   { id: 'system', label: 'System', icon: 'settings' },
   { id: 'developer', label: 'Developer', icon: 'code' },
+  { id: 'groovebox', label: 'Groovebox', icon: 'music_note' },
 ]
 
 const activeHubTab = ref('dashboard')
@@ -80,6 +81,7 @@ watch(activeHubTab, (tabId) => {
     snackmachine: '/snackmachine',
     system: '/system',
     developer: '/developer',
+    groovebox: '/groovebox',
   }
   const path = routes[tabId]
   if (path) router.push(path)
@@ -94,6 +96,8 @@ const ALL_SURFACES: SurfaceCardType[] = [
   { id: 'documentation', title: 'Documentation', description: 'Learning Hub & Guides', icon: 'help', route: '/documentation', color: 'var(--usx-color-accent)' },
   { id: 'snackmachine', title: 'Snack Machine', description: 'Snack/MCP/Vault Scheduler', icon: 'snack', route: '/snackmachine', color: 'var(--usx-color-danger)' },
   { id: 'browserui', title: 'Browser', description: 'Web Reader & Bookmarks', icon: 'globe', route: '/browserui', color: 'var(--usx-color-info)' },
+  { id: 'groovebox', title: 'Groovebox', description: 'Music Production — Pattern Composer, Vault & Songscribe', icon: 'music_note', route: '/groovebox', color: 'var(--usx-color-warning)' },
+  { id: 'sonic', title: 'SonicScrewdriver', description: 'Universal USB Bootloader & System Toolkit — Multi-boot USB, Security Keys, Device Flashing', icon: 'usb', route: 'https://github.com/uDosGo/SonicScrewdriver', color: 'var(--usx-color-success)', status: 'running' },
 ]
 
 const DEV_SURFACES: SurfaceCardType[] = [
@@ -113,6 +117,10 @@ onMounted(async () => {
 })
 
 function navigate(route: string) {
+  if (route.startsWith('http')) {
+    window.open(route, '_blank')
+    return
+  }
   router.push(route)
 }
 </script>

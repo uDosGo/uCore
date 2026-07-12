@@ -57,6 +57,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Snack Machine', icon: 'snack' },
   },
   {
+    path: '/groovebox/:pathMatch(.*)*',
+    name: 'groovebox',
+    component: () => import('../surfaces/groovebox/GrooveboxSurface.vue'),
+    meta: { title: 'Groovebox', icon: 'music_note' },
+  },
+  {
     path: '/browserui/:pathMatch(.*)*',
     name: 'browserui',
     component: () => import('../surfaces/browserui/BrowserUISurface.vue'),
