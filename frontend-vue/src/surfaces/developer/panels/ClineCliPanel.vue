@@ -63,80 +63,80 @@ onMounted(() => {
 
 <style scoped>
 .cline-cli-panel {
-  padding: 1rem;
+  padding: var(--usx-spacing-lg);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
+  gap: var(--usx-spacing-md);
+  font-family: var(--usx-font-family-mono);
+  font-size: var(--usx-font-size-sm);
 }
 
 .command-input {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--usx-spacing-sm);
   align-items: center;
 }
 
 .prompt {
-  color: var(--primary);
-  font-weight: bold;
+  color: var(--usx-color-primary);
+  font-weight: var(--usx-font-weight-bold);
 }
 
 .command-input input {
   flex: 1;
-  padding: 0.5rem;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  font-family: var(--font-mono);
+  padding: var(--usx-spacing-sm);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
+  font-family: var(--usx-font-family-mono);
   outline: none;
 }
 
 .command-input input:focus {
-  border-color: var(--primary);
+  border-color: var(--usx-color-primary);
 }
 
 .command-output {
   flex: 1;
   overflow-y: auto;
-  max-height: 400px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.5rem;
-  background: var(--surface-2);
-  font-family: var(--font-mono);
+  max-height: calc(var(--usx-spacing-2xl) * 12 + var(--usx-spacing-sm));
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-sm);
+  padding: var(--usx-spacing-sm);
+  background: var(--usx-color-surface-variant);
+  font-family: var(--usx-font-family-mono);
 }
 
 .command-entry {
-  margin-bottom: 1rem;
+  margin-bottom: var(--usx-spacing-md);
 }
 
 .command-line {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--usx-spacing-sm);
   align-items: center;
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--usx-spacing-xs);
 }
 
 .command-text {
-  color: var(--text);
+  color: var(--usx-color-on-surface);
 }
 
 .result-line {
-  padding: 0.5rem;
-  border-radius: 4px;
+  padding: var(--usx-spacing-sm);
+  border-radius: var(--usx-radius-sm);
   white-space: pre-wrap;
 }
 
 .success {
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: color-mix(in srgb, var(--usx-color-success) 10%, transparent);
+  border: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-success) 30%, transparent);
   color: var(--usx-color-success);
 }
 
 .error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: color-mix(in srgb, var(--usx-color-danger) 10%, transparent);
+  border: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-danger) 30%, transparent);
   color: var(--usx-color-danger);
 }
 </style>

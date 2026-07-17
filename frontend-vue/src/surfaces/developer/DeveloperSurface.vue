@@ -97,7 +97,7 @@ const dev = useDeveloperStore()
   font-weight: var(--usx-font-weight-medium);
   border-radius: var(--usx-radius-md);
   white-space: nowrap;
-  transition: all 0.15s ease;
+  transition: background var(--usx-transition-fast), color var(--usx-transition-fast);
 }
 
 .developer-tab:hover {

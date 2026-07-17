@@ -129,7 +129,7 @@ onMounted(() => {
 
 <style scoped>
 .developer-panel {
-  max-width: 800px;
+  max-width: calc(var(--usx-spacing-2xl) * 25);
 }
 
 .developer-panel-header {
@@ -160,7 +160,7 @@ onMounted(() => {
   background: var(--usx-color-background);
   border-radius: var(--usx-radius-lg);
   background: var(--usx-color-surface);
-  transition: border-color 0.15s ease;
+  transition: border-color var(--usx-transition-fast);
 }
 
 .developer-card:hover {

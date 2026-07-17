@@ -269,7 +269,7 @@ watch(settings, (val) => {
 </script>
 
 <style scoped>
-.developer-panel { max-width: 600px; }
+.developer-panel { max-width: calc(var(--usx-spacing-2xl) * 19); }
 .developer-panel-header { margin-bottom: var(--usx-spacing-lg); }
 .developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-semibold); margin: 0; }
 

@@ -101,7 +101,7 @@ const topModels = computed(() => props.cost?.top_models ?? [])
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
 }
 
 .cost-dashboard__loading {
@@ -138,7 +138,7 @@ const topModels = computed(() => props.cost?.top_models ?? [])
 .cost-bar__progress {
   --cost-fill-color: var(--usx-color-primary);
   width: 100%;
-  height: 6px;
+  height: var(--usx-spacing-sm);
   appearance: none;
   border: none;
   background: var(--usx-color-border);
@@ -154,13 +154,13 @@ const topModels = computed(() => props.cost?.top_models ?? [])
 .cost-bar__progress::-webkit-progress-value {
   background: var(--cost-fill-color);
   border-radius: var(--usx-radius-sm);
-  transition: width 0.3s ease;
+  transition: width var(--usx-transition-fast);
 }
 
 .cost-bar__progress::-moz-progress-bar {
   background: var(--cost-fill-color);
   border-radius: var(--usx-radius-sm);
-  transition: width 0.3s ease;
+  transition: width var(--usx-transition-fast);
 }
 
 .cost-bar__progress--warn { --cost-fill-color: var(--usx-color-warning); }
@@ -184,7 +184,7 @@ const topModels = computed(() => props.cost?.top_models ?? [])
   display: flex;
   justify-content: space-between;
   font-size: var(--usx-font-size-xs);
-  padding: 2px 0;
+  padding: var(--usx-spacing-1) 0;
 }
 
 .cost-model-row__name {

@@ -114,7 +114,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.developer-panel { max-width: 900px; }
+.developer-panel { max-width: calc(var(--usx-spacing-2xl) * 28 + var(--usx-spacing-2)); }
 .developer-panel-header {
   display: flex;
   align-items: center;
@@ -167,14 +167,14 @@ onMounted(() => {
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   background: var(--usx-color-background);
   color: var(--usx-color-on-surface);
-  border: 1px solid var(--usx-color-border);
+  border: var(--usx-border-width) solid var(--usx-color-border);
   border-radius: var(--usx-radius-md);
   font-size: var(--usx-font-size-sm);
 }
 .feed-btn {
   padding: var(--usx-spacing-xs) var(--usx-spacing-md);
   background: var(--usx-color-primary);
-  color: #fff;
+  color: var(--usx-color-on-primary);
   border: none;
   border-radius: var(--usx-radius-md);
   cursor: pointer;
@@ -190,7 +190,7 @@ onMounted(() => {
   font-size: var(--usx-font-size-sm);
 }
 .feed-source-badge {
-  padding: 2px 8px;
+  padding: var(--usx-spacing-1) var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
   font-size: var(--usx-font-size-xs);
   font-weight: var(--usx-font-weight-semibold);
@@ -207,9 +207,9 @@ onMounted(() => {
 .feed-importance--success { color: var(--usx-color-success); }
 .feed-link-btn {
   background: none;
-  border: 1px solid var(--usx-color-border);
+  border: var(--usx-border-width) solid var(--usx-color-border);
   color: var(--usx-color-primary);
-  padding: 2px 8px;
+  padding: var(--usx-spacing-1) var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
   cursor: pointer;
   font-size: var(--usx-font-size-xs);
@@ -229,7 +229,7 @@ onMounted(() => {
 }
 .feed-suggestion-card {
   margin-bottom: var(--usx-spacing-sm);
-  border-left: 3px solid var(--usx-color-primary);
+  border-left: calc(var(--usx-border-width) * 3) solid var(--usx-color-primary);
 }
 .feed-confidence { font-size: var(--usx-font-size-xs); color: var(--usx-color-primary); }
 .feed-suggest-btn {
@@ -237,7 +237,7 @@ onMounted(() => {
   padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
   background: var(--usx-color-background);
   color: var(--usx-color-primary);
-  border: 1px solid var(--usx-color-primary);
+  border: var(--usx-border-width) solid var(--usx-color-primary);
   border-radius: var(--usx-radius-md);
   cursor: pointer;
   font-size: var(--usx-font-size-sm);

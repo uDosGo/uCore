@@ -167,7 +167,7 @@ onMounted(() => { fetchTasks() })
 
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, minmax(calc(var(--usx-spacing-2xl) * 6 + var(--usx-spacing-lg)), 1fr));
   gap: var(--usx-spacing-md);
   overflow-x: auto;
 }
@@ -176,7 +176,7 @@ onMounted(() => { fetchTasks() })
   background: var(--usx-color-surface);
   background: var(--usx-color-background);
   border-radius: var(--usx-radius-lg);
-  min-height: 300px;
+  min-height: calc(var(--usx-spacing-2xl) * 9 + var(--usx-spacing-sm));
 }
 
 .kanban-column-header {
@@ -184,7 +184,7 @@ onMounted(() => { fetchTasks() })
   align-items: center;
   justify-content: space-between;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border-top: 3px solid;
+  border-top: calc(var(--usx-border-width) * 3) solid;
 }
 
 .kanban-column-header--backlog { border-top-color: var(--usx-color-on-surface-muted); }
@@ -209,12 +209,12 @@ onMounted(() => { fetchTasks() })
   background: var(--usx-color-background);
   border-radius: var(--usx-radius-md);
   cursor: grab;
-  transition: all 0.15s ease;
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), transform var(--usx-transition-fast);
 }
 
 .kanban-card:hover {
   border-color: var(--usx-color-primary);
-  transform: translateY(-1px);
+  transform: translateY(calc(var(--usx-spacing-1) * -0.25));
 }
 
 .kanban-card:active { cursor: grabbing; }

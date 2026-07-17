@@ -57,7 +57,7 @@ defineProps<{
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
 }
 
 .active-mission__empty {
@@ -129,20 +129,20 @@ defineProps<{
 .active-mission__progress-bar::-webkit-progress-value {
   background: var(--usx-color-primary);
   border-radius: var(--usx-radius-sm);
-  transition: width 0.3s ease;
+  transition: width var(--usx-transition-fast);
 }
 
 .active-mission__progress-bar::-moz-progress-bar {
   background: var(--usx-color-primary);
   border-radius: var(--usx-radius-sm);
-  transition: width 0.3s ease;
+  transition: width var(--usx-transition-fast);
 }
 
 .active-mission__progress-label {
   font-size: var(--usx-font-size-xs);
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-primary);
-  min-width: 36px;
+  min-width: calc(var(--usx-spacing-2xl) + var(--usx-spacing-1));
   text-align: right;
 }
 </style>

@@ -165,7 +165,7 @@ async function runPreview() {
 </script>
 
 <style scoped>
-.developer-panel { max-width: 800px; }
+.developer-panel { max-width: calc(var(--usx-spacing-2xl) * 25); }
 .developer-panel-header { margin-bottom: var(--usx-spacing-lg); }
 .developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-semibold); margin: 0; }
 .developer-panel-desc { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); margin-top: var(--usx-spacing-xs); }

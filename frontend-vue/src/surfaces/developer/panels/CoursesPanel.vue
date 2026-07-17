@@ -416,7 +416,7 @@ onMounted(() => {
 
 .courses-search {
   flex: 1;
-  min-width: 200px;
+  min-width: calc(var(--usx-spacing-2xl) * 6 + var(--usx-spacing-xs));
   min-height: var(--usx-touch-min);
   padding: 0 var(--usx-spacing-sm);
 }

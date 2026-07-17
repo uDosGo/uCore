@@ -422,7 +422,7 @@ onMounted(() => {
   display: flex;
   gap: 0;
   height: 100%;
-  min-height: 500px;
+  min-height: calc(var(--usx-spacing-2xl) * 15 + var(--usx-spacing-2));
   border: var(--usx-border-width) solid var(--usx-color-border);
   border-radius: var(--usx-radius-md);
   overflow: hidden;
@@ -430,8 +430,8 @@ onMounted(() => {
 
 /* ─── Left Sidebar ───────────────────────────────────────────── */
 .registry-sidebar {
-  width: 260px;
-  min-width: 220px;
+  width: calc(var(--usx-spacing-2xl) * 8 + var(--usx-spacing-sm));
+  min-width: calc(var(--usx-spacing-2xl) * 7);
   flex-shrink: 0;
   background: var(--usx-color-surface-variant);
   border-right: var(--usx-border-width) solid var(--usx-color-border);
@@ -452,7 +452,7 @@ onMounted(() => {
 .registry-sidebar__tabs {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--usx-spacing-xs);
   flex: 1;
   overflow-y: auto;
 }
@@ -492,7 +492,7 @@ onMounted(() => {
 .registry-sidebar__tab-count {
   font-size: var(--usx-font-size-xs);
   color: var(--usx-color-on-surface-muted);
-  min-width: 24px;
+  min-width: calc(var(--usx-spacing-lg) * 1.5);
   text-align: right;
 }
 
@@ -551,7 +551,7 @@ onMounted(() => {
   gap: var(--usx-spacing-sm);
   cursor: pointer;
   transition: all var(--usx-transition-fast);
-  min-width: 120px;
+  min-width: calc(var(--usx-spacing-2xl) * 3 + var(--usx-spacing-sm));
   flex: 1;
 }
 
@@ -599,7 +599,7 @@ onMounted(() => {
 .registry-grid {
   display: grid;
   gap: var(--usx-grid-gap-sm);
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--usx-spacing-2xl) * 8 + var(--usx-spacing-sm)), 1fr));
 }
 
 .registry-card {
@@ -642,7 +642,7 @@ onMounted(() => {
 .registry-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--usx-spacing-1);
 }
 
 .registry-route-row {
@@ -650,7 +650,7 @@ onMounted(() => {
   align-items: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
-  border-bottom: var(--usx-border-width) solid var(--usx-color-border-light);
+  border-bottom: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-border) 60%, transparent);
 }
 
 .registry-route-path {
@@ -683,7 +683,7 @@ onMounted(() => {
 }
 
 .registry-badge--method {
-  min-width: 48px;
+  min-width: calc(var(--usx-spacing-lg) * 3);
   text-align: center;
   font-size: var(--usx-font-size-xs);
   padding: var(--usx-spacing-1) var(--usx-spacing-2);

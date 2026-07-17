@@ -110,7 +110,7 @@ watch(agents, (val) => {
 </script>
 
 <style scoped>
-.developer-panel { max-width: 800px; }
+.developer-panel { max-width: calc(var(--usx-spacing-2xl) * 25); }
 .developer-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--usx-spacing-md); }
 .developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-semibold); margin: 0; }
 .developer-card-list { display: flex; flex-direction: column; gap: var(--usx-spacing-sm); }

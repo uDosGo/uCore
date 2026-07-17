@@ -268,7 +268,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-md);
-  max-width: 1100px;
+  max-width: calc(var(--usx-spacing-2xl) * 34 + var(--usx-spacing-md));
 }
 
 /* ─── Status Bar (non-blocking) ─────────────────── */
@@ -340,7 +340,7 @@ onUnmounted(() => {
   gap: var(--usx-spacing-md);
 }
 
-@media (max-width: 800px) {
+@media (max-width: calc(var(--usx-spacing-2xl) * 25)) {
   .control-main {
     grid-template-columns: 1fr;
   }
