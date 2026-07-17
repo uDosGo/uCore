@@ -10,7 +10,7 @@
       <!-- Pages Browser -->
       <div v-if="currentTab === 'pages'">
         <h3 class="surface__panel-title">System Pages</h3>
-        <p class="usx-mb-md" style="font-size:var(--usx-font-size-sm);color:var(--usx-color-on-surface-muted)">Browse S-pages and P-pages.</p>
+        <p class="system-muted-copy">Browse S-pages and P-pages.</p>
         <div class="system-pages-grid">
           <div v-for="page in sPages" :key="page.id" class="system-page-card">
             <UIcon :name="page.icon" />
@@ -61,7 +61,7 @@
       <!-- Secrets -->
       <div v-else-if="currentTab === 'secrets'">
         <h3 class="surface__panel-title">Secrets</h3>
-        <p class="usx-mb-md" style="font-size:var(--usx-font-size-sm);color:var(--usx-color-on-surface-muted)">Encrypted secret storage. Values are masked.</p>
+        <p class="system-muted-copy">Encrypted secret storage. Values are masked.</p>
         <div v-if="loadingSecrets" class="system-loading">Loading secrets...</div>
         <div v-else class="system-secrets-list">
           <div v-for="secret in secrets" :key="secret.key" class="system-secret-row">
@@ -233,34 +233,35 @@ onMounted(() => { fetchSystemData() })
 </script>
 
 <style scoped>
-.system-pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--usx-spacing-sm); }
+.system-muted-copy { margin: 0 0 var(--usx-spacing-md); font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); }
+.system-pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(16ch, 1fr)); gap: var(--usx-spacing-sm); }
 .system-page-card { display: flex; flex-direction: column; align-items: center; gap: var(--usx-spacing-xs); padding: var(--usx-spacing-md); background: var(--usx-color-surface); border-radius: var(--usx-radius-lg); cursor: pointer; transition: all 0.15s ease; }
 .system-page-card:hover { border-color: var(--usx-color-primary); }
 .system-page-id { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-semibold); color: var(--usx-color-primary); }
 .system-page-title { font-size: var(--usx-font-size-sm); text-align: center; }
-.system-tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--usx-spacing-sm); }
+.system-tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20ch, 1fr)); gap: var(--usx-spacing-sm); }
 .system-tool-card { display: flex; flex-direction: column; gap: var(--usx-spacing-xs); padding: var(--usx-spacing-md); background: var(--usx-color-surface); border-radius: var(--usx-radius-lg); }
 .system-tool-name { font-size: var(--usx-font-size-base); font-weight: var(--usx-font-weight-semibold); }
 .system-tool-desc { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); }
 .system-services-list { display: flex; flex-direction: column; gap: var(--usx-spacing-xs); }
 .system-service-row { display: flex; align-items: center; gap: var(--usx-spacing-sm); padding: var(--usx-spacing-sm); background: var(--usx-color-background); border-radius: var(--usx-radius-md); }
-.system-service-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.system-service-dot { width: var(--usx-spacing-sm); height: var(--usx-spacing-sm); border-radius: 50%; flex-shrink: 0; }
 .system-service-dot--up { background: var(--usx-color-success); }
 .system-service-dot--degraded { background: var(--usx-color-warning); }
 .system-service-dot--down { background: var(--usx-color-danger); }
-.system-service-name { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-medium); min-width: 100px; }
+.system-service-name { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-medium); min-width: 10ch; }
 .system-service-desc { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); flex: 1; }
 .system-vars-list { display: flex; flex-direction: column; gap: var(--usx-spacing-xs); }
 .system-var-row { display: flex; align-items: center; gap: var(--usx-spacing-sm); padding: var(--usx-spacing-sm); border-radius: var(--usx-radius-sm); }
-.system-var-key { font-family: var(--usx-font-family-mono); font-size: var(--usx-font-size-sm); color: var(--usx-color-primary); min-width: 160px; }
+.system-var-key { font-family: var(--usx-font-family-mono); font-size: var(--usx-font-size-sm); color: var(--usx-color-primary); min-width: 14ch; }
 .system-var-value { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); flex: 1; }
 .system-secrets-list { display: flex; flex-direction: column; gap: var(--usx-spacing-xs); }
 .system-secret-row { display: flex; align-items: center; gap: var(--usx-spacing-sm); padding: var(--usx-spacing-sm); border-radius: var(--usx-radius-sm); }
-.system-secret-key { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-medium); min-width: 160px; }
+.system-secret-key { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-medium); min-width: 14ch; }
 .system-secret-value { font-family: var(--usx-font-family-mono); font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); flex: 1; }
 .system-settings-form { display: flex; flex-direction: column; gap: var(--usx-spacing-sm); }
 .settings-row { display: flex; align-items: center; gap: var(--usx-spacing-md); padding: var(--usx-spacing-sm) 0; }
-.settings-row label { min-width: 120px; font-size: var(--usx-font-size-sm); }
+.settings-row label { min-width: 12ch; font-size: var(--usx-font-size-sm); }
 .settings-row select, .settings-row input[type="text"], .settings-row input[type="email"] { padding: var(--usx-spacing-xs) var(--usx-spacing-sm); background: var(--usx-color-background); border-radius: var(--usx-radius-sm); color: var(--usx-color-on-surface); font-size: var(--usx-font-size-sm); }
 .system-loading { padding: var(--usx-spacing-lg); text-align: center; color: var(--usx-color-on-surface-muted); font-size: var(--usx-font-size-sm); }
 </style>

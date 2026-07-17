@@ -10,8 +10,8 @@
     <div class="surface__content">
       <!-- Learning Hub -->
       <div v-if="activeTab === 'learning'">
-        <h2 style="margin:0 0 var(--usx-spacing-xs);font-size:1.5rem">Learning Hub</h2>
-        <p class="usx-mb-lg" style="color:var(--usx-color-on-surface-muted)">Tutorials, guides, courses, and skill tracking for mastering uCore.</p>
+        <h2 class="docs-section-title">Learning Hub</h2>
+        <p class="docs-section-description">Tutorials, guides, courses, and skill tracking for mastering uCore.</p>
         <div class="docs-grid">
           <div v-for="course in courses" :key="course.id" class="docs-card">
             <UIcon :name="course.icon" />
@@ -26,8 +26,8 @@
 
       <!-- Guide & Docs -->
       <div v-else-if="activeTab === 'guide'">
-        <h2 style="margin:0 0 var(--usx-spacing-xs);font-size:1.5rem">Guide & Docs</h2>
-        <p class="usx-mb-lg" style="color:var(--usx-color-on-surface-muted)">Jekyll-based documentation site.</p>
+        <h2 class="docs-section-title">Guide & Docs</h2>
+        <p class="docs-section-description">Jekyll-based documentation site.</p>
         <div class="docs-iframes">
           <div class="docs-iframe-card">
             <h4>DevStudio Docs</h4>
@@ -42,8 +42,8 @@
 
       <!-- API Reference -->
       <div v-else-if="activeTab === 'api'">
-        <h2 style="margin:0 0 var(--usx-spacing-xs);font-size:1.5rem">API Reference</h2>
-        <p class="usx-mb-lg" style="color:var(--usx-color-on-surface-muted)">Backend API endpoints and MCP tool registry.</p>
+        <h2 class="docs-section-title">API Reference</h2>
+        <p class="docs-section-description">Backend API endpoints and MCP tool registry.</p>
         <div class="docs-api-list">
           <div v-for="ep in apiEndpoints" :key="ep.path" class="api-endpoint">
             <UBadge :type="ep.method === 'GET' ? 'success' : 'warning'" size="sm">{{ ep.method }}</UBadge>
@@ -141,9 +141,21 @@ onMounted(() => { fetchData() })
 <style scoped>
 /* Surface-specific overrides only — layout handled by .surface__* classes */
 
+.docs-section-title {
+  margin: 0 0 var(--usx-spacing-xs);
+  font-size: var(--usx-font-size-2xl);
+  font-weight: var(--usx-font-weight-semibold);
+}
+
+.docs-section-description {
+  margin: 0 0 var(--usx-spacing-lg);
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-sm);
+}
+
 .docs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(20ch, 1fr));
   gap: var(--usx-spacing-md);
 }
 
@@ -169,7 +181,7 @@ onMounted(() => { fetchData() })
 
 .docs-iframes {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(28ch, 1fr));
   gap: var(--usx-spacing-md);
 }
 
@@ -188,9 +200,9 @@ onMounted(() => { fetchData() })
 
 .docs-iframe-card iframe {
   width: 100%;
-  height: 400px;
+  height: calc(var(--usx-touch-min) * 9);
   border: none;
-  background: #fff;
+  background: var(--usx-color-surface);
 }
 
 .docs-api-list {
@@ -208,10 +220,10 @@ onMounted(() => { fetchData() })
 }
 
 .api-endpoint code {
-  font-family: monospace;
+  font-family: var(--usx-font-family-mono);
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-primary);
-  min-width: 200px;
+  min-width: 18ch;
 }
 
 .api-endpoint span {
