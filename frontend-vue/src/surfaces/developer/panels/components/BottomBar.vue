@@ -138,8 +138,8 @@ const lastUpdated = computed(() => {
 }
 
 .bottom-bar__divider {
-  width: 1px;
-  height: 28px;
+  width: var(--usx-border-width);
+  height: calc(var(--usx-spacing-xl) + var(--usx-spacing-xs));
   background: var(--usx-color-border);
   flex-shrink: 0;
 }

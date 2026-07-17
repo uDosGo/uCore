@@ -56,7 +56,7 @@ const actions: Array<{ id: string; icon: string; label: string; disabled?: boole
   cursor: pointer;
   font-size: var(--usx-font-size-xs);
   font-family: var(--usx-font-family-sans);
-  transition: all 0.15s ease;
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), color var(--usx-transition-fast);
   white-space: nowrap;
 }
 

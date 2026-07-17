@@ -105,6 +105,12 @@ const dev = useDeveloperStore()
   color: var(--usx-color-on-surface);
 }
 
+.developer-tab,
+.developer-tab:hover,
+.developer-tab--active {
+  transition: background var(--usx-transition-fast), color var(--usx-transition-fast);
+}
+
 .developer-tab--active {
   background: var(--usx-color-background);
   color: var(--usx-color-primary);

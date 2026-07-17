@@ -137,12 +137,12 @@ const badges = computed<StatusBadgeData[]>(() => {
 .status-badge {
   display: flex;
   align-items: center;
-  gap: var(--usx-spacing-xs, 4px);
-  padding: 2px var(--usx-spacing-sm, 8px);
-  border-radius: var(--usx-radius-sm, 4px);
-  font-size: var(--usx-font-size-xs, 0.75rem);
-  font-weight: var(--usx-font-weight-medium, 500);
-  transition: background 0.15s ease;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-1) var(--usx-spacing-sm);
+  border-radius: var(--usx-radius-sm);
+  font-size: var(--usx-font-size-xs);
+  font-weight: var(--usx-font-weight-medium);
+  transition: background var(--usx-transition-fast);
   user-select: none;
   cursor: default;
 }
@@ -152,19 +152,19 @@ const badges = computed<StatusBadgeData[]>(() => {
 }
 
 .status-badge:hover {
-  background: var(--usx-color-surface-hover, rgba(255, 255, 255, 0.05));
+  background: var(--usx-color-surface-hover);
 }
 
 .status-badge__dot {
-  width: 6px;
-  height: 6px;
+  width: var(--usx-spacing-sm);
+  height: var(--usx-spacing-sm);
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .dot--online {
   background: var(--usx-color-success);
-  box-shadow: 0 0 4px var(--usx-color-success);
+  box-shadow: 0 0 var(--usx-spacing-xs) var(--usx-color-success);
 }
 
 .dot--offline {

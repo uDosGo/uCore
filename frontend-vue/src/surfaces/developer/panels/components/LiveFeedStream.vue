@@ -105,23 +105,23 @@ function importanceClass(importance: number): string {
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
 }
 
 .live-feed__filters {
   display: flex;
-  gap: 2px;
+  gap: var(--usx-spacing-xs);
 }
 
 .live-feed__filter-btn {
-  padding: 1px 6px;
+  padding: var(--usx-spacing-1) var(--usx-spacing-sm);
   border: none;
   background: transparent;
   color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-xs);
   cursor: pointer;
   border-radius: var(--usx-radius-sm);
-  transition: all 0.15s ease;
+  transition: background var(--usx-transition-fast), color var(--usx-transition-fast);
 }
 
 .live-feed__filter-btn:hover {
@@ -144,8 +144,8 @@ function importanceClass(importance: number): string {
 .live-feed__list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-height: 320px;
+  gap: var(--usx-spacing-xs);
+  max-height: calc(var(--usx-spacing-2xl) * 10);
   overflow-y: auto;
 }
 
@@ -155,7 +155,7 @@ function importanceClass(importance: number): string {
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
-  transition: background 0.1s ease;
+  transition: background var(--usx-transition-fast);
 }
 
 .live-feed__item:hover {
@@ -163,13 +163,13 @@ function importanceClass(importance: number): string {
 }
 
 .live-feed__item--unprocessed {
-  border-left: 2px solid var(--usx-color-primary);
+  border-left: var(--usx-border-width) solid var(--usx-color-primary);
 }
 
 .live-feed__source-icon {
   font-size: var(--usx-font-size-base);
   flex-shrink: 0;
-  width: 20px;
+  width: var(--usx-spacing-xl);
   text-align: center;
 }
 

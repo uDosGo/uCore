@@ -102,7 +102,7 @@ const ollamaModelCount = computed(() => props.agents?.ollama?.model_count ?? 0)
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
 }
 
 .agent-status__grid {
