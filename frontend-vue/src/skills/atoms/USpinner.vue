@@ -32,8 +32,8 @@ withDefaults(defineProps<Props>(), {
 .u-spinner__ring {
   width: 100%;
   height: 100%;
-  border: 2px solid var(--pico-border-color);
-  border-top-color: var(--pico-primary);
+  border: 2px solid var(--usx-color-border);
+  border-top-color: var(--usx-color-primary);
   border-radius: 50%;
   animation: spinner-rotate 0.6s linear infinite;
 }

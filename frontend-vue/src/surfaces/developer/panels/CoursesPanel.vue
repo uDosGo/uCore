@@ -106,8 +106,8 @@
             <span class="usx-badge usx-badge--accent">{{ item.relevance }}%</span>
           </div>
           <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="font-size: var(--usx-font-size-xs)">
-            <span class="usx-badge" style="padding: 2px 6px; font-size: var(--usx-font-size-xs)">{{ item.level }}</span>
-            <span class="usx-badge" style="padding: 2px 6px; font-size: var(--usx-font-size-xs)">complete: {{ item.completeness }}%</span>
+            <span class="usx-badge courses-badge--compact">{{ item.level }}</span>
+            <span class="usx-badge courses-badge--compact">complete: {{ item.completeness }}%</span>
             <span style="color: var(--usx-color-on-surface-muted)">{{ item.category }}</span>
           </div>
           <div v-if="item.notes" class="usx-mt-sm" style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">
@@ -148,21 +148,19 @@
           </div>
           <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="font-size: var(--usx-font-size-xs)">
             <span
-              class="usx-badge"
+              class="usx-badge courses-badge--compact"
               :class="{
                 'usx-badge--accent': item.level === 'beginner',
                 'usx-badge--success': item.level === 'advanced'
               }"
-              style="padding: 2px 6px; font-size: var(--usx-font-size-xs)"
             >
               {{ item.level }}
             </span>
-            <span class="usx-badge" style="padding: 2px 6px; font-size: var(--usx-font-size-xs)">
+            <span class="usx-badge courses-badge--compact">
               C:{{ item.completeness }}%
             </span>
             <span class="usx-badge"
-              :style="{ background: relevanceBg(item.relevance), borderColor: relevanceColor(item.relevance) }"
-              style="padding: 2px 6px; font-size: var(--usx-font-size-xs)"
+              :class="['courses-badge--compact', relevanceBadgeClass(item.relevance)]"
             >
               R:{{ item.relevance }}%
             </span>
@@ -175,8 +173,7 @@
             <span
               v-for="topic in item.topics.slice(0, 4)"
               :key="topic"
-              class="usx-badge"
-              style="padding: 1px 5px; font-size: 0.65rem"
+              class="usx-badge courses-badge--compact"
             >
               {{ topic }}
             </span>
@@ -341,10 +338,10 @@ function relevanceColor(relevance: number): string {
   return 'var(--usx-color-danger)'
 }
 
-function relevanceBg(relevance: number): string {
-  if (relevance >= 90) return 'rgba(25, 135, 84, 0.1)'
-  if (relevance >= 60) return 'rgba(255, 193, 7, 0.1)'
-  return 'rgba(220, 53, 69, 0.1)'
+function relevanceBadgeClass(relevance: number): string {
+  if (relevance >= 90) return 'usx-badge--success'
+  if (relevance >= 60) return 'usx-badge--accent'
+  return 'usx-badge--error'
 }
 
 function relevanceIcon(relevance: number): string {
@@ -395,3 +392,10 @@ onMounted(() => {
   loadRegistry()
 })
 </script>
+
+<style scoped>
+.courses-badge--compact {
+  padding: var(--usx-spacing-1) var(--usx-spacing-2);
+  font-size: var(--usx-font-size-xs);
+}
+</style>

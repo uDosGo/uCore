@@ -48,25 +48,23 @@ const emit = defineEmits<{
 .u-tab {
   display: inline-flex;
   align-items: center;
-  gap: var(--usx-icon-label-gap, 0.5em);
+  gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border: none;
   background: transparent;
-  color: var(--pico-muted-color);
-  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-base);
+  line-height: var(--usx-line-height-tight);
   cursor: pointer;
   border-radius: 0;
-  border-bottom: 2px solid transparent;
-  transition: color 0.15s ease, border-color 0.15s ease;
-  font-weight: 500;
-  font-family: var(--usx-font-family);
-  margin-bottom: -1px;
+  transition: color 0.15s ease;
+  font-weight: var(--usx-font-weight-medium);
+  font-family: var(--usx-font-family-sans);
 }
 
 /* Hover: icon inverts to primary color, no underline */
 .u-tab:hover:not(:disabled) {
-  color: var(--pico-primary);
-  border-bottom-color: transparent;
+  color: var(--usx-color-primary);
 }
 
 .u-tab:disabled {
@@ -76,23 +74,32 @@ const emit = defineEmits<{
 
 /* Active: primary color underline (only active tab gets underline) */
 .u-tab--active {
-  color: var(--pico-primary);
-  border-bottom-color: var(--pico-primary);
+  color: var(--usx-color-primary);
 }
 
 /* Icon inherits font-size from parent */
 .u-tab__icon {
   flex-shrink: 0;
-  line-height: 1;
+  line-height: var(--usx-line-height-none);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5em;
+  width: 1.1em;
+  height: 1.1em;
+  font-size: 1.1em;
+}
+
+.u-tab__icon :deep(.material-symbols-outlined) {
+  font-size: 1.1em;
+}
+
+.u-tab__icon :deep(iconify-icon) {
+  width: 1.1em;
+  height: 1.1em;
 }
 
 .u-tab__label {
-  display: flex;
-  align-items: center;
+  line-height: var(--usx-line-height-tight);
 }
 
 /* Icon-only mode on narrow screens */

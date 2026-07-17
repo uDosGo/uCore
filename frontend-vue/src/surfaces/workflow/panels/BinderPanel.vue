@@ -3,6 +3,18 @@
     <div class="surface__panel">
       <h3 class="surface__panel-title">Binder</h3>
       <p class="surface__panel-description">Mission/task/binder cross-reference from knowledge index</p>
+      <div class="wf-panel-controls">
+        <select v-model="selectedWorkspaceId" class="wf-filter-input" @change="onWorkspaceChange">
+          <option value="">All AppFlowy Workspaces</option>
+          <option v-for="ws in workspaces" :key="ws.id" :value="ws.id">
+            {{ ws.name }}
+          </option>
+        </select>
+        <button class="usx-button" :disabled="syncingUserVault" @click="syncUserVaultToAppFlowy">
+          <UIcon name="sync" /> {{ syncingUserVault ? 'Mirroring...' : 'Mirror User Vault' }}
+        </button>
+      </div>
+      <p v-if="syncMessage" class="wf-sync-message">{{ syncMessage }}</p>
     </div>
 
     <!-- Launchpad — drop files to compile into a Binder -->
@@ -115,11 +127,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 import { useWorkflowStore } from '../../../stores/workflow'
 import type { MissionTaskBinderRow } from '../../../stores/workflow'
+import { ucoreApi } from '../../../api/client'
 
 const wf = useWorkflowStore()
 const PAGE_SIZE = 25
@@ -127,6 +140,10 @@ const PAGE_SIZE = 25
 const filterMission = ref('')
 const filterBinder = ref('')
 const page = ref(0)
+const selectedWorkspaceId = ref('')
+const workspaces = ref<Array<{ id: string; name: string }>>([])
+const syncingUserVault = ref(false)
+const syncMessage = ref('')
 
 const filteredRows = computed<MissionTaskBinderRow[]>(() => {
   let rows = wf.missionTaskBinderRows
@@ -153,6 +170,44 @@ const binderCount = computed(() => new Set(wf.missionTaskBinderRows.map(r => r.b
 
 // Reset page when filters change
 watch([filterMission, filterBinder], () => { page.value = 0 })
+
+async function loadWorkspaces() {
+  try {
+    const res = await ucoreApi.knowledge.workspaces()
+    if (!res.ok) return
+    const ws = ((res.data as any)?.workspaces || []) as Array<{ id: string; name: string }>
+    workspaces.value = ws
+
+    // Prefer User Vault workspace if present.
+    const preferred = ws.find(w => w.name?.toLowerCase() === 'user vault')
+    if (preferred) {
+      selectedWorkspaceId.value = preferred.id
+      await wf.fetchMissionTaskBinder(preferred.id)
+      return
+    }
+  } catch {
+    // Keep default all-workspace mode on failure.
+  }
+}
+
+async function onWorkspaceChange() {
+  await wf.fetchMissionTaskBinder(selectedWorkspaceId.value || undefined)
+}
+
+async function syncUserVaultToAppFlowy() {
+  syncingUserVault.value = true
+  syncMessage.value = ''
+  try {
+    const res = await ucoreApi.vault.sync('User Vault')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    syncMessage.value = 'User Vault mirrored to local AppFlowy.'
+    await wf.fetchMissionTaskBinder(selectedWorkspaceId.value || undefined)
+  } catch (e: any) {
+    syncMessage.value = `Mirror failed: ${e?.message || e}`
+  } finally {
+    syncingUserVault.value = false
+  }
+}
 
 // ─── Launchpad drop-zone ────────────────────────────────────────────
 interface LaunchpadFile {
@@ -223,13 +278,17 @@ async function compileBinder(): Promise<void> {
       })
     }
     launchpadFiles.value = []
-    await wf.fetchMissionTaskBinder()
+    await wf.fetchMissionTaskBinder(selectedWorkspaceId.value || undefined)
   } catch (e: any) {
     console.warn('Binder compile failed:', e)
   } finally {
     wf.loading = false
   }
 }
+
+onMounted(async () => {
+  await loadWorkspaces()
+})
 </script>
 
 <style scoped>
@@ -238,6 +297,19 @@ async function compileBinder(): Promise<void> {
   flex-direction: column;
   gap: var(--usx-spacing-lg);
   height: 100%;
+}
+
+.wf-panel-controls {
+  margin-top: var(--usx-spacing-sm);
+  display: flex;
+  gap: var(--usx-spacing-sm);
+  flex-wrap: wrap;
+}
+
+.wf-sync-message {
+  margin: var(--usx-spacing-sm) 0 0 0;
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
 }
 
 /* Launchpad drop-zone */
@@ -252,11 +324,11 @@ async function compileBinder(): Promise<void> {
   justify-content: center;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-xl) var(--usx-spacing-lg);
-  border: 2px dashed color-mix(in srgb, var(--usx-color-primary) 20%, transparent);
+  border: calc(var(--usx-border-width) + var(--usx-border-width-thick)) dashed color-mix(in srgb, var(--usx-color-primary) 20%, transparent);
   border-radius: var(--usx-radius-lg);
   background: color-mix(in srgb, var(--usx-color-primary) 2%, transparent);
   transition: all 0.15s ease;
-  min-height: 120px;
+  min-height: calc(var(--usx-touch-min) + var(--usx-spacing-lg));
   cursor: pointer;
 }
 
@@ -282,7 +354,7 @@ async function compileBinder(): Promise<void> {
   flex-direction: column;
   gap: var(--usx-spacing-xs);
   width: 100%;
-  max-width: 420px;
+  max-width: 32ch;
 }
 
 .wf-launchpad-file {
@@ -342,7 +414,7 @@ async function compileBinder(): Promise<void> {
   padding: var(--usx-spacing-md);
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-lg);
-  min-width: 90px;
+  min-width: 8ch;
   flex: 1;
 }
 
@@ -368,9 +440,9 @@ async function compileBinder(): Promise<void> {
 
 .wf-filter-input {
   flex: 1;
-  min-width: 180px;
+  min-width: 16ch;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border: 1px solid var(--usx-color-border);
+  border: var(--usx-border-width) solid var(--usx-color-border);
   border-radius: var(--usx-radius-md);
   background: var(--usx-color-surface);
   color: var(--usx-color-on-surface);
@@ -385,7 +457,7 @@ async function compileBinder(): Promise<void> {
 .wf-binder-table-wrap {
   overflow-x: auto;
   border-radius: var(--usx-radius-lg);
-  border: 1px solid var(--usx-color-border);
+  border: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .wf-binder-table {
@@ -400,13 +472,13 @@ async function compileBinder(): Promise<void> {
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface-muted);
   background: var(--usx-color-surface);
-  border-bottom: 1px solid var(--usx-color-border);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   white-space: nowrap;
 }
 
 .wf-binder-table td {
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border-bottom: 1px solid var(--usx-color-surface-variant);
+  border-bottom: var(--usx-border-width) solid var(--usx-color-surface-variant);
   vertical-align: top;
 }
 
@@ -424,7 +496,7 @@ async function compileBinder(): Promise<void> {
 }
 
 .wf-title-cell {
-  max-width: 280px;
+  max-width: 24ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

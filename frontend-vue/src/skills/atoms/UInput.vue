@@ -56,18 +56,13 @@ const emit = defineEmits<{
   align-items: center;
   gap: var(--usx-spacing-xs);
   border-radius: var(--usx-radius-md);
-  padding: 0 var(--usx-spacing-md);
+  padding: 0 var(--usx-spacing-lg);
   background: var(--usx-color-surface-variant);
   transition: background var(--usx-transition-fast);
-  height: var(--usx-input-height, 36px);
-  min-height: var(--usx-input-height, 36px);
+  height: var(--usx-touch-min);
+  min-height: var(--usx-touch-min);
   border: var(--usx-border-width) solid var(--usx-color-border);
   box-sizing: border-box;
-  /* Neutralise Pico CSS input styling */
-  --pico-border-width: 0;
-  --pico-border-radius: 0;
-  --pico-form-element-height: auto;
-  --pico-background-color: transparent;
 }
 
 .u-input:focus-within {
@@ -95,7 +90,7 @@ const emit = defineEmits<{
   height: 100%;
   font-family: var(--usx-font-family-sans);
   padding: 0;
-  line-height: normal;
+  line-height: var(--usx-line-height-normal);
   margin: 0;
   -webkit-appearance: none;
   appearance: none;

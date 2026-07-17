@@ -5,7 +5,7 @@
  */
 
 const SNACKBAR_API = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
-const UCORE_API = import.meta.env.VITE_UCORE_URL || 'http://localhost:8000'
+const UCORE_API = import.meta.env.VITE_UCORE_URL || SNACKBAR_API
 const OLLAMA_API = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434'
 
 export interface ApiResponse<T> {
@@ -59,6 +59,7 @@ export const ucoreApi = {
   knowledge: {
     list: () => request(`${UCORE_API}/api/knowledge`),
     search: (query: string) => request(`${UCORE_API}/api/knowledge/search?q=${encodeURIComponent(query)}`),
+    workspaces: () => request(`${UCORE_API}/api/knowledge/workspaces`),
   },
   library: {
     build: () => request(`${UCORE_API}/api/library/build`, { method: 'POST' }),
@@ -75,7 +76,10 @@ export const ucoreApi = {
     /** Get vault layer details */
     layers: () => request(`${UCORE_API}/api/vault/layers`),
     /** Trigger a vault sync */
-    sync: () => request(`${UCORE_API}/api/knowledge/sync`, { method: 'POST' }),
+    sync: (source?: string) => request(`${UCORE_API}/api/knowledge/sync`, {
+      method: 'POST',
+      body: JSON.stringify(source ? { source } : {}),
+    }),
   },
 }
 

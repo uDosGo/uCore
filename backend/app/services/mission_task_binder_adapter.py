@@ -19,6 +19,14 @@ def _as_mapping(value: Any) -> dict[str, Any]:
     return {}
 
 
+def _pick_alias(mapping: dict[str, Any], keys: tuple[str, ...]) -> str:
+    for key in keys:
+        value = _clean(mapping.get(key))
+        if value:
+            return value
+    return ""
+
+
 def _title_parts(title: str) -> tuple[str, str]:
     """Split title into mission/task when possible.
 
@@ -50,16 +58,19 @@ def project_mission_task_binder(doc: dict[str, Any]) -> dict[str, Any]:
     title = _clean(doc.get("title")) or DEFAULT_TITLE
 
     mission = (
-        _clean(metadata.get("mission"))
-        or _clean(properties.get("mission"))
+        _pick_alias(metadata, ("mission", "project", "objective"))
+        or _pick_alias(properties, ("mission", "project", "objective"))
+        or _pick_alias(doc, ("mission", "project", "objective"))
     )
     task = (
-        _clean(metadata.get("task"))
-        or _clean(properties.get("task"))
+        _pick_alias(metadata, ("task", "work_item", "todo"))
+        or _pick_alias(properties, ("task", "work_item", "todo"))
+        or _pick_alias(doc, ("task", "work_item", "todo"))
     )
     binder = (
-        _clean(metadata.get("binder"))
-        or _clean(properties.get("binder"))
+        _pick_alias(metadata, ("binder", "notebook", "collection"))
+        or _pick_alias(properties, ("binder", "notebook", "collection"))
+        or _pick_alias(doc, ("binder", "notebook", "collection"))
         or _clean(doc.get("type"))
         or DEFAULT_BINDER
     )

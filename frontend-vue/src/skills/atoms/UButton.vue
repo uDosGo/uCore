@@ -56,18 +56,20 @@ import { computed } from 'vue'
 .u-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--usx-spacing-xs);
   border-radius: var(--usx-radius-md);
   cursor: pointer;
-  font-weight: 500;
+  font-weight: var(--usx-font-weight-medium);
+  line-height: var(--usx-line-height-tight);
   transition: all 0.15s ease;
   font-family: var(--usx-font-family-sans);
   border: var(--usx-border-width) solid transparent;
 }
 
-.u-button--sm { padding: var(--usx-spacing-sm) var(--usx-spacing-md); font-size: var(--usx-font-size-sm); }
-.u-button--md { padding: var(--usx-button-padding-vertical) var(--usx-button-padding-horizontal); font-size: var(--usx-font-size-base); }
-.u-button--lg { padding: var(--usx-spacing-lg) var(--usx-spacing-xl); font-size: var(--usx-font-size-lg); }
+.u-button--sm { padding: var(--usx-spacing-sm) var(--usx-spacing-lg); font-size: var(--usx-font-size-sm); }
+.u-button--md { padding: var(--usx-spacing-md) var(--usx-spacing-xl); font-size: var(--usx-font-size-base); }
+.u-button--lg { padding: var(--usx-spacing-lg) calc(var(--usx-spacing-xl) + var(--usx-spacing-sm)); font-size: var(--usx-font-size-lg); }
 
 .u-button--primary {
   background: var(--usx-color-primary);
@@ -98,5 +100,9 @@ import { computed } from 'vue'
   display: flex;
   align-items: center;
   line-height: 1;
+}
+
+.u-button__label {
+  line-height: var(--usx-line-height-tight);
 }
 </style>

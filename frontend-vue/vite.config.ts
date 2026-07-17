@@ -40,13 +40,6 @@ export default defineConfig({
     host: 'localhost',
     fs: { allow: ['..'] },
     hmr: { host: 'localhost' },
-    proxy: {
-      '/snackmachine': {
-        target: 'http://127.0.0.1:8484',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
   },
   // Ensure vendored .mjs files are handled correctly
   optimizeDeps: {

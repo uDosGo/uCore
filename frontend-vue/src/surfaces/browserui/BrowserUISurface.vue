@@ -136,7 +136,7 @@ const filteredStacks = computed(() => {
   display: flex;
   justify-content: center;
   width: 100%;
-  max-width: 480px;
+  max-width: 40ch;
 }
 
 .browserui-search-wrap .u-input {
@@ -191,7 +191,7 @@ const filteredStacks = computed(() => {
 /* ─── Card grid ────────────────────────────────────────────────── */
 .browserui-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(20ch, 1fr));
   gap: var(--usx-spacing-sm);
 }
 
@@ -210,7 +210,7 @@ const filteredStacks = computed(() => {
 
 .browserui-card:hover {
   border-color: var(--usx-color-primary);
-  transform: translateY(-2px);
+  transform: translateY(calc(var(--usx-spacing-1) * -1));
   box-shadow: 0 var(--usx-spacing-sm) var(--usx-spacing-lg) rgba(0, 0, 0, 0.08);
 }
 
@@ -235,11 +235,16 @@ const filteredStacks = computed(() => {
 }
 
 .browserui-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--usx-font-size-xs);
-  padding: 2px var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   background: var(--usx-color-surface-variant);
   border-radius: var(--usx-radius-full);
   color: var(--usx-color-primary);
   font-weight: var(--usx-font-weight-medium);
+  line-height: var(--usx-line-height-none);
+  white-space: nowrap;
 }
 </style>

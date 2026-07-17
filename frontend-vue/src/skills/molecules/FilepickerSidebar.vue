@@ -3,10 +3,24 @@
     <!-- Header -->
     <div class="filepicker-sidebar__header">
       <h3 class="filepicker-sidebar__title">Files</h3>
-      <UButton size="sm" icon="mdi:plus" @click="handleNewFile" title="New file">
-        New
-      </UButton>
+      <div class="filepicker-sidebar__header-actions">
+        <UButton
+          size="sm"
+          variant="secondary"
+          icon="sync"
+          :disabled="isMirroring"
+          @click="mirrorUserVault"
+          title="Mirror User Vault to local AppFlowy"
+        >
+          {{ isMirroring ? 'Mirroring...' : 'Mirror User' }}
+        </UButton>
+        <UButton size="sm" icon="mdi:plus" @click="handleNewFile" title="New file">
+          New
+        </UButton>
+      </div>
     </div>
+
+    <div v-if="mirrorMessage" class="filepicker-sidebar__mirror-message">{{ mirrorMessage }}</div>
 
     <!-- Search Section -->
     <UInput
@@ -131,6 +145,8 @@ const files = ref<FileEntry[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const indexStatus = ref<'ok' | 'not-built' | 'unknown'>('unknown')
+const isMirroring = ref(false)
+const mirrorMessage = ref('')
 
 // ─── Fetch files from the unified library index ────────────────────
 async function fetchFiles() {
@@ -208,6 +224,9 @@ watch(searchQuery, () => {
 
 function onSourceChange(source: string) {
   selectedSource.value = source
+  if (source === 'user') {
+    void mirrorUserVault()
+  }
   fetchFiles()
 }
 
@@ -224,6 +243,20 @@ function handleNewFile() {
 function handleDoubleClick(file: FileEntry) {
   // Could open in editor or navigate
   emit('fileSelect', file)
+}
+
+async function mirrorUserVault() {
+  isMirroring.value = true
+  mirrorMessage.value = ''
+  try {
+    const res = await ucoreApi.vault.sync('User Vault')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    mirrorMessage.value = 'User Vault mirrored to local AppFlowy.'
+  } catch (e: any) {
+    mirrorMessage.value = `Mirror failed: ${e?.message || e}`
+  } finally {
+    isMirroring.value = false
+  }
 }
 
 onMounted(async () => {
@@ -310,6 +343,11 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
   border-bottom: 1px solid rgba(88, 166, 255, 0.1);
 }
 
+.filepicker-sidebar__header-actions {
+  display: flex;
+  gap: var(--usx-spacing-xs);
+}
+
 .filepicker-sidebar__title {
   margin: 0;
   font-size: var(--usx-font-size-base);
@@ -319,6 +357,15 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
 
 .filepicker-sidebar__search {
   flex-shrink: 0;
+}
+
+.filepicker-sidebar__mirror-message {
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  border-radius: var(--usx-radius-sm);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  background: color-mix(in srgb, var(--usx-color-info) 10%, transparent);
+  color: var(--usx-color-on-surface);
+  font-size: var(--usx-font-size-sm);
 }
 
 .filepicker-sidebar__filters {

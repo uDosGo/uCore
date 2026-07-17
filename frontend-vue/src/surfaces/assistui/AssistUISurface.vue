@@ -8,95 +8,53 @@
       :orientation="shell.tabOrientation"
       @toggle-orientation="shell.toggleTabOrientation()"
     />
-    <!-- Wrapper for topbar + content (needed for vertical layout to keep them stacked) -->
-    <div class="surface__body">
-    <!-- Top Bar: Model picker + Status + Actions -->
-    <div class="surface__topbar">
-      <div class="assistui-controls-row">
-        <!-- Model picker -->
-        <div class="assistui-model-section" ref="modelSectionRef">
-          <button class="usx-button" @click="modelPickerOpen = !modelPickerOpen">
-            <UIcon name="smart_toy" />
-            <span>{{ chat.currentModelName }}</span>
-            <UIcon name="expand_more" />
-          </button>
-          <div v-if="modelPickerOpen" class="assistui-model-dropdown">
-            <button
-              v-for="model in chat.models"
-              :key="model.id"
-              class="assistui-model-option"
-              :class="{ 'assistui-model-option--active': chat.selectedModel === model.id }"
-              @click="chat.setModel(model.id); modelPickerOpen = false"
-            >
-              <span class="assistui-model-provider">{{ model.provider }}</span>
-              <span class="assistui-model-name">{{ model.name }}</span>
-              <UIcon v-if="chat.selectedModel === model.id" name="check" />
+    <div class="surface__content assistui-shell">
+      <!-- Top Bar: Model picker + Status + Actions -->
+      <div class="surface__topbar">
+        <div class="assistui-controls-row">
+          <!-- Model picker -->
+          <div class="assistui-model-section" ref="modelSectionRef">
+            <button class="usx-button" @click="modelPickerOpen = !modelPickerOpen">
+              <UIcon name="smart_toy" />
+              <span>{{ chat.currentModelName }}</span>
+              <UIcon name="expand_more" />
             </button>
-          </div>
-        </div>
-
-        <!-- Status + Actions -->
-        <div class="assistui-status-bar">
-          <span
-            class="assistui-status-dot"
-            :class="{ 'assistui-status-dot--online': chat.snackbarStatus === 'online' }"
-          />
-          <span class="assistui-status-text">
-            {{ statusText }}
-          </span>
-          <span class="assistui-status-sep" />
-          <button class="usx-button" @click="chat.newConversation()">
-            <UIcon name="add" /> New
-          </button>
-          <button class="usx-button" @click="conversationListOpen = !conversationListOpen">
-            <UIcon name="history" /> History
-          </button>
-          <button class="usx-button" @click="chat.clearChat()">
-            <UIcon name="delete" /> Clear
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Content — USX surface__content replaces surface__main + surface__body -->
-    <div class="surface__content">
-      <!-- Conversation List Sidebar -->
-      <div v-if="conversationListOpen" class="assistui-conv-sidebar">
-        <div class="assistui-conv-sidebar-header">
-          <h3>Conversations</h3>
-          <button class="usx-button-icon" @click="conversationListOpen = false">
-            <UIcon name="close" />
-          </button>
-        </div>
-        <div class="assistui-conv-list">
-          <div v-if="chat.conversations.length === 0" class="assistui-conv-empty">
-            <UIcon name="chat" />
-            <span>No saved conversations</span>
-          </div>
-          <div
-            v-for="conv in sortedConversations"
-            :key="conv.id"
-            class="assistui-conv-item"
-            :class="{ 'assistui-conv-item--active': chat.activeConversation === conv.id }"
-            @click="chat.loadConversation(conv.id); conversationListOpen = false"
-          >
-            <div class="assistui-conv-item-info">
-              <span class="assistui-conv-item-title">{{ conv.title }}</span>
-              <span class="assistui-conv-item-meta">
-                {{ conv.messages.length }} messages · {{ formatDate(conv.updatedAt) }}
-              </span>
+            <div v-if="modelPickerOpen" class="assistui-model-dropdown">
+              <button
+                v-for="model in chat.models"
+                :key="model.id"
+                class="assistui-model-option"
+                :class="{ 'assistui-model-option--active': chat.selectedModel === model.id }"
+                @click="chat.setModel(model.id); modelPickerOpen = false"
+              >
+                <span class="assistui-model-provider">{{ model.provider }}</span>
+                <span class="assistui-model-name">{{ model.name }}</span>
+                <UIcon v-if="chat.selectedModel === model.id" name="check" />
+              </button>
             </div>
-            <button
-              class="assistui-conv-item-delete"
-              @click.stop="chat.deleteConversation(conv.id)"
-              title="Delete conversation"
-            >
-              <UIcon name="close" />
+          </div>
+
+          <!-- Status + Actions -->
+          <div class="assistui-status-bar">
+            <span
+              class="assistui-status-dot"
+              :class="{ 'assistui-status-dot--online': chat.snackbarStatus === 'online' }"
+            />
+            <span class="assistui-status-text">
+              {{ statusText }}
+            </span>
+            <span class="assistui-status-sep" />
+            <button class="usx-button" @click="chat.newConversation()">
+              <UIcon name="add" /> New
+            </button>
+            <button class="usx-button" @click="chat.clearChat()">
+              <UIcon name="delete" /> Clear
             </button>
           </div>
         </div>
       </div>
 
+      <!-- Main Content — USX surface__content replaces surface__main + surface__body -->
       <!-- Chat Body — USX surface__messages handles scroll + spacing -->
       <div class="surface__messages">
         <!-- Messages -->
@@ -153,7 +111,6 @@
         </div>
       </div>
     </div>
-    </div><!-- /surface__body -->
   </div>
 </template>
 
@@ -196,7 +153,6 @@ watch(activeAgentTab, (tabId) => {
 })
 
 const modelPickerOpen = ref(false)
-const conversationListOpen = ref(false)
 const messagesEl = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLTextAreaElement | null>(null)
 
@@ -208,19 +164,8 @@ const statusText = computed(() => {
   }
 })
 
-const sortedConversations = computed(() => {
-  return [...chat.conversations].sort((a, b) => 
-    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  )
-})
-
 const formatTime = (timestamp: Date) => {
   return new Intl.DateTimeFormat('en', { hour: 'numeric', minute: '2-digit' }).format(timestamp)
-}
-
-const formatDate = (timestamp: Date | string) => {
-  const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp
-  return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(date)
 }
 
 const renderMarkdown = (content: string) => {
@@ -275,7 +220,7 @@ onMounted(() => {
 <style scoped>
 /* Surface-specific overrides only — layout handled by .surface__* classes */
 
-/* ─── Nav-link styled buttons in topbar (model picker + New/History/Clear) ─── */
+/* ─── Nav-link styled buttons in topbar (model picker + New/Clear) ─── */
 .assistui-model-section .usx-button,
 .assistui-status-bar .usx-button {
   border: none;
@@ -328,6 +273,17 @@ onMounted(() => {
   width: 100%;
 }
 
+.assistui-shell {
+  max-width: none;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
 .assistui-model-section {
   position: relative;
   flex-shrink: 0;
@@ -341,9 +297,9 @@ onMounted(() => {
   background: var(--usx-color-surface);
   border: var(--usx-border-width) solid var(--usx-color-border);
   border-radius: var(--usx-radius-md);
-  min-width: 240px;
+  min-width: var(--usx-sidebar-width);
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 var(--usx-spacing-xs) var(--usx-spacing-md) rgba(0, 0, 0, 0.15);
 }
 
 .assistui-model-option {
@@ -388,8 +344,8 @@ onMounted(() => {
 }
 
 .assistui-status-dot {
-  width: 8px;
-  height: 8px;
+  width: var(--usx-spacing-sm);
+  height: var(--usx-spacing-sm);
   border-radius: var(--usx-radius-full);
   background: var(--usx-color-on-surface-muted);
   transition: background 0.3s ease;
@@ -405,108 +361,9 @@ onMounted(() => {
 }
 
 .assistui-status-sep {
-  width: 1px;
-  height: 20px;
+  width: var(--usx-border-width);
+  height: calc(var(--usx-spacing-lg) - var(--usx-spacing-xs));
   background: var(--usx-color-border);
-}
-
-.assistui-conv-sidebar {
-  width: 280px;
-  flex-shrink: 0;
-  overflow-y: auto;
-  background: var(--usx-color-surface);
-  border-right: var(--usx-border-width) solid var(--usx-color-border);
-}
-
-.assistui-conv-sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--usx-spacing-md);
-}
-
-.assistui-conv-sidebar-header h3 {
-  margin: 0;
-  font-size: var(--usx-font-size-base);
-  color: var(--usx-color-on-surface);
-}
-
-.assistui-conv-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--usx-spacing-xs);
-  padding: var(--usx-spacing-sm);
-}
-
-.assistui-conv-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--usx-spacing-md);
-  padding: var(--usx-spacing-lg);
-  color: var(--usx-color-on-surface-muted);
-  text-align: center;
-}
-
-.assistui-conv-item {
-  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border-radius: var(--usx-radius-md);
-  background: var(--usx-color-surface);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--usx-spacing-sm);
-  border: var(--usx-border-width) solid var(--usx-color-border);
-}
-
-.assistui-conv-item:hover {
-  background: var(--usx-color-surface-hover);
-}
-
-.assistui-conv-item--active {
-  background: var(--usx-color-surface-active);
-  color: var(--usx-color-primary);
-  border-color: var(--usx-color-primary);
-}
-
-.assistui-conv-item-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--usx-spacing-xs);
-}
-
-.assistui-conv-item-title {
-  font-size: var(--usx-font-size-sm);
-  color: var(--usx-color-on-surface);
-  font-weight: var(--usx-font-weight-semibold);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.assistui-conv-item-meta {
-  font-size: var(--usx-font-size-xs);
-  color: var(--usx-color-on-surface-muted);
-}
-
-.assistui-conv-item-delete {
-  background: none;
-  border: none;
-  color: var(--usx-color-on-surface-muted);
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.assistui-conv-item-delete:hover {
-  color: var(--usx-color-danger);
 }
 
 /* Messages use USX .surface__messages / .surface__message from usx-standard.css.
@@ -555,7 +412,7 @@ onMounted(() => {
 .assistui-message-body {
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface);
-  line-height: var(--usx-line-height-relaxed, 1.6);
+  line-height: var(--usx-line-height-relaxed);
 }
 
 .assistui-message-body h1,
@@ -568,15 +425,15 @@ onMounted(() => {
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   background: var(--usx-color-surface-variant);
   border-radius: var(--usx-radius-sm);
-  font-family: monospace;
+  font-family: var(--usx-font-family-mono);
   color: var(--usx-color-primary);
 }
 
 .assistui-prompt-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(16ch, 1fr));
   gap: var(--usx-spacing-lg);
-  margin: var(--usx-spacing-xl) 0;
+  margin: var(--usx-spacing-lg) 0;
   padding: var(--usx-spacing-lg) 0;
 }
 
@@ -600,7 +457,7 @@ onMounted(() => {
 .assistui-prompt-card:hover {
   background: var(--usx-color-surface-hover);
   border-color: var(--usx-color-primary);
-  transform: translateY(-2px);
+  transform: translateY(calc(var(--usx-spacing-1) * -1));
   box-shadow: 0 var(--usx-spacing-sm) var(--usx-spacing-lg) rgba(0, 0, 0, 0.08);
 }
 
@@ -622,8 +479,8 @@ onMounted(() => {
 }
 
 .assistui-loading-dot {
-  width: 8px;
-  height: 8px;
+  width: var(--usx-spacing-sm);
+  height: var(--usx-spacing-sm);
   border-radius: 50%;
   background: var(--usx-color-primary);
   animation: assistui-pulse 1.5s ease-in-out infinite;
@@ -645,7 +502,7 @@ onMounted(() => {
 /* ─── Input & Submit ────────────────────────────────────────────── */
 .assistui-input {
   flex: 1;
-  min-height: 44px;
+  min-height: var(--usx-touch-min);
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border: var(--usx-border-width) solid var(--usx-color-border);
   border-radius: var(--usx-radius-lg);
@@ -665,8 +522,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
   padding: 0;
   border: none;
   border-radius: var(--usx-radius-full);

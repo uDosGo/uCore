@@ -244,26 +244,22 @@ main.usx-main--wide,
   gap: var(--usx-spacing-sm);
   padding: var(--usx-tab-padding);
   border: none;
-  border-bottom: var(--usx-tab-border-width) solid transparent;
   background: transparent;
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
   font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-medium);
   white-space: nowrap;
-  transition: color var(--usx-transition-base), border-color var(--usx-transition-base);
-  margin-bottom: calc(var(--usx-border-overlap) * -1);
+  transition: color var(--usx-transition-base);
   font-family: var(--usx-font-family-sans);
 }
 
 .surface__tab:hover {
   color: var(--usx-color-primary);
-  border-bottom-color: transparent;
 }
 
 .surface__tab--active {
   color: var(--usx-color-primary);
-  border-bottom-color: var(--usx-color-primary);
 }
 
 .surface__footer {
@@ -539,31 +535,35 @@ button[type="submit"]:hover {
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-1) var(--usx-spacing-3);
   border-radius: var(--usx-radius-full);
-  border: var(--usx-border-width) solid var(--usx-color-border);
+  border: var(--usx-border-width) solid transparent;
   background: var(--usx-color-surface-variant);
   color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
+  line-height: var(--usx-line-height-tight);
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: var(--usx-font-weight-semibold);
 }
 
 .usx-badge--accent,
 .badge--accent {
-  border-color: var(--usx-color-primary);
+  border-color: transparent;
   background: var(--usx-color-primary-disabled);
   color: var(--usx-color-primary);
 }
 
 .usx-badge--success,
 .badge--success {
-  border-color: var(--usx-color-success);
+  border-color: transparent;
   background: var(--usx-color-success);
   color: var(--usx-color-on-success);
 }
 
 .usx-badge--error,
 .badge--error {
-  border-color: var(--usx-color-danger);
+  border-color: transparent;
   background: var(--usx-color-danger);
   color: var(--usx-color-on-danger);
 }

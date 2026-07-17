@@ -1,6 +1,6 @@
 # uCore Wisdom
 
-Date: 2026-07-07T21:53:02Z
+Date: 2026-07-16T20:25:59Z
 Status: Refreshed by brain_sync
 
 ## Durable Lessons
@@ -51,36 +51,36 @@ Warnings: 0
 - ucore-server: 2 entries (0 errors)
 
 ### Recent Activity
-- ✅ 2026-07-08T05:52:59  stdout  [2026-07-08 05:52:59] INFO     ucore — Maintenance job ran: vault_sync success=False
-- ✅ 2026-07-08T05:52:59  stdout  [2026-07-08 05:52:59] INFO     ucore — Maintenance job ran: tasker_sync success=False
-- ℹ️ 2026-07-08T03:56:37  stdout  [2026-07-08 03:56:37] INFO     ucore.skills.daily_backup — Cleaned up 6 old backups
-- ✅ 2026-07-08T03:56:37  stdout  [2026-07-08 03:56:37] INFO     ucore — Maintenance job ran: daily_backup success=True
-- ℹ️ 2026-07-07T21:53:00  ucore-server  (Press CTRL+C to quit)
-- ℹ️ 2026-07-07T21:53:00  ucore-server  ======== Running on http://0.0.0.0:8484 ========
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
-- ℹ️ 2026-07-07T21:53:00  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ✅ 2026-07-17T04:05:59  stdout  [2026-07-17 04:05:59] INFO     ucore — Maintenance job ran: tasker_sync success=True
+- ✅ 2026-07-17T04:00:59  stdout  [2026-07-17 04:00:59] INFO     ucore — Maintenance job ran: vault_sync success=True
+- ℹ️ 2026-07-17T03:05:59  stdout  [2026-07-17 03:05:59] INFO     ucore.skills.daily_backup — Cleaned up 7 old backups
+- ✅ 2026-07-17T03:05:59  stdout  [2026-07-17 03:05:59] INFO     ucore — Maintenance job ran: daily_backup success=True
+- ℹ️ 2026-07-16T20:25:56  ucore-server  (Press CTRL+C to quit)
+- ℹ️ 2026-07-16T20:25:56  ucore-server  ======== Running on http://0.0.0.0:8484 ========
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
+- ℹ️ 2026-07-16T20:25:56  ucore-popcorn-stderr  /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named app.ui.popcorn
 
 ## Test Failure Signals (last 24h)
 

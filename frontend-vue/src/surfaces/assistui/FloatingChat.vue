@@ -81,22 +81,20 @@ function handleKeyDown(e: KeyboardEvent) {
 <style scoped>
 .floating-chat {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: var(--usx-spacing-lg);
+  right: var(--usx-spacing-lg);
   z-index: 500;
 }
 
 .floating-chat__panel {
-  width: 360px;
-  height: 480px;
-  background: var(--usx-color-background);
+  width: min(90vw, calc(var(--usx-sidebar-width) + var(--usx-spacing-xl)));
+  height: min(80vh, calc(var(--usx-touch-min) * 10));
   background: var(--usx-color-background);
   border-radius: var(--usx-radius-lg);
-  
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: var(--usx-spacing-sm);
 }
 
 .floating-chat__header {
@@ -104,7 +102,6 @@ function handleKeyDown(e: KeyboardEvent) {
   align-items: center;
   justify-content: space-between;
   padding: var(--usx-spacing-md) var(--usx-spacing-md);
-  
   font-weight: var(--usx-font-weight-semibold);
   font-size: var(--usx-font-size-base);
 }
@@ -132,14 +129,14 @@ function handleKeyDown(e: KeyboardEvent) {
 
 .floating-chat__message--user .floating-chat__message-body {
   background: var(--usx-color-background);
-  border-radius: var(--usx-radius-lg) 8px 2px 8px;
+  border-radius: var(--usx-radius-lg) var(--usx-radius-md) var(--usx-radius-sm) var(--usx-radius-md);
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   font-size: var(--usx-font-size-sm);
 }
 
 .floating-chat__message--assistant .floating-chat__message-body {
   font-size: var(--usx-font-size-sm);
-  line-height: 1.6;
+  line-height: var(--usx-line-height-relaxed);
 }
 
 .floating-chat__loading {
@@ -149,8 +146,8 @@ function handleKeyDown(e: KeyboardEvent) {
 }
 
 .floating-chat__loading span {
-  width: 6px;
-  height: 6px;
+  width: var(--usx-spacing-xs);
+  height: var(--usx-spacing-xs);
   border-radius: 50%;
   background: var(--usx-color-on-surface-muted);
   animation: bounce 1.4s infinite ease-in-out both;
@@ -169,7 +166,7 @@ function handleKeyDown(e: KeyboardEvent) {
   align-items: center;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-sm);
-  border-top: 1px solid var(--usx-color-border);
+  border-top: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .floating-chat__input textarea {
@@ -189,21 +186,19 @@ function handleKeyDown(e: KeyboardEvent) {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: calc(var(--usx-touch-min) + var(--usx-spacing-sm));
+  height: calc(var(--usx-touch-min) + var(--usx-spacing-sm));
   border-radius: 50%;
   border: none;
   background: var(--usx-color-primary);
-  color: #fff;
+  color: var(--usx-color-on-primary);
   cursor: pointer;
-  
   transition: all 0.2s ease;
   margin-left: auto;
 }
 
 .floating-chat__bubble:hover {
   transform: scale(1.05);
-  
 }
 
 /* Panel transition */
@@ -215,6 +210,6 @@ function handleKeyDown(e: KeyboardEvent) {
 .chat-panel-enter-from,
 .chat-panel-leave-to {
   opacity: 0;
-  transform: translateY(20px) scale(0.95);
+  transform: translateY(calc(var(--usx-spacing-xl) - var(--usx-spacing-sm))) scale(0.95);
 }
 </style>

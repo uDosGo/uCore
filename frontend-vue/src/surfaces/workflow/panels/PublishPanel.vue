@@ -29,7 +29,7 @@
           </div>
           <div class="wf-workflow-footer">
             <span class="wf-workflow-id">ID: {{ def.id }}</span>
-            <button class="usx-button usx-btn--primary" @click="runWorkflow(def.id)">Run</button>
+            <UButton size="sm" variant="primary" icon="play_arrow" @click="runWorkflow(def.id)">Run</UButton>
           </div>
         </div>
       </div>
@@ -95,6 +95,7 @@
 <script setup lang="ts">
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
+import UButton from '../../../skills/atoms/UButton.vue'
 import { useWorkflowStore } from '../../../stores/workflow'
 
 const wf = useWorkflowStore()
@@ -150,11 +151,11 @@ async function runWorkflow(workflowId: string): Promise<void> {
 
 .wf-section-title {
   margin: 0;
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--usx-letter-spacing-wide);
 }
 
 .wf-workflow-grid {
@@ -164,9 +165,10 @@ async function runWorkflow(workflowId: string): Promise<void> {
 }
 
 .wf-workflow-card {
-  padding: var(--usx-spacing-md);
+  padding: var(--usx-spacing-lg);
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-lg);
+  border: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .wf-workflow-card-header {
@@ -179,13 +181,13 @@ async function runWorkflow(workflowId: string): Promise<void> {
 .wf-workflow-name {
   font-weight: var(--usx-font-weight-semibold);
   flex: 1;
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
 }
 
 .wf-workflow-desc {
   margin: 0 0 var(--usx-spacing-sm) 0;
   color: var(--usx-color-on-surface-muted);
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
 }
 
 .wf-workflow-steps {
@@ -194,7 +196,7 @@ async function runWorkflow(workflowId: string): Promise<void> {
   gap: var(--usx-spacing-xs);
   flex-wrap: wrap;
   margin-bottom: var(--usx-spacing-sm);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .wf-workflow-steps-label {
@@ -208,8 +210,9 @@ async function runWorkflow(workflowId: string): Promise<void> {
   padding: var(--usx-badge-padding-vertical) var(--usx-badge-padding-horizontal);
   background: var(--usx-color-surface-variant);
   border-radius: var(--usx-radius-sm);
+  border: var(--usx-border-width) solid var(--usx-color-border);
   font-family: var(--usx-font-family-mono);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .wf-workflow-footer {
@@ -220,7 +223,7 @@ async function runWorkflow(workflowId: string): Promise<void> {
 
 .wf-workflow-id {
   font-family: var(--usx-font-family-mono);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -231,10 +234,10 @@ async function runWorkflow(workflowId: string): Promise<void> {
 }
 
 .wf-run-card {
-  padding: var(--usx-spacing-md);
+  padding: var(--usx-spacing-lg);
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-md);
-  border-left: 3px solid var(--usx-color-primary);
+  border-left: calc(var(--usx-border-width) + var(--usx-border-width-thick)) solid var(--usx-color-primary);
 }
 
 .wf-run-card-header {
@@ -242,7 +245,7 @@ async function runWorkflow(workflowId: string): Promise<void> {
   align-items: center;
   gap: var(--usx-spacing-sm);
   margin-bottom: var(--usx-spacing-xs);
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
 }
 
 .wf-run-wf-name {
@@ -251,21 +254,21 @@ async function runWorkflow(workflowId: string): Promise<void> {
 }
 
 .wf-run-id {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
 .wf-run-timing {
   display: flex;
   gap: var(--usx-spacing-lg);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   margin-bottom: var(--usx-spacing-sm);
   font-family: var(--usx-font-family-mono);
 }
 
 .wf-run-steps {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .wf-run-steps-label {
@@ -300,7 +303,7 @@ async function runWorkflow(workflowId: string): Promise<void> {
 .wf-empty-small {
   padding: var(--usx-spacing-md);
   color: var(--usx-color-on-surface-muted);
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   text-align: center;
   font-style: italic;
 }
@@ -316,7 +319,7 @@ async function runWorkflow(workflowId: string): Promise<void> {
   display: flex;
   align-items: center;
   gap: var(--usx-spacing-xs);
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-medium);
   color: var(--usx-color-primary);
 }

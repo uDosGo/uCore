@@ -71,19 +71,19 @@
           <div v-for="skill in filteredSkills" :key="skill.skill_id" class="usx-card registry-card">
             <div class="usx-flex-between">
               <span style="font-weight: var(--usx-font-weight-semibold)">{{ skill.name }}</span>
-              <span class="usx-badge" style="font-size: var(--usx-font-size-xs)">{{ skill.category }}</span>
+              <span class="usx-badge registry-badge--xs">{{ skill.category }}</span>
             </div>
             <div style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
               {{ skill.description || skill.skill_id }}
             </div>
             <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap; font-size: var(--usx-font-size-xs)">
-              <span v-if="skill.params.length" class="usx-badge" style="padding: 1px 5px; font-size: 0.65rem">
+              <span v-if="skill.params.length" class="usx-badge registry-badge--compact">
                 {{ skill.params.length }} params
               </span>
-              <span class="usx-badge" style="padding: 1px 5px; font-size: 0.65rem">
+              <span class="usx-badge registry-badge--compact">
                 {{ skill.timeout }}s timeout
               </span>
-              <span v-if="skill.requires_confirmation" class="usx-badge usx-badge--accent" style="padding: 1px 5px; font-size: 0.65rem">
+              <span v-if="skill.requires_confirmation" class="usx-badge usx-badge--accent registry-badge--compact">
                 confirmation
               </span>
               <span style="color: var(--usx-color-on-surface-muted)">{{ skill.file }}</span>
@@ -104,7 +104,7 @@
               <span style="font-weight: var(--usx-font-weight-medium); font-family: var(--usx-font-family-mono); font-size: var(--usx-font-size-sm)">
                 {{ path.path }}
               </span>
-              <span class="usx-badge" style="font-size: var(--usx-font-size-xs)">{{ path.type }}</span>
+              <span class="usx-badge registry-badge--xs">{{ path.type }}</span>
             </div>
             <div style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
               {{ path.description }}
@@ -128,15 +128,15 @@
               {{ v.description }}
             </div>
             <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap">
-              <span v-if="v.file" class="usx-badge" style="padding: 1px 5px; font-size: 0.65rem; font-family: var(--usx-font-family-mono)">
+              <span v-if="v.file" class="usx-badge registry-badge--compact registry-badge--mono">
                 {{ v.file }}
               </span>
-              <span v-if="v.examples?.length" class="usx-badge usx-badge--accent" style="padding: 1px 5px; font-size: 0.65rem">
+              <span v-if="v.examples?.length" class="usx-badge usx-badge--accent registry-badge--compact">
                 {{ v.examples.length }} examples
               </span>
             </div>
             <div v-if="v.examples?.length" class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap">
-              <span v-for="ex in v.examples" :key="ex" class="usx-badge" style="padding: 1px 5px; font-size: 0.65rem; font-family: var(--usx-font-family-mono)">
+              <span v-for="ex in v.examples" :key="ex" class="usx-badge registry-badge--compact registry-badge--mono">
                 {{ ex }}
               </span>
             </div>
@@ -156,7 +156,7 @@
               <span style="font-weight: var(--usx-font-weight-medium); font-family: var(--usx-font-family-mono)">
                 {{ s.key }}
               </span>
-              <span class="usx-badge" style="font-size: var(--usx-font-size-xs)">{{ s.scope }}</span>
+              <span class="usx-badge registry-badge--xs">{{ s.scope }}</span>
             </div>
             <div style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
               {{ s.description || s.store }}
@@ -175,8 +175,8 @@
           <div v-for="m in filteredMcp" :key="m.name" class="usx-card registry-card">
             <div class="usx-flex-between">
               <span style="font-weight: var(--usx-font-weight-semibold)">{{ m.name }}</span>
-              <span v-if="m.disabled" class="usx-badge usx-badge--error" style="font-size: var(--usx-font-size-xs)">disabled</span>
-              <span v-else class="usx-badge usx-badge--success" style="font-size: var(--usx-font-size-xs)">active</span>
+              <span v-if="m.disabled" class="usx-badge usx-badge--error registry-badge--xs">disabled</span>
+              <span v-else class="usx-badge usx-badge--success registry-badge--xs">active</span>
             </div>
             <div style="font-size: var(--usx-font-size-xs); font-family: var(--usx-font-family-mono); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
               {{ m.command }}
@@ -200,7 +200,7 @@
               'usx-badge--accent': route.method === 'GET',
               'usx-badge--success': route.method === 'POST',
               'usx-badge--error': route.method === 'DELETE'
-            }" style="min-width: 48px; text-align: center; font-size: var(--usx-font-size-xs); padding: 2px 6px">
+            }" class="registry-badge--method">
               {{ route.method }}
             </span>
             <span style="font-family: var(--usx-font-family-mono); font-size: var(--usx-font-size-sm); flex: 1">
@@ -239,15 +239,15 @@
               {{ rt.file }}
             </div>
             <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap">
-              <span v-if="rt.endpoints?.length" class="usx-badge usx-badge--accent" style="padding: 1px 5px; font-size: 0.65rem">
+              <span v-if="rt.endpoints?.length" class="usx-badge usx-badge--accent registry-badge--compact">
                 {{ rt.endpoints.length }} endpoints
               </span>
-              <span v-if="rt.commands?.length" class="usx-badge" style="padding: 1px 5px; font-size: 0.65rem">
+              <span v-if="rt.commands?.length" class="usx-badge registry-badge--compact">
                 {{ rt.commands.length }} commands
               </span>
             </div>
             <div v-if="rt.endpoints?.length" class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap">
-              <span v-for="ep in rt.endpoints.slice(0, 6)" :key="ep" class="usx-badge" style="padding: 1px 5px; font-size: 0.65rem; font-family: var(--usx-font-family-mono)">
+              <span v-for="ep in rt.endpoints.slice(0, 6)" :key="ep" class="usx-badge registry-badge--compact registry-badge--mono">
                 {{ ep }}
               </span>
               <span v-if="rt.endpoints.length > 6" style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">
@@ -581,5 +581,25 @@ onMounted(() => {
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
   border-bottom: var(--usx-border-width) solid var(--usx-color-border-light);
+}
+
+.registry-badge--xs {
+  font-size: var(--usx-font-size-xs);
+}
+
+.registry-badge--compact {
+  padding: var(--usx-spacing-1) var(--usx-spacing-2);
+  font-size: var(--usx-font-size-xs);
+}
+
+.registry-badge--mono {
+  font-family: var(--usx-font-family-mono);
+}
+
+.registry-badge--method {
+  min-width: 48px;
+  text-align: center;
+  font-size: var(--usx-font-size-xs);
+  padding: var(--usx-spacing-1) var(--usx-spacing-2);
 }
 </style>

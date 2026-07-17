@@ -64,9 +64,25 @@ export interface WorkflowRun {
 }
 
 export interface WorkflowStatus {
+  domain?: string
+  source_of_truth?: string
+  next_actions?: string[]
   tasker?: {
     boards: Array<{ name: string; count: number; path: string }>
     total_tasks: number
+  }
+  vault?: {
+    ready: boolean
+    missing_layers: string[]
+  }
+  appflowy?: {
+    status: string
+    mode: string
+    enabled_by_default: boolean
+    available: boolean
+    database_count: number
+    workspace_count: number
+    errors: string[]
   }
   maintenance?: {
     scheduler_status: string
@@ -85,14 +101,12 @@ export const WORKFLOW_TABS: { id: WorkflowTab; label: string; icon: string }[] =
 const API = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 
 const SAMPLE_TASKS: WorkflowTask[] = [
-  { id: '1', title: 'Port Workflow surface to Vue', status: 'in-progress', priority: 'high', board: 'active', tags: ['vue', 'migration'], description: 'Port the Workflow surface from React to Vue 3' },
-  { id: '2', title: 'Port System surface to Vue', status: 'todo', priority: 'high', board: 'active', tags: ['vue', 'migration'], description: 'Port the System admin surface from React to Vue 3' },
-  { id: '3', title: 'Port SnackMachine to Vue', status: 'todo', priority: 'medium', board: 'active', tags: ['vue', 'migration'], description: 'Port the SnackMachine surface from React to Vue 3' },
-  { id: '4', title: 'Port UCode/GridCore to Vue', status: 'todo', priority: 'medium', board: 'active', tags: ['vue', 'migration'], description: 'Port the UCode GridCore surface from React to Vue 3' },
-  { id: '5', title: 'Write Vitest unit tests', status: 'todo', priority: 'medium', board: 'backlog', tags: ['testing'], description: 'Add unit tests for all Skills components' },
-  { id: '6', title: 'Accessibility audit', status: 'todo', priority: 'low', board: 'backlog', tags: ['a11y'], description: 'Audit all surfaces for WCAG compliance' },
-  { id: '7', title: 'Vue foundation scaffold', status: 'completed', priority: 'high', board: 'active', tags: ['vue', 'foundation'], description: 'Scaffold Vue 3 + Vite + Pinia project' },
-  { id: '8', title: 'AssistUI chat surface', status: 'completed', priority: 'high', board: 'active', tags: ['vue', 'assistui'], description: 'Port AssistUI with streaming chat, agents, models' },
+  { id: 'seed-1', title: 'Plan the week', status: 'in-progress', priority: 'high', board: 'planning', tags: ['planning', 'weekly'], description: 'Review goals and lock top priorities for the week.' },
+  { id: 'seed-2', title: 'Draft article outline', status: 'todo', priority: 'medium', board: 'writing', tags: ['writing', 'content'], description: 'Create a clear outline before drafting full sections.' },
+  { id: 'seed-3', title: 'Organize life admin docs', status: 'review', priority: 'medium', board: 'admin', tags: ['admin', 'records'], description: 'Collect invoices, reminders, and account documents.' },
+  { id: 'seed-4', title: 'Summarize this week learning', status: 'completed', priority: 'low', board: 'learning', tags: ['learning', 'weekly-review'], description: 'Publish a short recap with key ideas and next actions.' },
+  { id: 'seed-5', title: 'Schedule health appointments', status: 'todo', priority: 'high', board: 'personal', tags: ['health', 'personal'], description: 'Book pending checkups and note preparation items.' },
+  { id: 'seed-6', title: 'Prepare monthly budget review', status: 'blocked', priority: 'medium', board: 'finance', tags: ['finance', 'planning'], description: 'Waiting for final bank export before reconciliation.' },
 ]
 
 const SAMPLE_MISSIONS: Mission[] = [
@@ -135,14 +149,19 @@ export const useWorkflowStore = defineStore('workflow', () => {
   const inProgressCount = computed(() => tasks.value.filter(t => t.status === 'in-progress').length)
   const completedCount = computed(() => tasks.value.filter(t => t.status === 'completed').length)
 
-  /** Fetch overall workflow status from /api/system/workflow */
+  /** Fetch overall workflow status from user endpoint with legacy fallback */
   async function fetchWorkflowStatus(): Promise<void> {
     loading.value = true
     error.value = null
     try {
-      const res = await fetch(`${API}/api/system/workflow`, {
+      let res = await fetch(`${API}/api/user/workflow/status`, {
         signal: AbortSignal.timeout(8000),
       })
+      if (res.status === 404) {
+        res = await fetch(`${API}/api/system/workflow`, {
+          signal: AbortSignal.timeout(8000),
+        })
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       workflowStatus.value = data
@@ -163,13 +182,13 @@ export const useWorkflowStore = defineStore('workflow', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await fetch(`${API}/api/workflow/tasks`, {
+      const res = await fetch(`${API}/api/workflow/tasks?scope=user`, {
         signal: AbortSignal.timeout(8000),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       if (Array.isArray(data.tasks)) {
-        tasks.value = data.tasks.map((t: any) => ({
+        const mapped = data.tasks.map((t: any) => ({
           id: t.id || t.source_id || '',
           title: t.title || 'Untitled',
           status: t.status || 'todo',
@@ -178,6 +197,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
           tags: t.tags || [],
           description: t.description || t.summary || '',
         }))
+        tasks.value = mapped.length > 0 ? mapped : [...SAMPLE_TASKS]
       }
     } catch (e: any) {
       error.value = e.message || 'Failed to fetch tasks'
@@ -188,11 +208,13 @@ export const useWorkflowStore = defineStore('workflow', () => {
   }
 
   /** Fetch mission/task/binder projections from /api/knowledge/adapter/mission-task-binder */
-  async function fetchMissionTaskBinder(): Promise<void> {
+  async function fetchMissionTaskBinder(workspaceId?: string): Promise<void> {
     loading.value = true
     error.value = null
     try {
-      const res = await fetch(`${API}/api/knowledge/adapter/mission-task-binder?limit=100`, {
+      const params = new URLSearchParams({ limit: '100' })
+      if (workspaceId) params.set('workspace_id', workspaceId)
+      const res = await fetch(`${API}/api/knowledge/adapter/mission-task-binder?${params.toString()}`, {
         signal: AbortSignal.timeout(8000),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -276,6 +298,43 @@ export const useWorkflowStore = defineStore('workflow', () => {
     ])
   }
 
+  async function archiveUserWorkflow(reason = 'manual'): Promise<unknown> {
+    const res = await fetch(`${API}/api/user/workflow/archive`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason }),
+      signal: AbortSignal.timeout(30000),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return await res.json()
+  }
+
+  async function resetUserWorkflow(reason = 'reset'): Promise<unknown> {
+    const res = await fetch(`${API}/api/user/workflow/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason }),
+      signal: AbortSignal.timeout(60000),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    await fetchAll()
+    return data
+  }
+
+  async function seedUserWorkflow(reason = 'seed-only'): Promise<unknown> {
+    const res = await fetch(`${API}/api/user/workflow/seed`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason }),
+      signal: AbortSignal.timeout(30000),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    await fetchAll()
+    return data
+  }
+
   function selectTask(task: WorkflowTask) {
     selectedTask.value = task
     editorOpen.value = true
@@ -325,5 +384,8 @@ export const useWorkflowStore = defineStore('workflow', () => {
     fetchWorkflowDefinitions,
     fetchWorkflowRuns,
     fetchAll,
+    archiveUserWorkflow,
+    resetUserWorkflow,
+    seedUserWorkflow,
   }
 })

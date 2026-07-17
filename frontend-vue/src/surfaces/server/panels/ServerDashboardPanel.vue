@@ -66,7 +66,7 @@ const healthColor = computed(() => {
 
 <style scoped>
 .server-loading { padding: var(--usx-spacing-lg); text-align: center; color: var(--usx-color-on-surface-muted); }
-.server-dashboard { display: flex; flex-direction: column; gap: var(--usx-spacing-md); max-width: 900px; }
+.server-dashboard { display: flex; flex-direction: column; gap: var(--usx-spacing-md); width: 100%; }
 .server-dashboard-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--usx-spacing-md); }
 .server-muted-text { color: var(--usx-color-on-surface-muted); }
 .server-stats-row { display: flex; gap: var(--usx-spacing-lg); margin-top: var(--usx-spacing-md); }
@@ -77,10 +77,10 @@ const healthColor = computed(() => {
 .server-stat-value--down { color: var(--usx-color-danger); }
 .server-stat-value--budget { color: var(--usx-color-primary); }
 .server-stat-label { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); text-transform: uppercase; }
-.health-ring { width: 56px; height: 56px; border-radius: 50%; border: 3px solid; display: flex; align-items: center; justify-content: center; font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-bold); flex-shrink: 0; }
+.health-ring { width: calc(var(--usx-touch-min) + var(--usx-spacing-sm)); height: calc(var(--usx-touch-min) + var(--usx-spacing-sm)); border-radius: 50%; border-style: solid; border-width: calc(var(--usx-border-width) + var(--usx-border-width-thick)); display: flex; align-items: center; justify-content: center; font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-bold); flex-shrink: 0; }
 .server-service-row { display: flex; align-items: center; justify-content: space-between; padding: var(--usx-spacing-sm) 0; }
 .server-service-info { display: flex; align-items: center; gap: var(--usx-spacing-sm); flex: 1; min-width: 0; }
-.server-service-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.server-service-dot { width: var(--usx-spacing-sm); height: var(--usx-spacing-sm); border-radius: 50%; flex-shrink: 0; }
 .server-service-dot--up { background: var(--usx-color-success); }
 .server-service-dot--degraded { background: var(--usx-color-warning); }
 .server-service-dot--down { background: var(--usx-color-danger); }

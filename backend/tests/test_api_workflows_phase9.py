@@ -133,28 +133,60 @@ class Phase9WorkflowApiTest(AioHTTPTestCase):
         assert data["priority"] == "high"
         assert data["board"] == "backlog"
 
+    async def test_get_task_normalizes_alias_metadata(self):
+        (self.tasker_dir / "backlog" / "todo-alias.md").write_text(
+            "\n".join(
+                [
+                    "# Alias Metadata Task",
+                    "- state: done",
+                    "- source: obsidian",
+                    "- source_id: alias-1",
+                    "- urgency: urgent",
+                    "- labels: alpha, beta, alpha",
+                    "",
+                    "## Summary",
+                    "Plain text summary body.",
+                    "",
+                ],
+            ),
+            encoding="utf-8",
+        )
+
+        resp = await self.client.get("/api/workflows/task/alias-1")
+
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "completed"
+        assert data["priority"] == "high"
+        assert sorted(data["tags"]) == ["alpha", "beta", "obsidian"]
+        assert data["description"] == "Plain text summary body."
+
     async def test_update_task_persists_tasker_markdown(self):
         resp = await self.client.put(
             "/api/workflows/task/phase-9",
             json={
                 "title": "Phase 9 Backend Verification",
-                "status": "in-progress",
-                "priority": "critical",
+                "status": "done",
+                "priority": "urgent",
                 "description": "Endpoint verification underway",
-                "tags": ["ucore-dev"],
+                "tags": ["ucore-dev", "phase9", "ucore-dev"],
             },
         )
 
         assert resp.status == 200
         data = await resp.json()
-        assert data["status"] == "in-progress"
-        assert data["priority"] == "critical"
+        assert data["status"] == "completed"
+        assert data["priority"] == "high"
+        assert sorted(data["tags"]) == ["phase9", "ucore-dev"]
+        assert data["id"] == "phase-9"
 
         content = (self.tasker_dir / "backlog" / "todo-phase9.md").read_text(
             encoding="utf-8",
         )
-        assert "- status: in-progress" in content
-        assert "- priority: critical" in content
+        assert "- status: completed" in content
+        assert "- priority: high" in content
+        assert "- source_id: phase-9" in content
+        assert "- tags: ucore-dev, phase9" in content
         assert "Endpoint verification underway" in content
 
     async def test_board_health_reports_blocked_tasks(self):

@@ -1,8 +1,50 @@
 <template>
   <div class="wf-panel">
     <div class="surface__panel">
-      <h3 class="surface__panel-title">Mission Control</h3>
-      <p class="surface__panel-description">Track progress across all migration missions</p>
+      <div class="wf-panel-header">
+        <h3 class="surface__panel-title">Mission Control</h3>
+        <div class="wf-panel-badges">
+          <UBadge type="info" size="sm">User Workflow</UBadge>
+          <UBadge
+            :type="wf.workflowStatus?.appflowy?.available ? 'success' : 'warning'"
+            size="sm"
+          >
+            AppFlowy {{ wf.workflowStatus?.appflowy?.available ? 'Available' : 'Optional' }}
+          </UBadge>
+        </div>
+      </div>
+      <p class="surface__panel-description">Track progress across your missions and keep markdown first.</p>
+      <div class="wf-actions-row">
+        <UButton
+          size="sm"
+          variant="secondary"
+          icon="archive"
+          :disabled="!!busyAction"
+          @click="archiveState"
+        >
+          {{ busyAction === 'archive' ? 'Archiving...' : 'Archive State' }}
+        </UButton>
+        <UButton
+          size="sm"
+          variant="secondary"
+          icon="add"
+          :disabled="!!busyAction"
+          @click="seedState"
+        >
+          {{ busyAction === 'seed' ? 'Seeding...' : 'Seed User Tasks' }}
+        </UButton>
+        <UButton
+          size="sm"
+          variant="primary"
+          icon="refresh"
+          class="wf-button-warning"
+          :disabled="!!busyAction"
+          @click="resetState"
+        >
+          {{ busyAction === 'reset' ? 'Resetting...' : 'Reset + Seed' }}
+        </UButton>
+      </div>
+      <div v-if="lastActionMessage" class="wf-action-message">{{ lastActionMessage }}</div>
     </div>
 
     <!-- Stats cards -->
@@ -32,7 +74,7 @@
     <div v-else-if="wf.error" class="wf-error">
       <UIcon name="error" />
       {{ wf.error }}
-      <button class="usx-button" @click="wf.fetchAll()">Retry</button>
+      <UButton size="sm" variant="secondary" icon="refresh" @click="wf.fetchAll()">Retry</UButton>
     </div>
 
     <!-- Tasker Boards from backend -->
@@ -47,10 +89,17 @@
           <div class="wf-board-card-header">
             <UIcon name="view_kanban" />
             <span>{{ board.name }}</span>
-            <UBadge type="info" size="sm">{{ board.count }}</UBadge>
+            <UBadge type="info" size="sm" circle>{{ board.count }}</UBadge>
           </div>
         </div>
       </div>
+    </div>
+
+    <div v-if="wf.workflowStatus?.next_actions?.length" class="wf-section">
+      <h4 class="wf-section-title">Next Actions</h4>
+      <ul class="wf-next-actions">
+        <li v-for="(item, idx) in wf.workflowStatus.next_actions" :key="idx">{{ item }}</li>
+      </ul>
     </div>
 
     <!-- Missions card grid (Dashboard-style) -->
@@ -117,9 +166,7 @@
         <div class="wf-mini-binder-header">
           <UIcon name="folder" />
           <span>Binder Launchpad</span>
-          <button class="usx-button" @click="openFullBinder">
-            <UIcon name="open_in_new" /> Open Binder
-          </button>
+          <UButton size="sm" variant="secondary" icon="open_in_new" @click="openFullBinder">Open Binder</UButton>
         </div>
         <p class="wf-mini-binder-desc">Drop files here to quickly compile a binder, or open the full Binder tab.</p>
       </div>
@@ -128,14 +175,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
+import UButton from '../../../skills/atoms/UButton.vue'
 import { useWorkflowStore } from '../../../stores/workflow'
 
 const wf = useWorkflowStore()
 const router = useRouter()
+const busyAction = ref('')
+const lastActionMessage = ref('')
 
 function openFullBinder() {
   router.push('/workflow?tab=binder')
@@ -147,6 +197,51 @@ function formatTime(iso: string): string {
     return new Date(iso).toLocaleTimeString()
   } catch {
     return iso
+  }
+}
+
+async function archiveState() {
+  busyAction.value = 'archive'
+  lastActionMessage.value = ''
+  try {
+    const payload: any = await wf.archiveUserWorkflow('manual-user-archive')
+    const dir = payload?.archive?.archive_dir || 'archive created'
+    lastActionMessage.value = `Archive complete: ${dir}`
+  } catch (e: any) {
+    lastActionMessage.value = `Archive failed: ${e.message || e}`
+  } finally {
+    busyAction.value = ''
+  }
+}
+
+async function resetState() {
+  const ok = window.confirm('Archive current user workflow and reset to fresh seed data?')
+  if (!ok) return
+
+  busyAction.value = 'reset'
+  lastActionMessage.value = ''
+  try {
+    const payload: any = await wf.resetUserWorkflow('user-reset-seed')
+    const count = payload?.seed?.tasks?.created_count || 0
+    lastActionMessage.value = `Reset complete. Seeded ${count} tasks.`
+  } catch (e: any) {
+    lastActionMessage.value = `Reset failed: ${e.message || e}`
+  } finally {
+    busyAction.value = ''
+  }
+}
+
+async function seedState() {
+  busyAction.value = 'seed'
+  lastActionMessage.value = ''
+  try {
+    const payload: any = await wf.seedUserWorkflow('user-seed-only')
+    const count = payload?.seed?.tasks?.created_count || 0
+    lastActionMessage.value = `Seed complete. Added or refreshed ${count} tasks.`
+  } catch (e: any) {
+    lastActionMessage.value = `Seed failed: ${e.message || e}`
+  } finally {
+    busyAction.value = ''
   }
 }
 
@@ -163,6 +258,52 @@ onMounted(() => {
   height: 100%;
 }
 
+.wf-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--usx-spacing-md);
+  flex-wrap: wrap;
+}
+
+.wf-panel-badges {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+}
+
+.wf-actions-row {
+  display: flex;
+  gap: var(--usx-spacing-sm);
+  flex-wrap: wrap;
+  margin-top: var(--usx-spacing-sm);
+}
+
+.wf-action-message {
+  margin-top: var(--usx-spacing-sm);
+  font-size: var(--usx-font-size-base);
+  color: var(--usx-color-on-surface-muted);
+}
+
+.wf-button-warning :deep(.u-button) {
+  background: var(--usx-color-warning);
+  color: var(--usx-color-on-warning);
+}
+
+.wf-button-warning :deep(.u-button:hover) {
+  background: color-mix(in srgb, var(--usx-color-warning) 86%, var(--usx-color-danger));
+}
+
+.wf-next-actions {
+  margin: 0;
+  padding-left: var(--usx-spacing-lg);
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usx-spacing-xs);
+}
+
 .wf-stats {
   display: flex;
   gap: var(--usx-spacing-md);
@@ -174,21 +315,22 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: var(--usx-spacing-xs);
-  padding: var(--usx-spacing-md);
+  padding: var(--usx-spacing-lg);
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-lg);
-  min-width: 90px;
+  min-width: 12ch;
+  border: var(--usx-border-width) solid var(--usx-color-border);
   flex: 1;
 }
 
 .wf-stat-value {
-  font-size: var(--usx-font-size-xl);
+  font-size: var(--usx-font-size-2xl);
   font-weight: var(--usx-font-weight-bold);
   line-height: var(--usx-line-height-tight);
 }
 
 .wf-stat-label {
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -224,37 +366,38 @@ onMounted(() => {
 
 .wf-section-title {
   margin: 0;
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--usx-letter-spacing-wide);
 }
 
 .wf-board-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(16ch, 1fr));
   gap: var(--usx-spacing-sm);
 }
 
 .wf-board-card {
-  padding: var(--usx-spacing-md);
+  padding: var(--usx-spacing-lg);
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-md);
+  border: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .wf-board-card-header {
   display: flex;
   align-items: center;
   gap: var(--usx-spacing-sm);
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-medium);
 }
 
 /* Dashboard-style mission card grid */
 .wf-mission-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(20ch, 1fr));
   gap: var(--usx-spacing-md);
 }
 
@@ -264,7 +407,7 @@ onMounted(() => {
   gap: var(--usx-spacing-md);
   padding: var(--usx-spacing-lg);
   background: var(--usx-color-surface);
-  border: 1px solid color-mix(in srgb, var(--usx-color-primary) 8%, transparent);
+  border: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-primary) 8%, transparent);
   border-radius: var(--usx-radius-md);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -273,7 +416,7 @@ onMounted(() => {
 .wf-mission-card:hover {
   background: color-mix(in srgb, var(--usx-color-primary) 4%, transparent);
   border-color: color-mix(in srgb, var(--usx-color-primary) 20%, transparent);
-  transform: translateY(-1px);
+  transform: translateY(calc(var(--usx-spacing-1) * -1));
 }
 
 .wf-mission-card-icon {
@@ -321,14 +464,14 @@ onMounted(() => {
 }
 
 .wf-mission-task-count {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   margin-left: auto;
 }
 
 .wf-run-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(20ch, 1fr));
   gap: var(--usx-spacing-md);
 }
 
@@ -345,7 +488,7 @@ onMounted(() => {
 
 .wf-run-card:hover {
   border-color: var(--usx-color-primary);
-  transform: translateY(-2px);
+  transform: translateY(calc(var(--usx-spacing-2) * -1));
 }
 
 .wf-run-card-icon {
@@ -370,7 +513,7 @@ onMounted(() => {
 }
 
 .wf-run-card-name {
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface);
   white-space: nowrap;
@@ -379,7 +522,7 @@ onMounted(() => {
 }
 
 .wf-run-card-time {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   font-family: var(--usx-font-family-mono);
 }
@@ -400,13 +543,12 @@ onMounted(() => {
   margin-bottom: var(--usx-spacing-xs);
 }
 
-.wf-mini-binder-header .usx-button {
+.wf-mini-binder-header :deep(.u-button) {
   margin-left: auto;
-  font-size: var(--usx-font-size-sm);
 }
 
 .wf-mini-binder-desc {
-  font-size: var(--usx-font-size-sm);
+  font-size: var(--usx-font-size-base);
   color: var(--usx-color-on-surface-muted);
   margin: 0;
 }

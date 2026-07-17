@@ -71,3 +71,21 @@ def test_projection_uses_defaults_for_sparse_documents():
     assert row["mission"] == "General"
     assert row["task"] == "(untitled)"
     assert row["binder"] == "note"
+
+
+def test_projection_accepts_alias_fields():
+    row = project_mission_task_binder(
+        {
+            "id": "doc-5",
+            "title": "Ignored fallback",
+            "metadata": {
+                "project": "Alias Mission",
+                "work_item": "Alias Task",
+                "collection": "Alias Binder",
+            },
+        },
+    )
+
+    assert row["mission"] == "Alias Mission"
+    assert row["task"] == "Alias Task"
+    assert row["binder"] == "Alias Binder"

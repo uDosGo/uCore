@@ -28,8 +28,8 @@ const srv = useServerStore()
 .server-muted-text { color: var(--usx-color-on-surface-muted); font-size: var(--usx-font-size-sm); padding: var(--usx-spacing-md); }
 .log-entry { display: flex; gap: var(--usx-spacing-sm); padding: var(--usx-spacing-sm); border-radius: var(--usx-radius-sm); align-items: baseline; }
 .log-timestamp { color: var(--usx-color-on-surface-muted); flex-shrink: 0; }
-.log-service { color: var(--usx-color-primary); flex-shrink: 0; min-width: 80px; }
-.log-level { flex-shrink: 0; min-width: 40px; font-weight: var(--usx-font-weight-semibold); text-transform: uppercase; font-size: var(--usx-font-size-xs); }
+.log-service { color: var(--usx-color-primary); flex-shrink: 0; min-width: 8ch; }
+.log-level { flex-shrink: 0; min-width: 4ch; font-weight: var(--usx-font-weight-semibold); text-transform: uppercase; font-size: var(--usx-font-size-xs); }
 .log-level--info { color: var(--usx-color-primary); }
 .log-level--warn { color: var(--usx-color-warning); }
 .log-level--error { color: var(--usx-color-danger); }

@@ -123,6 +123,12 @@ def register_routes(app: web.Application) -> None:
         handle_toon_encode,
         handle_toon_stats,
     )
+    from .user_workflow import (
+        handle_user_workflow_archive,
+        handle_user_workflow_reset,
+        handle_user_workflow_seed,
+        handle_user_workflow_status,
+    )
     from .variables_api import (
         handle_get_install_variables,
         handle_get_user_variables,
@@ -255,6 +261,22 @@ def register_routes(app: web.Application) -> None:
     app.router.add_get("/api/system", system_info_handler)
     app.router.add_get("/api/system/maintenance", maintenance_status_handler)
     app.router.add_get("/api/system/workflow", workflow_status_handler)
+    app.router.add_get(
+        "/api/user/workflow/status",
+        handle_user_workflow_status,
+    )
+    app.router.add_post(
+        "/api/user/workflow/archive",
+        handle_user_workflow_archive,
+    )
+    app.router.add_post(
+        "/api/user/workflow/reset",
+        handle_user_workflow_reset,
+    )
+    app.router.add_post(
+        "/api/user/workflow/seed",
+        handle_user_workflow_seed,
+    )
     app.router.add_post("/api/exec", handle_exec)
     app.router.add_get("/api/docker/ps", handle_docker_ps)
     app.router.add_post("/api/chat", handle_chat)

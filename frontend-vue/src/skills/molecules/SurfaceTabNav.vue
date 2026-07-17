@@ -129,26 +129,24 @@ function toggleOrientation() {
 .surface-tab-nav__link {
   display: inline-flex;
   align-items: center;
-  gap: var(--usx-spacing-sm);
+  gap: var(--usx-spacing-xs);
   padding: var(--usx-tab-padding);
   border: none;
-  border-bottom: var(--usx-tab-border-width) solid transparent;
   background: transparent;
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
   font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-medium);
+  line-height: var(--usx-line-height-tight);
   white-space: nowrap;
-  transition: color var(--usx-transition-base), border-color var(--usx-transition-base);
+  transition: color var(--usx-transition-base);
   text-decoration: none;
   font-family: var(--usx-font-family-sans);
-  margin-bottom: calc(var(--usx-border-overlap) * -1);
 }
 
 /* No button-style effects */
 .surface-tab-nav__link:hover {
   color: var(--usx-color-primary);
-  border-bottom-color: transparent;
   background: transparent;
   box-shadow: none;
   outline: none;
@@ -163,25 +161,21 @@ function toggleOrientation() {
 
 .surface-tab-nav__link--active {
   color: var(--usx-color-primary);
-  border-bottom-color: var(--usx-color-primary);
 }
 
 /* ─── Vertical link variant ───────────────────────────────────────── */
 .surface-tab-nav--vertical .surface-tab-nav__link {
-  border-bottom: none;
-  border-left: var(--usx-tab-border-width) solid transparent;
-  margin-bottom: 0;
+  border: none;
   padding: var(--usx-spacing-sm) calc(var(--usx-spacing-md) + 1.35em + var(--usx-spacing-sm)) var(--usx-spacing-sm) var(--usx-spacing-md);
   justify-content: flex-start;
 }
 
 .surface-tab-nav--vertical .surface-tab-nav__link:hover {
-  border-left-color: transparent;
+  color: var(--usx-color-primary);
 }
 
 .surface-tab-nav--vertical .surface-tab-nav__link--active {
-  border-bottom-color: transparent;
-  border-left-color: var(--usx-color-primary);
+  color: var(--usx-color-primary);
 }
 
 /* ─── Right-side actions ──────────────────────────────────────────── */
@@ -209,8 +203,8 @@ function toggleOrientation() {
   background: transparent;
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  font-size: 1.25em;
-  line-height: 1;
+  font-size: var(--usx-icon-size-sm);
+  line-height: var(--usx-line-height-none);
   width: var(--usx-touch-min);
   height: var(--usx-touch-min);
   flex-shrink: 0;
@@ -235,16 +229,30 @@ function toggleOrientation() {
   margin-bottom: var(--usx-spacing-xs);
 }
 
-/* ─── Icon sizing — USX token-based, matches GlobalToolbar ── */
+/* ─── Icon sizing — relative to tab label font ── */
 .surface-tab-nav__icon {
   flex-shrink: 0;
-  width: var(--usx-icon-size-2lg);
-  height: var(--usx-icon-size-2lg);
+  width: 1.1em;
+  height: 1.1em;
+  font-size: 1.1em;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
+  line-height: var(--usx-line-height-none);
   vertical-align: middle;
+}
+
+.surface-tab-nav__icon :deep(.material-symbols-outlined) {
+  font-size: 1.1em;
+}
+
+.surface-tab-nav__icon :deep(iconify-icon) {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.surface-tab-nav__label {
+  line-height: var(--usx-line-height-tight);
 }
 
 

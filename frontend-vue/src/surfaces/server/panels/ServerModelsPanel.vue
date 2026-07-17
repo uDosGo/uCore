@@ -26,8 +26,8 @@ const srv = useServerStore()
 .server-muted-text { color: var(--usx-color-on-surface-muted); font-size: var(--usx-font-size-sm); padding: var(--usx-spacing-md); }
 .server-model-usage { display: flex; flex-direction: column; gap: var(--usx-spacing-sm); }
 .model-usage-row { display: flex; align-items: center; gap: var(--usx-spacing-md); font-size: var(--usx-font-size-sm); }
-.model-usage-row > span:first-child { min-width: 100px; }
-.model-usage-bar { flex: 1; height: 8px; background: var(--usx-color-border); border-radius: var(--usx-radius-sm); overflow: hidden; }
+.model-usage-row > span:first-child { min-width: 10ch; }
+.model-usage-bar { flex: 1; height: var(--usx-spacing-sm); background: var(--usx-color-border); border-radius: var(--usx-radius-sm); overflow: hidden; }
 .model-usage-fill { height: 100%; background: var(--usx-color-primary); border-radius: var(--usx-radius-sm); }
-.model-usage-row > span:last-child { min-width: 70px; text-align: right; color: var(--usx-color-on-surface-muted); }
+.model-usage-row > span:last-child { min-width: 7ch; text-align: right; color: var(--usx-color-on-surface-muted); }
 </style>

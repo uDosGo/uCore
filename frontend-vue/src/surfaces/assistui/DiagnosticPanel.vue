@@ -98,14 +98,16 @@ onUnmounted(() => {
 <style scoped>
 .diagnostic-panel {
   position: fixed;
-  top: 60px;
-  right: 10px;
+  top: var(--usx-topbar-height);
+  right: var(--usx-spacing-sm);
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
+  background: color-mix(in srgb, var(--usx-color-surface) 90%, transparent);
+  color: var(--usx-color-on-surface);
   padding: var(--usx-spacing-md);
-  border-radius: var(--usx-radius-sm);
+  border-radius: var(--usx-radius-md);
   font-size: var(--usx-font-size-sm);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  box-shadow: 0 var(--usx-spacing-xs) var(--usx-spacing-md) rgba(0, 0, 0, 0.2);
 }
 
 .diagnostic-item {

@@ -93,7 +93,7 @@ function missionProgress(mission: Mission): number {
   padding: var(--usx-spacing-md);
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-lg);
-  border-left: 3px solid var(--usx-color-primary);
+  border-left: calc(var(--usx-border-width) + var(--usx-border-width-thick)) solid var(--usx-color-primary);
   transition: border-color 0.15s ease;
 }
 
@@ -128,16 +128,16 @@ function missionProgress(mission: Mission): number {
 
 .wf-progress-bar-bg {
   flex: 1;
-  height: 6px;
+  height: var(--usx-spacing-xs);
   background: var(--usx-color-surface-variant);
-  border-radius: 3px;
+  border-radius: var(--usx-radius-full);
   overflow: hidden;
 }
 
 .wf-progress-bar-fill {
   height: 100%;
   background: var(--usx-color-primary);
-  border-radius: 3px;
+  border-radius: var(--usx-radius-full);
   transition: width 0.3s ease;
 }
 
@@ -145,7 +145,7 @@ function missionProgress(mission: Mission): number {
   font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-primary);
-  min-width: 36px;
+  min-width: 4ch;
   text-align: right;
 }
 

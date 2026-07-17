@@ -61,9 +61,11 @@
  * @category surfaces
  * @usage Routed at '/workflow?tab=mission-control'
  */
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useShellStore } from '../../stores/shell'
 import { useWorkflowStore, WORKFLOW_TABS } from '../../stores/workflow'
+import type { WorkflowTab } from '../../stores/workflow'
 import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 import MissionControlPanel from './panels/MissionControlPanel.vue'
 const MissionsPanel = defineAsyncComponent(() => import('./panels/MissionsPanel.vue'))
@@ -76,6 +78,51 @@ import UButton from '../../skills/atoms/UButton.vue'
 
 const shell = useShellStore()
 const wf = useWorkflowStore()
+const route = useRoute()
+const router = useRouter()
+
+const VALID_WORKFLOW_TABS = new Set(WORKFLOW_TABS.map(t => t.id))
+
+function asWorkflowTab(tab: string): WorkflowTab | null {
+  return VALID_WORKFLOW_TABS.has(tab as WorkflowTab) ? (tab as WorkflowTab) : null
+}
+
+onMounted(() => {
+  const routeTab = String(route.query.tab || '').trim()
+  const safeTab = asWorkflowTab(routeTab)
+  if (safeTab) {
+    wf.setTab(safeTab)
+    return
+  }
+  router.replace({
+    path: '/workflow',
+    query: { ...route.query, tab: wf.activeTab },
+  })
+})
+
+watch(
+  () => route.query.tab,
+  (value) => {
+    const routeTab = String(value || '').trim()
+    const safeTab = asWorkflowTab(routeTab)
+    if (!safeTab) return
+    if (wf.activeTab !== routeTab) {
+      wf.setTab(safeTab)
+    }
+  },
+)
+
+watch(
+  () => wf.activeTab,
+  (tab) => {
+    const current = String(route.query.tab || '')
+    if (current === tab) return
+    router.replace({
+      path: '/workflow',
+      query: { ...route.query, tab },
+    })
+  },
+)
 
 function onEditorContentUpdate(value: string) {
   if (wf.selectedTask) {
@@ -136,14 +183,14 @@ const editorColumnClass = computed(() => {
 /* Preview only: editor takes 1/3, main panel takes 2/3 */
 .workflow-editor--single {
   width: 33.33%;
-  min-width: 320px;
+  min-width: 22ch;
 }
 
 /* Both edit + preview: editor takes 2/3, main panel takes 1/3,
    then edit/preview split evenly inside = 1/3 each of full width */
 .workflow-editor--wide {
   width: 66.66%;
-  min-width: 480px;
+  min-width: 32ch;
 }
 
 /* ─── Empty editor state ──────────────────────────────────────────── */

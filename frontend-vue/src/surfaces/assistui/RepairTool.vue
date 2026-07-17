@@ -47,7 +47,7 @@ const spacingReset = ref(false)
 const repairTopbar = () => {
   const topbar = document.querySelector('.assistui-topbar, .global-toolbar') as HTMLElement
   if (topbar) {
-    topbar.style.minHeight = '48px'
+    topbar.style.minHeight = 'var(--usx-touch-min)'
     topbar.style.display = 'flex'
     topbarFixed.value = true
   }
@@ -58,7 +58,7 @@ const repairSidebar = () => {
   if (sidebar) {
     sidebar.style.display = 'block'
     sidebar.style.visibility = 'visible'
-    sidebar.style.width = '280px'
+    sidebar.style.width = 'var(--usx-sidebar-width)'
     sidebarFixed.value = true
   }
 }
@@ -67,8 +67,8 @@ const repairDashboard = () => {
   const dashboardGrid = document.querySelector('.dashboard-surface__grid') as HTMLElement
   if (dashboardGrid) {
     dashboardGrid.style.display = 'grid'
-    dashboardGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(260px, 1fr))'
-    dashboardGrid.style.gap = '16px'
+    dashboardGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(20ch, 1fr))'
+    dashboardGrid.style.gap = 'var(--usx-spacing-md)'
     dashboardFixed.value = true
   }
 }
@@ -78,8 +78,8 @@ const resetSpacing = () => {
   if (body) {
     body.style.display = 'flex'
     body.style.flexDirection = 'column'
-    body.style.gap = '12px'
-    body.style.padding = '16px'
+    body.style.gap = 'var(--usx-spacing-sm)'
+    body.style.padding = 'var(--usx-spacing-md)'
     spacingReset.value = true
   }
 }
@@ -88,27 +88,27 @@ const resetSpacing = () => {
 <style scoped>
 .surface-repair-tool {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  bottom: var(--usx-spacing-lg);
+  left: var(--usx-spacing-lg);
   z-index: 10000;
-  background: var(--usx-color-background);
-  background: var(--usx-color-background);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
   border-radius: var(--usx-radius-lg);
   padding: var(--usx-spacing-lg);
-  color: white;
   font-size: var(--usx-font-size-base);
+  border: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .repair-section {
-  margin-bottom: 16px;
+  margin-bottom: var(--usx-spacing-md);
   padding: var(--usx-spacing-md);
-  background: var(--usx-color-background);
+  background: var(--usx-color-surface-variant);
   border-radius: var(--usx-radius-sm);
 }
 
 .repair-btn {
   background: var(--usx-color-primary);
-  color: white;
+  color: var(--usx-color-on-primary);
   border: none;
   padding: var(--usx-spacing-sm) var(--usx-spacing-lg);
   border-radius: var(--usx-radius-sm);
@@ -117,12 +117,12 @@ const resetSpacing = () => {
 }
 
 .repair-btn:hover {
-  background: var(--usx-color-primary);
+  background: var(--usx-color-primary-hover);
 }
 
 .repair-success {
   color: var(--usx-color-success);
   font-size: var(--usx-font-size-sm);
-  margin-top: 4px;
+  margin-top: var(--usx-spacing-xs);
 }
 </style>

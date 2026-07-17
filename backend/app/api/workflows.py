@@ -12,7 +12,13 @@ from typing import Any
 
 from aiohttp import web
 
-from app.services.tasker_bridge import slugify
+from app.services.tasker_bridge import (
+    normalize_priority,
+    normalize_status,
+    normalize_tags,
+    render_task_markdown,
+    slugify,
+)
 from app.services.workflow_status import default_tasker_dir, scan_tasker_boards
 
 log = logging.getLogger("ucore.api.workflows")
@@ -155,64 +161,110 @@ def _parse_task_markdown(path: Path) -> dict[str, Any] | None:
     # Parse title from first heading
     in_summary = False
     summary_parts: list[str] = []
+    body_parts: list[str] = []
+
+    def _set_meta(key: str, value: str) -> None:
+        cleaned = value.strip()
+        if not cleaned:
+            return
+
+        aliases: dict[str, str] = {
+            "state": "status",
+            "task_status": "status",
+            "prio": "priority",
+            "urgency": "priority",
+            "project": "mission",
+            "objective": "mission",
+            "work_item": "task",
+            "todo": "task",
+            "notebook": "binder",
+            "collection": "binder",
+            "label": "tags",
+            "labels": "tags",
+            "tag": "tags",
+            "due": "dueDate",
+        }
+        canonical = aliases.get(key, key)
+
+        if canonical == "status":
+            task["status"] = normalize_status(cleaned)
+        elif canonical == "priority":
+            task["priority"] = normalize_priority(cleaned)
+        elif canonical == "tags":
+            tags = normalize_tags(task.get("tags") or [])
+            tags.extend(normalize_tags(cleaned))
+            task["tags"] = normalize_tags(tags)
+        elif canonical == "source":
+            task["source"] = cleaned
+            tags = normalize_tags(task.get("tags") or [])
+            tags.append(cleaned)
+            task["tags"] = normalize_tags(tags)
+        elif canonical in {"assignee", "dueDate", "source_id"}:
+            if canonical == "source_id":
+                task["id"] = cleaned
+            else:
+                task[canonical] = cleaned
+        elif canonical == "synced_at":
+            return
+        else:
+            task.setdefault("metadata", {})[canonical] = cleaned
 
     for line in lines:
         if line.startswith("# ") and not task["title"]:
             task["title"] = line[2:].strip()
-        elif line.startswith("- status:"):
-            task["status"] = line[len("- status:"):].strip()
-        elif line.startswith("- source:"):
-            val = line[len("- source:"):].strip()
-            if val not in task.get("tags", []):
-                task.setdefault("tags", []).append(val)
-        elif line.startswith("- priority:"):
-            task["priority"] = line[len("- priority:"):].strip()
-        elif line.startswith("- assignee:"):
-            task["assignee"] = line[len("- assignee:"):].strip()
-        elif line.startswith("- due:"):
-            task["dueDate"] = line[len("- due:"):].strip()
-        elif line.startswith("- source_id:"):
-            task["id"] = line[len("- source_id:"):].strip()
+        elif line.startswith("- ") and ":" in line:
+            key, value = line[2:].split(":", 1)
+            _set_meta(key.strip().lower(), value)
         elif line == "## Summary":
             in_summary = True
         elif in_summary and line.startswith("- "):
             summary_parts.append(line[2:].strip())
         elif in_summary and line.startswith("## "):
             in_summary = False
+        elif (
+            in_summary
+            and not line.startswith("- ")
+            and not line.startswith("## ")
+            and line.strip()
+        ):
+            body_parts.append(line.strip())
 
-    task["description"] = "\n".join(summary_parts) if summary_parts else ""
+    task["status"] = normalize_status(str(task.get("status") or "todo"))
+    task["priority"] = normalize_priority(
+        str(task.get("priority") or "medium"),
+    )
+    task["tags"] = normalize_tags(task.get("tags") or [])
+    if summary_parts:
+        task["description"] = "\n".join(summary_parts)
+    elif body_parts:
+        task["description"] = "\n".join(body_parts)
+    else:
+        task["description"] = ""
+
     return task
 
 
 def _render_task_markdown(task: dict[str, Any]) -> str:
-    """Render a task dict back into .tasker markdown format."""
-    ts = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-    tags = task.get("tags", [])
-    tags_line = f"- source: {tags[0]}" if tags else ""
-
-    lines = [
-        f"# {task.get('title', 'Untitled Task')}",
-        "",
-        f"- status: {task.get('status', 'todo')}",
-        f"- source_id: {task.get('id', 'unknown')}",
-        f"- synced_at: {ts}",
-        f"- priority: {task.get('priority', 'medium')}",
-    ]
-    if tags_line:
-        lines.append(tags_line)
+    """Render a task dict back into canonical .tasker markdown format."""
+    tags = normalize_tags(task.get("tags") or [])
+    source = str(task.get("source") or (tags[0] if tags else "workflow-api"))
+    metadata = {
+        "priority": normalize_priority(str(task.get("priority") or "medium")),
+        "tags": tags,
+    }
     if task.get("assignee"):
-        lines.append(f"- assignee: {task['assignee']}")
+        metadata["assignee"] = str(task["assignee"])
     if task.get("dueDate"):
-        lines.append(f"- due: {task['dueDate']}")
+        metadata["due"] = str(task["dueDate"])
 
-    lines.extend([
-        "",
-        "## Summary",
-        task.get("description", ""),
-        "",
-    ])
-
-    return "\n".join(lines)
+    return render_task_markdown(
+        title=str(task.get("title") or "Untitled Task"),
+        source=source,
+        source_id=str(task.get("id") or "unknown"),
+        status=normalize_status(str(task.get("status") or "todo")),
+        body=str(task.get("description") or ""),
+        metadata=metadata,
+    )
 
 
 async def handle_get_task(request: web.Request) -> web.Response:
@@ -268,6 +320,9 @@ async def handle_update_task(request: web.Request) -> web.Response:
     md_file.write_text(new_content, encoding="utf-8")
 
     log.info("Task %s updated in %s", task_id, md_file)
+    normalized = _parse_task_markdown(md_file)
+    if normalized:
+        return web.json_response(normalized)
     return web.json_response(merged)
 
 
@@ -562,7 +617,10 @@ async def handle_workflow_logs(request: web.Request) -> web.Response:
 
 
 async def handle_workflow_runs(request: web.Request) -> web.Response:
-    """GET /api/workflows/runs — fetch recent workflow runs across all workflows."""
+    """GET /api/workflows/runs.
+
+    Fetch recent workflow runs across all workflows.
+    """
     manager = get_workflow_manager()
 
     try:

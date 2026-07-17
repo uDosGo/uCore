@@ -3,8 +3,13 @@
     <label class="workspace-filter__label">Vault Layer</label>
     <select v-model="selectedWorkspace" class="workspace-filter__select" @change="onChange">
       <option value="">All Layers</option>
-      <option v-for="ws in vaultLayers" :key="ws.id" :value="ws.id">
-        {{ ws.label }}
+      <option
+        v-for="ws in vaultLayers"
+        :key="ws.id"
+        :value="ws.id"
+        :disabled="ws.exists === false"
+      >
+        {{ ws.label }}{{ typeof ws.fileCount === 'number' ? ` (${ws.fileCount})` : '' }}{{ ws.exists === false ? ' (missing)' : '' }}
       </option>
     </select>
   </div>
@@ -27,6 +32,8 @@ interface VaultLayer {
   label: string
   icon: string
   description: string
+  exists?: boolean
+  fileCount?: number
 }
 
 const selectedWorkspace = ref('')
@@ -49,16 +56,33 @@ function onChange() {
 // Optionally fetch real stats to show file counts
 onMounted(async () => {
   try {
-    const res = await ucoreApi.library.stats()
-    if (res.ok) {
-      const data = res.data as any
-      if (data?.by_source) {
-        const bySource = data.by_source as Record<string, number>
-        vaultLayers.value = vaultLayers.value.map(layer => ({
-          ...layer,
-          fileCount: bySource[layer.id] || 0,
-        }))
-      }
+    const [topologyRes, statsRes] = await Promise.all([
+      ucoreApi.vault.topology(),
+      ucoreApi.library.stats(),
+    ])
+
+    const bySource = (statsRes.data as any)?.by_source as Record<string, number> | undefined
+    const topologyLayers = ((topologyRes.data as any)?.layers || []) as Array<
+      VaultLayer & { exists?: boolean }
+    >
+
+    if (topologyRes.ok && topologyLayers.length > 0) {
+      vaultLayers.value = topologyLayers.map(layer => ({
+        id: layer.id,
+        label: layer.label,
+        icon: layer.icon,
+        description: layer.description,
+        exists: layer.exists,
+        fileCount: bySource?.[layer.id] || 0,
+      }))
+      return
+    }
+
+    if (bySource) {
+      vaultLayers.value = vaultLayers.value.map(layer => ({
+        ...layer,
+        fileCount: bySource[layer.id] || 0,
+      }))
     }
   } catch {
     // Silently fall back to static list

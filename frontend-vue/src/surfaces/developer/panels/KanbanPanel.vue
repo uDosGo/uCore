@@ -14,7 +14,7 @@
       >
         <div class="kanban-column-header" :style="{ borderTopColor: column.color }">
           <span class="kanban-column-title">{{ column.title }}</span>
-          <UBadge type="info" size="sm">{{ column.items.length }}</UBadge>
+          <UBadge type="info" size="sm" circle>{{ column.items.length }}</UBadge>
         </div>
         <div class="kanban-cards">
           <div
