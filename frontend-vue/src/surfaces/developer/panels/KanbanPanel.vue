@@ -12,7 +12,7 @@
         @dragover.prevent
         @drop="handleDrop(column.id)"
       >
-        <div class="kanban-column-header" :style="{ borderTopColor: column.color }">
+        <div class="kanban-column-header" :class="kanbanColumnHeaderClass(column.id)">
           <span class="kanban-column-title">{{ column.title }}</span>
           <UBadge type="info" size="sm" circle>{{ column.items.length }}</UBadge>
         </div>
@@ -59,15 +59,14 @@ interface KanbanItem {
 interface KanbanColumn {
   id: string
   title: string
-  color: string
   items: KanbanItem[]
 }
 
 const columns = ref<KanbanColumn[]>([
-  { id: 'backlog', title: 'Backlog', color: 'var(--usx-color-on-surface-muted)', items: [] },
-  { id: 'progress', title: 'In Progress', color: 'var(--usx-color-primary)', items: [] },
-  { id: 'review', title: 'Review', color: 'var(--usx-color-warning)', items: [] },
-  { id: 'done', title: 'Done', color: 'var(--usx-color-success)', items: [] },
+  { id: 'backlog', title: 'Backlog', items: [] },
+  { id: 'progress', title: 'In Progress', items: [] },
+  { id: 'review', title: 'Review', items: [] },
+  { id: 'done', title: 'Done', items: [] },
 ])
 
 const dragItem = ref<{ item: KanbanItem; colId: string } | null>(null)
@@ -148,6 +147,16 @@ function typeColor(type: string): 'info' | 'success' | 'warning' | 'error' {
   return map[type] || 'info'
 }
 
+function kanbanColumnHeaderClass(columnId: string): string {
+  const classMap: Record<string, string> = {
+    backlog: 'kanban-column-header--backlog',
+    progress: 'kanban-column-header--progress',
+    review: 'kanban-column-header--review',
+    done: 'kanban-column-header--done',
+  }
+  return classMap[columnId] || 'kanban-column-header--backlog'
+}
+
 onMounted(() => { fetchTasks() })
 </script>
 
@@ -177,6 +186,11 @@ onMounted(() => { fetchTasks() })
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border-top: 3px solid;
 }
+
+.kanban-column-header--backlog { border-top-color: var(--usx-color-on-surface-muted); }
+.kanban-column-header--progress { border-top-color: var(--usx-color-primary); }
+.kanban-column-header--review { border-top-color: var(--usx-color-warning); }
+.kanban-column-header--done { border-top-color: var(--usx-color-success); }
 
 .kanban-column-title {
   font-size: var(--usx-font-size-sm);

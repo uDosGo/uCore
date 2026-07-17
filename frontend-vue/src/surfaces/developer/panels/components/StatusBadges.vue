@@ -7,10 +7,10 @@
       :class="{
         'status-badge--online': badge.online,
         'status-badge--offline': !badge.online,
+        'status-badge--clickable': !!badge.onClick,
       }"
       :title="badge.detail"
       @click="badge.onClick ? badge.onClick() : undefined"
-      :style="{ cursor: badge.onClick ? 'pointer' : 'default' }"
     >
       <span class="status-badge__dot" :class="badge.online ? 'dot--online' : 'dot--offline'" />
       <span class="status-badge__label">{{ badge.label }}</span>
@@ -144,6 +144,11 @@ const badges = computed<StatusBadgeData[]>(() => {
   font-weight: var(--usx-font-weight-medium, 500);
   transition: background 0.15s ease;
   user-select: none;
+  cursor: default;
+}
+
+.status-badge--clickable {
+  cursor: pointer;
 }
 
 .status-badge:hover {

@@ -31,7 +31,7 @@
           <span class="live-feed__item-title">{{ item.title || 'Untitled' }}</span>
           <span class="live-feed__item-detail">{{ item.content?.slice(0, 100) || '' }}</span>
         </div>
-        <span class="live-feed__importance" :style="{ color: importanceColor(item.importance) }">
+        <span class="live-feed__importance" :class="importanceClass(item.importance)">
           {{ item.importance ? (item.importance * 100).toFixed(0) + '%' : '' }}
         </span>
       </div>
@@ -79,10 +79,10 @@ function sourceIcon(source: string): string {
   return sourceIcons[source] || 'push_pin'
 }
 
-function importanceColor(importance: number): string {
-  if (importance > 0.8) return 'var(--usx-color-danger)'
-  if (importance > 0.5) return 'var(--usx-color-warning)'
-  return 'var(--usx-color-success)'
+function importanceClass(importance: number): string {
+  if (importance > 0.8) return 'live-feed__importance--danger'
+  if (importance > 0.5) return 'live-feed__importance--warning'
+  return 'live-feed__importance--success'
 }
 </script>
 
@@ -197,5 +197,17 @@ function importanceColor(importance: number): string {
   font-size: var(--usx-font-size-xs);
   font-weight: var(--usx-font-weight-semibold);
   flex-shrink: 0;
+}
+
+.live-feed__importance--danger {
+  color: var(--usx-color-danger);
+}
+
+.live-feed__importance--warning {
+  color: var(--usx-color-warning);
+}
+
+.live-feed__importance--success {
+  color: var(--usx-color-success);
 }
 </style>

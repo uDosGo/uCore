@@ -22,12 +22,11 @@
         </div>
       </div>
       <div class="active-mission__progress">
-        <div class="active-mission__progress-track">
-          <div
-            class="active-mission__progress-fill"
-            :style="{ width: (mission.progress_pct ?? 0) + '%' }"
-          />
-        </div>
+        <progress
+          class="active-mission__progress-bar"
+          :value="Math.min(mission.progress_pct ?? 0, 100)"
+          max="100"
+        />
         <span class="active-mission__progress-label">{{ mission.progress_pct ?? 0 }}%</span>
       </div>
     </div>
@@ -111,16 +110,29 @@ defineProps<{
   gap: var(--usx-spacing-sm);
 }
 
-.active-mission__progress-track {
+.active-mission__progress-bar {
   flex: 1;
-  height: 8px;
+  width: 100%;
+  height: var(--usx-spacing-sm);
+  appearance: none;
+  border: none;
   background: var(--usx-color-border);
   border-radius: var(--usx-radius-sm);
   overflow: hidden;
 }
 
-.active-mission__progress-fill {
-  height: 100%;
+.active-mission__progress-bar::-webkit-progress-bar {
+  background: var(--usx-color-border);
+  border-radius: var(--usx-radius-sm);
+}
+
+.active-mission__progress-bar::-webkit-progress-value {
+  background: var(--usx-color-primary);
+  border-radius: var(--usx-radius-sm);
+  transition: width 0.3s ease;
+}
+
+.active-mission__progress-bar::-moz-progress-bar {
   background: var(--usx-color-primary);
   border-radius: var(--usx-radius-sm);
   transition: width 0.3s ease;

@@ -20,17 +20,17 @@
 
       <!-- Repo Filter -->
       <div class="registry-sidebar__filter">
-        <select v-model="repoFilter" style="width: 100%; min-height: var(--usx-touch-min-sm); padding: 0 var(--usx-spacing-sm); border: var(--usx-border-width) solid var(--usx-color-border); border-radius: var(--usx-radius-sm); background: var(--usx-color-surface); color: var(--usx-color-on-surface); font-size: var(--usx-font-size-sm); font-family: var(--usx-font-family-sans)">
+        <select v-model="repoFilter" class="registry-select">
           <option value="">All Repos</option>
           <option v-for="repo in repos" :key="repo" :value="repo">{{ repo }}</option>
         </select>
       </div>
 
       <div class="registry-sidebar__summary">
-        <span style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">
+        <span class="registry-summary-text">
           Total: {{ totalItems }} items across {{ subTabs.length }} registries
         </span>
-        <span v-if="repoFilter" style="font-size: var(--usx-font-size-xs); color: var(--usx-color-primary); display: block" class="usx-mt-sm">
+        <span v-if="repoFilter" class="registry-summary-filter usx-mt-sm">
           Filtered: {{ repoFilter }}
         </span>
       </div>
@@ -48,8 +48,8 @@
           @click="activeSubTab = tab.id"
         >
           <span class="material-symbols-outlined">{{ tab.icon }}</span>
-          <span style="font-weight: var(--usx-font-weight-semibold)">{{ tab.count }}</span>
-          <span style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">{{ tab.label }}</span>
+          <span class="registry-count-strong">{{ tab.count }}</span>
+          <span class="registry-count-label">{{ tab.label }}</span>
         </div>
       </div>
 
@@ -64,19 +64,19 @@
       <!-- Skills View -->
       <div v-if="activeSubTab === 'skills'" class="registry-view">
         <h4>Skills ({{ filteredSkills.length }})</h4>
-        <div v-if="filteredSkills.length === 0" class="usx-compact" style="text-align: center; color: var(--usx-color-on-surface-muted)">
+        <div v-if="filteredSkills.length === 0" class="usx-compact registry-empty">
           No skills match your search.
         </div>
         <div v-else class="registry-grid">
           <div v-for="skill in filteredSkills" :key="skill.skill_id" class="usx-card registry-card">
             <div class="usx-flex-between">
-              <span style="font-weight: var(--usx-font-weight-semibold)">{{ skill.name }}</span>
+              <span class="registry-title-strong">{{ skill.name }}</span>
               <span class="usx-badge registry-badge--xs">{{ skill.category }}</span>
             </div>
-            <div style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
+            <div class="usx-mt-sm registry-meta-text">
               {{ skill.description || skill.skill_id }}
             </div>
-            <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap; font-size: var(--usx-font-size-xs)">
+            <div class="usx-flex-row usx-gap-xs usx-mt-sm registry-chip-row">
               <span v-if="skill.params.length" class="usx-badge registry-badge--compact">
                 {{ skill.params.length }} params
               </span>
@@ -86,7 +86,7 @@
               <span v-if="skill.requires_confirmation" class="usx-badge usx-badge--accent registry-badge--compact">
                 confirmation
               </span>
-              <span style="color: var(--usx-color-on-surface-muted)">{{ skill.file }}</span>
+              <span class="registry-file-muted">{{ skill.file }}</span>
             </div>
           </div>
         </div>
@@ -95,18 +95,18 @@
       <!-- Paths View -->
       <div v-if="activeSubTab === 'paths'" class="registry-view">
         <h4>Paths ({{ filteredPaths.length }})</h4>
-        <div v-if="filteredPaths.length === 0" class="usx-compact" style="text-align: center; color: var(--usx-color-on-surface-muted)">
+        <div v-if="filteredPaths.length === 0" class="usx-compact registry-empty">
           No paths match your search.
         </div>
         <div v-else class="registry-grid">
           <div v-for="path in filteredPaths" :key="path.path" class="usx-card registry-card">
             <div class="usx-flex-between">
-              <span style="font-weight: var(--usx-font-weight-medium); font-family: var(--usx-font-family-mono); font-size: var(--usx-font-size-sm)">
+              <span class="registry-path-mono">
                 {{ path.path }}
               </span>
               <span class="usx-badge registry-badge--xs">{{ path.type }}</span>
             </div>
-            <div style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
+            <div class="usx-mt-sm registry-meta-text">
               {{ path.description }}
             </div>
           </div>
@@ -116,18 +116,18 @@
       <!-- Variables View -->
       <div v-if="activeSubTab === 'variables'" class="registry-view">
         <h4>Variables ({{ filteredVariables.length }})</h4>
-        <div v-if="filteredVariables.length === 0" class="usx-compact" style="text-align: center; color: var(--usx-color-on-surface-muted)">
+        <div v-if="filteredVariables.length === 0" class="usx-compact registry-empty">
           No variables match your search.
         </div>
         <div v-else class="registry-grid">
           <div v-for="v in filteredVariables" :key="v.scope" class="usx-card registry-card">
             <div class="usx-flex-between">
-              <span style="font-weight: var(--usx-font-weight-semibold)">{{ v.scope }}</span>
+              <span class="registry-title-strong">{{ v.scope }}</span>
             </div>
-            <div style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
+            <div class="usx-mt-sm registry-meta-text">
               {{ v.description }}
             </div>
-            <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap">
+            <div class="usx-flex-row usx-gap-xs usx-mt-sm registry-wrap">
               <span v-if="v.file" class="usx-badge registry-badge--compact registry-badge--mono">
                 {{ v.file }}
               </span>
@@ -135,7 +135,7 @@
                 {{ v.examples.length }} examples
               </span>
             </div>
-            <div v-if="v.examples?.length" class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap">
+            <div v-if="v.examples?.length" class="usx-flex-row usx-gap-xs usx-mt-sm registry-wrap">
               <span v-for="ex in v.examples" :key="ex" class="usx-badge registry-badge--compact registry-badge--mono">
                 {{ ex }}
               </span>
@@ -147,18 +147,18 @@
       <!-- Secrets View -->
       <div v-if="activeSubTab === 'secrets'" class="registry-view">
         <h4>Secrets ({{ filteredSecrets.length }})</h4>
-        <div v-if="filteredSecrets.length === 0" class="usx-compact" style="text-align: center; color: var(--usx-color-on-surface-muted)">
+        <div v-if="filteredSecrets.length === 0" class="usx-compact registry-empty">
           No secrets match your search.
         </div>
         <div v-else class="registry-grid">
           <div v-for="s in filteredSecrets" :key="s.key" class="usx-card registry-card">
             <div class="usx-flex-between">
-              <span style="font-weight: var(--usx-font-weight-medium); font-family: var(--usx-font-family-mono)">
+              <span class="registry-key-mono">
                 {{ s.key }}
               </span>
               <span class="usx-badge registry-badge--xs">{{ s.scope }}</span>
             </div>
-            <div style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
+            <div class="usx-mt-sm registry-meta-text">
               {{ s.description || s.store }}
             </div>
           </div>
@@ -168,20 +168,20 @@
       <!-- MCP Servers View -->
       <div v-if="activeSubTab === 'mcp'" class="registry-view">
         <h4>MCP Servers ({{ filteredMcp.length }})</h4>
-        <div v-if="filteredMcp.length === 0" class="usx-compact" style="text-align: center; color: var(--usx-color-on-surface-muted)">
+        <div v-if="filteredMcp.length === 0" class="usx-compact registry-empty">
           No MCP servers match your search.
         </div>
         <div v-else class="registry-grid">
           <div v-for="m in filteredMcp" :key="m.name" class="usx-card registry-card">
             <div class="usx-flex-between">
-              <span style="font-weight: var(--usx-font-weight-semibold)">{{ m.name }}</span>
+              <span class="registry-title-strong">{{ m.name }}</span>
               <span v-if="m.disabled" class="usx-badge usx-badge--error registry-badge--xs">disabled</span>
               <span v-else class="usx-badge usx-badge--success registry-badge--xs">active</span>
             </div>
-            <div style="font-size: var(--usx-font-size-xs); font-family: var(--usx-font-family-mono); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
+            <div class="usx-mt-sm registry-meta-text registry-badge--mono">
               {{ m.command }}
             </div>
-            <div style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
+            <div class="usx-mt-sm registry-meta-text">
               cwd: {{ m.cwd || m.file || '—' }}
             </div>
           </div>
@@ -191,32 +191,32 @@
       <!-- Routes View -->
       <div v-if="activeSubTab === 'routes'" class="registry-view">
         <h4>Routes ({{ filteredRoutes.length }})</h4>
-        <div v-if="filteredRoutes.length === 0" class="usx-compact" style="text-align: center; color: var(--usx-color-on-surface-muted)">
+        <div v-if="filteredRoutes.length === 0" class="usx-compact registry-empty">
           No routes match your search.
         </div>
         <div v-else class="registry-list">
           <div v-for="route in paginatedRoutes" :key="route.path + route.method" class="registry-route-row">
-            <span class="usx-badge" :class="{
+            <span class="usx-badge registry-badge--method" :class="{
               'usx-badge--accent': route.method === 'GET',
               'usx-badge--success': route.method === 'POST',
               'usx-badge--error': route.method === 'DELETE'
-            }" class="registry-badge--method">
+            }">
               {{ route.method }}
             </span>
-            <span style="font-family: var(--usx-font-family-mono); font-size: var(--usx-font-size-sm); flex: 1">
+            <span class="registry-route-path">
               {{ route.path }}
             </span>
-            <span style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">
+            <span class="registry-meta-text">
               {{ route.handler }}
             </span>
           </div>
         </div>
         <div v-if="routePages > 1" class="usx-flex-center usx-mt-md usx-gap-sm">
-          <button class="usx-btn--primary" :disabled="routePage === 1" @click="routePage--" style="min-height: var(--usx-touch-min-sm); padding: var(--usx-spacing-xs) var(--usx-spacing-sm)">
+          <button class="usx-btn--primary registry-page-btn" :disabled="routePage === 1" @click="routePage--">
             <span class="material-symbols-outlined">chevron_left</span>
           </button>
-          <span style="font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted)">Page {{ routePage }} of {{ routePages }}</span>
-          <button class="usx-btn--primary" :disabled="routePage === routePages" @click="routePage++" style="min-height: var(--usx-touch-min-sm); padding: var(--usx-spacing-xs) var(--usx-spacing-sm)">
+          <span class="registry-page-meta">Page {{ routePage }} of {{ routePages }}</span>
+          <button class="usx-btn--primary registry-page-btn" :disabled="routePage === routePages" @click="routePage++">
             <span class="material-symbols-outlined">chevron_right</span>
           </button>
         </div>
@@ -225,20 +225,20 @@
       <!-- Runtimes View -->
       <div v-if="activeSubTab === 'runtimes'" class="registry-view">
         <h4>Runtimes ({{ filteredRuntimes.length }})</h4>
-        <div v-if="Object.keys(filteredRuntimes).length === 0" class="usx-compact" style="text-align: center; color: var(--usx-color-on-surface-muted)">
+        <div v-if="Object.keys(filteredRuntimes).length === 0" class="usx-compact registry-empty">
           No runtimes match your search.
         </div>
         <div v-else class="registry-grid">
           <div v-for="(rt, name) in filteredRuntimes" :key="name" class="usx-card registry-card">
             <div class="usx-flex-between">
-              <span style="font-weight: var(--usx-font-weight-semibold); font-family: var(--usx-font-family-mono)">
+              <span class="registry-title-strong registry-badge--mono">
                 {{ name }}
               </span>
             </div>
-            <div style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)" class="usx-mt-sm">
+            <div class="usx-mt-sm registry-meta-text">
               {{ rt.file }}
             </div>
-            <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap">
+            <div class="usx-flex-row usx-gap-xs usx-mt-sm registry-wrap">
               <span v-if="rt.endpoints?.length" class="usx-badge usx-badge--accent registry-badge--compact">
                 {{ rt.endpoints.length }} endpoints
               </span>
@@ -246,11 +246,11 @@
                 {{ rt.commands.length }} commands
               </span>
             </div>
-            <div v-if="rt.endpoints?.length" class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap">
+            <div v-if="rt.endpoints?.length" class="usx-flex-row usx-gap-xs usx-mt-sm registry-wrap">
               <span v-for="ep in rt.endpoints.slice(0, 6)" :key="ep" class="usx-badge registry-badge--compact registry-badge--mono">
                 {{ ep }}
               </span>
-              <span v-if="rt.endpoints.length > 6" style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">
+              <span v-if="rt.endpoints.length > 6" class="registry-meta-text">
                 +{{ rt.endpoints.length - 6 }} more
               </span>
             </div>
@@ -505,6 +505,29 @@ onMounted(() => {
   border-top: var(--usx-border-width) solid var(--usx-color-border);
 }
 
+.registry-select {
+  width: 100%;
+  min-height: var(--usx-touch-min);
+  padding: 0 var(--usx-spacing-sm);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-sm);
+  background: var(--usx-color-surface);
+  color: var(--usx-color-on-surface);
+  font-size: var(--usx-font-size-sm);
+  font-family: var(--usx-font-family-sans);
+}
+
+.registry-summary-text {
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
+}
+
+.registry-summary-filter {
+  display: block;
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-primary);
+}
+
 /* ─── Right Content Area ─────────────────────────────────────── */
 .registry-content {
   flex: 1;
@@ -530,6 +553,15 @@ onMounted(() => {
   transition: all var(--usx-transition-fast);
   min-width: 120px;
   flex: 1;
+}
+
+.registry-count-strong {
+  font-weight: var(--usx-font-weight-semibold);
+}
+
+.registry-count-label {
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .registry-summary-card:hover {
@@ -559,6 +591,11 @@ onMounted(() => {
   overflow-y: auto;
 }
 
+.registry-empty {
+  text-align: center;
+  color: var(--usx-color-on-surface-muted);
+}
+
 .registry-grid {
   display: grid;
   gap: var(--usx-grid-gap-sm);
@@ -567,6 +604,39 @@ onMounted(() => {
 
 .registry-card {
   padding: var(--usx-spacing-md);
+}
+
+.registry-title-strong {
+  font-weight: var(--usx-font-weight-semibold);
+}
+
+.registry-meta-text {
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
+}
+
+.registry-chip-row {
+  flex-wrap: wrap;
+  font-size: var(--usx-font-size-xs);
+}
+
+.registry-file-muted {
+  color: var(--usx-color-on-surface-muted);
+}
+
+.registry-wrap {
+  flex-wrap: wrap;
+}
+
+.registry-path-mono {
+  font-weight: var(--usx-font-weight-medium);
+  font-family: var(--usx-font-family-mono);
+  font-size: var(--usx-font-size-sm);
+}
+
+.registry-key-mono {
+  font-weight: var(--usx-font-weight-medium);
+  font-family: var(--usx-font-family-mono);
 }
 
 .registry-list {
@@ -581,6 +651,22 @@ onMounted(() => {
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
   border-bottom: var(--usx-border-width) solid var(--usx-color-border-light);
+}
+
+.registry-route-path {
+  font-family: var(--usx-font-family-mono);
+  font-size: var(--usx-font-size-sm);
+  flex: 1;
+}
+
+.registry-page-btn {
+  min-height: var(--usx-touch-min);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+}
+
+.registry-page-meta {
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
 }
 
 .registry-badge--xs {

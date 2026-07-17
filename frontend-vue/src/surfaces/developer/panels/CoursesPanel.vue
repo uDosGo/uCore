@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <p class="usx-mt-sm" style="color: var(--usx-color-on-surface-muted)">
+    <p class="usx-mt-sm courses-muted-copy">
       Rated inventory of uCode documentation — completeness, level, and relevance to uCode.
       <strong>{{ summary.relevance_high_90_plus }}</strong> highly relevant,
       <strong>{{ summary.relevance_medium_60_89 }}</strong> medium,
@@ -19,18 +19,18 @@
     </p>
 
     <!-- Filters -->
-    <div class="usx-flex-row usx-gap-sm usx-mt-md" style="flex-wrap: wrap">
-      <select v-model="filterCategory" style="min-height: var(--usx-touch-min-sm); padding: 0 var(--usx-spacing-sm)">
+    <div class="usx-flex-row usx-gap-sm usx-mt-md courses-wrap">
+      <select v-model="filterCategory" class="courses-control">
         <option value="">All Categories</option>
         <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
       </select>
-      <select v-model="filterLevel" style="min-height: var(--usx-touch-min-sm); padding: 0 var(--usx-spacing-sm)">
+      <select v-model="filterLevel" class="courses-control">
         <option value="">All Levels</option>
         <option value="beginner">Beginner</option>
         <option value="average">Average</option>
         <option value="advanced">Advanced</option>
       </select>
-      <select v-model="filterRelevance" style="min-height: var(--usx-touch-min-sm); padding: 0 var(--usx-spacing-sm)">
+      <select v-model="filterRelevance" class="courses-control">
         <option value="">All Relevance</option>
         <option value="90">High (90-100)</option>
         <option value="60">Medium (60-89)</option>
@@ -40,47 +40,47 @@
         v-model="searchQuery"
         type="text"
         placeholder="Search courses..."
-        style="flex: 1; min-width: 200px; min-height: var(--usx-touch-min-sm); padding: 0 var(--usx-spacing-sm)"
+        class="courses-search"
       />
     </div>
 
     <!-- Summary Cards -->
     <div class="usx-grid usx-grid--dense usx-mt-md">
       <div class="usx-card">
-        <span style="font-size: var(--usx-font-size-3xl); font-weight: var(--usx-font-weight-bold); color: var(--usx-color-success)">
+        <span class="courses-stat-value courses-success-copy">
           {{ summary.relevance_high_90_plus }}
         </span>
-        <span style="color: var(--usx-color-on-surface-muted); font-size: var(--usx-font-size-sm)">Highly Relevant</span>
+        <span class="courses-stat-label">Highly Relevant</span>
       </div>
       <div class="usx-card">
-        <span style="font-size: var(--usx-font-size-3xl); font-weight: var(--usx-font-weight-bold); color: var(--usx-color-warning)">
+        <span class="courses-stat-value courses-warning-copy">
           {{ summary.relevance_medium_60_89 }}
         </span>
-        <span style="color: var(--usx-color-on-surface-muted); font-size: var(--usx-font-size-sm)">Medium Relevance</span>
+        <span class="courses-stat-label">Medium Relevance</span>
       </div>
       <div class="usx-card">
-        <span style="font-size: var(--usx-font-size-3xl); font-weight: var(--usx-font-weight-bold); color: var(--usx-color-danger)">
+        <span class="courses-stat-value courses-danger-copy">
           {{ summary.relevance_low_below_60 }}
         </span>
-        <span style="color: var(--usx-color-on-surface-muted); font-size: var(--usx-font-size-sm)">Low Relevance</span>
+        <span class="courses-stat-label">Low Relevance</span>
       </div>
       <div class="usx-card">
-        <span style="font-size: var(--usx-font-size-3xl); font-weight: var(--usx-font-weight-bold)">
+        <span class="courses-stat-value">
           {{ summary.total_courses }}
         </span>
-        <span style="color: var(--usx-color-on-surface-muted); font-size: var(--usx-font-size-sm)">Total Courses</span>
+        <span class="courses-stat-label">Total Courses</span>
       </div>
     </div>
 
     <!-- Category Breakdown -->
     <div v-if="filterCategory === ''" class="usx-mt-md">
-      <div class="usx-flex-row usx-gap-sm" style="flex-wrap: wrap">
+      <div class="usx-flex-row usx-gap-sm courses-wrap">
         <button
           v-for="(count, cat) in allCategories"
           :key="cat"
           class="usx-badge"
           :class="{ 'usx-badge--accent': filterCategory === '' }"
-          style="cursor: pointer"
+          class="courses-clickable"
           @click="filterCategory = (filterCategory === cat) ? '' : cat"
         >
           {{ cat }}: {{ count }}
@@ -100,17 +100,17 @@
         >
           <div class="usx-flex-between">
             <div class="usx-flex-row">
-              <span class="material-symbols-outlined" style="font-size: var(--usx-icon-size-sm); color: var(--usx-color-success)">verified</span>
-              <span style="font-weight: var(--usx-font-weight-medium)">{{ item.title }}</span>
+              <span class="material-symbols-outlined courses-icon-sm courses-success-copy">verified</span>
+              <span class="courses-title-medium">{{ item.title }}</span>
             </div>
             <span class="usx-badge usx-badge--accent">{{ item.relevance }}%</span>
           </div>
-          <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="font-size: var(--usx-font-size-xs)">
+          <div class="usx-flex-row usx-gap-xs usx-mt-sm courses-row-xs">
             <span class="usx-badge courses-badge--compact">{{ item.level }}</span>
             <span class="usx-badge courses-badge--compact">complete: {{ item.completeness }}%</span>
-            <span style="color: var(--usx-color-on-surface-muted)">{{ item.category }}</span>
+            <span class="courses-muted-copy">{{ item.category }}</span>
           </div>
-          <div v-if="item.notes" class="usx-mt-sm" style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">
+          <div v-if="item.notes" class="usx-mt-sm courses-meta-text">
             {{ item.notes }}
           </div>
         </div>
@@ -125,8 +125,7 @@
       </div>
       <div
         v-if="filteredCourses.length === 0"
-        class="usx-compact usx-mt-sm"
-        style="color: var(--usx-color-on-surface-muted); text-align: center"
+        class="usx-compact usx-mt-sm courses-empty"
       >
         No courses match your filters. Try adjusting the criteria.
       </div>
@@ -138,15 +137,15 @@
         >
           <div class="usx-flex-between">
             <div class="usx-flex-row">
-              <span class="material-symbols-outlined" style="font-size: var(--usx-icon-size-sm)"
-                :style="{ color: relevanceColor(item.relevance) }"
+              <span class="material-symbols-outlined courses-icon-sm"
+                :class="relevanceToneClass(item.relevance)"
               >
                 {{ relevanceIcon(item.relevance) }}
               </span>
-              <span style="font-weight: var(--usx-font-weight-medium)">{{ item.title }}</span>
+              <span class="courses-title-medium">{{ item.title }}</span>
             </div>
           </div>
-          <div class="usx-flex-row usx-gap-xs usx-mt-sm" style="font-size: var(--usx-font-size-xs)">
+          <div class="usx-flex-row usx-gap-xs usx-mt-sm courses-row-xs">
             <span
               class="usx-badge courses-badge--compact"
               :class="{
@@ -164,12 +163,12 @@
             >
               R:{{ item.relevance }}%
             </span>
-            <span style="color: var(--usx-color-on-surface-muted)">{{ item.category }}</span>
+            <span class="courses-muted-copy">{{ item.category }}</span>
           </div>
-          <div v-if="item.notes" class="usx-mt-sm" style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">
+          <div v-if="item.notes" class="usx-mt-sm courses-meta-text">
             {{ item.notes.slice(0, 80) }}{{ item.notes.length > 80 ? '...' : '' }}
           </div>
-          <div v-if="item.topics?.length" class="usx-flex-row usx-gap-xs usx-mt-sm" style="flex-wrap: wrap">
+          <div v-if="item.topics?.length" class="usx-flex-row usx-gap-xs usx-mt-sm courses-wrap">
             <span
               v-for="topic in item.topics.slice(0, 4)"
               :key="topic"
@@ -177,7 +176,7 @@
             >
               {{ topic }}
             </span>
-            <span v-if="item.topics.length > 4" style="font-size: var(--usx-font-size-xs); color: var(--usx-color-on-surface-muted)">
+            <span v-if="item.topics.length > 4" class="courses-meta-text">
               +{{ item.topics.length - 4 }} more
             </span>
           </div>
@@ -187,21 +186,19 @@
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="usx-flex-center usx-mt-md usx-gap-sm">
         <button
-          class="usx-btn--primary"
+          class="usx-btn--primary courses-page-btn"
           :disabled="currentPage === 1"
           @click="currentPage--"
-          style="min-height: var(--usx-touch-min-sm); padding: var(--usx-spacing-xs) var(--usx-spacing-sm)"
         >
           <span class="material-symbols-outlined">chevron_left</span>
         </button>
-        <span style="font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted)">
+        <span class="courses-page-meta">
           Page {{ currentPage }} of {{ totalPages }}
         </span>
         <button
-          class="usx-btn--primary"
+          class="usx-btn--primary courses-page-btn"
           :disabled="currentPage === totalPages"
           @click="currentPage++"
-          style="min-height: var(--usx-touch-min-sm); padding: var(--usx-spacing-xs) var(--usx-spacing-sm)"
         >
           <span class="material-symbols-outlined">chevron_right</span>
         </button>
@@ -332,16 +329,16 @@ const paginatedCourses = computed(() => {
   return filteredCourses.value.slice(start, start + pageSize.value)
 })
 
-function relevanceColor(relevance: number): string {
-  if (relevance >= 90) return 'var(--usx-color-success)'
-  if (relevance >= 60) return 'var(--usx-color-warning)'
-  return 'var(--usx-color-danger)'
-}
-
 function relevanceBadgeClass(relevance: number): string {
   if (relevance >= 90) return 'usx-badge--success'
   if (relevance >= 60) return 'usx-badge--accent'
   return 'usx-badge--error'
+}
+
+function relevanceToneClass(relevance: number): string {
+  if (relevance >= 90) return 'courses-success-copy'
+  if (relevance >= 60) return 'courses-warning-copy'
+  return 'courses-danger-copy'
 }
 
 function relevanceIcon(relevance: number): string {
@@ -397,5 +394,83 @@ onMounted(() => {
 .courses-badge--compact {
   padding: var(--usx-spacing-1) var(--usx-spacing-2);
   font-size: var(--usx-font-size-xs);
+}
+
+.courses-muted-copy {
+  color: var(--usx-color-on-surface-muted);
+}
+
+.courses-meta-text {
+  font-size: var(--usx-font-size-xs);
+  color: var(--usx-color-on-surface-muted);
+}
+
+.courses-wrap {
+  flex-wrap: wrap;
+}
+
+.courses-control {
+  min-height: var(--usx-touch-min);
+  padding: 0 var(--usx-spacing-sm);
+}
+
+.courses-search {
+  flex: 1;
+  min-width: 200px;
+  min-height: var(--usx-touch-min);
+  padding: 0 var(--usx-spacing-sm);
+}
+
+.courses-stat-value {
+  font-size: var(--usx-font-size-3xl);
+  font-weight: var(--usx-font-weight-bold);
+}
+
+.courses-stat-label {
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-sm);
+}
+
+.courses-success-copy {
+  color: var(--usx-color-success);
+}
+
+.courses-warning-copy {
+  color: var(--usx-color-warning);
+}
+
+.courses-danger-copy {
+  color: var(--usx-color-danger);
+}
+
+.courses-clickable {
+  cursor: pointer;
+}
+
+.courses-icon-sm {
+  font-size: var(--usx-icon-size-sm);
+}
+
+.courses-title-medium {
+  font-weight: var(--usx-font-weight-medium);
+}
+
+.courses-row-xs {
+  font-size: var(--usx-font-size-xs);
+}
+
+.courses-empty {
+  color: var(--usx-color-on-surface-muted);
+  text-align: center;
+}
+
+.courses-page-btn {
+  min-height: var(--usx-touch-min);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+}
+
+.courses-page-meta {
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
 }
 </style>

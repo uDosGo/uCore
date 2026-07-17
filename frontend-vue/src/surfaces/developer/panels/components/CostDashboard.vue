@@ -11,13 +11,12 @@
             ${{ dailyUsed.toFixed(2) }} / ${{ dailyLimit.toFixed(2) }}
           </span>
         </div>
-        <div class="cost-bar__track">
-          <div
-            class="cost-bar__fill"
-            :class="{ 'cost-bar__fill--warn': dailyPct > 80, 'cost-bar__fill--danger': dailyPct > 95 }"
-            :style="{ width: Math.min(dailyPct, 100) + '%' }"
-          />
-        </div>
+        <progress
+          class="cost-bar__progress"
+          :class="{ 'cost-bar__progress--warn': dailyPct > 80, 'cost-bar__progress--danger': dailyPct > 95 }"
+          :value="Math.min(dailyPct, 100)"
+          max="100"
+        />
       </div>
 
       <div class="cost-bar" v-if="weeklyUsed > 0 || weeklyLimit > 0">
@@ -27,12 +26,11 @@
             ${{ weeklyUsed.toFixed(2) }} / ${{ weeklyLimit.toFixed(2) }}
           </span>
         </div>
-        <div class="cost-bar__track">
-          <div
-            class="cost-bar__fill cost-bar__fill--secondary"
-            :style="{ width: Math.min(weeklyPct, 100) + '%' }"
-          />
-        </div>
+        <progress
+          class="cost-bar__progress cost-bar__progress--secondary"
+          :value="Math.min(weeklyPct, 100)"
+          max="100"
+        />
       </div>
 
       <div class="cost-bar" v-if="monthlyUsed > 0 || monthlyLimit > 0">
@@ -42,12 +40,11 @@
             ${{ monthlyUsed.toFixed(2) }} / ${{ monthlyLimit.toFixed(2) }}
           </span>
         </div>
-        <div class="cost-bar__track">
-          <div
-            class="cost-bar__fill cost-bar__fill--tertiary"
-            :style="{ width: Math.min(monthlyPct, 100) + '%' }"
-          />
-        </div>
+        <progress
+          class="cost-bar__progress cost-bar__progress--tertiary"
+          :value="Math.min(monthlyPct, 100)"
+          max="100"
+        />
       </div>
     </div>
 
@@ -138,25 +135,38 @@ const topModels = computed(() => props.cost?.top_models ?? [])
   color: var(--usx-color-on-surface);
 }
 
-.cost-bar__track {
+.cost-bar__progress {
+  --cost-fill-color: var(--usx-color-primary);
+  width: 100%;
   height: 6px;
+  appearance: none;
+  border: none;
   background: var(--usx-color-border);
   border-radius: var(--usx-radius-sm);
   overflow: hidden;
 }
 
-.cost-bar__fill {
-  height: 100%;
-  background: var(--usx-color-primary);
+.cost-bar__progress::-webkit-progress-bar {
+  background: var(--usx-color-border);
   border-radius: var(--usx-radius-sm);
-  transition: width 0.3s ease;
-  min-width: 2px;
 }
 
-.cost-bar__fill--warn { background: var(--usx-color-warning); }
-.cost-bar__fill--danger { background: var(--usx-color-danger); }
-.cost-bar__fill--secondary { background: var(--usx-color-success); }
-.cost-bar__fill--tertiary { background: var(--usx-color-accent); }
+.cost-bar__progress::-webkit-progress-value {
+  background: var(--cost-fill-color);
+  border-radius: var(--usx-radius-sm);
+  transition: width 0.3s ease;
+}
+
+.cost-bar__progress::-moz-progress-bar {
+  background: var(--cost-fill-color);
+  border-radius: var(--usx-radius-sm);
+  transition: width 0.3s ease;
+}
+
+.cost-bar__progress--warn { --cost-fill-color: var(--usx-color-warning); }
+.cost-bar__progress--danger { --cost-fill-color: var(--usx-color-danger); }
+.cost-bar__progress--secondary { --cost-fill-color: var(--usx-color-success); }
+.cost-bar__progress--tertiary { --cost-fill-color: var(--usx-color-accent); }
 
 .cost-dashboard__models {
   display: flex;

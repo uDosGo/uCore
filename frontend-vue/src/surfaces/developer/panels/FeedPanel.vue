@@ -26,7 +26,7 @@
             {{ item.source }}
           </span>
           <span class="developer-card-title">{{ item.title || 'Untitled' }}</span>
-          <span class="feed-importance" :style="{ color: importanceColor(item.importance) }">
+          <span class="feed-importance" :class="importanceClass(item.importance)">
             {{ (item.importance * 100).toFixed(0) }}%
           </span>
         </div>
@@ -79,10 +79,10 @@ const suggestions = ref<any[]>([])
 
 const filteredActivities = computed(() => store.filteredActivities)
 
-function importanceColor(importance: number): string {
-  if (importance > 0.8) return 'var(--usx-color-danger)'
-  if (importance > 0.5) return 'var(--usx-color-warning)'
-  return 'var(--usx-color-success)'
+function importanceClass(importance: number): string {
+  if (importance > 0.8) return 'feed-importance--danger'
+  if (importance > 0.5) return 'feed-importance--warning'
+  return 'feed-importance--success'
 }
 
 function formatTime(ts: string): string {
@@ -202,6 +202,9 @@ onMounted(() => {
 .feed-source--alert { background: color-mix(in srgb, var(--usx-color-warning) 15%, transparent); color: var(--usx-color-warning); }
 .feed-source--search { background: color-mix(in srgb, var(--usx-color-info) 10%, transparent); color: var(--usx-color-info); }
 .feed-importance { font-size: var(--usx-font-size-xs); font-weight: var(--usx-font-weight-semibold); }
+.feed-importance--danger { color: var(--usx-color-danger); }
+.feed-importance--warning { color: var(--usx-color-warning); }
+.feed-importance--success { color: var(--usx-color-success); }
 .feed-link-btn {
   background: none;
   border: 1px solid var(--usx-color-border);
