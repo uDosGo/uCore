@@ -121,6 +121,13 @@ def _get_preview(content: str, max_chars: int = 300) -> str:
     return "\n".join(lines)[:max_chars]
 
 
+def _default_binder_for(source: str) -> str | None:
+    """Return the fallback binder for files without explicit metadata."""
+    if source == "user":
+        return "Sandbox"
+    return None
+
+
 # ─── Scanner ───────────────────────────────────────────────────────
 
 def _scan_source(source: str, base_path: Path) -> list[dict[str, Any]]:
@@ -151,7 +158,11 @@ def _scan_source(source: str, base_path: Path) -> list[dict[str, Any]]:
             except Exception:
                 continue
 
-            fm, body = _parse_frontmatter(content) if ext == ".md" else ({}, content)
+            fm, body = (
+                _parse_frontmatter(content)
+                if ext == ".md"
+                else ({}, content)
+            )
             tags = fm.get("tags", [])
             if isinstance(tags, str):
                 tags = [tags]
@@ -173,7 +184,10 @@ def _scan_source(source: str, base_path: Path) -> list[dict[str, Any]]:
                 "filename": fpath.name,
                 "source": source,
                 "vault_layer": source_layer,
-                "binder": str(fm.get("binder") or "") or None,
+                "binder": (
+                    str(fm.get("binder") or "")
+                    or _default_binder_for(source)
+                ),
                 "mission": str(fm.get("mission") or "") or None,
                 "tags": tags,
                 "type": "file",
@@ -357,8 +371,24 @@ def search(
     conn = sqlite3.connect(str(INDEX_DB))
     conn.row_factory = sqlite3.Row
 
-    fts_query = query
-    if source:
+    rows: list[sqlite3.Row]
+    if query.strip() in {"", "*"}:
+        if source:
+            sql = """
+                SELECT * FROM library_entries
+                WHERE source = ?
+                ORDER BY modified_at DESC
+                LIMIT ?
+            """
+            rows = conn.execute(sql, (source, limit)).fetchall()
+        else:
+            sql = """
+                SELECT * FROM library_entries
+                ORDER BY modified_at DESC
+                LIMIT ?
+            """
+            rows = conn.execute(sql, (limit,)).fetchall()
+    elif source:
         sql = """
             SELECT le.* FROM library_entries le
             JOIN library_fts fts ON le.id = fts.id
@@ -367,7 +397,7 @@ def search(
             ORDER BY rank
             LIMIT ?
         """
-        rows = conn.execute(sql, (fts_query, source, limit)).fetchall()
+        rows = conn.execute(sql, (query, source, limit)).fetchall()
     else:
         sql = """
             SELECT le.* FROM library_entries le
@@ -376,7 +406,7 @@ def search(
             ORDER BY rank
             LIMIT ?
         """
-        rows = conn.execute(sql, (fts_query, limit)).fetchall()
+        rows = conn.execute(sql, (query, limit)).fetchall()
 
     results = []
     for row in rows:

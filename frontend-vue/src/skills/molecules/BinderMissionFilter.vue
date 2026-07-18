@@ -26,8 +26,9 @@ interface Binder {
   name: string
 }
 
-const selectedBinder = ref('')
+const selectedBinder = ref('Sandbox')
 const binders = ref<Binder[]>([
+  { id: 'Sandbox', name: 'Sandbox' },
   { id: 'active', name: 'Active' },
   { id: 'docs', name: 'Documentation' },
   { id: 'archive', name: 'Archive' },

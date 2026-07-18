@@ -68,6 +68,9 @@ export const ucoreApi = {
       if (source) url += `&source=${source}`
       return request(url)
     },
+    file: (path: string) => request(
+      `${UCORE_API}/api/library/file?path=${encodeURIComponent(path)}`,
+    ),
     stats: () => request(`${UCORE_API}/api/library/stats`),
   },
   vault: {

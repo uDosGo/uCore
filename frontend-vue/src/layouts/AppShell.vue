@@ -8,7 +8,7 @@
     />
     <div class="app-body">
       <aside v-if="shell.sidebarOpen" class="app-sidebar">
-        <FilepickerSidebar />
+        <FilepickerSidebar @file-select="handleFileSelect" />
       </aside>
       <main class="app-main">
         <router-view />
@@ -33,15 +33,44 @@
  */
 import { useShellStore } from '../stores/shell'
 import { useSettingsStore } from '../stores/settings'
+import { useWorkflowStore } from '../stores/workflow'
+import { useRouter } from 'vue-router'
 import GlobalToolbar from '../skills/organisms/GlobalToolbar.vue'
 import FilepickerSidebar from '../skills/molecules/FilepickerSidebar.vue'
 import FloatingChat from '../surfaces/assistui/FloatingChat.vue'
 import SnackbarHost from '../skills/molecules/SnackbarHost.vue'
+import { ucoreApi } from '../api/client'
+import type { FileEntry } from '../types/filepicker'
 
 const shell = useShellStore()
+const workflow = useWorkflowStore()
+const router = useRouter()
 
 // Initialize settings store to apply persisted theme (dark mode default)
 useSettingsStore()
+
+async function handleFileSelect(file: FileEntry) {
+  let content = file.preview || ''
+  try {
+    const res = await ucoreApi.library.file(file.path)
+    if (res.ok && (res.data as any)?.content !== undefined) {
+      content = String((res.data as any).content || '')
+    }
+  } catch {
+    // Fall back to indexed preview content.
+  }
+
+  workflow.selectFile({
+    id: file.id || file.path,
+    path: file.path,
+    filename: file.filename,
+    extension: file.extension,
+    binder: file.binder || 'Sandbox',
+    content,
+    readOnly: Boolean(file.is_readonly),
+  })
+  await router.push({ path: '/workflow', query: { tab: 'editor' } })
+}
 </script>
 
 <style scoped>

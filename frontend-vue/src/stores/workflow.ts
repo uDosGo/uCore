@@ -19,6 +19,16 @@ export interface WorkflowTask {
   description: string
 }
 
+export interface WorkflowFile {
+  id: string
+  path: string
+  filename: string
+  extension: string
+  binder: string
+  content: string
+  readOnly: boolean
+}
+
 export interface Mission {
   id: string
   title: string
@@ -120,6 +130,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
   const tasks = ref<WorkflowTask[]>(SAMPLE_TASKS)
   const missions = ref<Mission[]>(SAMPLE_MISSIONS)
   const selectedTask = ref<WorkflowTask | null>(null)
+  const selectedFile = ref<WorkflowFile | null>(null)
   const editorOpen = ref(false)
   const showEditorPane = ref(false)
   const paneLayout = ref<'split' | 'stacked'>('stacked')
@@ -336,15 +347,37 @@ export const useWorkflowStore = defineStore('workflow', () => {
   }
 
   function selectTask(task: WorkflowTask) {
+    selectedFile.value = null
     selectedTask.value = task
     editorOpen.value = true
     // Stay on the tasks tab — editor opens alongside it as a column
   }
 
+  function selectFile(file: WorkflowFile) {
+    selectedTask.value = null
+    selectedFile.value = {
+      ...file,
+      binder: file.binder || 'Sandbox',
+    }
+    editorOpen.value = true
+    showEditorPane.value = true
+    activeTab.value = 'editor'
+  }
+
   function closeEditor() {
     editorOpen.value = false
     selectedTask.value = null
+    selectedFile.value = null
     showEditorPane.value = true
+  }
+
+  function updateEditorContent(value: string) {
+    if (selectedTask.value) {
+      selectedTask.value.description = value
+    }
+    if (selectedFile.value) {
+      selectedFile.value.content = value
+    }
   }
 
   function toggleEditorPane() {
@@ -360,6 +393,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
     tasks,
     missions,
     selectedTask,
+    selectedFile,
     editorOpen,
     showEditorPane,
     paneLayout,
@@ -375,7 +409,9 @@ export const useWorkflowStore = defineStore('workflow', () => {
     tasksByStatus,
     setTab,
     selectTask,
+    selectFile,
     closeEditor,
+    updateEditorContent,
     toggleEditorPane,
     togglePaneLayout,
     fetchWorkflowStatus,

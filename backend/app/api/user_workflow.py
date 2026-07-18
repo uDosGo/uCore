@@ -26,6 +26,8 @@ from app.services.workflow_status import default_tasker_dir, scan_tasker_boards
 
 log = logging.getLogger("ucore.api.user_workflow")
 
+DEFAULT_USER_BINDER = "Sandbox"
+
 
 def _discover_appflowy_databases_safe() -> tuple[dict[str, str], list[str]]:
     try:
@@ -311,48 +313,50 @@ def _clear_appflowy_sidecar_tables() -> dict[str, Any]:
 def _seed_user_tasks(tasker_dir: Path) -> dict[str, Any]:
     seed_rows = [
         {
-            "board": "planning",
-            "title": "Plan the week",
-            "status": "in-progress",
-            "mission": "Weekly Planning",
-            "task": "Plan the week",
-            "binder": "planner",
-            "priority": "high",
-            "tags": ["planning", "weekly"],
-            "summary": "Review goals and select top 3 priorities.",
-        },
-        {
-            "board": "writing",
-            "title": "Draft article outline",
+            "board": "sandbox",
+            "title": "Welcome to uCode",
             "status": "todo",
-            "mission": "Writing Project",
-            "task": "Draft article outline",
-            "binder": "writing",
-            "priority": "medium",
-            "tags": ["writing", "content"],
-            "summary": "Create a clear outline before drafting sections.",
+            "mission": "Getting Started",
+            "task": "Welcome to uCode",
+            "binder": DEFAULT_USER_BINDER,
+            "priority": "high",
+            "tags": ["seed", "user", "ucode"],
+            "summary": "Open the Sandbox binder and review the starter docs.",
         },
         {
-            "board": "admin",
-            "title": "Organize life admin docs",
+            "board": "sandbox",
+            "title": "My First Binder",
+            "status": "todo",
+            "mission": "Getting Started",
+            "task": "My First Binder",
+            "binder": DEFAULT_USER_BINDER,
+            "priority": "medium",
+            "tags": ["seed", "binder"],
+            "summary": "Add one note, one task, and one reference to Sandbox.",
+        },
+        {
+            "board": "sandbox",
+            "title": "Add a Sandbox note",
             "status": "review",
-            "mission": "Life Admin",
-            "task": "Organize life admin docs",
-            "binder": "records",
+            "mission": "Getting Started",
+            "task": "Add a Sandbox note",
+            "binder": DEFAULT_USER_BINDER,
             "priority": "medium",
-            "tags": ["admin", "records"],
-            "summary": "Collect invoices, reminders, and account docs.",
+            "tags": ["seed", "notes"],
+            "summary": "Create or edit a Markdown note from the filepicker.",
         },
         {
-            "board": "learning",
-            "title": "Summarize this week learning",
+            "board": "sandbox",
+            "title": "Publish Sandbox draft",
             "status": "completed",
-            "mission": "Learning Sprint",
-            "task": "Summarize this week learning",
-            "binder": "learning",
+            "mission": "Getting Started",
+            "task": "Publish Sandbox draft",
+            "binder": DEFAULT_USER_BINDER,
             "priority": "low",
-            "tags": ["learning", "weekly-review"],
-            "summary": "Publish short recap of key ideas and next actions.",
+            "tags": ["seed", "publish"],
+            "summary": (
+                "Use the Publish tab after the binder has useful content."
+            ),
         },
     ]
 
@@ -392,6 +396,74 @@ def _seed_user_tasks(tasker_dir: Path) -> dict[str, Any]:
         "tasker_dir": str(tasker_dir),
         "created_count": len(created),
         "created": created,
+    }
+
+
+def _seed_user_vault_docs() -> dict[str, Any]:
+    user_vault = Path.home() / "Vault"
+    binder_dir = user_vault / "binders" / "active" / DEFAULT_USER_BINDER
+    docs_dir = binder_dir / "docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+
+    seed_files = {
+        binder_dir / "_binder.yaml": (
+            "id: sandbox\n"
+            "name: Sandbox\n"
+            "status: active\n"
+            "description: Default user binder for new files and starter "
+            "docs.\n"
+        ),
+        binder_dir / "README.md": (
+            "---\n"
+            "title: Sandbox\n"
+            "binder: Sandbox\n"
+            "mission: Getting Started\n"
+            "tags: [seed, sandbox, binder]\n"
+            "---\n\n"
+            "# Sandbox\n\n"
+            "Sandbox is your default user binder. New user files connect here "
+            "when no binder is specified.\n"
+        ),
+        docs_dir / "welcome-to-ucode.md": (
+            "---\n"
+            "title: Welcome to uCode\n"
+            "binder: Sandbox\n"
+            "mission: Getting Started\n"
+            "tags: [seed, ucode, welcome]\n"
+            "---\n\n"
+            "# Welcome to uCode\n\n"
+            "This starter document confirms your User Vault is connected to "
+            "the Workflow editor through the Sandbox binder.\n\n"
+            "Open this file from the sidebar to edit it in Workflow.\n"
+        ),
+        docs_dir / "my-first-binder.md": (
+            "---\n"
+            "title: My First Binder\n"
+            "binder: Sandbox\n"
+            "mission: Getting Started\n"
+            "tags: [seed, binder]\n"
+            "---\n\n"
+            "# My First Binder\n\n"
+            "A binder groups notes, tasks, references, and publishable work. "
+            "Sandbox is always available as the default binder.\n"
+        ),
+    }
+
+    created: list[str] = []
+    existing: list[str] = []
+    for path, content in seed_files.items():
+        if path.exists():
+            existing.append(str(path))
+            continue
+        path.write_text(content, encoding="utf-8")
+        created.append(str(path))
+
+    return {
+        "vault_path": str(user_vault),
+        "binder": DEFAULT_USER_BINDER,
+        "created_count": len(created),
+        "created": created,
+        "existing": existing,
     }
 
 
@@ -457,6 +529,7 @@ def _reset_and_seed_user_workflow(reason: str) -> dict[str, Any]:
     cleared_sidecar = _clear_appflowy_sidecar_tables()
 
     seeded_tasks = _seed_user_tasks(tasker_dir)
+    seeded_vault_docs = _seed_user_vault_docs()
     seeded_workflows = _seed_workflows()
 
     return {
@@ -468,6 +541,7 @@ def _reset_and_seed_user_workflow(reason: str) -> dict[str, Any]:
         },
         "seed": {
             "tasks": seeded_tasks,
+            "vault_docs": seeded_vault_docs,
             "workflows": seeded_workflows,
         },
     }
@@ -565,6 +639,7 @@ async def handle_user_workflow_seed(request: web.Request) -> web.Response:
     reason = str(body.get("reason") or "seed-only").strip() or "seed-only"
     tasker_dir = default_tasker_dir()
     seeded_tasks = _seed_user_tasks(tasker_dir)
+    seeded_vault_docs = _seed_user_vault_docs()
     seeded_workflows = _seed_workflows()
 
     return web.json_response(
@@ -574,6 +649,7 @@ async def handle_user_workflow_seed(request: web.Request) -> web.Response:
             "reason": reason,
             "seed": {
                 "tasks": seeded_tasks,
+                "vault_docs": seeded_vault_docs,
                 "workflows": seeded_workflows,
             },
         },

@@ -2,7 +2,6 @@
   <div class="workspace-filter">
     <label class="workspace-filter__label">Vault Layer</label>
     <select v-model="selectedWorkspace" class="workspace-filter__select" @change="onChange">
-      <option value="">All Layers</option>
       <option
         v-for="ws in vaultLayers"
         :key="ws.id"
@@ -39,10 +38,6 @@ interface VaultLayer {
 const selectedWorkspace = ref('')
 const vaultLayers = ref<VaultLayer[]>([
   { id: 'user', label: 'User Vault', icon: 'mdi:account', description: '~/Vault/' },
-  { id: 'shared', label: 'Shared', icon: 'mdi:account-group', description: '~/Shared/' },
-  { id: 'global', label: 'Global Knowledge', icon: 'mdi:book-open-variant', description: '~/Public/global-knowledge/' },
-  { id: 'public', label: 'Published', icon: 'mdi:web', description: '~/Public/doc-sites/' },
-  { id: 'code', label: 'Code', icon: 'mdi:code-tags', description: '~/Code/' },
 ])
 
 const emit = defineEmits<{
@@ -55,6 +50,8 @@ function onChange() {
 
 // Optionally fetch real stats to show file counts
 onMounted(async () => {
+  selectedWorkspace.value = 'user'
+  emit('source-change', selectedWorkspace.value)
   try {
     const [topologyRes, statsRes] = await Promise.all([
       ucoreApi.vault.topology(),
@@ -67,7 +64,7 @@ onMounted(async () => {
     >
 
     if (topologyRes.ok && topologyLayers.length > 0) {
-      vaultLayers.value = topologyLayers.map(layer => ({
+      vaultLayers.value = topologyLayers.filter(layer => layer.id === 'user').map(layer => ({
         id: layer.id,
         label: layer.label,
         icon: layer.icon,

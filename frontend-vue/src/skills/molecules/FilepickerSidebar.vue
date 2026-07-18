@@ -62,7 +62,7 @@
         :key="file.path"
         class="filepicker-sidebar__item"
         :class="{ 'filepicker-sidebar__item--readonly': file.is_readonly }"
-        @click="emit('fileSelect', file)"
+        @click="handleFileSelect(file)"
         @dblclick="handleDoubleClick(file)"
       >
         <UIcon :name="getFileIcon(file.extension)" class="filepicker-sidebar__item-icon" />
@@ -139,8 +139,8 @@ const workspaceFilterRef = ref<InstanceType<typeof WorkspaceFilter>>()
 const binderFilterRef = ref<InstanceType<typeof BinderMissionFilter>>()
 
 const searchQuery = ref('')
-const selectedSource = ref<string>('')
-const selectedBinder = ref<string>('')
+const selectedSource = ref<string>('user')
+const selectedBinder = ref<string>('Sandbox')
 const files = ref<FileEntry[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -169,8 +169,9 @@ async function fetchFiles() {
         if (f.mission) binderSet.add(f.mission)
       })
       const binderList = Array.from(binderSet).map(id => ({ id, name: id }))
-      if (binderList.length > 0 && binderFilterRef.value) {
+      if (binderFilterRef.value) {
         binderFilterRef.value.setBinders([
+          { id: 'Sandbox', name: 'Sandbox' },
           { id: 'active', name: 'Active' },
           { id: 'docs', name: 'Documentation' },
           { id: 'archive', name: 'Archive' },
@@ -237,7 +238,14 @@ function onBinderChange(binder: string) {
 }
 
 function handleNewFile() {
-  emit('newFile', selectedBinder.value || 'active')
+  emit('newFile', selectedBinder.value || 'Sandbox')
+}
+
+function handleFileSelect(file: FileEntry) {
+  emit('fileSelect', {
+    ...file,
+    binder: file.binder || 'Sandbox',
+  })
 }
 
 function handleDoubleClick(file: FileEntry) {

@@ -18,10 +18,10 @@
         </div>
 
         <!-- Editor as standalone tab (no task selected) -->
-        <div v-if="wf.activeTab === 'editor' && !wf.selectedTask" class="workflow-panel">
+        <div v-if="wf.activeTab === 'editor' && !activeEditorItem" class="workflow-panel">
           <div class="wf-editor-empty">
             <UIcon name="article" />
-            <p>Select a task from the Tasks tab to edit its content.</p>
+            <p>Select a file from the User Vault sidebar or a task from Tasks.</p>
             <UButton size="sm" variant="primary" @click="wf.setTab('tasks')">
               Go to Tasks
             </UButton>
@@ -29,10 +29,11 @@
         </div>
 
         <!-- Right/Editor column: slides in when a task is selected -->
-        <div v-if="wf.editorOpen && wf.selectedTask" class="workflow-editor" :class="editorColumnClass">
+        <div v-if="wf.editorOpen && activeEditorItem" class="workflow-editor" :class="editorColumnClass">
           <EditorPanel
-            :content="wf.selectedTask.description"
-            :title="wf.selectedTask.title"
+            :content="editorContent"
+            :title="editorTitle"
+            :read-only="editorReadOnly"
             :show-editor="wf.showEditorPane"
             :pane-layout="wf.paneLayout"
             @update:content="onEditorContentUpdate"
@@ -125,17 +126,23 @@ watch(
 )
 
 function onEditorContentUpdate(value: string) {
-  if (wf.selectedTask) {
-    wf.selectedTask.description = value
-  }
+  wf.updateEditorContent(value)
 }
 
 function onEditorSave(value: string) {
-  if (wf.selectedTask) {
-    wf.selectedTask.description = value
-    console.log('[Workflow] Task saved:', wf.selectedTask.id, wf.selectedTask.title)
-  }
+  wf.updateEditorContent(value)
+  const itemId = wf.selectedTask?.id || wf.selectedFile?.path
+  console.log('[Workflow] Editor saved:', itemId)
 }
+
+const activeEditorItem = computed(() => wf.selectedTask || wf.selectedFile)
+const editorTitle = computed(() => (
+  wf.selectedTask?.title || wf.selectedFile?.filename || 'Untitled'
+))
+const editorContent = computed(() => (
+  wf.selectedTask?.description || wf.selectedFile?.content || ''
+))
+const editorReadOnly = computed(() => Boolean(wf.selectedFile?.readOnly))
 
 /**
  * Dynamic column class based on edit pane visibility:
