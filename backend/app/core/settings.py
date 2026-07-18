@@ -40,6 +40,12 @@ class Settings:
     logs_dir: Path = Path(
         os.environ.get("UCORE_LOGS_DIR", os.path.expanduser("~/.ucore/logs")),
     )
+    memory_dir: Path = Path(
+        os.environ.get(
+            "UCORE_MEMORY_DIR",
+            os.path.expanduser("~/.ucore/memory"),
+        ),
+    )
     secrets_dir: Path = Path(
         os.environ.get("UCORE_SECRETS_DIR", os.path.expanduser("~/.ucore")),
     )

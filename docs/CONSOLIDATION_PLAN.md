@@ -90,8 +90,8 @@ Archive or deprecate in-place:
 
 ### 3. Memory / Brain Layer
 
-- `brain_sync` refreshes `wisdom.md` from recent project changes.
-- `attach_context` injects both `CONTEXT.md` and `wisdom.md`.
+- `brain_sync` refreshes private wisdom from recent project changes.
+- `attach_context` injects both `CONTEXT.md` and private wisdom.
 - Next iteration should synthesize spool events, recent docs, and AppFlowy local activity into more durable lessons.
 
 ### 4. UI View Wiring

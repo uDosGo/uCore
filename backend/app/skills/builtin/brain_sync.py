@@ -1,7 +1,7 @@
-"""brain_sync — Synthesize recent project memory into wisdom.md.
+"""brain_sync — Synthesize recent project memory into private wisdom.
 
 Builds a lightweight local "Brain" layer by reviewing recent project files,
-spool logs, and AppFlowy activity, then refreshing wisdom.md with durable
+spool logs, and AppFlowy activity, then refreshing private wisdom with durable
 lessons, recent change summaries, and spool activity analysis.
 
 Usage:
@@ -21,13 +21,16 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from xml.etree import ElementTree
 
-from app.core.settings import settings
 from app.services.episodic_store import summarize_entries as summarize_episodic
 from app.services.spool_reader import read_spool, summarize_spool
+from app.services.wisdom_paths import (
+    PROJECT_ROOT,
+    readable_wisdom_path,
+    writable_wisdom_path,
+)
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
-PROJECT_ROOT = settings.udos_root / "uCore"
-WISDOM_PATH = PROJECT_ROOT / "wisdom.md"
+WISDOM_PATH = writable_wisdom_path()
 DEFAULT_SCAN_DIRS = ("backend", "docs", "frontend", "scripts", ".tasker")
 TEST_REPORT_PATTERNS = (
     "**/junit*.xml",
@@ -46,7 +49,7 @@ class BrainSync(BaseSkill):
         name="Brain Sync",
         description=(
             "Synthesize recent project changes, spool activity, and "
-            "AppFlowy events into wisdom.md"
+            "AppFlowy events into private wisdom"
         ),
         category="assist",
         timeout=30,
@@ -70,21 +73,25 @@ class BrainSync(BaseSkill):
                 type="boolean",
                 required=False,
                 default=True,
-                description="Include spool activity summary in wisdom.md",
+                description="Include spool activity summary in private wisdom",
             ),
             SkillParam(
                 name="include_appflowy",
                 type="boolean",
                 required=False,
                 default=True,
-                description="Include AppFlowy activity summary in wisdom.md",
+                description=(
+                    "Include AppFlowy activity summary in private wisdom"
+                ),
             ),
             SkillParam(
                 name="include_test_failures",
                 type="boolean",
                 required=False,
                 default=True,
-                description="Include recent test failure signals in wisdom.md",
+                description=(
+                    "Include recent test failure signals in private wisdom"
+                ),
             ),
             SkillParam(
                 name="include_episodic",
@@ -92,7 +99,7 @@ class BrainSync(BaseSkill):
                 required=False,
                 default=True,
                 description=(
-                    "Include recent episodic log entries in wisdom.md"
+                    "Include recent episodic log entries in private wisdom"
                 ),
             ),
         ],
@@ -136,7 +143,9 @@ class BrainSync(BaseSkill):
             episodic_summary=episodic_summary,
             hours=hours,
         )
-        WISDOM_PATH.write_text(refreshed, encoding="utf-8")
+        wisdom_path = WISDOM_PATH
+        wisdom_path.parent.mkdir(parents=True, exist_ok=True)
+        wisdom_path.write_text(refreshed, encoding="utf-8")
 
         return {
             "success": True,
@@ -145,7 +154,7 @@ class BrainSync(BaseSkill):
             "include_spool": include_spool,
             "include_appflowy": include_appflowy,
             "include_test_failures": include_test_failures,
-            "wisdom_path": str(WISDOM_PATH),
+            "wisdom_path": str(wisdom_path),
             "recent_files": [
                 str(path.relative_to(PROJECT_ROOT))
                 for path in recent_files
@@ -187,9 +196,12 @@ class BrainSync(BaseSkill):
         return [path for _, path in matches[:limit]]
 
     def _load_existing_sections(self) -> list[str]:
-        if not WISDOM_PATH.exists():
+        wisdom_path = (
+            WISDOM_PATH if WISDOM_PATH.exists() else readable_wisdom_path()
+        )
+        if not wisdom_path.exists():
             return []
-        lines = WISDOM_PATH.read_text(encoding="utf-8").splitlines()
+        lines = wisdom_path.read_text(encoding="utf-8").splitlines()
         durable: list[str] = []
         in_durable = False
         for line in lines:
@@ -353,7 +365,8 @@ class BrainSync(BaseSkill):
             "## Memory Architecture",
             "- Short-term: active AI/chat session context.",
             "- Long-term: AppFlowy, vault, and canonical docs.",
-            "- Episodic: wisdom.md, spool logs, and recent change summaries.",
+            "- Episodic: private wisdom, spool logs, and recent change "
+            "summaries.",
             "",
             "## Synthesis Inputs",
             f"- Window: last {hours}h",

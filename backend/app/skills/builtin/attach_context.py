@@ -10,6 +10,7 @@ Usage:
 from __future__ import annotations
 
 from app.core.settings import settings
+from app.services.wisdom_paths import readable_wisdom_path
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 PROJECT_CONTEXT_FILES = {
@@ -17,8 +18,8 @@ PROJECT_CONTEXT_FILES = {
     "default": settings.udos_root / "uCore/CONTEXT.md",
 }
 PROJECT_WISDOM_FILES = {
-    "ucore": settings.udos_root / "uCore/wisdom.md",
-    "default": settings.udos_root / "uCore/wisdom.md",
+    "ucore": readable_wisdom_path(),
+    "default": readable_wisdom_path(),
 }
 
 
@@ -53,7 +54,7 @@ class AttachContext(BaseSkill):
                 required=False,
                 default=True,
                 description=(
-                    "Include wisdom.md alongside CONTEXT.md "
+                    "Include private project wisdom alongside CONTEXT.md "
                     "when available"
                 ),
             ),
@@ -91,7 +92,7 @@ class AttachContext(BaseSkill):
         if wisdom_text:
             combined_text = (
                 f"{context_text}\n\n---\n\n"
-                f"# Episodic Project Memory\n\n{wisdom_text}"
+                f"# Project Wisdom\n\n{wisdom_text}"
             )
 
         if fmt == "raw":

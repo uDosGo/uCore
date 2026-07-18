@@ -2,7 +2,7 @@
 
 Durable history of corrections, lessons, decisions, and observations
 recorded during the project lifecycle. Used by brain_sync to include
-recent entries in wisdom.md synthesis.
+recent entries in private wisdom synthesis.
 
 Default store: <PROJECT_ROOT>/.episodic/corrections.jsonl
 """

@@ -50,7 +50,7 @@ class SpoolEntry:
 
 ## 4. Integration
 
-- **brain_sync**: Calls `summarize_spool()` → includes "Spool Activity" section in wisdom.md
-- **backup**: Includes wisdom.md alongside database + secrets
-- **attach_context**: Injects wisdom.md alongside CONTEXT.md (include_wisdom=True)
+- **brain_sync**: Calls `summarize_spool()` → includes "Spool Activity" in private wisdom
+- **backup**: Includes private wisdom alongside database + secrets
+- **attach_context**: Injects private wisdom alongside CONTEXT.md (include_wisdom=True)
 - **MCP (future)**: `skill_read_spool`, `skill_search_spool`

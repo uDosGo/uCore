@@ -30,7 +30,7 @@
           {
             "name": "include_wisdom",
             "type": "boolean",
-            "description": "Include wisdom.md alongside CONTEXT.md  when available"
+            "description": "Include private wisdom alongside CONTEXT.md  when available"
           }
         ],
         "timeout": 10,
@@ -55,12 +55,12 @@
         "name": "Brain Sync",
         "skill_id": "brain_sync",
         "category": "assist",
-        "description": "Synthesize recent project changes, spool activity, and  AppFlowy events into wisdom.md",
+        "description": "Synthesize recent project changes, spool activity, and  AppFlowy events into private wisdom",
         "params": [
           {
             "name": "hours",
             "type": "integer",
-            "description": "Include recent episodic log entries in wisdom.md"
+            "description": "Include recent episodic log entries in private wisdom"
           }
         ],
         "timeout": 30,

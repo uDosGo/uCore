@@ -1,8 +1,8 @@
-"""tasker_ingest — MCP bridge: Cline task_progress → persistent .tasker/spool/wisdom.
+"""tasker_ingest — MCP bridge: Cline task_progress to dev flow state.
 
-Ingests ephemeral task_progress checklists from Cline (or any AI agent) sessions
-and syncs them into the persistent .tasker.dev-flow.yaml, spool, devlog.mcp.yaml,
-and wisdom.md systems. Also triggers optional git commit.
+Ingests ephemeral task_progress checklists from Cline or other AI agent
+sessions and syncs them into .tasker.dev-flow.yaml, spool, devlog.mcp.yaml,
+and private wisdom. Also triggers optional git commit.
 
 Usage:
   POST /api/skills/tasker_ingest/run
@@ -13,7 +13,7 @@ Usage:
     "checklist": "# Progress\\n- [x] Step 1 done\\n- [ ] Step 2 pending",
     "outcome": "completed",
     "summary": "Implemented tasker_ingest bridge",
-    "lessons": ["Use MCP tools for persistence", "Always update wisdom.md"],
+    "lessons": ["Use MCP tools for persistence", "Always update wisdom"],
     "auto_commit": false
   }
 """
@@ -28,6 +28,7 @@ from typing import Any
 import yaml
 
 from app.core.settings import settings
+from app.services.wisdom_paths import writable_wisdom_path
 from app.services.spool_writer import write_spool
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
@@ -36,7 +37,7 @@ log = logging.getLogger("ucore.mcp.tasker_ingest")
 PROJECT_ROOT = settings.udos_root / "uCore"
 DEFAULT_TASKER_FILE = PROJECT_ROOT / ".tasker.dev-flow.yaml"
 DEFAULT_DEVLOG_FILE = PROJECT_ROOT / "devlog.mcp.yaml"
-DEFAULT_WISDOM_FILE = PROJECT_ROOT / "wisdom.md"
+DEFAULT_WISDOM_FILE = writable_wisdom_path()
 
 
 class TaskerIngest(BaseSkill):
@@ -47,7 +48,7 @@ class TaskerIngest(BaseSkill):
         name="Tasker Ingest",
         description=(
             "Bridge: ingest Cline/session task_progress checklists into "
-            ".tasker.dev-flow.yaml, spool, devlog.mcp.yaml, and wisdom.md"
+            ".tasker.dev-flow.yaml, spool, devlog.mcp.yaml, and private wisdom"
         ),
         category="workflow",
         timeout=120,
@@ -98,7 +99,9 @@ class TaskerIngest(BaseSkill):
                 type="list",
                 required=False,
                 default=[],
-                description="Durable lessons learned to append to wisdom.md",
+                description=(
+                    "Durable lessons learned to append to private wisdom"
+                ),
             ),
             SkillParam(
                 name="auto_commit",
@@ -232,7 +235,7 @@ class TaskerIngest(BaseSkill):
             )
             results["tasker_updated"] = True
 
-        # 5. Append lessons to wisdom.md
+        # 5. Append lessons to private wisdom
         if not dry_run and lessons:
             wisdom_path = DEFAULT_WISDOM_FILE
             existing = ""

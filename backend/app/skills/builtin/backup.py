@@ -5,15 +5,30 @@ from pathlib import Path
 
 from app.core.logging import log
 from app.core.settings import settings
+from app.services.wisdom_paths import readable_wisdom_path
 from app.skills.base import BaseSkill, SkillMeta, SkillParam
 
 
 class BackupData(BaseSkill):
-    meta = SkillMeta(id="backup", name="Backup Data",
-        description="Backup uCore database, config, secrets, wisdom.md, and user data",
-        category="maintenance", timeout=120,
-        params=[SkillParam(name="destination", type="string", default="~/.ucore/backups")],
-        requires_confirmation=True)
+    meta = SkillMeta(
+        id="backup",
+        name="Backup Data",
+        description=(
+            "Backup uCore database, config, secrets, private wisdom, "
+            "and user data"
+        ),
+        category="maintenance",
+        timeout=120,
+        params=[
+            SkillParam(
+                name="destination",
+                type="string",
+                default="~/.ucore/backups",
+            ),
+        ],
+        requires_confirmation=True,
+    )
+
     async def run(self, **kwargs) -> dict:
         dest = Path(kwargs.get("destination", "~/.ucore/backups")).expanduser()
         dest.mkdir(parents=True, exist_ok=True)
@@ -28,23 +43,36 @@ class BackupData(BaseSkill):
         if db_path and Path(db_path).exists():
             backup_file = dest / f"ucore-backup-{ts}.db"
             shutil.copy2(db_path, backup_file)
-            backup_entries.append({"file": str(backup_file), "size": backup_file.stat().st_size})
+            backup_entries.append({
+                "file": str(backup_file),
+                "size": backup_file.stat().st_size,
+            })
 
-        # 2. wisdom.md
-        wisdom_path = settings.udos_root / "uCore/wisdom.md"
+        # 2. Private project wisdom
+        wisdom_path = readable_wisdom_path()
         if wisdom_path.exists():
             wisdom_backup = dest / f"wisdom-{ts}.md"
             shutil.copy2(wisdom_path, wisdom_backup)
-            backup_entries.append({"file": str(wisdom_backup), "size": wisdom_backup.stat().st_size})
+            backup_entries.append({
+                "file": str(wisdom_backup),
+                "size": wisdom_backup.stat().st_size,
+            })
 
         # 3. Secrets
         secrets_path = settings.secrets_file
         if secrets_path.exists():
             secrets_backup = dest / f"secrets-{ts}.enc"
             shutil.copy2(secrets_path, secrets_backup)
-            backup_entries.append({"file": str(secrets_backup), "size": secrets_backup.stat().st_size})
+            backup_entries.append({
+                "file": str(secrets_backup),
+                "size": secrets_backup.stat().st_size,
+            })
 
-        log.info("Backup completed: %d files backed up to %s", len(backup_entries), dest)
+        log.info(
+            "Backup completed: %d files backed up to %s",
+            len(backup_entries),
+            dest,
+        )
         return {
             "success": True,
             "backup_dir": str(dest),
