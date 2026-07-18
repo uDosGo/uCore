@@ -299,7 +299,7 @@ onMounted(() => {
   border-radius: var(--usx-radius-md);
   min-width: var(--usx-sidebar-width);
   z-index: 10;
-  box-shadow: 0 var(--usx-spacing-xs) var(--usx-spacing-md) rgba(0, 0, 0, 0.15);
+  box-shadow: var(--usx-shadow-sm);
 }
 
 .assistui-model-option {
@@ -312,7 +312,7 @@ onMounted(() => {
   color: var(--usx-color-on-surface);
   cursor: pointer;
   font-size: var(--usx-font-size-sm);
-  transition: background 0.15s ease;
+  transition: background var(--usx-transition-fast);
   text-align: left;
 }
 
@@ -326,7 +326,7 @@ onMounted(() => {
 }
 
 .assistui-model-provider {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -348,7 +348,7 @@ onMounted(() => {
   height: var(--usx-spacing-sm);
   border-radius: var(--usx-radius-full);
   background: var(--usx-color-on-surface-muted);
-  transition: background 0.3s ease;
+  transition: background var(--usx-transition-base);
 }
 
 .assistui-status-dot--online {
@@ -405,7 +405,7 @@ onMounted(() => {
 }
 
 .assistui-message-time {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -431,7 +431,7 @@ onMounted(() => {
 
 .assistui-prompt-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16ch, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--usx-spacing-lg);
   margin: var(--usx-spacing-lg) 0;
   padding: var(--usx-spacing-lg) 0;
@@ -448,7 +448,7 @@ onMounted(() => {
   background: var(--usx-color-surface);
   border: var(--usx-border-width) solid var(--usx-color-border);
   cursor: pointer;
-  transition: all var(--usx-transition-base, 0.15s ease);
+  transition: background var(--usx-transition-base), border-color var(--usx-transition-base), color var(--usx-transition-base), transform var(--usx-transition-base);
   color: var(--usx-color-on-surface);
 }
 
@@ -458,7 +458,7 @@ onMounted(() => {
   background: var(--usx-color-surface-hover);
   border-color: var(--usx-color-primary);
   transform: translateY(calc(var(--usx-spacing-1) * -1));
-  box-shadow: 0 var(--usx-spacing-sm) var(--usx-spacing-lg) rgba(0, 0, 0, 0.08);
+  box-shadow: var(--usx-shadow-md);
 }
 
 .assistui-prompt-card-label {
@@ -467,7 +467,7 @@ onMounted(() => {
 }
 
 .assistui-prompt-card-context {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -483,15 +483,27 @@ onMounted(() => {
   height: var(--usx-spacing-sm);
   border-radius: 50%;
   background: var(--usx-color-primary);
-  animation: assistui-pulse 1.5s ease-in-out infinite;
+  animation: assistui-pulse var(--usx-motion-duration-pulse) ease-in-out infinite;
 }
 
 .assistui-loading-dot:nth-child(2) {
-  animation-delay: 0.2s;
+  animation-delay: var(--usx-motion-delay-md);
 }
 
 .assistui-loading-dot:nth-child(3) {
-  animation-delay: 0.4s;
+  animation-delay: var(--usx-motion-delay-xl);
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
+  .assistui-prompt-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
+  .assistui-prompt-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 @keyframes assistui-pulse {

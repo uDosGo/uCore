@@ -234,12 +234,12 @@ onMounted(() => { fetchSystemData() })
 
 <style scoped>
 .system-muted-copy { margin: 0 0 var(--usx-spacing-md); font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); }
-.system-pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(16ch, 1fr)); gap: var(--usx-spacing-sm); }
-.system-page-card { display: flex; flex-direction: column; align-items: center; gap: var(--usx-spacing-xs); padding: var(--usx-spacing-md); background: var(--usx-color-surface); border-radius: var(--usx-radius-lg); cursor: pointer; transition: all 0.15s ease; }
+.system-pages-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--usx-spacing-sm); }
+.system-page-card { display: flex; flex-direction: column; align-items: center; gap: var(--usx-spacing-xs); padding: var(--usx-spacing-md); background: var(--usx-color-surface); border-radius: var(--usx-radius-lg); cursor: pointer; transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), transform var(--usx-transition-fast); }
 .system-page-card:hover { border-color: var(--usx-color-primary); }
 .system-page-id { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-semibold); color: var(--usx-color-primary); }
 .system-page-title { font-size: var(--usx-font-size-sm); text-align: center; }
-.system-tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20ch, 1fr)); gap: var(--usx-spacing-sm); }
+.system-tools-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--usx-spacing-sm); }
 .system-tool-card { display: flex; flex-direction: column; gap: var(--usx-spacing-xs); padding: var(--usx-spacing-md); background: var(--usx-color-surface); border-radius: var(--usx-radius-lg); }
 .system-tool-name { font-size: var(--usx-font-size-base); font-weight: var(--usx-font-weight-semibold); }
 .system-tool-desc { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); }
@@ -264,4 +264,14 @@ onMounted(() => { fetchSystemData() })
 .settings-row label { min-width: 12ch; font-size: var(--usx-font-size-sm); }
 .settings-row select, .settings-row input[type="text"], .settings-row input[type="email"] { padding: var(--usx-spacing-xs) var(--usx-spacing-sm); background: var(--usx-color-background); border-radius: var(--usx-radius-sm); color: var(--usx-color-on-surface); font-size: var(--usx-font-size-sm); }
 .system-loading { padding: var(--usx-spacing-lg); text-align: center; color: var(--usx-color-on-surface-muted); font-size: var(--usx-font-size-sm); }
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
+  .system-pages-grid,
+  .system-tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
+  .system-pages-grid,
+  .system-tools-grid { grid-template-columns: 1fr; }
+}
 </style>

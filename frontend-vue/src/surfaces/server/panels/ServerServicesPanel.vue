@@ -36,5 +36,13 @@ const srv = useServerStore()
 <style scoped>
 .server-muted-text-sm { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); }
 .server-service-name-cell { flex: 1; font-weight: var(--usx-font-weight-semibold); }
-.server-services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20ch, 1fr)); gap: var(--usx-spacing-md); }
+.server-services-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--usx-spacing-md); }
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
+  .server-services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
+  .server-services-grid { grid-template-columns: 1fr; }
+}
 </style>

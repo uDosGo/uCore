@@ -172,7 +172,7 @@ onBeforeUnmount(() => {
   font-size: var(--usx-font-size-sm);
   font-family: inherit;
   padding: var(--usx-spacing-xs) var(--usx-spacing-md);
-  transition: all 150ms ease;
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), color var(--usx-transition-fast);
 }
 
 .groovebox-surface-back:hover {
@@ -195,7 +195,7 @@ onBeforeUnmount(() => {
   border: var(--usx-border-width) solid var(--usx-color-border);
   border-radius: var(--usx-radius-full);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   background: var(--usx-color-surface-variant);
 }
@@ -236,7 +236,7 @@ onBeforeUnmount(() => {
   font-size: var(--usx-font-size-lg);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
-  transition: all 150ms ease;
+  transition: background var(--usx-transition-fast), color var(--usx-transition-fast);
 }
 
 .groovebox-surface-external:hover {
@@ -269,7 +269,7 @@ onBeforeUnmount(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(90vw, 560px);
+  width: min(90vw, var(--usx-error-panel-max-width));
   padding: var(--usx-spacing-lg);
   border: var(--usx-border-width) solid var(--usx-color-danger);
   border-radius: var(--usx-radius-md);

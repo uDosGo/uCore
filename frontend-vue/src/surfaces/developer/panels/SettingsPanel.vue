@@ -186,6 +186,7 @@
  * @category surfaces/developer
  */
 import { reactive, ref, watch } from 'vue'
+import { useGridCoreSettingsStore } from '../../../stores/gridcoreSettings'
 
 type SettingsLayer = 'global' | 'usx' | 'gridcore' | 'usystem'
 
@@ -197,6 +198,7 @@ const layers: Array<{ id: SettingsLayer; label: string }> = [
 ]
 
 const activeLayer = ref<SettingsLayer>('global')
+const gridcore = useGridCoreSettingsStore()
 
 const global = reactive({
   fontStyle: 'inter',
@@ -209,13 +211,6 @@ const usx = reactive({
   typographyScale: 'normal',
   lineHeight: 1.5,
   borderRadius: 'rounded',
-})
-
-const gridcore = reactive({
-  preset: 'normal',
-  cellWidth: 10,
-  cellHeight: 16,
-  renderMode: 'hybrid',
 })
 
 const usystem = reactive({

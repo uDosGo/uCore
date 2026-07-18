@@ -192,7 +192,7 @@ onMounted(() => {
 .feed-source-badge {
   padding: var(--usx-spacing-1) var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
   text-transform: uppercase;
 }
@@ -201,7 +201,7 @@ onMounted(() => {
 .feed-source--message { background: color-mix(in srgb, var(--usx-color-accent) 15%, transparent); color: var(--usx-color-accent); }
 .feed-source--alert { background: color-mix(in srgb, var(--usx-color-warning) 15%, transparent); color: var(--usx-color-warning); }
 .feed-source--search { background: color-mix(in srgb, var(--usx-color-info) 10%, transparent); color: var(--usx-color-info); }
-.feed-importance { font-size: var(--usx-font-size-xs); font-weight: var(--usx-font-weight-semibold); }
+.feed-importance { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-semibold); }
 .feed-importance--danger { color: var(--usx-color-danger); }
 .feed-importance--warning { color: var(--usx-color-warning); }
 .feed-importance--success { color: var(--usx-color-success); }
@@ -212,7 +212,7 @@ onMounted(() => {
   padding: var(--usx-spacing-1) var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
   cursor: pointer;
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 .feed-link-btn:hover { background: var(--usx-color-border); }
 .feed-empty {
@@ -231,7 +231,7 @@ onMounted(() => {
   margin-bottom: var(--usx-spacing-sm);
   border-left: calc(var(--usx-border-width) * 3) solid var(--usx-color-primary);
 }
-.feed-confidence { font-size: var(--usx-font-size-xs); color: var(--usx-color-primary); }
+.feed-confidence { font-size: var(--usx-font-size-sm); color: var(--usx-color-primary); }
 .feed-suggest-btn {
   margin-top: var(--usx-spacing-md);
   padding: var(--usx-spacing-sm) var(--usx-spacing-lg);

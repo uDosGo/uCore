@@ -49,7 +49,7 @@ withDefaults(defineProps<Props>(), {
   justify-content: center;
   padding: var(--usx-spacing-xs) var(--usx-spacing-md);
   border-radius: var(--usx-radius-full);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
   line-height: var(--usx-line-height-tight);
   white-space: nowrap;
@@ -61,7 +61,7 @@ withDefaults(defineProps<Props>(), {
 
 .u-badge--sm {
   padding: var(--usx-spacing-1) var(--usx-spacing-sm);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .u-badge--md {
@@ -77,7 +77,7 @@ withDefaults(defineProps<Props>(), {
   min-width: 1.8em;
   min-height: 1.8em;
   border-radius: 50%;
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   line-height: var(--usx-line-height-none);
   letter-spacing: 0;
 }

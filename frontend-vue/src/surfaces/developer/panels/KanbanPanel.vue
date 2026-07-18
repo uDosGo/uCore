@@ -167,9 +167,8 @@ onMounted(() => { fetchTasks() })
 
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(4, minmax(calc(var(--usx-spacing-2xl) * 6 + var(--usx-spacing-lg)), 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--usx-spacing-md);
-  overflow-x: auto;
 }
 
 .kanban-column {
@@ -208,6 +207,7 @@ onMounted(() => { fetchTasks() })
   padding: var(--usx-spacing-sm);
   background: var(--usx-color-background);
   border-radius: var(--usx-radius-md);
+  border: var(--usx-border-width) solid transparent;
   cursor: grab;
   transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), transform var(--usx-transition-fast);
 }
@@ -234,5 +234,17 @@ onMounted(() => { fetchTasks() })
 .kanban-card-date {
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
+  .kanban-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
+  .kanban-board {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

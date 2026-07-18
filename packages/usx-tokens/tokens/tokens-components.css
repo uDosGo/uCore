@@ -15,6 +15,11 @@
   --usx-border-width: 1px;
   --usx-border-width-thick: 2px;
 
+  /* ===== SHADOWS ===== */
+  --usx-shadow-sm: 0 var(--usx-spacing-xs) var(--usx-spacing-md) color-mix(in srgb, var(--usx-color-on-surface) 15%, transparent);
+  --usx-shadow-md: 0 var(--usx-spacing-sm) var(--usx-spacing-lg) color-mix(in srgb, var(--usx-color-on-surface) 8%, transparent);
+  --usx-shadow-lg: 0 var(--usx-spacing-sm) var(--usx-spacing-xl) color-mix(in srgb, var(--usx-color-on-surface) 20%, transparent);
+
   /* ===== CARD ===== */
   --usx-card-padding: var(--usx-spacing-lg);
   --usx-card-radius: var(--usx-radius-lg);
@@ -22,6 +27,9 @@
 
   /* ===== SIDEBAR ===== */
   --usx-sidebar-width: 280px;
+  --usx-sidebar-compact-width: 56px;
+  --usx-sidebar-width-sm: calc(var(--usx-sidebar-width) - var(--usx-spacing-2xl) + var(--usx-spacing-sm));
+  --usx-sidebar-width-lg: calc(var(--usx-sidebar-width) + var(--usx-spacing-xl) + var(--usx-spacing-sm));
   --usx-sidebar-padding: var(--usx-spacing-md);
 
   /* ===== TABS ===== */
@@ -35,6 +43,10 @@
   --usx-icon-size-2lg: 28px;
   --usx-icon-size-xl: 32px;
   --usx-icon-gap: var(--usx-spacing-sm);
+
+  /* ===== CONTROLS ===== */
+  --usx-control-size-sm: 32px;
+  --usx-control-size-md: 44px;
 
   /* ===== GRID ===== */
   --usx-grid-gap: var(--usx-spacing-md);
@@ -55,9 +67,27 @@
   --usx-grid-min-col-width: 280px;
   --usx-dropdown-min-width: 180px;
   --usx-border-overlap: 1px;
+  --usx-error-panel-max-width: calc(var(--usx-spacing-2xl) * 12);
+  --usx-editor-min-height: calc(var(--usx-spacing-2xl) * 8 + var(--usx-spacing-lg));
+  --usx-toast-offset: var(--usx-icon-size);
+  --usx-toast-max-width: calc(var(--usx-sidebar-width) + var(--usx-spacing-2xl) + var(--usx-spacing-xl) + var(--usx-spacing-lg));
+  --usx-breakpoint-md: 768px;
+  --usx-breakpoint-lg: 1024px;
 
   /* ===== TRANSITIONS ===== */
   --usx-transition-fast: 0.1s ease;
   --usx-transition-base: 0.15s ease;
   --usx-transition-slow: 0.3s ease;
+
+  /* ===== MOTION ===== */
+  --usx-motion-duration-fast: 0.15s;
+  --usx-motion-duration-base: 0.3s;
+  --usx-motion-duration-slow: 0.6s;
+  --usx-motion-duration-spin: 1s;
+  --usx-motion-duration-pulse: 1.5s;
+  --usx-motion-delay-sm: 0.16s;
+  --usx-motion-delay-md: 0.2s;
+  --usx-motion-delay-lg: 0.32s;
+  --usx-motion-delay-xl: 0.4s;
+  --usx-motion-distance-md: var(--usx-icon-size);
 }

@@ -55,9 +55,9 @@ onUnmounted(() => {
 <style scoped>
 .prose-viewer {
   margin: 0 auto;
-  padding: var(--usx-spacing-xl, 24px);
-  line-height: var(--usx-line-height-relaxed, 1.8);
-  color: var(--usx-color-on-surface);
+  padding: var(--gridcore-viewer-padding);
+  line-height: var(--gridcore-line-height-prose);
+  color: var(--gridcore-color-text);
   width: 100%;
 }
 
@@ -69,10 +69,10 @@ onUnmounted(() => {
 .prose-viewer__content :deep(h2),
 .prose-viewer__content :deep(h3),
 .prose-viewer__content :deep(h4) {
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  font-weight: 600;
-  line-height: 1.3;
+  margin-top: var(--gridcore-viewer-heading-margin-top);
+  margin-bottom: var(--gridcore-viewer-margin-sm);
+  font-weight: var(--gridcore-font-weight-semibold);
+  line-height: var(--gridcore-line-height-tight);
 }
 
 .prose-viewer__content :deep(h1) { font-size: 2em; }
@@ -81,11 +81,11 @@ onUnmounted(() => {
 .prose-viewer__content :deep(h4) { font-size: 1.1em; }
 
 .prose-viewer__content :deep(p) {
-  margin-bottom: 1em;
+  margin-bottom: var(--gridcore-viewer-margin-lg);
 }
 
 .prose-viewer__content :deep(a) {
-  color: var(--usx-color-primary);
+  color: var(--gridcore-color-primary);
   text-decoration: none;
 }
 
@@ -94,18 +94,18 @@ onUnmounted(() => {
 }
 
 .prose-viewer__content :deep(code) {
-  background: var(--usx-color-surface-variant);
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-  font-size: 0.9em;
+  background: var(--gridcore-color-surface-muted);
+  padding: var(--gridcore-marker-pad-x) calc(var(--gridcore-marker-pad-x) * 2);
+  border-radius: var(--gridcore-control-radius);
+  font-size: var(--gridcore-font-size-body);
 }
 
 .prose-viewer__content :deep(pre) {
-  background: var(--usx-color-surface-variant);
-  padding: var(--usx-spacing-lg);
-  border-radius: var(--usx-radius-md);
+  background: var(--gridcore-color-surface-muted);
+  padding: var(--gridcore-space-lg);
+  border-radius: var(--gridcore-radius-md);
   overflow-x: auto;
-  margin-bottom: 1em;
+  margin-bottom: var(--gridcore-viewer-margin-lg);
 }
 
 .prose-viewer__content :deep(pre code) {
@@ -114,10 +114,10 @@ onUnmounted(() => {
 }
 
 .prose-viewer__content :deep(blockquote) {
-  border-left: 3px solid var(--pico-primary, #58a6ff);
-  padding-left: var(--usx-spacing-lg, 16px);
+  border-left: calc(var(--gridcore-viewer-blockquote-width) + var(--gridcore-border-width)) solid var(--gridcore-color-primary);
+  padding-left: var(--gridcore-space-lg);
   margin-left: 0;
-  color: var(--usx-color-on-surface-muted);
+  color: var(--gridcore-color-text-muted);
 }
 
 .prose-viewer__content :deep(ul),
@@ -133,24 +133,24 @@ onUnmounted(() => {
 .prose-viewer__content :deep(table) {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1em;
+  margin-bottom: var(--gridcore-viewer-margin-lg);
 }
 
 .prose-viewer__content :deep(th),
 .prose-viewer__content :deep(td) {
-  padding: 0.5em 0.75em;
-  border: 1px solid var(--pico-border-color, #30363d);
+  padding: var(--gridcore-viewer-margin-sm) var(--gridcore-viewer-margin-md);
+  border: var(--gridcore-border);
   text-align: left;
 }
 
 .prose-viewer__content :deep(th) {
-  background: var(--pico-card-sectioning-background-color, #161b22);
-  font-weight: 600;
+  background: var(--gridcore-color-surface);
+  font-weight: var(--gridcore-font-weight-semibold);
 }
 
 .prose-viewer__content :deep(hr) {
   border: none;
-  border-top: 1px solid var(--pico-border-color, #30363d);
+  border-top: var(--gridcore-border);
   margin: 2em 0;
 }
 </style>

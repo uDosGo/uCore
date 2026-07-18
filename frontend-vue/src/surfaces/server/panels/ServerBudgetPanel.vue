@@ -32,8 +32,16 @@ const srv = useServerStore()
 </script>
 
 <style scoped>
-.budget-overview { display: grid; grid-template-columns: repeat(auto-fill, minmax(18ch, 1fr)); gap: var(--usx-spacing-md); }
+.budget-overview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--usx-spacing-md); }
 .budget-stat { padding: var(--usx-spacing-md); border-radius: var(--usx-radius-lg); background: var(--usx-color-background); display: flex; flex-direction: column; gap: var(--usx-spacing-xs); }
 .budget-stat-label { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); text-transform: uppercase; }
 .budget-stat-value { font-size: var(--usx-font-size-2xl); font-weight: var(--usx-font-weight-bold); }
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
+  .budget-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
+  .budget-overview { grid-template-columns: 1fr; }
+}
 </style>

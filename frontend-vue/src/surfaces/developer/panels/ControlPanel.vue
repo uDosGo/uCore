@@ -147,7 +147,7 @@ async function fetchStatus() {
 function handleBadgeClick(id: string) {
   // Navigation to detail views based on badge type
   const navMap: Record<string, string> = {
-    cline: 'cline-cli',
+    cline: 'agents',
     openrouter: 'models',
     hivemind: 'agents',
     roundtable: 'agents',
@@ -278,7 +278,7 @@ onUnmounted(() => {
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   margin-bottom: var(--usx-spacing-sm);
 }
 .control-status-bar--loading {
@@ -336,7 +336,7 @@ onUnmounted(() => {
 /* ─── Main Content Grid ────────────────────────────── */
 .control-main {
   display: grid;
-  grid-template-columns: 6fr 4fr;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: var(--usx-spacing-md);
 }
 

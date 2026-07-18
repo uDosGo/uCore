@@ -261,7 +261,7 @@ onMounted(() => {
 
 .surfaces-spinner {
   font-size: var(--usx-icon-size-xl);
-  animation: spin 1s linear infinite;
+  animation: spin var(--usx-motion-duration-spin) linear infinite;
 }
 
 .surfaces-error-box {

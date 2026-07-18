@@ -39,9 +39,9 @@ const actions: Array<{ id: string; icon: string; label: string; disabled?: boole
 
 <style scoped>
 .quick-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--usx-spacing-xs);
-  justify-content: flex-end;
 }
 
 .quick-actions__btn {
@@ -54,10 +54,16 @@ const actions: Array<{ id: string; icon: string; label: string; disabled?: boole
   color: var(--usx-color-on-surface);
   border-radius: var(--usx-radius-sm);
   cursor: pointer;
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   font-family: var(--usx-font-family-sans);
   transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), color var(--usx-transition-fast);
   white-space: nowrap;
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 24)) {
+  .quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .quick-actions__btn:hover:not(:disabled) {
@@ -76,7 +82,7 @@ const actions: Array<{ id: string; icon: string; label: string; disabled?: boole
 }
 
 .quick-actions__spinner {
-  animation: spin 1s linear infinite;
+  animation: spin var(--usx-motion-duration-spin) linear infinite;
 }
 
 .quick-actions__label {

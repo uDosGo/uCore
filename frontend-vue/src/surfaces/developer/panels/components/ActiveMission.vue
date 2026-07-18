@@ -100,7 +100,7 @@ defineProps<{
 }
 
 .active-mission__stat-label {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -139,7 +139,7 @@ defineProps<{
 }
 
 .active-mission__progress-label {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-primary);
   min-width: calc(var(--usx-spacing-2xl) + var(--usx-spacing-1));

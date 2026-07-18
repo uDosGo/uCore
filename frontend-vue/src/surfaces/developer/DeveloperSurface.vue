@@ -36,8 +36,9 @@
  * @usage Routed at '/developer/*'
  */
 import { defineAsyncComponent } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useShellStore } from '../../stores/shell'
-import { useDeveloperStore, DEVELOPER_TABS } from '../../stores/developer'
+import { useDeveloperStore, DEVELOPER_TABS, type DeveloperTab } from '../../stores/developer'
 import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
 const shell = useShellStore()
@@ -60,6 +61,21 @@ const DocLangPanel = defineAsyncComponent(() => import('./panels/DocLangPanel.vu
 const SettingsPanel = defineAsyncComponent(() => import('./panels/SettingsPanel.vue'))
 
 const dev = useDeveloperStore()
+
+function handleControlNav(event: Event) {
+  const tab = (event as CustomEvent<{ tab?: string }>).detail?.tab
+  if (DEVELOPER_TABS.some((item) => item.id === tab)) {
+    dev.setTab(tab as DeveloperTab)
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('control-nav', handleControlNav)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('control-nav', handleControlNav)
+})
 </script>
 
 <style scoped>

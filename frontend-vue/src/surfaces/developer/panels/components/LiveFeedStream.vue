@@ -2,12 +2,15 @@
   <div class="live-feed">
     <div class="live-feed__header">
       <span class="live-feed__title">Live Feed</span>
-      <div class="live-feed__filters">
+      <div class="live-feed__filters" role="tablist" aria-label="Live feed sources">
         <button
           v-for="src in sources"
           :key="src"
           class="live-feed__filter-btn"
           :class="{ 'live-feed__filter-btn--active': activeSource === src }"
+          role="tab"
+          type="button"
+          :aria-selected="activeSource === src"
           @click="activeSource = src"
         >
           {{ src === 'all' ? 'All' : src }}
@@ -110,18 +113,24 @@ function importanceClass(importance: number): string {
 
 .live-feed__filters {
   display: flex;
-  gap: var(--usx-spacing-xs);
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  border-bottom: var(--usx-border-width) solid var(--usx-color-border);
 }
 
 .live-feed__filter-btn {
-  padding: var(--usx-spacing-1) var(--usx-spacing-sm);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border: none;
+  border-bottom: var(--usx-border-width-thick) solid transparent;
   background: transparent;
   color: var(--usx-color-on-surface-muted);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
+  font-weight: var(--usx-font-weight-medium);
   cursor: pointer;
-  border-radius: var(--usx-radius-sm);
-  transition: background var(--usx-transition-fast), color var(--usx-transition-fast);
+  border-radius: 0;
+  transition: border-color var(--usx-transition-fast), color var(--usx-transition-fast);
+  white-space: nowrap;
 }
 
 .live-feed__filter-btn:hover {
@@ -129,7 +138,7 @@ function importanceClass(importance: number): string {
 }
 
 .live-feed__filter-btn--active {
-  background: var(--usx-color-primary-disabled);
+  border-bottom-color: var(--usx-color-primary);
   color: var(--usx-color-primary);
 }
 
@@ -186,7 +195,7 @@ function importanceClass(importance: number): string {
 }
 
 .live-feed__item-detail {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -194,7 +203,7 @@ function importanceClass(importance: number): string {
 }
 
 .live-feed__importance {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
   flex-shrink: 0;
 }

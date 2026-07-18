@@ -470,7 +470,7 @@ onMounted(() => {
   font-size: var(--usx-font-size-sm);
   font-family: var(--usx-font-family-sans);
   text-align: left;
-  transition: all var(--usx-transition-fast);
+  transition: background var(--usx-transition-fast), color var(--usx-transition-fast);
   width: 100%;
 }
 
@@ -490,7 +490,7 @@ onMounted(() => {
 }
 
 .registry-sidebar__tab-count {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   min-width: calc(var(--usx-spacing-lg) * 1.5);
   text-align: right;
@@ -518,13 +518,13 @@ onMounted(() => {
 }
 
 .registry-summary-text {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
 .registry-summary-filter {
   display: block;
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-primary);
 }
 
@@ -550,7 +550,7 @@ onMounted(() => {
   align-items: center;
   gap: var(--usx-spacing-sm);
   cursor: pointer;
-  transition: all var(--usx-transition-fast);
+  transition: background var(--usx-transition-fast), color var(--usx-transition-fast), transform var(--usx-transition-fast);
   min-width: calc(var(--usx-spacing-2xl) * 3 + var(--usx-spacing-sm));
   flex: 1;
 }
@@ -560,7 +560,7 @@ onMounted(() => {
 }
 
 .registry-count-label {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -599,7 +599,7 @@ onMounted(() => {
 .registry-grid {
   display: grid;
   gap: var(--usx-grid-gap-sm);
-  grid-template-columns: repeat(auto-fill, minmax(calc(var(--usx-spacing-2xl) * 8 + var(--usx-spacing-sm)), 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .registry-card {
@@ -611,13 +611,13 @@ onMounted(() => {
 }
 
 .registry-meta-text {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
 .registry-chip-row {
   flex-wrap: wrap;
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .registry-file-muted {
@@ -670,12 +670,12 @@ onMounted(() => {
 }
 
 .registry-badge--xs {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .registry-badge--compact {
   padding: var(--usx-spacing-1) var(--usx-spacing-2);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .registry-badge--mono {
@@ -685,7 +685,19 @@ onMounted(() => {
 .registry-badge--method {
   min-width: calc(var(--usx-spacing-lg) * 3);
   text-align: center;
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   padding: var(--usx-spacing-1) var(--usx-spacing-2);
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
+  .registry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
+  .registry-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

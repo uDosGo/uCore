@@ -335,7 +335,7 @@ async function runWorkflow(workflowId: string): Promise<void> {
   padding: var(--usx-spacing-xs) var(--usx-spacing-xs);
   background: var(--usx-color-surface-variant);
   border-radius: var(--usx-radius-sm);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .wf-icon--success { color: var(--usx-color-success); }

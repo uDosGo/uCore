@@ -353,8 +353,8 @@ onUnmounted(() => {
 
 .sm-sidebar {
   flex-shrink: 0;
-  width: clamp(240px, 24vw, 320px);
-  min-width: 240px;
+  width: clamp(var(--usx-sidebar-width-sm), 24vw, var(--usx-sidebar-width-lg));
+  min-width: var(--usx-sidebar-width-sm);
   overflow-y: auto;
   display: flex;
   flex-direction: column;

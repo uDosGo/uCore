@@ -67,7 +67,7 @@ const repairDashboard = () => {
   const dashboardGrid = document.querySelector('.dashboard-surface__grid') as HTMLElement
   if (dashboardGrid) {
     dashboardGrid.style.display = 'grid'
-    dashboardGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(20ch, 1fr))'
+    dashboardGrid.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))'
     dashboardGrid.style.gap = 'var(--usx-spacing-md)'
     dashboardFixed.value = true
   }

@@ -57,7 +57,7 @@ const emit = defineEmits<{
   line-height: var(--usx-line-height-tight);
   cursor: pointer;
   border-radius: 0;
-  transition: color 0.15s ease;
+  transition: color var(--usx-transition-base);
   font-weight: var(--usx-font-weight-medium);
   font-family: var(--usx-font-family-sans);
 }
@@ -103,10 +103,10 @@ const emit = defineEmits<{
 }
 
 /* Icon-only mode on narrow screens */
-@media (max-width: 768px) {
+@media (max-width: var(--usx-breakpoint-md)) {
   .u-tab {
     padding: var(--usx-spacing-sm);
-    min-width: 44px;
+    min-width: var(--usx-control-size-md);
     justify-content: center;
   }
 
@@ -120,7 +120,7 @@ const emit = defineEmits<{
 }
 
 /* Medium screens - keep text but reduce padding */
-@media (max-width: 1024px) and (min-width: 769px) {
+@media (max-width: var(--usx-breakpoint-lg)) and (min-width: calc(var(--usx-breakpoint-md) + var(--usx-border-width))) {
   .u-tab {
     padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   }

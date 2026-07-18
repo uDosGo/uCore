@@ -241,7 +241,7 @@ const fallbackChar = computed(() => {
 
 /* Spin animation */
 .u-icon--spin {
-  animation: u-icon-spin 1s linear infinite;
+  animation: u-icon-spin var(--usx-motion-duration-spin) linear infinite;
 }
 
 @keyframes u-icon-spin {

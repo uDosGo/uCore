@@ -99,25 +99,25 @@ onMounted(async () => {
 
 .workspace-filter__label {
   font-size: var(--usx-font-size-sm);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   text-transform: uppercase;
-  color: var(--pico-muted-color);
-  letter-spacing: 0.5px;
+  color: var(--usx-color-on-surface-muted);
+  letter-spacing: var(--usx-letter-spacing-wide);
 }
 
 .workspace-filter__select {
   padding: var(--usx-spacing-xs) var(--usx-spacing-lg) var(--usx-spacing-xs) var(--usx-spacing-sm);
-  background: var(--pico-background-color);
-  border-radius: var(--usx-border-radius-sm);
+  background: var(--usx-color-background);
+  border-radius: var(--usx-radius-sm);
   font-size: var(--usx-font-size-sm);
-  color: var(--pico-color);
-  border: 1px solid rgba(88, 166, 255, 0.15);
+  color: var(--usx-color-on-surface);
+  border: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-primary) 15%, transparent);
   cursor: pointer;
   appearance: auto;
 }
 
 .workspace-filter__select:focus {
-  border-color: #58a6ff;
+  border-color: var(--usx-color-primary);
   outline: none;
 }
 </style>

@@ -180,7 +180,7 @@ function handleSave() {
   padding: 0 var(--usx-spacing-md);
   border-bottom: var(--usx-border-width) solid var(--usx-color-border);
   flex-shrink: 0;
-  min-height: var(--usx-touch-min-sm, 40px);
+  min-height: var(--usx-touch-min-sm);
   gap: var(--usx-spacing-sm);
 }
 
@@ -194,7 +194,7 @@ function handleSave() {
 
 .editor-panel__title {
   font-size: var(--usx-font-size-base);
-  font-weight: 600;
+  font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface);
   white-space: nowrap;
   overflow: hidden;
@@ -233,8 +233,8 @@ function handleSave() {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--usx-control-size-sm);
+  height: var(--usx-control-size-sm);
   padding: 0;
   border: none;
   border-radius: var(--usx-radius-sm);

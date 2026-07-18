@@ -393,7 +393,7 @@ onMounted(() => {
 <style scoped>
 .courses-badge--compact {
   padding: var(--usx-spacing-1) var(--usx-spacing-2);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .courses-muted-copy {
@@ -401,7 +401,7 @@ onMounted(() => {
 }
 
 .courses-meta-text {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -456,7 +456,7 @@ onMounted(() => {
 }
 
 .courses-row-xs {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .courses-empty {

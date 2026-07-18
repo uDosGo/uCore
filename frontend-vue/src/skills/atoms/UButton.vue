@@ -62,7 +62,7 @@ import { computed } from 'vue'
   cursor: pointer;
   font-weight: var(--usx-font-weight-medium);
   line-height: var(--usx-line-height-tight);
-  transition: all 0.15s ease;
+  transition: background var(--usx-transition-base), border-color var(--usx-transition-base), color var(--usx-transition-base), opacity var(--usx-transition-base);
   font-family: var(--usx-font-family-sans);
   border: var(--usx-border-width) solid transparent;
 }

@@ -95,7 +95,7 @@ function runDemo() {
   clearTerminal()
   printLine('uCore GridUI Terminal Demo', 4, 0)
   printLine('', 7, 0)
-  printLine('  Grid: 40x25 @20px cells', 2, 0)
+  printLine('  Grid: 40x25 terminal cells', 2, 0)
   printLine('  Font: pressstart2p + vt323', 2, 0)
   printLine('  Renderer: Canvas 2D', 2, 0)
   printLine('  Scaling: 1x retro base', 5, 0)

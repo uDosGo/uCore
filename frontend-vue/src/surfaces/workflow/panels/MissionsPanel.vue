@@ -29,9 +29,7 @@
         </div>
         <p class="wf-mission-card-desc">{{ mission.description }}</p>
         <div class="wf-progress-row">
-          <div class="wf-progress-bar-bg">
-            <div class="wf-progress-bar-fill" :style="{ width: missionProgress(mission) + '%' }" />
-          </div>
+          <progress class="wf-progress-bar" :value="missionProgress(mission)" max="100" />
           <span class="wf-progress-text">{{ missionProgress(mission) }}%</span>
         </div>
         <div class="wf-mission-task-count">{{ mission.taskIds.length }} tasks</div>
@@ -94,7 +92,7 @@ function missionProgress(mission: Mission): number {
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-lg);
   border-left: calc(var(--usx-border-width) + var(--usx-border-width-thick)) solid var(--usx-color-primary);
-  transition: border-color 0.15s ease;
+  transition: border-color var(--usx-transition-fast);
 }
 
 .wf-mission-card:hover {
@@ -126,19 +124,32 @@ function missionProgress(mission: Mission): number {
   margin-bottom: var(--usx-spacing-xs);
 }
 
-.wf-progress-bar-bg {
+.wf-progress-bar {
   flex: 1;
+  width: 100%;
   height: var(--usx-spacing-xs);
-  background: var(--usx-color-surface-variant);
+  appearance: none;
+  border: none;
+  background: var(--usx-color-primary);
   border-radius: var(--usx-radius-full);
   overflow: hidden;
 }
 
-.wf-progress-bar-fill {
-  height: 100%;
+.wf-progress-bar::-webkit-progress-bar {
+  background: var(--usx-color-surface-variant);
+  border-radius: var(--usx-radius-full);
+}
+
+.wf-progress-bar::-webkit-progress-value {
   background: var(--usx-color-primary);
   border-radius: var(--usx-radius-full);
-  transition: width 0.3s ease;
+  transition: width var(--usx-transition-fast);
+}
+
+.wf-progress-bar::-moz-progress-bar {
+  background: var(--usx-color-primary);
+  border-radius: var(--usx-radius-full);
+  transition: width var(--usx-transition-fast);
 }
 
 .wf-progress-text {
@@ -150,7 +161,7 @@ function missionProgress(mission: Mission): number {
 }
 
 .wf-mission-task-count {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   margin-bottom: var(--usx-spacing-xs);
 }
@@ -163,7 +174,7 @@ function missionProgress(mission: Mission): number {
 }
 
 .wf-more {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 

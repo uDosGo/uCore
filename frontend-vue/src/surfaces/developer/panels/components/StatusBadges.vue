@@ -114,9 +114,9 @@ const badges = computed<StatusBadgeData[]>(() => {
 
 <style scoped>
 .status-badges {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--usx-spacing-sm);
-  flex-wrap: wrap;
   align-items: center;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   background: var(--usx-color-surface-variant);
@@ -140,11 +140,17 @@ const badges = computed<StatusBadgeData[]>(() => {
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-1) var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-medium);
   transition: background var(--usx-transition-fast);
   user-select: none;
   cursor: default;
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 24)) {
+  .status-badges {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .status-badge--clickable {

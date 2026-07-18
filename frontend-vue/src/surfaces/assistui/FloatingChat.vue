@@ -150,11 +150,11 @@ function handleKeyDown(e: KeyboardEvent) {
   height: var(--usx-spacing-xs);
   border-radius: 50%;
   background: var(--usx-color-on-surface-muted);
-  animation: bounce 1.4s infinite ease-in-out both;
+  animation: bounce var(--usx-motion-duration-pulse) infinite ease-in-out both;
 }
 
-.floating-chat__loading span:nth-child(1) { animation-delay: -0.32s; }
-.floating-chat__loading span:nth-child(2) { animation-delay: -0.16s; }
+.floating-chat__loading span:nth-child(1) { animation-delay: calc(var(--usx-motion-delay-lg) * -1); }
+.floating-chat__loading span:nth-child(2) { animation-delay: calc(var(--usx-motion-delay-sm) * -1); }
 
 @keyframes bounce {
   0%, 80%, 100% { transform: scale(0); }
@@ -193,7 +193,7 @@ function handleKeyDown(e: KeyboardEvent) {
   background: var(--usx-color-primary);
   color: var(--usx-color-on-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform var(--usx-transition-fast), background var(--usx-transition-fast), color var(--usx-transition-fast);
   margin-left: auto;
 }
 
@@ -204,7 +204,7 @@ function handleKeyDown(e: KeyboardEvent) {
 /* Panel transition */
 .chat-panel-enter-active,
 .chat-panel-leave-active {
-  transition: all 0.3s ease;
+  transition: opacity var(--usx-transition-base), transform var(--usx-transition-base);
 }
 
 .chat-panel-enter-from,

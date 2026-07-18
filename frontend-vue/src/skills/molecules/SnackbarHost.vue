@@ -48,13 +48,13 @@ function iconForType(type: SnackbarItem['type']): string {
 <style scoped>
 .snackbar-host {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: var(--usx-toast-offset);
+  right: var(--usx-toast-offset);
   z-index: 1000;
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-xs);
-  max-width: 380px;
+  max-width: var(--usx-toast-max-width);
 }
 
 .snackbar-item {
@@ -62,18 +62,16 @@ function iconForType(type: SnackbarItem['type']): string {
   align-items: center;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
-  border-radius: var(--usx-border-radius-lg);
-  background: var(--pico-background-color);
-  background: var(--pico-background-color);
-  
+  border-radius: var(--usx-radius-lg);
+  background: var(--usx-color-background);
   font-size: var(--usx-font-size-sm);
   cursor: pointer;
 }
 
-.snackbar-item--info { border-left: 3px solid #58a6ff; }
-.snackbar-item--success { border-left: 3px solid #2ea043; }
-.snackbar-item--warning { border-left: 3px solid #d29922; }
-.snackbar-item--error { border-left: 3px solid #f85149; }
+.snackbar-item--info { border-left: calc(var(--usx-border-width) + var(--usx-border-width-thick)) solid var(--usx-color-info); }
+.snackbar-item--success { border-left: calc(var(--usx-border-width) + var(--usx-border-width-thick)) solid var(--usx-color-success); }
+.snackbar-item--warning { border-left: calc(var(--usx-border-width) + var(--usx-border-width-thick)) solid var(--usx-color-warning); }
+.snackbar-item--error { border-left: calc(var(--usx-border-width) + var(--usx-border-width-thick)) solid var(--usx-color-danger); }
 
 .snackbar-item__message {
   flex: 1;
@@ -83,23 +81,23 @@ function iconForType(type: SnackbarItem['type']): string {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   padding: var(--usx-spacing-xs);
 }
 
 /* Transitions */
 .snackbar-enter-active,
 .snackbar-leave-active {
-  transition: all 0.3s ease;
+  transition: opacity var(--usx-transition-slow), transform var(--usx-transition-slow);
 }
 
 .snackbar-enter-from {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateX(var(--usx-motion-distance-md));
 }
 
 .snackbar-leave-to {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateX(var(--usx-motion-distance-md));
 }
 </style>

@@ -155,7 +155,7 @@ onMounted(() => { fetchData() })
 
 .docs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(20ch, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--usx-spacing-md);
 }
 
@@ -181,7 +181,7 @@ onMounted(() => { fetchData() })
 
 .docs-iframes {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(28ch, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--usx-spacing-md);
 }
 
@@ -217,6 +217,19 @@ onMounted(() => { fetchData() })
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
+  .docs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
+  .docs-grid,
+  .docs-iframes {
+    grid-template-columns: 1fr;
+  }
 }
 
 .api-endpoint code {

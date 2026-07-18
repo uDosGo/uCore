@@ -30,11 +30,6 @@
 /* Neutralise Pico CSS button styling inside the toolbar */
 .global-toolbar button,
 .global-toolbar a[role="button"] {
-  --pico-border-width: 0 !important;
-  --pico-border-radius: 0 !important;
-  --pico-box-shadow: none !important;
-  --pico-background-color: transparent !important;
-  --pico-color: inherit !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
@@ -183,7 +178,7 @@
   flex-direction: column;
   min-width: var(--usx-dropdown-min-width);
   padding: var(--usx-spacing-xs);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: var(--usx-shadow-sm);
   max-height: 60vh;
   overflow-y: auto;
 }
@@ -232,7 +227,7 @@
   background: transparent;
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
   font-family: var(--usx-font-family-sans);
   transition: color var(--usx-transition-fast), border-color var(--usx-transition-fast), background var(--usx-transition-fast);
@@ -247,8 +242,8 @@
 /* Dev dot indicator */
 .global-toolbar__dev-dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: var(--usx-spacing-sm);
+  height: var(--usx-spacing-sm);
   border-radius: 50%;
   background: var(--usx-color-on-surface-muted);
   transition: background var(--usx-transition-fast);
@@ -276,7 +271,7 @@
 
 /* ─── Responsive ────────────────────────────────────────────────── */
 /* At narrow widths, hide tab labels in the center — icons only */
-@media (max-width: 800px) {
+@media (max-width: 50em) {
   .global-toolbar__tab:not(.global-toolbar__tab--nav) span {
     display: none;
   }
@@ -288,7 +283,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5em) {
   .global-toolbar {
     padding: 0 var(--usx-spacing-sm);
     gap: var(--usx-spacing-2);
@@ -328,11 +323,11 @@
 .usx-columns--responsive {
   columns: 1;
 }
-@media (min-width: 480px) { .usx-columns--responsive { columns: 2; } }
-@media (min-width: 768px) { .usx-columns--responsive { columns: 2; } }
-@media (min-width: 1024px) { .usx-columns--responsive { columns: 3; } }
-@media (min-width: 1440px) { .usx-columns--responsive { columns: 3; } }
-@media (min-width: 1920px) { .usx-columns--responsive { columns: 4; } }
+@media (min-width: 30em) { .usx-columns--responsive { columns: 2; } }
+@media (min-width: 48em) { .usx-columns--responsive { columns: 2; } }
+@media (min-width: 64em) { .usx-columns--responsive { columns: 3; } }
+@media (min-width: 90em) { .usx-columns--responsive { columns: 3; } }
+@media (min-width: 120em) { .usx-columns--responsive { columns: 4; } }
 
 .usx-prose--sm { max-width: var(--usx-prose-width); }
 .usx-prose--md { max-width: var(--usx-prose-width); }

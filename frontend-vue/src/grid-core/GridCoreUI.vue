@@ -119,7 +119,7 @@ defineExpose({
 .gridcore-ui {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gridcore-space-xs);
   width: 100%;
   height: 100%;
 }
@@ -136,19 +136,19 @@ defineExpose({
 .gridcore-ui__status {
   display: flex;
   justify-content: space-between;
-  padding: 2px 8px;
-  font-family: monospace;
-  font-size: 11px;
-  color: var(--usx-color-on-surface-muted);
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 2px;
+  padding: var(--gridcore-space-1) var(--gridcore-space-sm);
+  font-family: var(--gridcore-font-family-mono);
+  font-size: var(--gridcore-sidebar-font-btn-size);
+  color: var(--gridcore-color-text-muted);
+  background: var(--gridcore-marker-fg-bg);
+  border-radius: var(--gridcore-sidebar-char-radius);
 }
 
 .gridcore-ui__info {
-  font-weight: 600;
+  font-weight: var(--gridcore-font-weight-semibold);
 }
 
 .gridcore-ui__cell-info {
-  color: var(--usx-color-primary);
+  color: var(--gridcore-color-primary);
 }
 </style>

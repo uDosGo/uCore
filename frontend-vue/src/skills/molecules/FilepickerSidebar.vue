@@ -340,7 +340,7 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
   align-items: center;
   justify-content: space-between;
   padding-bottom: var(--usx-spacing-xs);
-  border-bottom: 1px solid rgba(88, 166, 255, 0.1);
+  border-bottom: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-primary) 10%, transparent);
 }
 
 .filepicker-sidebar__header-actions {
@@ -351,8 +351,8 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
 .filepicker-sidebar__title {
   margin: 0;
   font-size: var(--usx-font-size-base);
-  font-weight: 600;
-  color: var(--pico-color);
+  font-weight: var(--usx-font-weight-semibold);
+  color: var(--usx-color-on-surface);
 }
 
 .filepicker-sidebar__search {
@@ -374,7 +374,7 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-sm) 0;
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(88, 166, 255, 0.1);
+  border-bottom: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-primary) 10%, transparent);
 }
 
 .filepicker-sidebar__banner {
@@ -383,10 +383,10 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
   justify-content: space-between;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  background: rgba(210, 153, 34, 0.1);
-  border-radius: var(--usx-border-radius-sm);
+  background: color-mix(in srgb, var(--usx-color-warning) 10%, transparent);
+  border-radius: var(--usx-radius-sm);
   font-size: var(--usx-font-size-sm);
-  color: #d29922;
+  color: var(--usx-color-warning);
   flex-shrink: 0;
 }
 
@@ -403,14 +403,14 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
   align-items: center;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
-  border-radius: var(--usx-border-radius-sm);
+  border-radius: var(--usx-radius-sm);
   cursor: pointer;
-  transition: background 0.1s ease;
+  transition: background var(--usx-transition-fast);
   min-height: var(--usx-input-height-sm);
 }
 
 .filepicker-sidebar__item:hover {
-  background: rgba(88, 166, 255, 0.08);
+  background: color-mix(in srgb, var(--usx-color-primary) 8%, transparent);
 }
 
 .filepicker-sidebar__item--readonly {
@@ -432,15 +432,15 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
 
 .filepicker-sidebar__item-name {
   font-size: var(--usx-font-size-sm);
-  font-weight: 500;
+  font-weight: var(--usx-font-weight-medium);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .filepicker-sidebar__item-path {
-  font-size: var(--usx-font-size-xs);
-  color: var(--pico-muted-color);
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -454,7 +454,7 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
 }
 
 .filepicker-sidebar__readonly-icon {
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   display: flex;
   align-items: center;
 }
@@ -468,12 +468,12 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
   justify-content: center;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-lg);
-  color: var(--pico-muted-color);
+  color: var(--usx-color-on-surface-muted);
   font-size: var(--usx-font-size-sm);
   text-align: center;
 }
 
 .filepicker-sidebar__error {
-  color: #f85149;
+  color: var(--usx-color-danger);
 }
 </style>

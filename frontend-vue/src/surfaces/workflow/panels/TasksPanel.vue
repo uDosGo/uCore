@@ -98,7 +98,7 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
 
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(20ch, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--usx-spacing-lg);
   align-items: start;
 }
@@ -151,7 +151,7 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
   border-radius: var(--usx-radius-md);
   border: var(--usx-border-width) solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), box-shadow var(--usx-transition-fast), transform var(--usx-transition-fast);
 }
 
 .kanban-card:hover {
@@ -210,5 +210,17 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
   gap: var(--usx-spacing-xs);
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
+  .kanban-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
+  .kanban-board {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

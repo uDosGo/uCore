@@ -148,8 +148,7 @@ function navigate(route: string) {
 
 .dashboard-surface__grid-inner {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--usx-grid-min-col-width), 1fr));
-  gap: var(--usx-grid-gap-lg);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   width: 100%;
   gap: var(--usx-spacing-md);
 }
@@ -157,14 +156,26 @@ function navigate(route: string) {
 .dashboard-surface__dev-hint {
   margin-top: var(--usx-spacing-xl);
   padding: var(--usx-spacing-md);
-  background: rgba(88, 166, 255, 0.05);
-  border: 1px solid rgba(88, 166, 255, 0.15);
+  background: color-mix(in srgb, var(--usx-color-info) 5%, transparent);
+  border: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-info) 15%, transparent);
   border-radius: var(--usx-radius-md);
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   display: flex;
   align-items: center;
   gap: var(--usx-spacing-sm);
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
+  .dashboard-surface__grid-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
+  .dashboard-surface__grid-inner {
+    grid-template-columns: 1fr;
+  }
 }
 
 .dashboard-surface__dev-hint p {

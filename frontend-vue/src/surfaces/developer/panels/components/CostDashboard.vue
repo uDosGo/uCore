@@ -126,7 +126,7 @@ const topModels = computed(() => props.cost?.top_models ?? [])
 .cost-bar__labels {
   display: flex;
   justify-content: space-between;
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -175,7 +175,7 @@ const topModels = computed(() => props.cost?.top_models ?? [])
 }
 
 .cost-dashboard__subtitle {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface-muted);
 }
@@ -183,7 +183,7 @@ const topModels = computed(() => props.cost?.top_models ?? [])
 .cost-model-row {
   display: flex;
   justify-content: space-between;
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   padding: var(--usx-spacing-1) 0;
 }
 

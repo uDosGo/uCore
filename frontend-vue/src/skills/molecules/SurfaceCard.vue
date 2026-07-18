@@ -44,7 +44,7 @@ const emit = defineEmits<{
   border: var(--usx-border-width) solid var(--usx-color-border);
   border-radius: var(--usx-radius-md);
   cursor: pointer;
-  transition: all var(--usx-transition-base);
+  transition: background var(--usx-transition-base), border-color var(--usx-transition-base), box-shadow var(--usx-transition-base), transform var(--usx-transition-base);
   box-sizing: border-box;
   min-height: var(--usx-touch-min);
 }
@@ -52,8 +52,8 @@ const emit = defineEmits<{
 .surface-card:hover {
   background: var(--usx-color-surface-hover);
   border-color: var(--usx-color-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 var(--usx-spacing-sm) var(--usx-spacing-lg) rgba(0, 0, 0, 0.08);
+  transform: translateY(calc(var(--usx-spacing-1) * -1));
+  box-shadow: 0 var(--usx-spacing-sm) var(--usx-spacing-lg) color-mix(in srgb, var(--usx-color-on-surface) 8%, transparent);
 }
 
 .surface-card__icon {

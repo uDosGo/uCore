@@ -120,7 +120,7 @@ function toggleOrientation() {
   justify-content: flex-start;
   padding: var(--usx-spacing-xs) 0;
   border-right: var(--usx-border-width) solid var(--usx-color-border);
-  min-width: var(--usx-sidebar-compact-width, 56px);
+  min-width: var(--usx-sidebar-compact-width);
   overflow-y: auto;
   align-items: stretch;
 }

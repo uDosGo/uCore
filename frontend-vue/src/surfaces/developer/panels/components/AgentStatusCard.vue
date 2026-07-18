@@ -139,7 +139,7 @@ const ollamaModelCount = computed(() => props.agents?.ollama?.model_count ?? 0)
 }
 
 .agent-card__state {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .state--online { color: var(--usx-color-success); }

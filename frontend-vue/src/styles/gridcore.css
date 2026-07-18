@@ -1,0 +1,212 @@
+/* GridCore internal variable contract (Phase 2 extraction)
+   Scoped to uCode GridCore surface only. */
+:where(.gridcore-surface, .gridcore-ui, .multi-column-viewer, .prose-viewer, .slide-viewer) {
+  --gridcore-font-family-mono: var(--usx-font-family-mono, monospace);
+  --gridcore-font-size-xs: 10px;
+  --gridcore-font-size-sm: 12px;
+  --gridcore-font-size-md: 13px;
+  --gridcore-font-size-lg: 20px;
+  --gridcore-font-size-body: 0.9em;
+  --gridcore-font-size-code: 0.85em;
+  --gridcore-font-size-h1: 2em;
+  --gridcore-font-size-h2: 1.5em;
+  --gridcore-font-size-h3: 1.25em;
+  --gridcore-font-size-h4: 1.1em;
+  --gridcore-font-weight-semibold: var(--usx-font-weight-semibold, 600);
+  --gridcore-font-weight-bold: var(--usx-font-weight-bold, 700);
+  --gridcore-line-height-tight: 1.3;
+  --gridcore-line-height-body: 1.6;
+  --gridcore-line-height-prose: var(--usx-line-height-relaxed, 1.8);
+
+  --gridcore-color-background: var(--usx-color-background, #0d1117);
+  --gridcore-color-background-alt: var(--usx-color-background-alt, #0d1117);
+  --gridcore-color-surface: var(--usx-color-surface, #161b22);
+  --gridcore-color-surface-muted: var(--usx-color-surface-variant, #1a2332);
+  --gridcore-color-surface-hover: var(--usx-color-surface-hover, rgba(128, 128, 128, 0.1));
+  --gridcore-color-text: var(--usx-color-on-surface, #c2c7d0);
+  --gridcore-color-text-muted: var(--usx-color-on-surface-muted, #8b949e);
+  --gridcore-color-primary: var(--usx-color-primary, #58a6ff);
+  --gridcore-color-primary-hover: var(--usx-color-primary-hover, #1f6feb);
+  --gridcore-color-primary-active: var(--usx-color-primary-active, var(--gridcore-color-primary));
+  --gridcore-color-on-primary: var(--usx-color-on-primary, #ffffff);
+
+  --gridcore-space-1: var(--usx-spacing-1, 2px);
+  --gridcore-space-xs: var(--usx-spacing-xs, 4px);
+  --gridcore-space-sm: var(--usx-spacing-sm, 8px);
+  --gridcore-space-md: var(--usx-spacing-md, 16px);
+  --gridcore-space-lg: var(--usx-spacing-lg, 24px);
+  --gridcore-space-xl: var(--usx-spacing-xl, 32px);
+  --gridcore-space-2xl: var(--usx-spacing-2xl, 48px);
+  --gridcore-transition-fast: var(--usx-transition-fast, 0.1s ease);
+
+  --gridcore-border-width: 1px;
+  --gridcore-border-color: var(--usx-color-border, #30363d);
+  --gridcore-border: var(--gridcore-border-width) solid var(--gridcore-border-color);
+  --gridcore-focus-outline-width: 2px;
+  --gridcore-focus-outline-offset: -2px;
+  --gridcore-active-ring-width: 2px;
+  --gridcore-hover-bg: var(--gridcore-color-surface-hover);
+  --gridcore-selection-bg: var(--usx-color-primary-container, rgba(0, 120, 255, 0.15));
+  --gridcore-selection-bg-muted: var(--usx-color-primary-container, rgba(0, 120, 255, 0.1));
+
+  --gridcore-toolbar-gap: 6px;
+  --gridcore-toolbar-gap-lg: 8px;
+  --gridcore-toolbar-padding-y: 4px;
+  --gridcore-toolbar-padding-x: 10px;
+  --gridcore-toolbar-min-height: 36px;
+
+  --gridcore-control-height: 24px;
+  --gridcore-control-radius: 3px;
+  --gridcore-control-input-width: 42px;
+  --gridcore-control-input-pad-x: 3px;
+  --gridcore-control-inline-gap: 3px;
+  --gridcore-control-segment-pad-x: 6px;
+  --gridcore-control-divider-pad-left: 8px;
+
+  --gridcore-tool-btn-size: 28px;
+  --gridcore-action-btn-height: 26px;
+  --gridcore-action-btn-pad-x: 8px;
+  --gridcore-actions-gap: 4px;
+
+  --gridcore-popover-offset-y: 6px;
+  --gridcore-popover-cell-size: 36px;
+  --gridcore-popover-gap: 6px;
+  --gridcore-popover-padding: 10px;
+  --gridcore-popover-radius: 4px;
+  --gridcore-popover-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --gridcore-checker-size: 8px;
+  --gridcore-checker-color: #333;
+  --gridcore-popover-transition: 0.25s ease;
+
+  --gridcore-marker-font-size: 9px;
+  --gridcore-marker-fg-color: #fff;
+  --gridcore-marker-bg-color: #000;
+  --gridcore-marker-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+  --gridcore-marker-offset-sm: 1px;
+  --gridcore-marker-offset-md: 2px;
+  --gridcore-marker-pad-y: 1px;
+  --gridcore-marker-pad-x: 2px;
+  --gridcore-marker-fg-bg: rgba(0, 0, 0, 0.6);
+  --gridcore-marker-bg-bg: rgba(255, 255, 255, 0.8);
+
+  --gridcore-palette-0: #000000;
+  --gridcore-palette-1: #e6193c;
+  --gridcore-palette-2: #3fb950;
+  --gridcore-palette-3: #f2cc60;
+  --gridcore-palette-4: #58a6ff;
+  --gridcore-palette-5: #bc8cff;
+  --gridcore-palette-6: #39c5cf;
+  --gridcore-palette-7: #c9d1d9;
+
+  --gridcore-sidebar-width: var(--usx-sidebar-width, 280px);
+  --gridcore-sidebar-padding: var(--usx-sidebar-padding, var(--gridcore-space-md));
+  --gridcore-sidebar-title-size: 10px;
+  --gridcore-sidebar-font-btn-size: 11px;
+  --gridcore-sidebar-font-btn-gap: 2px;
+  --gridcore-sidebar-font-btn-padding-y: 3px;
+  --gridcore-sidebar-char-columns: 10;
+  --gridcore-sidebar-char-gap: 1px;
+  --gridcore-sidebar-char-radius: 2px;
+  --gridcore-sidebar-char-font-size: var(--usx-font-size-base, 14px);
+  --gridcore-sidebar-preview-min-height: 64px;
+  --gridcore-sidebar-char-input-width: 48px;
+  --gridcore-sidebar-char-input-size: 20px;
+
+  --gridcore-action-size: var(--usx-touch-min, 32px);
+  --gridcore-prose-width: var(--usx-prose-width, 72ch);
+  --gridcore-prose-heading-size: var(--usx-font-size-2xl, 24px);
+
+  --gridcore-preset-popover-max-height: 500px;
+  --gridcore-preset-popover-gap: 2px;
+  --gridcore-preset-popover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --gridcore-preset-popover-min-width: 260px;
+
+  --gridcore-viewer-column-padding: var(--gridcore-space-lg);
+  --gridcore-viewer-padding: var(--gridcore-space-xl);
+  --gridcore-viewer-code-padding-y: 0.15em;
+  --gridcore-viewer-code-padding-x: 0.3em;
+  --gridcore-viewer-blockquote-width: 2px;
+  --gridcore-viewer-blockquote-pad-left: var(--gridcore-space-md);
+  --gridcore-viewer-list-pad-left: 1.25em;
+  --gridcore-viewer-margin-sm: 0.5em;
+  --gridcore-viewer-margin-md: 0.75em;
+  --gridcore-viewer-margin-lg: 1em;
+  --gridcore-viewer-heading-margin-top: 1.5em;
+
+  --gridcore-slide-nav-padding-y: 6px;
+  --gridcore-slide-nav-padding-x: var(--gridcore-space-md);
+  --gridcore-slide-max-width: 960px;
+  --gridcore-slide-min-height: 60vh;
+  --gridcore-slide-h1-size: 2.5em;
+  --gridcore-slide-h2-size: 1.75em;
+  --gridcore-slide-body-size: 1.1em;
+
+  --gridcore-radius-sm: 4px;
+  --gridcore-radius-md: var(--usx-radius-md);
+  --gridcore-radius-lg: var(--usx-radius-lg, 8px);
+}
+
+.gridcore-surface--compact {
+  --gridcore-font-size-xs: 9px;
+  --gridcore-font-size-sm: 11px;
+  --gridcore-toolbar-gap: 4px;
+  --gridcore-toolbar-gap-lg: 6px;
+  --gridcore-toolbar-padding-y: 3px;
+  --gridcore-toolbar-padding-x: 8px;
+  --gridcore-toolbar-min-height: 32px;
+  --gridcore-control-height: 22px;
+  --gridcore-control-input-width: 38px;
+  --gridcore-tool-btn-size: 26px;
+  --gridcore-action-btn-height: 24px;
+  --gridcore-popover-cell-size: 32px;
+  --gridcore-popover-padding: 8px;
+  --gridcore-sidebar-preview-min-height: 56px;
+}
+
+.gridcore-surface--spacious {
+  --gridcore-font-size-xs: 11px;
+  --gridcore-font-size-sm: 13px;
+  --gridcore-toolbar-gap: 8px;
+  --gridcore-toolbar-gap-lg: 10px;
+  --gridcore-toolbar-padding-y: 6px;
+  --gridcore-toolbar-padding-x: 12px;
+  --gridcore-toolbar-min-height: 42px;
+  --gridcore-control-height: 28px;
+  --gridcore-control-input-width: 48px;
+  --gridcore-tool-btn-size: 32px;
+  --gridcore-action-btn-height: 30px;
+  --gridcore-popover-cell-size: 40px;
+  --gridcore-popover-padding: 12px;
+  --gridcore-sidebar-preview-min-height: 72px;
+}
+
+.gridcore-surface--hd {
+  --gridcore-font-size-xs: 11px;
+  --gridcore-font-size-sm: 13px;
+  --gridcore-font-size-md: 14px;
+  --gridcore-toolbar-gap: 8px;
+  --gridcore-toolbar-gap-lg: 10px;
+  --gridcore-toolbar-padding-y: 5px;
+  --gridcore-toolbar-padding-x: 12px;
+  --gridcore-toolbar-min-height: 40px;
+  --gridcore-control-height: 28px;
+  --gridcore-control-input-width: 50px;
+  --gridcore-tool-btn-size: 32px;
+  --gridcore-action-btn-height: 30px;
+  --gridcore-popover-cell-size: 44px;
+  --gridcore-popover-gap: 8px;
+  --gridcore-popover-padding: 12px;
+  --gridcore-sidebar-char-input-size: 22px;
+}
+
+.gridcore-surface--retro {
+  --gridcore-font-size-xs: 10px;
+  --gridcore-font-size-sm: 12px;
+  --gridcore-toolbar-gap: 6px;
+  --gridcore-toolbar-gap-lg: 8px;
+  --gridcore-control-radius: 2px;
+  --gridcore-popover-radius: 2px;
+  --gridcore-radius-sm: 2px;
+  --gridcore-popover-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+  --gridcore-checker-size: 10px;
+}

@@ -107,7 +107,7 @@ onUnmounted(() => {
   border-radius: var(--usx-radius-md);
   font-size: var(--usx-font-size-sm);
   border: var(--usx-border-width) solid var(--usx-color-border);
-  box-shadow: 0 var(--usx-spacing-xs) var(--usx-spacing-md) rgba(0, 0, 0, 0.2);
+  box-shadow: var(--usx-shadow-lg);
 }
 
 .diagnostic-item {

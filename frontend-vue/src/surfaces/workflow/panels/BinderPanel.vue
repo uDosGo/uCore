@@ -327,7 +327,7 @@ onMounted(async () => {
   border: calc(var(--usx-border-width) + var(--usx-border-width-thick)) dashed color-mix(in srgb, var(--usx-color-primary) 20%, transparent);
   border-radius: var(--usx-radius-lg);
   background: color-mix(in srgb, var(--usx-color-primary) 2%, transparent);
-  transition: all 0.15s ease;
+  transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), color var(--usx-transition-fast), transform var(--usx-transition-fast);
   min-height: calc(var(--usx-touch-min) + var(--usx-spacing-lg));
   cursor: pointer;
 }
@@ -345,7 +345,7 @@ onMounted(async () => {
 }
 
 .wf-launchpad-hint {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
 }
 
@@ -368,7 +368,7 @@ onMounted(async () => {
 }
 
 .wf-launchpad-file-size {
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   margin-left: auto;
 }
@@ -383,7 +383,7 @@ onMounted(async () => {
   color: var(--usx-color-on-surface-muted);
   cursor: pointer;
   border-radius: var(--usx-radius-sm);
-  transition: all 0.1s ease;
+  transition: background var(--usx-transition-fast), color var(--usx-transition-fast);
 }
 
 .wf-launchpad-remove:hover {
@@ -488,7 +488,7 @@ onMounted(async () => {
 
 .wf-monospace {
   font-family: var(--usx-font-family-mono);
-  font-size: var(--usx-font-size-xs);
+  font-size: var(--usx-font-size-sm);
 }
 
 .wf-muted {

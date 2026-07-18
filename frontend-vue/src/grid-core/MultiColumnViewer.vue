@@ -64,7 +64,7 @@ onUnmounted(() => {
 <style scoped>
 .multi-column-viewer {
   display: grid;
-  padding: var(--usx-spacing-xl, 24px);
+  padding: var(--gridcore-viewer-padding);
   height: 100%;
   overflow: hidden;
   justify-content: center;
@@ -72,24 +72,24 @@ onUnmounted(() => {
 
 .multi-column-viewer__column {
   overflow-y: auto;
-  padding: var(--usx-spacing-lg, 16px);
-  background: var(--pico-card-background-color, #0d1117);
-  border: 1px solid var(--pico-border-color, #30363d);
-  border-radius: var(--usx-border-radius-md, 6px);
+  padding: var(--gridcore-viewer-column-padding);
+  background: var(--gridcore-color-surface);
+  border: var(--gridcore-border);
+  border-radius: var(--gridcore-radius-md);
 }
 
 .multi-column-viewer__content {
-  font-size: 0.9em;
-  line-height: 1.6;
-  color: var(--pico-color, #c2c7d0);
+  font-size: var(--gridcore-font-size-body);
+  line-height: var(--gridcore-line-height-body);
+  color: var(--gridcore-color-text);
 }
 
 .multi-column-viewer__content :deep(h1),
 .multi-column-viewer__content :deep(h2),
 .multi-column-viewer__content :deep(h3) {
   margin-top: 0;
-  margin-bottom: 0.5em;
-  font-weight: 600;
+  margin-bottom: var(--gridcore-viewer-margin-sm);
+  font-weight: var(--gridcore-font-weight-semibold);
 }
 
 .multi-column-viewer__content :deep(h1) { font-size: 1.5em; }
@@ -97,39 +97,39 @@ onUnmounted(() => {
 .multi-column-viewer__content :deep(h3) { font-size: 1.1em; }
 
 .multi-column-viewer__content :deep(p) {
-  margin-bottom: 0.75em;
+  margin-bottom: var(--gridcore-viewer-margin-md);
 }
 
 .multi-column-viewer__content :deep(a) {
-  color: var(--pico-primary, #58a6ff);
+  color: var(--gridcore-color-primary);
 }
 
 .multi-column-viewer__content :deep(code) {
-  background: var(--pico-code-background-color, #1a2332);
-  padding: 0.15em 0.3em;
-  border-radius: 3px;
-  font-size: 0.85em;
+  background: var(--gridcore-color-surface-muted);
+  padding: var(--gridcore-viewer-code-padding-y) var(--gridcore-viewer-code-padding-x);
+  border-radius: var(--gridcore-control-radius);
+  font-size: var(--gridcore-font-size-code);
 }
 
 .multi-column-viewer__content :deep(pre) {
-  background: var(--pico-code-background-color, #1a2332);
-  padding: var(--usx-spacing-md, 12px);
-  border-radius: var(--usx-border-radius-sm, 4px);
+  background: var(--gridcore-color-surface-muted);
+  padding: var(--gridcore-space-md);
+  border-radius: var(--gridcore-radius-sm);
   overflow-x: auto;
-  margin-bottom: 0.75em;
+  margin-bottom: var(--gridcore-viewer-margin-md);
 }
 
 .multi-column-viewer__content :deep(blockquote) {
-  border-left: 2px solid var(--pico-primary, #58a6ff);
-  padding-left: var(--usx-spacing-md, 12px);
+  border-left: var(--gridcore-viewer-blockquote-width) solid var(--gridcore-color-primary);
+  padding-left: var(--gridcore-viewer-blockquote-pad-left);
   margin-left: 0;
-  color: var(--pico-muted-color, #8b949e);
+  color: var(--gridcore-color-text-muted);
 }
 
 .multi-column-viewer__content :deep(ul),
 .multi-column-viewer__content :deep(ol) {
   padding-left: 1.25em;
-  margin-bottom: 0.75em;
+  margin-bottom: var(--gridcore-viewer-margin-md);
 }
 
 .multi-column-viewer__content :deep(li) {

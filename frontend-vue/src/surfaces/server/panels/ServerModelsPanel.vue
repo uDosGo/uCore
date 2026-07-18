@@ -8,7 +8,7 @@
     <div v-else class="server-model-usage">
       <div v-for="m in srv.modelUsage" :key="m.id" class="model-usage-row">
         <span>{{ m.name }}</span>
-        <div class="model-usage-bar"><div class="model-usage-fill" :style="{ width: m.pct + '%' }" /></div>
+        <progress class="model-usage-bar" :value="m.pct" max="100" />
         <span>{{ m.calls }} calls</span>
       </div>
     </div>
@@ -27,7 +27,9 @@ const srv = useServerStore()
 .server-model-usage { display: flex; flex-direction: column; gap: var(--usx-spacing-sm); }
 .model-usage-row { display: flex; align-items: center; gap: var(--usx-spacing-md); font-size: var(--usx-font-size-sm); }
 .model-usage-row > span:first-child { min-width: 10ch; }
-.model-usage-bar { flex: 1; height: var(--usx-spacing-sm); background: var(--usx-color-border); border-radius: var(--usx-radius-sm); overflow: hidden; }
-.model-usage-fill { height: 100%; background: var(--usx-color-primary); border-radius: var(--usx-radius-sm); }
+.model-usage-bar { flex: 1; width: 100%; height: var(--usx-spacing-sm); appearance: none; border: none; background: var(--usx-color-border); border-radius: var(--usx-radius-sm); overflow: hidden; }
+.model-usage-bar::-webkit-progress-bar { background: var(--usx-color-border); border-radius: var(--usx-radius-sm); }
+.model-usage-bar::-webkit-progress-value { background: var(--usx-color-primary); border-radius: var(--usx-radius-sm); }
+.model-usage-bar::-moz-progress-bar { background: var(--usx-color-primary); border-radius: var(--usx-radius-sm); }
 .model-usage-row > span:last-child { min-width: 7ch; text-align: right; color: var(--usx-color-on-surface-muted); }
 </style>
