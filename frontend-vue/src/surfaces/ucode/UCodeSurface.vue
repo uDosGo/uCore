@@ -253,7 +253,14 @@
         </div>
       </div>
       <div class="surface__canvas">
-        <div ref="gridContainer" class="ucode-viewport" role="region" :aria-label="`${currentTitle} viewport`"></div>
+        <div
+          ref="gridContainer"
+          class="ucode-viewport"
+          role="region"
+          tabindex="0"
+          :aria-label="`${currentTitle} viewport`"
+          @keydown="onTerminalKeydown"
+        ></div>
       </div>
     </div>
     </template>
@@ -321,7 +328,11 @@ const tabConfigs: Record<string, { cols: number; rows: number; font: string; cel
 const gridContainer = ref<HTMLDivElement>()
 const canvasCache = new Map<string, GridUICanvasElement>()
 let activeCanvas: GridUICanvasElement | null = null
+let terminalSocket: WebSocket | null = null
+let terminalCursorX = 0
 let terminalCursorY = 0
+
+const UCORE_API = import.meta.env.VITE_UCORE_URL || import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 
 /* ─── Shared Brush State (persists across Pixel/Grid tabs) ─────────── */
 const PALETTE = PALETTE_DARK
@@ -837,6 +848,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  disconnectTerminalRuntime()
   canvasCache.forEach(el => el.remove())
   canvasCache.clear()
   activeCanvas = null
@@ -874,6 +886,8 @@ function initGrid(tabId: string) {
 }
 
 watch(activeTab, (newTab) => {
+  if (newTab !== 'terminal') disconnectTerminalRuntime()
+  terminalCursorX = 0
   terminalCursorY = 0
   // Tear down previous grid editor
   layerCanvas?.remove()
@@ -889,7 +903,7 @@ watch(activeTab, (newTab) => {
 
 function loadTabContent(tabId?: string) {
   const id = tabId || activeTab.value
-  switch (id) { case 'terminal': loadTerminalWelcome(); break; case 'teletext': loadTeletextDemo(); break; case 'layer': loadLayerDemo(); break }
+  switch (id) { case 'terminal': loadTerminalRuntime(); break; case 'teletext': loadTeletextDemo(); break; case 'layer': loadLayerDemo(); break }
 }
 
 function reloadGrid() {
@@ -987,6 +1001,12 @@ function loadTeletextDemo() {
 }
 
 /* ─── Terminal Tab ────────────────────────────────────────────────── */
+function terminalWebSocketUrl() {
+  const url = new URL('/api/terminal/runtime/ws', UCORE_API)
+  url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
+  return url.toString()
+}
+
 function terminalPrintLine(text: string, fg = 7, bg = 0) {
   if (!activeCanvas) return
   const cfg = tabConfigs.terminal
@@ -994,21 +1014,167 @@ function terminalPrintLine(text: string, fg = 7, bg = 0) {
   if (!buf || buf.length === 0) buf = createBuffer(cfg.cols, cfg.rows)
   if (terminalCursorY >= cfg.rows) { buf = scrollBuffer(buf, 1); terminalCursorY = cfg.rows - 1 }
   buf = writeString(buf, 0, terminalCursorY, text, fg, bg)
+  terminalCursorX = 0
   terminalCursorY++
   activeCanvas.setBuffer(buf)
 }
 
+function terminalPutChar(char: string, fg = 7, bg = 0) {
+  if (!activeCanvas) return
+  const cfg = tabConfigs.terminal
+  let buf = activeCanvas.buffer
+  if (!buf || buf.length === 0) buf = createBuffer(cfg.cols, cfg.rows)
+  if (terminalCursorY >= cfg.rows) { buf = scrollBuffer(buf, 1); terminalCursorY = cfg.rows - 1 }
+  if (terminalCursorX >= cfg.cols) terminalNewLine()
+  buf = activeCanvas.buffer || buf
+  buf[terminalCursorY][terminalCursorX] = { char, fg, bg }
+  terminalCursorX++
+  activeCanvas.setBuffer(buf)
+}
+
+function terminalNewLine() {
+  if (!activeCanvas) return
+  const cfg = tabConfigs.terminal
+  let buf = activeCanvas.buffer
+  if (!buf || buf.length === 0) buf = createBuffer(cfg.cols, cfg.rows)
+  terminalCursorX = 0
+  terminalCursorY++
+  if (terminalCursorY >= cfg.rows) { buf = scrollBuffer(buf, 1); terminalCursorY = cfg.rows - 1 }
+  activeCanvas.setBuffer(buf)
+}
+
+function terminalBackspace() {
+  if (!activeCanvas || terminalCursorX <= 0) return
+  terminalCursorX--
+  const buf = activeCanvas.buffer
+  buf[terminalCursorY][terminalCursorX] = { char: ' ', fg: 7, bg: 0 }
+  activeCanvas.setBuffer(buf)
+}
+
+function terminalClearScreen() {
+  if (!activeCanvas) return
+  const cfg = tabConfigs.terminal
+  activeCanvas.setBuffer(createBuffer(cfg.cols, cfg.rows))
+  terminalCursorX = 0
+  terminalCursorY = 0
+}
+
+function terminalClearLineFromCursor() {
+  if (!activeCanvas) return
+  const cfg = tabConfigs.terminal
+  const buf = activeCanvas.buffer
+  for (let col = terminalCursorX; col < cfg.cols; col++) {
+    buf[terminalCursorY][col] = { char: ' ', fg: 7, bg: 0 }
+  }
+  activeCanvas.setBuffer(buf)
+}
+
+function handleTerminalControlSequence(params: string, command: string) {
+  if (command === 'H' || command === 'f') {
+    const [row = '1', col = '1'] = params.split(';')
+    terminalCursorY = Math.max(0, Number(row) - 1)
+    terminalCursorX = Math.max(0, Number(col) - 1)
+  } else if (command === 'J' && (params === '2' || params === '3')) {
+    terminalClearScreen()
+  } else if (command === 'K') {
+    terminalClearLineFromCursor()
+  }
+}
+
+function terminalWriteOutput(text: string) {
+  let index = 0
+  while (index < text.length) {
+    if (text[index] === '\x1B' && text[index + 1] === ']') {
+      const bellEnd = text.indexOf('\x07', index + 2)
+      const stEnd = text.indexOf('\x1B\\', index + 2)
+      const end = bellEnd >= 0 ? bellEnd + 1 : stEnd >= 0 ? stEnd + 2 : text.length
+      index = end
+      continue
+    }
+    if (text[index] === '\x1B' && text[index + 1] === '[') {
+      const match = text.slice(index).match(/^\x1B\[([0-?]*)([ -/]*)([@-~])/)
+      if (match) {
+        handleTerminalControlSequence(match[1], match[3])
+        index += match[0].length
+        continue
+      }
+    }
+    const char = text[index]
+    if (char === '\r') terminalCursorX = 0
+    else if (char === '\n') terminalNewLine()
+    else if (char === '\b' || char === '\x7F') terminalBackspace()
+    else if (char >= ' ') terminalPutChar(char)
+    index++
+  }
+}
+
 function loadTerminalWelcome() {
   if (!activeCanvas) return
+  terminalCursorX = 0
   terminalCursorY = 0
   let buf = createBuffer(tabConfigs.terminal.cols, tabConfigs.terminal.rows)
   activeCanvas.setBuffer(buf)
-  terminalPrintLine('uDosConnect BBC BASIC Terminal', 4, 0)
+  terminalPrintLine('uDosConnect Terminal Runtime', 4, 0)
   terminalPrintLine('='.repeat(tabConfigs.terminal.cols), 3, 0)
-  terminalPrintLine('GridUI Canvas Engine  ·  40x25 Teletext', 2, 0)
-  terminalPrintLine('Type HELP · DEMO · CLEAR · CLS · ABOUT', 7, 0)
+  terminalPrintLine('GridCore Canvas  ·  shell/PTY adapter', 2, 0)
+  terminalPrintLine('Connecting to local runtime...', 7, 0)
   terminalPrintLine('', 7, 0)
   terminalCursorY = 6
+}
+
+function loadTerminalRuntime() {
+  loadTerminalWelcome()
+  connectTerminalRuntime()
+}
+
+function connectTerminalRuntime() {
+  if (terminalSocket && terminalSocket.readyState <= WebSocket.OPEN) return
+  try {
+    terminalSocket = new WebSocket(terminalWebSocketUrl())
+  } catch (err) {
+    terminalPrintLine(`Runtime socket unavailable: ${String(err)}`, 1, 0)
+    return
+  }
+  terminalSocket.addEventListener('open', () => {
+    gridContainer.value?.focus()
+  })
+  terminalSocket.addEventListener('message', (event) => {
+    try {
+      const payload = JSON.parse(String(event.data))
+      if (payload.type === 'ready') terminalPrintLine(`Runtime ready: ${payload.runtime}`, 2, 0)
+      else if (payload.type === 'output') terminalWriteOutput(String(payload.data || ''))
+      else if (payload.type === 'error') terminalPrintLine(String(payload.message || 'Runtime error'), 1, 0)
+    } catch (err) {
+      terminalPrintLine(`Runtime message error: ${String(err)}`, 1, 0)
+    }
+  })
+  terminalSocket.addEventListener('close', () => {
+    if (activeTab.value === 'terminal') terminalPrintLine('[runtime disconnected]', 3, 0)
+    terminalSocket = null
+  })
+  terminalSocket.addEventListener('error', () => {
+    terminalPrintLine('Runtime socket error; demo canvas remains available.', 1, 0)
+  })
+}
+
+function disconnectTerminalRuntime() {
+  if (!terminalSocket) return
+  terminalSocket.close(1000, 'Terminal tab inactive')
+  terminalSocket = null
+}
+
+function sendTerminalInput(data: string) {
+  if (!terminalSocket || terminalSocket.readyState !== WebSocket.OPEN) return
+  terminalSocket.send(JSON.stringify({ type: 'input', data }))
+}
+
+function onTerminalKeydown(event: KeyboardEvent) {
+  if (activeTab.value !== 'terminal') return
+  if (event.metaKey || event.ctrlKey || event.altKey) return
+  if (event.key === 'Enter') { event.preventDefault(); sendTerminalInput('\r') }
+  else if (event.key === 'Backspace') { event.preventDefault(); sendTerminalInput('\x7F') }
+  else if (event.key === 'Tab') { event.preventDefault(); sendTerminalInput('\t') }
+  else if (event.key.length === 1) { event.preventDefault(); sendTerminalInput(event.key) }
 }
 
 /* ─── Layer Tab ───────────────────────────────────────────────────── */
@@ -1043,6 +1209,58 @@ function clearGrid() { activeCanvas?.clear() }
 </script>
 
 <style scoped>
+/* ─── uCode shell chrome: compact USX controls around GridCore ───── */
+.gridcore-surface {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.gridcore-surface :deep(.surface-tab-nav) {
+  min-width: 0;
+  min-height: var(--gridcore-toolbar-min-height);
+  padding: var(--gridcore-toolbar-padding-y) var(--gridcore-toolbar-padding-x);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.gridcore-surface :deep(button),
+.gridcore-surface :deep(a) {
+  box-shadow: none;
+}
+
+.gridcore-surface :deep(.surface-tab-nav__link) {
+  min-height: var(--gridcore-toolbar-min-height);
+  padding: var(--gridcore-space-xs) var(--gridcore-space-sm);
+  gap: var(--gridcore-control-inline-gap);
+  font-size: var(--gridcore-font-size-md);
+  line-height: var(--gridcore-line-height-tight);
+}
+
+.gridcore-surface :deep(.surface-tab-nav__icon) {
+  width: var(--gridcore-tool-btn-size);
+  height: var(--gridcore-tool-btn-size);
+  font-size: var(--gridcore-font-size-lg);
+}
+
+.gridcore-surface :deep(.surface-tab-nav__icon .material-symbols-outlined) {
+  font-size: var(--gridcore-font-size-lg);
+}
+
+.gridcore-surface :deep(.surface-tab-nav__actions) {
+  position: sticky;
+  right: 0;
+  gap: var(--gridcore-actions-gap);
+  padding-left: var(--gridcore-space-sm);
+  background: var(--gridcore-color-surface);
+}
+
+.gridcore-surface :deep(.surface-tab-nav__toggle) {
+  width: var(--gridcore-tool-btn-size);
+  height: var(--gridcore-tool-btn-size);
+  padding: var(--gridcore-space-xs);
+  font-size: var(--gridcore-font-size-lg);
+}
+
 /* ─── Single-canvas viewport ────────────────────────────────────── */
 .ucode-viewport {
   flex: 1;
@@ -1523,7 +1741,9 @@ function clearGrid() { activeCanvas?.clear() }
 }
 .surface-tab-nav__action-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  width: var(--gridcore-action-size); height: var(--gridcore-action-size);
+  width: var(--gridcore-tool-btn-size); height: var(--gridcore-tool-btn-size);
+  min-width: var(--gridcore-tool-btn-size); min-height: var(--gridcore-tool-btn-size);
+  padding: 0;
   border: none; background: transparent;
   color: var(--gridcore-color-text-muted);
   cursor: pointer;
@@ -1533,11 +1753,12 @@ function clearGrid() { activeCanvas?.clear() }
 }
 .surface-tab-nav__action-btn:hover { color: var(--gridcore-color-primary); background: var(--gridcore-hover-bg); }
 .surface-tab-nav__action-btn:active { color: var(--gridcore-color-primary-active); }
+.surface-tab-nav__action-btn .u-icon { font-size: var(--gridcore-font-size-lg); }
 
 /* ─── Viewport preset floating popover ────────────────────────── */
 .ucode-actions-spacer { flex: 1; }
 .surface__body, .surface__canvas, .grid-editor-layout, .pixel-editor-layout { position: relative; }
-.preset-popover { position: absolute; top: 0; right: 0; left: auto; z-index: 10; max-height: 0; overflow: hidden; transition: max-height var(--gridcore-popover-transition); }
+.preset-popover { position: absolute; top: 0; right: 0; left: auto; z-index: 10; max-height: 0; max-width: 100%; overflow: hidden; transition: max-height var(--gridcore-popover-transition); }
 .preset-popover.open { max-height: var(--gridcore-preset-popover-max-height); }
 .preset-popover__inner {
   display: flex; flex-direction: column; gap: var(--gridcore-preset-popover-gap);
@@ -1547,6 +1768,9 @@ function clearGrid() { activeCanvas?.clear() }
   border-radius: 0 0 var(--gridcore-radius-sm) var(--gridcore-radius-sm);
   box-shadow: var(--gridcore-preset-popover-shadow);
   min-width: var(--gridcore-preset-popover-min-width);
+  max-width: 100%;
+  max-height: var(--gridcore-preset-popover-max-height);
+  overflow: auto;
 }
 .preset-popover__item {
   display: flex; align-items: center; justify-content: flex-end; gap: var(--gridcore-space-xs);
@@ -1561,4 +1785,20 @@ function clearGrid() { activeCanvas?.clear() }
 .preset-popover__item.active { border-color: var(--gridcore-color-primary); background: var(--gridcore-selection-bg-muted); }
 .preset-popover__dims { font-weight: var(--gridcore-font-weight-semibold); }
 .preset-popover__desc { color: var(--gridcore-color-text-muted); }
+
+@media (max-width: 50em) {
+  .gridcore-surface :deep(.surface-tab-nav__label) {
+    display: none;
+  }
+
+  .gridcore-surface :deep(.surface-tab-nav__link) {
+    min-width: var(--gridcore-tool-btn-size);
+    justify-content: center;
+  }
+
+  .preset-popover__item {
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
 </style>

@@ -12,7 +12,7 @@
           :class="{ 'registry-sidebar__tab--active': activeSubTab === tab.id }"
           @click="activeSubTab = tab.id"
         >
-          <span class="material-symbols-outlined">{{ tab.icon }}</span>
+          <UIcon :name="tab.icon" />
           <span class="registry-sidebar__tab-label">{{ tab.label }}</span>
           <span class="registry-sidebar__tab-count">{{ tab.count }}</span>
         </button>
@@ -47,7 +47,7 @@
           :class="{ 'registry-summary-card--active': activeSubTab === tab.id }"
           @click="activeSubTab = tab.id"
         >
-          <span class="material-symbols-outlined">{{ tab.icon }}</span>
+          <UIcon :name="tab.icon" />
           <span class="registry-count-strong">{{ tab.count }}</span>
           <span class="registry-count-label">{{ tab.label }}</span>
         </div>
@@ -213,11 +213,11 @@
         </div>
         <div v-if="routePages > 1" class="usx-flex-center usx-mt-md usx-gap-sm">
           <button class="usx-btn--primary registry-page-btn" :disabled="routePage === 1" @click="routePage--">
-            <span class="material-symbols-outlined">chevron_left</span>
+            <UIcon name="chevron_left" />
           </button>
           <span class="registry-page-meta">Page {{ routePage }} of {{ routePages }}</span>
           <button class="usx-btn--primary registry-page-btn" :disabled="routePage === routePages" @click="routePage++">
-            <span class="material-symbols-outlined">chevron_right</span>
+            <UIcon name="chevron_right" />
           </button>
         </div>
       </div>
@@ -263,6 +263,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import UIcon from '../../../skills/atoms/UIcon.vue'
 
 interface SkillItem {
   skill_id: string

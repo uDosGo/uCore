@@ -11,7 +11,7 @@
           {{ store.report?.ecosystem.health }}
         </span>
         <button class="usx-btn--primary" @click="refresh">
-          <span class="material-symbols-outlined">refresh</span>
+          <UIcon name="refresh" />
           Refresh
         </button>
       </div>
@@ -24,14 +24,14 @@
 
     <!-- Loading -->
     <div v-if="store.loading" class="usx-flex-center usx-p-lg">
-      <span class="material-symbols-outlined surfaces-spinner">progress_activity</span>
+      <UIcon name="progress_activity" spin class="surfaces-spinner" />
       <span class="surfaces-muted-copy">Loading registry...</span>
     </div>
 
     <!-- Error -->
     <div v-else-if="store.error" class="usx-compact usx-mt-md surfaces-error-box">
       <div class="usx-flex-row">
-        <span class="material-symbols-outlined">error</span>
+        <UIcon name="error" />
         <span>{{ store.error }}</span>
       </div>
       <button class="usx-btn--primary usx-mt-sm" @click="refresh">
@@ -93,7 +93,7 @@
     <!-- Recommendations -->
     <div v-if="store.report?.recommendations?.length" class="usx-compact usx-mt-md surfaces-box">
       <div class="usx-flex-row">
-        <span class="material-symbols-outlined surfaces-icon-primary">tips_and_updates</span>
+        <UIcon name="tips_and_updates" class="surfaces-icon-primary" />
         <span class="surfaces-heading-strong">Recommendations</span>
       </div>
       <ul class="usx-mt-sm surfaces-list">
@@ -110,7 +110,7 @@
     <!-- Scaffold Form -->
     <div class="usx-compact usx-mt-lg surfaces-box">
       <div class="usx-flex-row">
-        <span class="material-symbols-outlined surfaces-icon-primary">add_circle</span>
+        <UIcon name="add_circle" class="surfaces-icon-primary" />
         <span class="surfaces-heading-strong">Scaffold New Surface</span>
       </div>
       <div class="usx-flex-row usx-mt-sm">
@@ -126,7 +126,7 @@
           :disabled="!scaffoldName || store.loading"
           @click="doScaffold"
         >
-          <span class="material-symbols-outlined">rocket_launch</span>
+          <UIcon name="rocket_launch" />
           Scaffold
         </button>
       </div>
@@ -161,7 +161,7 @@
           class="usx-card"
         >
           <div class="usx-flex-row">
-            <span class="material-symbols-outlined surfaces-icon-sm">memory</span>
+            <UIcon name="memory" class="surfaces-icon-sm" />
             <span class="surfaces-label-medium">{{ runtime }}</span>
           </div>
         </div>
@@ -181,7 +181,7 @@
         >
           <div class="usx-flex-between">
             <div class="usx-flex-row">
-              <span class="material-symbols-outlined surfaces-icon-sm">{{ surface.icon || 'widgets' }}</span>
+              <UIcon :name="surface.icon || 'widgets'" class="surfaces-icon-sm" />
               <span class="surfaces-label-medium">{{ surface.name }}</span>
             </div>
             <span
@@ -212,6 +212,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useSurfaceRegistryStore } from '../../../stores/surfaceRegistry'
+import UIcon from '../../../skills/atoms/UIcon.vue'
 
 const store = useSurfaceRegistryStore()
 const scaffoldName = ref('')

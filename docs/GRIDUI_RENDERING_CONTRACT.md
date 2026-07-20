@@ -282,6 +282,27 @@ type GridBuffer = GridCell[][]  // [row][col], y × x
 
 **Source**: `frontend-vue/src/grid-core/types.ts`
 
+## Runtime Adapter Status
+
+Current terminal/uCode surfaces are renderer demos, not runtime bridges:
+
+| Surface | Current role | Runtime-backed status |
+|---------|--------------|-----------------------|
+| `TerminalSurface` | Demo/local terminal shell rendered through the GridCore canvas path | Not wired to a PTY, shell, BBC BASIC runtime, uCode VM, or GridSmith world runner |
+| uCode Terminal tab | Local GridCore buffer demo inside the uCode hub | Not wired to an execution runtime |
+| GridCore | Rendering/data primitives: `GridBuffer`, `GridCell`, canvas sizing, palette, font rendering | Runtime-agnostic by design |
+
+The next runtime milestone is to replace the terminal demo shell with a runtime-backed adapter. That adapter must preserve GridCore as the rendering primitive layer and introduce a narrow bridge contract above it.
+
+Minimum adapter contract:
+
+1. **Input stream**: frontend key/command events are normalized before crossing the runtime boundary.
+2. **Output stream**: backend/runtime output is delivered as ordered text, control events, or complete/partial `GridBuffer` updates.
+3. **Transport**: choose REST for request/response commands or WebSocket for interactive streaming; terminal/PTY mode should use WebSocket.
+4. **Buffer mapping**: adapter owns conversion from runtime output into `GridBuffer`; GridCore only renders buffers.
+5. **Runtime target**: adapter configuration must explicitly select one runtime kind: shell/PTY, BBC BASIC, uCode VM, or GridSmith world runner.
+6. **Lifecycle**: adapter exposes start, stop, resize, reset, and error states so surfaces can recover without canvas-specific logic.
+
 ### Render Modes (per cell, on the same grid line)
 
 | Mode | How | Cell example |

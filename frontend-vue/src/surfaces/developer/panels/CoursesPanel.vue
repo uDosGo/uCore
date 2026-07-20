@@ -5,7 +5,7 @@
       <div class="usx-flex-row usx-gap-sm">
         <span class="usx-badge usx-badge--accent">{{ filteredCourses.length }} courses</span>
         <button class="usx-btn--primary" @click="refresh">
-          <span class="material-symbols-outlined">refresh</span>
+          <UIcon name="refresh" />
           Refresh
         </button>
       </div>
@@ -100,7 +100,7 @@
         >
           <div class="usx-flex-between">
             <div class="usx-flex-row">
-              <span class="material-symbols-outlined courses-icon-sm courses-success-copy">verified</span>
+              <UIcon name="verified" class="courses-icon-sm courses-success-copy" />
               <span class="courses-title-medium">{{ item.title }}</span>
             </div>
             <span class="usx-badge usx-badge--accent">{{ item.relevance }}%</span>
@@ -137,11 +137,11 @@
         >
           <div class="usx-flex-between">
             <div class="usx-flex-row">
-              <span class="material-symbols-outlined courses-icon-sm"
+              <UIcon
+                :name="relevanceIcon(item.relevance)"
+                class="courses-icon-sm"
                 :class="relevanceToneClass(item.relevance)"
-              >
-                {{ relevanceIcon(item.relevance) }}
-              </span>
+              />
               <span class="courses-title-medium">{{ item.title }}</span>
             </div>
           </div>
@@ -190,7 +190,7 @@
           :disabled="currentPage === 1"
           @click="currentPage--"
         >
-          <span class="material-symbols-outlined">chevron_left</span>
+          <UIcon name="chevron_left" />
         </button>
         <span class="courses-page-meta">
           Page {{ currentPage }} of {{ totalPages }}
@@ -200,7 +200,7 @@
           :disabled="currentPage === totalPages"
           @click="currentPage++"
         >
-          <span class="material-symbols-outlined">chevron_right</span>
+          <UIcon name="chevron_right" />
         </button>
       </div>
     </div>
@@ -209,6 +209,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import UIcon from '../../../skills/atoms/UIcon.vue'
 
 interface CourseItem {
   file: string
