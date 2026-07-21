@@ -147,10 +147,13 @@ function navigate(route: string) {
 }
 
 .dashboard-surface__grid-inner {
+  --dashboard-column-min: calc(var(--usx-touch-min) * 8);
+  --dashboard-column-max: 3;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--dashboard-column-min)), 1fr));
   width: 100%;
   gap: var(--usx-spacing-md);
+  min-width: 0;
 }
 
 .dashboard-surface__dev-hint {
@@ -164,18 +167,6 @@ function navigate(route: string) {
   display: flex;
   align-items: center;
   gap: var(--usx-spacing-sm);
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
-  .dashboard-surface__grid-inner {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
-  .dashboard-surface__grid-inner {
-    grid-template-columns: 1fr;
-  }
 }
 
 .dashboard-surface__dev-hint p {

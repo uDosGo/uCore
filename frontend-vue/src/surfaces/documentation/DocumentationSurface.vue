@@ -154,9 +154,11 @@ onMounted(() => { fetchData() })
 }
 
 .docs-grid {
+  --docs-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--docs-column-min)), 1fr));
   gap: var(--usx-spacing-md);
+  min-width: 0;
 }
 
 .docs-card {
@@ -166,6 +168,7 @@ onMounted(() => { fetchData() })
   padding: var(--usx-spacing-md);
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-lg);
+  min-width: 0;
 }
 
 .docs-card h4 {
@@ -177,12 +180,15 @@ onMounted(() => { fetchData() })
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .docs-iframes {
+  --docs-iframe-column-min: calc(var(--usx-touch-min) * 6);
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--docs-iframe-column-min)), 1fr));
   gap: var(--usx-spacing-md);
+  min-width: 0;
 }
 
 .docs-iframe-card {
@@ -214,22 +220,10 @@ onMounted(() => { fetchData() })
 .api-endpoint {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
-  .docs-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
-  .docs-grid,
-  .docs-iframes {
-    grid-template-columns: 1fr;
-  }
 }
 
 .api-endpoint code {
@@ -237,6 +231,7 @@ onMounted(() => { fetchData() })
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-primary);
   min-width: 18ch;
+  overflow-wrap: anywhere;
 }
 
 .api-endpoint span {

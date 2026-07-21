@@ -166,15 +166,18 @@ onMounted(() => { fetchTasks() })
 .developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-semibold); margin: 0; }
 
 .kanban-board {
+  --kanban-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--kanban-column-min)), 1fr));
   gap: var(--usx-spacing-md);
+  min-width: 0;
 }
 
 .kanban-column {
   background: var(--usx-color-surface);
   background: var(--usx-color-background);
   border-radius: var(--usx-radius-lg);
+  min-width: 0;
   min-height: calc(var(--usx-spacing-2xl) * 9 + var(--usx-spacing-sm));
 }
 
@@ -182,6 +185,7 @@ onMounted(() => { fetchTasks() })
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   border-top: calc(var(--usx-border-width) * 3) solid;
 }
@@ -194,6 +198,8 @@ onMounted(() => { fetchTasks() })
 .kanban-column-title {
   font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .kanban-cards {
@@ -201,6 +207,7 @@ onMounted(() => { fetchTasks() })
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-xs);
+  min-width: 0;
 }
 
 .kanban-card {
@@ -209,6 +216,7 @@ onMounted(() => { fetchTasks() })
   border-radius: var(--usx-radius-md);
   border: var(--usx-border-width) solid transparent;
   cursor: grab;
+  min-width: 0;
   transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), transform var(--usx-transition-fast);
 }
 
@@ -223,28 +231,20 @@ onMounted(() => { fetchTasks() })
   font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-medium);
   margin-bottom: var(--usx-spacing-xs);
+  overflow-wrap: anywhere;
 }
 
 .kanban-card-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--usx-spacing-xs);
+  flex-wrap: wrap;
 }
 
 .kanban-card-date {
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
-  .kanban-board {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
-  .kanban-board {
-    grid-template-columns: 1fr;
-  }
+  overflow-wrap: anywhere;
 }
 </style>

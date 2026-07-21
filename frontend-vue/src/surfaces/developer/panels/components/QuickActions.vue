@@ -39,14 +39,17 @@ const actions: Array<{ id: string; icon: string; label: string; disabled?: boole
 
 <style scoped>
 .quick-actions {
+  --quick-action-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--quick-action-column-min)), 1fr));
   gap: var(--usx-spacing-xs);
+  min-width: 0;
 }
 
 .quick-actions__btn {
   display: flex;
   align-items: center;
+  min-width: 0;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
   border: var(--usx-border-width) solid var(--usx-color-border);
@@ -57,13 +60,7 @@ const actions: Array<{ id: string; icon: string; label: string; disabled?: boole
   font-size: var(--usx-font-size-sm);
   font-family: var(--usx-font-family-sans);
   transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), color var(--usx-transition-fast);
-  white-space: nowrap;
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 24)) {
-  .quick-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  white-space: normal;
 }
 
 .quick-actions__btn:hover:not(:disabled) {
@@ -87,6 +84,8 @@ const actions: Array<{ id: string; icon: string; label: string; disabled?: boole
 
 .quick-actions__label {
   font-weight: var(--usx-font-weight-medium);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 @keyframes spin {

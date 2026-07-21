@@ -66,9 +66,9 @@ const healthClass = computed(() => {
 .server-dashboard { display: flex; flex-direction: column; gap: var(--usx-spacing-md); width: 100%; }
 .server-dashboard-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--usx-spacing-md); }
 .server-muted-text { color: var(--usx-color-on-surface-muted); }
-.server-stats-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--usx-spacing-lg); margin-top: var(--usx-spacing-md); }
+.server-stats-row { --server-stats-column-min: calc(var(--usx-touch-min) * 4.5); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--server-stats-column-min)), 1fr)); gap: var(--usx-spacing-lg); margin-top: var(--usx-spacing-md); min-width: 0; }
 .server-stat { display: flex; flex-direction: column; }
-.server-stat-value { font-size: var(--usx-font-size-2xl); font-weight: var(--usx-font-weight-bold); }
+.server-stat-value { font-size: var(--usx-font-size-2xl); font-weight: var(--usx-font-weight-bold); overflow-wrap: anywhere; }
 .server-stat-value--up { color: var(--usx-color-success); }
 .server-stat-value--degraded { color: var(--usx-color-warning); }
 .server-stat-value--down { color: var(--usx-color-danger); }
@@ -84,15 +84,7 @@ const healthClass = computed(() => {
 .server-service-dot--up { background: var(--usx-color-success); }
 .server-service-dot--degraded { background: var(--usx-color-warning); }
 .server-service-dot--down { background: var(--usx-color-danger); }
-.server-service-name { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-medium); }
-.server-service-desc { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.server-service-name { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-medium); overflow-wrap: anywhere; }
+.server-service-desc { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .server-service-uptime { font-size: var(--usx-font-size-sm); color: var(--usx-color-on-surface-muted); }
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
-  .server-stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
-  .server-stats-row { grid-template-columns: 1fr; }
-}
 </style>

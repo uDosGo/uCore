@@ -97,10 +97,12 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
 }
 
 .kanban-board {
+  --kanban-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--kanban-column-min)), 1fr));
   gap: var(--usx-spacing-lg);
   align-items: start;
+  min-width: 0;
 }
 
 .kanban-column {
@@ -109,6 +111,7 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
   border: var(--usx-border-width) solid var(--usx-color-border);
   display: flex;
   flex-direction: column;
+  min-width: 0;
   min-height: calc(var(--usx-touch-min) * 5);
 }
 
@@ -117,6 +120,7 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--usx-spacing-sm);
   font-weight: var(--usx-font-weight-semibold);
   font-size: var(--usx-font-size-base);
   border-top-style: solid;
@@ -135,6 +139,7 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-md);
+  min-width: 0;
 }
 
 .kanban-empty {
@@ -151,6 +156,7 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
   border-radius: var(--usx-radius-md);
   border: var(--usx-border-width) solid transparent;
   cursor: pointer;
+  min-width: 0;
   transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), box-shadow var(--usx-transition-fast), transform var(--usx-transition-fast);
 }
 
@@ -168,13 +174,16 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--usx-spacing-sm);
+  flex-wrap: wrap;
   margin-bottom: var(--usx-spacing-sm);
 }
 
 .kanban-card-title {
+  min-width: 0;
   font-weight: var(--usx-font-weight-semibold);
   font-size: var(--usx-font-size-base);
   line-height: var(--usx-line-height-tight);
+  overflow-wrap: anywhere;
 }
 
 .kanban-card-desc {
@@ -182,6 +191,7 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   line-height: var(--usx-line-height-tight);
+  overflow-wrap: anywhere;
 }
 
 .kanban-card-meta {
@@ -208,19 +218,9 @@ function priorityBadgeType(priority: string): 'error' | 'warning' | 'info' {
   display: flex;
   align-items: center;
   gap: var(--usx-spacing-xs);
+  min-width: 0;
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
-  .kanban-board {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
-  .kanban-board {
-    grid-template-columns: 1fr;
-  }
+  overflow-wrap: anywhere;
 }
 </style>

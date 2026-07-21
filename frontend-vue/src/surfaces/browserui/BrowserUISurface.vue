@@ -190,9 +190,11 @@ const filteredStacks = computed(() => {
 
 /* ─── Card grid ────────────────────────────────────────────────── */
 .browserui-cards {
+  --browserui-card-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--browserui-card-column-min)), 1fr));
   gap: var(--usx-spacing-sm);
+  min-width: 0;
 }
 
 .browserui-card {
@@ -205,6 +207,7 @@ const filteredStacks = computed(() => {
   border-radius: var(--usx-radius-md);
   text-decoration: none;
   color: inherit;
+  min-width: 0;
   transition: border-color var(--usx-transition-fast), transform var(--usx-transition-fast), box-shadow var(--usx-transition-fast);
 }
 
@@ -218,12 +221,14 @@ const filteredStacks = computed(() => {
   font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface);
+  overflow-wrap: anywhere;
 }
 
 .browserui-card-desc {
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
   line-height: var(--usx-line-height-normal);
+  overflow-wrap: anywhere;
 }
 
 .browserui-card-tags {
@@ -246,17 +251,5 @@ const filteredStacks = computed(() => {
   font-weight: var(--usx-font-weight-medium);
   line-height: var(--usx-line-height-none);
   white-space: nowrap;
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
-  .browserui-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
-  .browserui-cards {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

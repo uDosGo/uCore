@@ -91,19 +91,22 @@ const lastUpdated = computed(() => {
 
 <style scoped>
 .bottom-bar {
+  --bottom-bar-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--bottom-bar-column-min)), 1fr));
   align-items: center;
   gap: var(--usx-spacing-md);
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   background: var(--usx-color-surface-variant);
   border-radius: var(--usx-radius-md);
   border: var(--usx-border-width) solid var(--usx-color-border);
+  min-width: 0;
 }
 
 .bottom-bar__section {
   display: flex;
   align-items: center;
+  min-width: 0;
   gap: var(--usx-spacing-xs);
 }
 
@@ -118,6 +121,7 @@ const lastUpdated = computed(() => {
 .bottom-bar__content {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .bottom-bar__label {
@@ -125,11 +129,13 @@ const lastUpdated = computed(() => {
   font-weight: var(--usx-font-weight-semibold);
   color: var(--usx-color-on-surface);
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .bottom-bar__detail {
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
+  overflow-wrap: anywhere;
 }
 
 .bottom-bar__detail--mono {
@@ -145,9 +151,4 @@ const lastUpdated = computed(() => {
   flex-shrink: 0;
 }
 
-@media (max-width: calc(var(--usx-spacing-2xl) * 24)) {
-  .bottom-bar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 </style>

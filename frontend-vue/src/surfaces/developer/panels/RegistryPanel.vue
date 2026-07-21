@@ -598,13 +598,16 @@ onMounted(() => {
 }
 
 .registry-grid {
+  --registry-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
   gap: var(--usx-grid-gap-sm);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--registry-column-min)), 1fr));
+  min-width: 0;
 }
 
 .registry-card {
   padding: var(--usx-spacing-md);
+  min-width: 0;
 }
 
 .registry-title-strong {
@@ -649,6 +652,7 @@ onMounted(() => {
 .registry-route-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--usx-spacing-sm);
   padding: var(--usx-spacing-sm);
   border-bottom: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-border) 60%, transparent);
@@ -658,6 +662,8 @@ onMounted(() => {
   font-family: var(--usx-font-family-mono);
   font-size: var(--usx-font-size-sm);
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .registry-page-btn {
@@ -690,15 +696,4 @@ onMounted(() => {
   padding: var(--usx-spacing-1) var(--usx-spacing-2);
 }
 
-@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
-  .registry-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
-  .registry-grid {
-    grid-template-columns: 1fr;
-  }
-}
 </style>

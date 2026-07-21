@@ -305,9 +305,11 @@ onMounted(() => {
 }
 
 .wf-stats {
+  --wf-column-min: calc(var(--usx-touch-min) * 3.75);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--wf-column-min)), 1fr));
   gap: var(--usx-spacing-md);
+  min-width: 0;
 }
 
 .wf-stat {
@@ -373,9 +375,11 @@ onMounted(() => {
 }
 
 .wf-board-grid {
+  --wf-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--wf-column-min)), 1fr));
   gap: var(--usx-spacing-sm);
+  min-width: 0;
 }
 
 .wf-board-card {
@@ -383,11 +387,13 @@ onMounted(() => {
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-md);
   border: var(--usx-border-width) solid var(--usx-color-border);
+  min-width: 0;
 }
 
 .wf-board-card-header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--usx-spacing-sm);
   font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-medium);
@@ -395,9 +401,11 @@ onMounted(() => {
 
 /* Dashboard-style mission card grid */
 .wf-mission-grid {
+  --wf-column-min: calc(var(--usx-touch-min) * 5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--wf-column-min)), 1fr));
   gap: var(--usx-spacing-md);
+  min-width: 0;
 }
 
 .wf-mission-card {
@@ -409,6 +417,7 @@ onMounted(() => {
   border: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-primary) 8%, transparent);
   border-radius: var(--usx-radius-md);
   cursor: pointer;
+  min-width: 0;
   transition: background var(--usx-transition-fast), border-color var(--usx-transition-fast), transform var(--usx-transition-fast);
 }
 
@@ -469,9 +478,11 @@ onMounted(() => {
 }
 
 .wf-run-grid {
+  --wf-column-min: calc(var(--usx-touch-min) * 5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--wf-column-min)), 1fr));
   gap: var(--usx-spacing-md);
+  min-width: 0;
 }
 
 .wf-run-card {
@@ -482,6 +493,7 @@ onMounted(() => {
   background: var(--usx-color-surface);
   border: var(--usx-border-width) solid var(--usx-color-border);
   border-radius: var(--usx-radius-md);
+  min-width: 0;
   transition: border-color var(--usx-transition-fast), transform var(--usx-transition-fast);
 }
 
@@ -552,21 +564,4 @@ onMounted(() => {
   margin: 0;
 }
 
-@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
-  .wf-stats,
-  .wf-board-grid,
-  .wf-mission-grid,
-  .wf-run-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
-  .wf-stats,
-  .wf-board-grid,
-  .wf-mission-grid,
-  .wf-run-grid {
-    grid-template-columns: 1fr;
-  }
-}
 </style>

@@ -114,14 +114,16 @@ const badges = computed<StatusBadgeData[]>(() => {
 
 <style scoped>
 .status-badges {
+  --status-badge-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--status-badge-column-min)), 1fr));
   gap: var(--usx-spacing-sm);
   align-items: center;
   padding: var(--usx-spacing-sm) var(--usx-spacing-md);
   background: var(--usx-color-surface-variant);
   border-radius: var(--usx-radius-md);
   border: var(--usx-border-width) solid var(--usx-color-border);
+  min-width: 0;
 }
 
 .status-badges--loading {
@@ -137,6 +139,7 @@ const badges = computed<StatusBadgeData[]>(() => {
 .status-badge {
   display: flex;
   align-items: center;
+  min-width: 0;
   gap: var(--usx-spacing-xs);
   padding: var(--usx-spacing-1) var(--usx-spacing-sm);
   border-radius: var(--usx-radius-sm);
@@ -145,12 +148,6 @@ const badges = computed<StatusBadgeData[]>(() => {
   transition: background var(--usx-transition-fast);
   user-select: none;
   cursor: default;
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 24)) {
-  .status-badges {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 .status-badge--clickable {
@@ -179,6 +176,7 @@ const badges = computed<StatusBadgeData[]>(() => {
 
 .status-badge__label {
   color: var(--usx-color-on-surface);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 </style>

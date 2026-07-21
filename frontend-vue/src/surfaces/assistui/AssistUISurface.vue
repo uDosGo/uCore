@@ -430,11 +430,13 @@ onMounted(() => {
 }
 
 .assistui-prompt-row {
+  --assistui-prompt-column-min: calc(var(--usx-touch-min) * 4.5);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--assistui-prompt-column-min)), 1fr));
   gap: var(--usx-spacing-lg);
   margin: var(--usx-spacing-lg) 0;
   padding: var(--usx-spacing-lg) 0;
+  min-width: 0;
 }
 
 .assistui-prompt-card {
@@ -450,6 +452,7 @@ onMounted(() => {
   cursor: pointer;
   transition: background var(--usx-transition-base), border-color var(--usx-transition-base), color var(--usx-transition-base), transform var(--usx-transition-base);
   color: var(--usx-color-on-surface);
+  min-width: 0;
 }
 
 
@@ -464,11 +467,13 @@ onMounted(() => {
 .assistui-prompt-card-label {
   font-size: var(--usx-font-size-base);
   font-weight: var(--usx-font-weight-semibold);
+  overflow-wrap: anywhere;
 }
 
 .assistui-prompt-card-context {
   font-size: var(--usx-font-size-sm);
   color: var(--usx-color-on-surface-muted);
+  overflow-wrap: anywhere;
 }
 
 .assistui-loading {
@@ -492,18 +497,6 @@ onMounted(() => {
 
 .assistui-loading-dot:nth-child(3) {
   animation-delay: var(--usx-motion-delay-xl);
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 32)) {
-  .assistui-prompt-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: calc(var(--usx-spacing-2xl) * 18)) {
-  .assistui-prompt-row {
-    grid-template-columns: 1fr;
-  }
 }
 
 @keyframes assistui-pulse {
