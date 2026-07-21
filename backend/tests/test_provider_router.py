@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import aiohttp
 import pytest
 
 from app.services.chat_cache import ChatCache
@@ -314,6 +315,58 @@ async def test_chat_openrouter_exception_falls_back(monkeypatch):
 
     assert result["content"] == "recovered locally"
     assert result["fallback"]["reason"] == "OpenRouter unavailable"
+
+
+@pytest.mark.asyncio
+async def test_chat_http_uses_ollama_api_chat_endpoint(monkeypatch):
+    router = ProviderRouter()
+    router.providers = {
+        "ollama": ProviderConfig(
+            name="ollama",
+            type="ollama",
+            base_url="http://localhost:11434",
+            default_model="qwen2.5-coder:3b",
+        ),
+    }
+
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def json(self):
+            return {"message": {"content": "ok"}}
+
+    class FakeSession:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        def post(self, url, json=None, headers=None):
+            captured["url"] = url
+            captured["json"] = json
+            captured["headers"] = headers
+            return FakeResponse()
+
+    monkeypatch.setattr(aiohttp, "ClientSession", FakeSession)
+
+    result = await router._chat_http(
+        messages=[{"role": "user", "content": "hello"}],
+        model="qwen2.5-coder:3b",
+        provider="ollama",
+    )
+
+    assert captured["url"] == "http://localhost:11434/api/chat"
+    assert result["content"] == "ok"
 
 
 @pytest.mark.asyncio

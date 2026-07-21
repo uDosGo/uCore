@@ -3,7 +3,7 @@
 - status: todo
 - source: seed-user-workflow
 - source_id: seed-welcome-to-ucode
-- synced_at: 2026-07-18T02:36:05Z
+- synced_at: 2026-07-21T14:21:41Z
 - priority: high
 - mission: Getting Started
 - task: Welcome to uCode

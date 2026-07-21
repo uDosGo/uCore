@@ -8,7 +8,20 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import App from './App.vue'
 import { router } from './router'
 
-// External dependencies are already loaded in index.html
+// Self-hosted fonts (offline-first, zero Google CDN dependency)
+import '@fontsource/inter/300.css'
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
+import '@fontsource/jetbrains-mono/400.css'
+import '@fontsource/jetbrains-mono/500.css'
+import '@fontsource/jetbrains-mono/700.css'
+import '@fontsource/merriweather/400.css'
+import '@fontsource/merriweather/700.css'
+import '@fontsource/press-start-2p/400.css'
+import '@fontsource/vt323/400.css'
+import 'material-symbols/outlined.css'
 
 // USX Design System - Import in correct order
 // Core tokens come from the shared @udos/usx-tokens package

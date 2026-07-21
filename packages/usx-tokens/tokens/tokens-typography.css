@@ -5,7 +5,8 @@
 :root {
   /* ===== Font Families ===== */
   --usx-font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --usx-font-family-mono: 'SF Mono', 'Fira Code', monospace;
+  --usx-font-family-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  --usx-font-family-serif: 'Merriweather', 'Georgia', serif;
 
   /* ===== Font Sizes ===== */
   --usx-font-size-xs: 0.75rem;

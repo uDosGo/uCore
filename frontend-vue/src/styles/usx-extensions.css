@@ -119,16 +119,15 @@
   display: none;
 }
 
-/* ─── Shared icon sizing — USX token-based ── */
+/* ─── Shared icon sizing — USX token-based ──
+   Icons are sized relative to parent font-size (1em) by UIcon.vue.
+   The container here only ensures layout consistency. */
 .global-toolbar__icon {
   flex-shrink: 0;
-  width: var(--usx-icon-size-lg);
-  height: var(--usx-icon-size-lg);
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
-  vertical-align: middle;
 }
 
 /* ─── Right-side icon-only buttons (theme toggle, settings) ───── */
@@ -150,11 +149,6 @@
 
 .global-toolbar__icon-only:hover {
   color: var(--usx-color-on-surface);
-}
-
-/* Ensure icon-inside-icon-only matches parent size */
-.global-toolbar__icon-only .u-icon {
-  font-size: 1em !important;
 }
 
 .global-toolbar__overflow-anchor {

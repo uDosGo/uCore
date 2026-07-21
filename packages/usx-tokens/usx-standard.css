@@ -30,6 +30,28 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── Material Symbols Outlined — self-hosted via npm ──────────── 
+   The @font-face is loaded by material-symbols/outlined.css (imported in main.ts).
+   This class overrides the npm package defaults for USX token compatibility. */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-size: inherit;
+  font-weight: normal;
+  font-style: normal;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+}
+
 /* ─── Global Touch Targets ──────────────────────────────────────── */
 button, input, select, textarea, optgroup, label, [role="button"],
 .usx-button, .u-button {
@@ -41,28 +63,6 @@ button, input, select, textarea, optgroup, label, [role="button"],
 button.usx-btn--sm, .usx-btn--sm,
 input.usx-input--sm, .usx-input--sm {
   min-height: var(--usx-touch-min-sm);
-}
-
-/* ─── Material Symbols Outlined (Material 3 Icons) ─────────────────── */
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-size: var(--usx-icon-size);
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  line-height: 1;
-  vertical-align: middle;
-  font-display: swap;
-}
-
-/* Topbar icons — slightly smaller */
-.global-toolbar__icon .material-symbols-outlined,
-.global-toolbar__icon-only .material-symbols-outlined {
-  font-size: var(--usx-icon-size-lg);
-}
-
-/* Content/UI icons — larger */
-.surface-tab-nav__icon .material-symbols-outlined,
-.assistui-prompt-card .material-symbols-outlined {
-  font-size: var(--usx-icon-size-2lg);
 }
 
 /* ─────────────────────────────────────────────────────────────────────

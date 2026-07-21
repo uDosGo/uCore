@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════
-   base.css — USX Base Theme (light, always applied)
+   base.css — USX Token Imports
    ═══════════════════════════════════════════════════════════════════
-   Imports token files from the shared @udos/usx-tokens package,
-   then applies :root defaults and PicoCSS compatibility mappings.
-   Dark/teletext/c64 themes override only what changes.
+   Import this FIRST to load all USX design tokens into :root.
+   Global resets, layout primitives, and component patterns are in
+   @udos/usx-tokens (usx-standard.css), imported later in main.ts.
    ═══════════════════════════════════════════════════════════════════ */
 
 @import '@udos/usx-tokens/tokens/tokens-color.css';
@@ -11,39 +11,3 @@
 @import '@udos/usx-tokens/tokens/tokens-spacing.css';
 @import '@udos/usx-tokens/tokens/tokens-touch.css';
 @import '@udos/usx-tokens/tokens/tokens-components.css';
-
-:root {
-  /* ===== GLOBAL TOUCH TARGETS ===== */
-  --usx-touch-min: 48px;
-  --usx-touch-min-sm: 40px;
-}
-
-/* Global Reset */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ─── Reduced Motion ────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ─── Focus Visible ─────────────────────────────────────────────── */
-*:focus-visible {
-  outline: var(--usx-border-width-thick) solid var(--usx-color-primary);
-  outline-offset: 2px;
-}

@@ -426,7 +426,7 @@ class ProviderRouter:
                     "messages": messages,
                 }
             else:
-                url = f"{base_url}/chat"
+                url = f"{base_url}/api/chat"
                 headers = {}
                 payload = {
                     "model": ollama_model,
