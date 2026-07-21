@@ -95,6 +95,7 @@ onMounted(async () => {
 }
 
 .workspace-filter__label {
+  margin: 0;
   font-size: var(--usx-font-size-sm);
   font-weight: var(--usx-font-weight-semibold);
   text-transform: uppercase;
@@ -103,6 +104,7 @@ onMounted(async () => {
 }
 
 .workspace-filter__select {
+  margin: 0;
   padding: var(--usx-spacing-xs) var(--usx-spacing-lg) var(--usx-spacing-xs) var(--usx-spacing-sm);
   background: var(--usx-color-background);
   border-radius: var(--usx-radius-sm);

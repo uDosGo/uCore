@@ -8,7 +8,7 @@
     />
     <!-- Content area -->
     <div class="surface__content">
-      <div class="workflow-layout">
+      <div class="workflow-layout" :class="{ 'workflow-layout--editor-tab': wf.activeTab === 'editor' }">
         <!-- Left/Main panel: the active tab content -->
         <div v-if="wf.activeTab !== 'editor'" class="workflow-panel">
           <MissionControlPanel v-if="wf.activeTab === 'mission-control'" />
@@ -17,19 +17,37 @@
           <PublishPanel v-else-if="wf.activeTab === 'publish'" />
         </div>
 
-        <!-- Editor as standalone tab (no task selected) -->
-        <div v-if="wf.activeTab === 'editor' && !activeEditorItem" class="workflow-panel">
-          <div class="wf-editor-empty">
+        <!-- Editor tab: full-width document workspace -->
+        <div v-if="wf.activeTab === 'editor'" class="workflow-panel workflow-panel--editor">
+          <EditorPanel
+            v-if="activeEditorItem"
+            :content="editorContent"
+            :title="editorTitle"
+            :read-only="editorReadOnly"
+            :show-editor="wf.showEditorPane"
+            :pane-layout="wf.paneLayout"
+            @update:content="onEditorContentUpdate"
+            @save="onEditorSave"
+            @close="wf.closeEditor()"
+            @toggle-editor="wf.toggleEditorPane()"
+            @toggle-layout="wf.togglePaneLayout()"
+          />
+          <div v-else class="wf-editor-empty">
             <UIcon name="article" />
             <p>Select a file from the User Vault sidebar or a task from Tasks.</p>
-            <UButton size="sm" variant="primary" @click="wf.setTab('tasks')">
-              Go to Tasks
-            </UButton>
+            <div class="wf-editor-empty__actions">
+              <UButton size="sm" variant="primary" @click="shell.toggleSidebar()">
+                Open File Browser
+              </UButton>
+              <UButton size="sm" variant="secondary" @click="wf.setTab('tasks')">
+                Go to Tasks
+              </UButton>
+            </div>
           </div>
         </div>
 
-        <!-- Right/Editor column: slides in when a task is selected -->
-        <div v-if="wf.editorOpen && activeEditorItem" class="workflow-editor" :class="editorColumnClass">
+        <!-- Right/Editor column: sidecar for non-editor tabs -->
+        <div v-if="wf.activeTab !== 'editor' && wf.editorOpen && activeEditorItem" class="workflow-editor" :class="editorColumnClass">
           <EditorPanel
             :content="editorContent"
             :title="editorTitle"
@@ -163,6 +181,10 @@ const editorColumnClass = computed(() => {
   gap: var(--usx-spacing-md);
 }
 
+.workflow-layout--editor-tab {
+  gap: 0;
+}
+
 /* ─── Main Panel — fill full height ──────────────────────────── */
 .workflow-panel {
   flex: 1;
@@ -176,6 +198,11 @@ const editorColumnClass = computed(() => {
 .workflow-panel > * {
   flex: 1;
   min-height: 0;
+}
+
+.workflow-panel--editor {
+  overflow: hidden;
+  background: var(--usx-color-background);
 }
 
 /* ─── Editor Column — right sidebar, full height ──────────────── */
@@ -210,5 +237,13 @@ const editorColumnClass = computed(() => {
   padding: var(--usx-spacing-2xl);
   color: var(--usx-color-on-surface-muted);
   text-align: center;
+}
+
+.wf-editor-empty__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--usx-spacing-sm);
+  flex-wrap: wrap;
 }
 </style>

@@ -223,6 +223,8 @@ const MATERIAL_SVG_ICONS: Record<string, string> = {
   monitor_heart: '<path d="M4 5h16v11H4z"/><path d="M8 20h8M12 16v4"/><path d="M7 11h2l1-2 2 5 1.5-3H17"/>',
   build: '<path d="m14.7 6.3 3-3a5 5 0 0 1-6.4 6.4l-6.5 6.5a2 2 0 0 0 2.8 2.8l6.5-6.5a5 5 0 0 1 .6-6.2Z"/>',
   bar_chart: '<path d="M5 19V9M12 19V5M19 19v-7"/>',
+  view_column: '<path d="M4 5h16v14H4z"/><path d="M10 5v14M14 5v14"/>',
+  view_day: '<path d="M4 5h16v14H4z"/><path d="M4 10h16M4 14h16"/>',
   view_kanban: '<path d="M4 5h16v14H4z"/><path d="M9 5v14M15 5v14"/>',
   cable: '<path d="M7 7h5v5H7zM12 9h4a3 3 0 0 1 0 6h-4M7 17h5v-5H7z"/>',
   extension: '<path d="M8 4h4v4h4v4h4v4h-4v4h-4v-4H8v-4H4V8h4z"/>',

@@ -338,9 +338,11 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
 .filepicker-sidebar {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100%;
   padding: var(--usx-spacing-md);
   gap: var(--usx-spacing-sm);
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .filepicker-sidebar__header {
@@ -399,8 +401,9 @@ function getLayerBadgeType(layer: string): 'info' | 'success' | 'warning' | 'err
 }
 
 .filepicker-sidebar__list {
-  flex: 1;
-  overflow-y: auto;
+  flex: 0 0 auto;
+  min-height: 0;
+  overflow-y: visible;
   display: flex;
   flex-direction: column;
   gap: var(--usx-spacing-xs);
