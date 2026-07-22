@@ -29,6 +29,7 @@ const emit = defineEmits<{
 const actions: Array<{ id: string; icon: string; label: string; disabled?: boolean }> = [
   { id: 'health-check', icon: 'monitor_heart', label: 'Health Check' },
   { id: 'system-repair', icon: 'build', label: 'System Repair' },
+  { id: 'restart-backend', icon: 'restart_alt', label: 'Restart Backend' },
   { id: 'destroy-rebuild', icon: 'sync', label: 'Destroy/Rebuild' },
   { id: 'ingest-feed', icon: 'download', label: 'Ingest Feed' },
   { id: 'suggest-binder', icon: 'bolt', label: 'Suggest Binder' },

@@ -97,6 +97,15 @@
       :updated-at="data?.updated_at"
     />
 
+    <!-- Dogfooding Warning (ecosystem mode only) -->
+    <div v-if="dev.isEcosystemMode && data" class="control-dogfooding-banner">
+      <UIcon name="warning" :size="14" />
+      <span>
+        Ecosystem Mode: destructive actions require double confirmation.
+        Backend restarts are safe — launchd auto-respawns uCore on port 8484.
+      </span>
+    </div>
+
     <!-- Quick Actions -->
     <QuickActions
       :loading="actionLoading"
@@ -209,14 +218,41 @@ async function handleAction(id: string) {
           alert('Health check failed: ' + e.message)
         }
         break
-      case 'system-repair':
-        if (confirm('Run system self-repair? This will attempt to fix MCP structure, reload skills, and verify plates.')) {
-          const repairRes = await fetch(`${API_BASE}/api/system/repair`, { method: 'POST' })
-          const repairData = await repairRes.json()
-          alert(`Repair complete: ${repairData.health_after_repair}\n${repairData.repairs_successful} successful, ${repairData.repairs_failed} failed`)
+      case 'system-repair': {
+        const proceed = dev.isEcosystemMode
+          ? confirm('⚠️ Ecosystem Mode: System repair will modify uCore itself. Proceed?')
+          : confirm('Run system self-repair? This will attempt to fix MCP structure, reload skills, and verify plates.')
+        if (!proceed) break
+        // Double confirmation in ecosystem mode
+        if (dev.isEcosystemMode && !confirm('Are you sure? This affects the running uCore instance.')) break
+        const repairRes = await fetch(`${API_BASE}/api/system/repair`, { method: 'POST' })
+        const repairData = await repairRes.json()
+        alert(`Repair complete: ${repairData.health_after_repair}\n${repairData.repairs_successful} successful, ${repairData.repairs_failed} failed`)
+        await fetchStatus()
+        break
+      }
+      case 'restart-backend': {
+        const proceed = dev.isEcosystemMode
+          ? confirm('⚠️ Ecosystem Mode: Restart uCore backend? launchd will auto-respawn it on port 8484.')
+          : confirm('Restart uCore backend? launchd will auto-respawn.')
+        if (!proceed) break
+        if (dev.isEcosystemMode && !confirm('Confirm restart — the backend will be briefly unavailable.')) break
+        try {
+          await fetch(`${API_BASE}/api/shutdown`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ confirm: true }),
+          })
+          // Give launchd a moment to respawn, then poll
+          await new Promise((r) => setTimeout(r, 2000))
+          await fetchStatus()
+        } catch {
+          // Shutdown kills the response — expected, try reconnecting
+          await new Promise((r) => setTimeout(r, 3000))
           await fetchStatus()
         }
         break
+      }
       case 'ingest-feed':
         await fetch(`${API_BASE}/api/feed/ingest`, {
           method: 'POST',
@@ -235,11 +271,15 @@ async function handleAction(id: string) {
       case 'export-cost':
         exportCostReport()
         break
-      case 'destroy-rebuild':
-        if (confirm('Trigger DESTROY/REBUILD? This resets Dev Mode to active Slate.')) {
-          await fetch(`${API_BASE}/api/dev/probe`, { method: 'POST' })
-        }
+      case 'destroy-rebuild': {
+        const proceed = dev.isEcosystemMode
+          ? confirm('⚠️ Ecosystem Mode: DESTROY/REBUILD will reset uCore Dev Mode. Continue?')
+          : confirm('Trigger DESTROY/REBUILD? This resets Dev Mode to active Slate.')
+        if (!proceed) break
+        if (dev.isEcosystemMode && !confirm('Final confirmation: reset Dev Mode to active Slate?')) break
+        await fetch(`${API_BASE}/api/dev/probe`, { method: 'POST' })
         break
+      }
       case 'create-task': {
         const title = prompt('Task title:')
         if (title) {

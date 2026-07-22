@@ -38,14 +38,14 @@ export interface ReviewEntry {
 }
 
 export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[] = [
-  { id: 'control', label: '🎯 Control', icon: 'dashboard' },
-  { id: 'agents', label: '🤖 Agents', icon: 'group' },
-  { id: 'skills', label: '🧠 Skills', icon: 'extension' },
-  { id: 'workflows', label: '📊 Dev Flow', icon: 'account_tree' },
-  { id: 'repos', label: '📁 Repos', icon: 'folder' },
-  { id: 'review', label: '🔍 Review', icon: 'visibility' },
-  { id: 'settings', label: '⚙️ Settings', icon: 'settings' },
-  { id: 'mcp-servers', label: '🔌 MCP', icon: 'dns' },
+  { id: 'control', label: 'Control', icon: 'dashboard' },
+  { id: 'agents', label: 'Agents', icon: 'group' },
+  { id: 'skills', label: 'Skills', icon: 'extension' },
+  { id: 'workflows', label: 'Dev Flow', icon: 'account_tree' },
+  { id: 'repos', label: 'Repos', icon: 'folder' },
+  { id: 'review', label: 'Review', icon: 'visibility' },
+  { id: 'settings', label: 'Settings', icon: 'settings' },
+  { id: 'mcp-servers', label: 'MCP', icon: 'dns' },
 ]
 
 const SNACKBAR_API = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
@@ -53,7 +53,7 @@ const SNACKBAR_API = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484
 export const DEVELOPER_LANES: LaneConfig[] = [
   {
     id: 'ecosystem',
-    label: '⚙️ Ecosystem Dev',
+    label: 'Ecosystem Dev',
     icon: 'engineering',
     description: 'Modifying uCore itself (dogfooding)',
     workspace: '~/Code/uCore',
@@ -61,7 +61,7 @@ export const DEVELOPER_LANES: LaneConfig[] = [
   },
   {
     id: 'project',
-    label: '🚀 Project Dev',
+    label: 'Project Dev',
     icon: 'rocket_launch',
     description: 'Building independent projects',
     workspace: '~/Code/Groovebox',
