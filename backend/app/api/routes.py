@@ -457,3 +457,11 @@ def register_routes(app: web.Application) -> None:
         log.debug("Template (Slate) API routes registered")
     except ImportError as e:
         log.debug("Template API routes not available: %s", e)
+
+    # ── History API (action log, snapshots, rollback) ──────────────────
+    try:
+        from .history_api import register_history_routes
+        register_history_routes(app)
+        log.debug("History API routes registered")
+    except ImportError as e:
+        log.debug("History API routes not available: %s", e)

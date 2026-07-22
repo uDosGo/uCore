@@ -11,6 +11,7 @@
         <ControlPanel v-if="dev.activeTab === 'control'" />
         <AgentsPanel v-else-if="dev.activeTab === 'agents'" />
         <SkillsPanel v-else-if="dev.activeTab === 'skills'" />
+        <HistoryPanel v-else-if="dev.activeTab === 'history'" />
         <WorkflowsPanel v-else-if="dev.activeTab === 'workflows'" />
         <ReposPanel v-else-if="dev.activeTab === 'repos'" />
         <ReviewPanel v-else-if="dev.activeTab === 'review'" />
@@ -44,6 +45,7 @@ import ControlPanel from './panels/ControlPanel.vue'
 // Lazy: load other panels only when their tab is selected
 const AgentsPanel = defineAsyncComponent(() => import('./panels/AgentsPanel.vue'))
 const SkillsPanel = defineAsyncComponent(() => import('./panels/SkillsPanel.vue'))
+const HistoryPanel = defineAsyncComponent(() => import('./panels/HistoryPanel.vue'))
 const WorkflowsPanel = defineAsyncComponent(() => import('./panels/WorkflowsPanel.vue'))
 const ReposPanel = defineAsyncComponent(() => import('./panels/ReposPanel.vue'))
 const ReviewPanel = defineAsyncComponent(() => import('./panels/ReviewPanel.vue'))

@@ -7,8 +7,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export type DeveloperTab =
-  | 'control' | 'agents' | 'skills' | 'workflows' | 'repos' | 'review'
-  | 'settings' | 'mcp-servers'
+  | 'control' | 'agents' | 'skills' | 'history' | 'workflows'
+  | 'repos' | 'review' | 'settings' | 'mcp-servers'
 
 export type DeveloperLane = 'ecosystem' | 'project'
 
@@ -41,6 +41,7 @@ export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[]
   { id: 'control', label: 'Control', icon: 'dashboard' },
   { id: 'agents', label: 'Agents', icon: 'group' },
   { id: 'skills', label: 'Skills', icon: 'extension' },
+  { id: 'history', label: 'History', icon: 'history' },
   { id: 'workflows', label: 'Dev Flow', icon: 'account_tree' },
   { id: 'repos', label: 'Repos', icon: 'folder' },
   { id: 'review', label: 'Review', icon: 'visibility' },
