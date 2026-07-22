@@ -112,6 +112,23 @@ class DevModeExecutorSkill(BaseSkill):
             "stages": {},
         }
 
+        # Stage 0: Create safety snapshot before execution
+        # Uses HistoryService to auto-commit current state via git,
+        # enabling rollback if the task causes problems.
+        if not dry_run:
+            try:
+                from app.services.history_service import get_history
+                history = get_history()
+                snapshot = history.create_snapshot(
+                    f"Auto-snapshot before task {task_uid}",
+                )
+                pipeline["stages"]["snapshot"] = snapshot
+            except Exception as exc:
+                log.warning("Pre-execution snapshot failed: %s", exc)
+                pipeline["stages"]["snapshot"] = {
+                    "status": "skipped", "reason": str(exc),
+                }
+
         # Stage 1: Fetch task from .tasker
         task_data = self._fetch_task(task_uid)
         if not task_data:
