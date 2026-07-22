@@ -16,6 +16,29 @@
       <UButton variant="ghost" size="sm" @click="retry">Retry</UButton>
     </div>
 
+    <!-- Workspace Lane Selector -->
+    <div v-if="data" class="control-lane-bar">
+      <div class="control-lane-selector">
+        <UIcon :name="dev.currentLane.icon" :size="16" />
+        <select
+          :value="dev.activeLane"
+          class="control-lane-select"
+          @change="dev.setLane(($event.target as HTMLSelectElement).value as 'ecosystem' | 'project')"
+        >
+          <option v-for="lane in DEVELOPER_LANES" :key="lane.id" :value="lane.id">
+            {{ lane.label }}
+          </option>
+        </select>
+        <span class="control-lane-desc">{{ dev.currentLane.description }}</span>
+      </div>
+      <span v-if="dev.isEcosystemMode" class="control-lane-warning">
+        ⚠️ Ecosystem Mode — modifying uCore itself
+      </span>
+      <span v-else class="control-lane-info">
+        📁 {{ dev.currentLane.workspace }}
+      </span>
+    </div>
+
     <!-- Alert Banner -->
     <div v-if="alerts.length > 0" class="control-alerts">
       <div
@@ -100,6 +123,9 @@ import BottomBar from './components/BottomBar.vue'
 import QuickActions from './components/QuickActions.vue'
 import UIcon from '../../../skills/atoms/UIcon.vue'
 import UButton from '../../../skills/atoms/UButton.vue'
+import { useDeveloperStore, DEVELOPER_LANES } from '../../../stores/developer'
+
+const dev = useDeveloperStore()
 
 interface ControlData {
   statuses: Record<string, { online: boolean; detail: string }>

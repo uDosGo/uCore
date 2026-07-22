@@ -10,6 +10,17 @@ export type DeveloperTab =
   | 'control' | 'agents' | 'skills' | 'workflows' | 'repos' | 'review'
   | 'settings' | 'mcp-servers'
 
+export type DeveloperLane = 'ecosystem' | 'project'
+
+export interface LaneConfig {
+  id: DeveloperLane
+  label: string
+  icon: string
+  description: string
+  workspace: string
+  guardrails: 'confirm_destructive' | 'standard'
+}
+
 export interface RepoInfo {
   name: string
   path: string
@@ -39,8 +50,28 @@ export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[]
 
 const SNACKBAR_API = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
 
+export const DEVELOPER_LANES: LaneConfig[] = [
+  {
+    id: 'ecosystem',
+    label: '⚙️ Ecosystem Dev',
+    icon: 'engineering',
+    description: 'Modifying uCore itself (dogfooding)',
+    workspace: '~/Code/uCore',
+    guardrails: 'confirm_destructive',
+  },
+  {
+    id: 'project',
+    label: '🚀 Project Dev',
+    icon: 'rocket_launch',
+    description: 'Building independent projects',
+    workspace: '~/Code/Groovebox',
+    guardrails: 'standard',
+  },
+]
+
 export const useDeveloperStore = defineStore('developer', () => {
   const activeTab = ref<DeveloperTab>('control')
+  const activeLane = ref<DeveloperLane>('ecosystem')
   const repos = ref<RepoInfo[]>(SAMPLE_REPOS)
   const reviews = ref<ReviewEntry[]>(SAMPLE_REVIEWS)
   const loading = ref(false)
@@ -53,6 +84,18 @@ export const useDeveloperStore = defineStore('developer', () => {
   function setTab(tab: DeveloperTab) {
     activeTab.value = tab
   }
+
+  function setLane(lane: DeveloperLane) {
+    activeLane.value = lane
+    // Persist preference
+    localStorage.setItem('ucore-dev-lane', lane)
+  }
+
+  const currentLane = computed(() =>
+    DEVELOPER_LANES.find((l) => l.id === activeLane.value) ?? DEVELOPER_LANES[0],
+  )
+
+  const isEcosystemMode = computed(() => activeLane.value === 'ecosystem')
 
   async function browseRepo(repoName: string) {
     activeRepo.value = repoName
@@ -84,8 +127,17 @@ export const useDeveloperStore = defineStore('developer', () => {
     }
   }
 
+  // Restore lane preference on store creation
+  const savedLane = localStorage.getItem('ucore-dev-lane')
+  if (savedLane === 'ecosystem' || savedLane === 'project') {
+    activeLane.value = savedLane
+  }
+
   return {
     activeTab,
+    activeLane,
+    currentLane,
+    isEcosystemMode,
     repos,
     reviews,
     loading,
@@ -93,6 +145,7 @@ export const useDeveloperStore = defineStore('developer', () => {
     chatMessages,
     chatLoading,
     setTab,
+    setLane,
     browseRepo,
     sendChatMessage,
   }
