@@ -39,8 +39,9 @@
 <script setup lang="ts">
 /**
  * @component KanbanPanel
- * @description Kanban board for task management with drag-and-drop.
- * Wired to Tasker API (/api/tasker/tasks).
+ * @description Kanban board for developer task management with drag-and-drop.
+ * Wired to Tasker API (/api/tasker/tasks) — filtered to dev-tagged or dev-board tasks only.
+ * User-facing task management lives in Workflow Surface > Tasks.
  * @category surfaces/developer
  */
 import { ref, onMounted } from 'vue'
@@ -48,6 +49,18 @@ import UButton from '../../../skills/atoms/UButton.vue'
 import UBadge from '../../../skills/atoms/UBadge.vue'
 
 const API_BASE = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'
+
+/** Tasks with these tags or boards are considered developer tasks. */
+const DEV_TAGS = new Set(['dev', 'developer', 'code', 'infra', 'backend', 'frontend', 'cli', 'api', 'mcp', 'skill', 'bug', 'feature', 'refactor', 'test', 'docs'])
+const DEV_BOARDS = new Set(['dev', 'developer', 'code', 'uCore', 'ucore', 'infra'])
+
+function isDevTask(t: any): boolean {
+  const tags: string[] = t.tags || []
+  const board: string = (t.board || '').toLowerCase()
+  if (tags.some(tag => DEV_TAGS.has(tag.toLowerCase()))) return true
+  if (DEV_BOARDS.has(board)) return true
+  return false
+}
 
 interface KanbanItem {
   id: string
@@ -97,6 +110,8 @@ async function fetchTasks() {
     for (const col of columns.value) col.items = []
 
     for (const t of tasks) {
+      // Only show developer-tagged or dev-board tasks in this Kanban
+      if (!isDevTask(t)) continue
       const colId = statusToColumn[t.status] || 'backlog'
       const column = columns.value.find(c => c.id === colId)
       if (column) {

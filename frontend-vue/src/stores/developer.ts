@@ -7,9 +7,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export type DeveloperTab =
-  | 'control' | 'models' | 'agents' | 'kanban' | 'repos' | 'review'
-  | 'skills' | 'feed' | 'registry' | 'settings' | 'workflows' | 'mcp-servers'
-  | 'doclang'
+  | 'control' | 'agents' | 'skills' | 'workflows' | 'repos' | 'review'
+  | 'settings' | 'mcp-servers'
 
 export interface RepoInfo {
   name: string
@@ -28,20 +27,14 @@ export interface ReviewEntry {
 }
 
 export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[] = [
-  { id: 'control', label: 'Control', icon: 'dashboard' },
-  { id: 'models', label: 'Models', icon: 'smart_toy' },
-  { id: 'agents', label: 'Agents', icon: 'group' },
-  { id: 'kanban', label: 'Kanban', icon: 'view_kanban' },
-  { id: 'repos', label: 'Repos', icon: 'folder' },
-  { id: 'review', label: 'Review', icon: 'visibility' },
-  { id: 'skills', label: 'Skills', icon: 'extension' },
-  { id: 'feed', label: 'Feed', icon: 'rss_feed' },
-  { id: 'registry', label: 'Registry', icon: 'inventory' },
-  { id: 'workflows', label: 'Dev Flow', icon: 'account_tree' },
-
-  { id: 'mcp-servers', label: 'MCP', icon: 'dns' },
-  { id: 'doclang', label: 'DocLang', icon: 'description' },
-  { id: 'settings', label: 'Settings', icon: 'settings' },
+  { id: 'control', label: '🎯 Control', icon: 'dashboard' },
+  { id: 'agents', label: '🤖 Agents', icon: 'group' },
+  { id: 'skills', label: '🧠 Skills', icon: 'extension' },
+  { id: 'workflows', label: '📊 Dev Flow', icon: 'account_tree' },
+  { id: 'repos', label: '📁 Repos', icon: 'folder' },
+  { id: 'review', label: '🔍 Review', icon: 'visibility' },
+  { id: 'settings', label: '⚙️ Settings', icon: 'settings' },
+  { id: 'mcp-servers', label: '🔌 MCP', icon: 'dns' },
 ]
 
 const SNACKBAR_API = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484'

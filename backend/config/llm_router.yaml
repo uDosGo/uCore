@@ -10,18 +10,58 @@
 #   premium: $0.0025+           (claude-opus-4.7, glm-5.1, gpt-4o)
 
 router:
+  # ─── Budget ────────────────────────────────────────────────────
   budgets:
     daily: 2.00
     weekly: 10.00
     monthly: 30.00
 
+  # ─── Routing Rules — determines which backend receives a task ──
+  routing_rules:
+    # Default: everything goes to Ollama (free, local)
+    default:
+      provider: ollama
+      model: qwen2.5-coder:3b
+      reason: "Default local-first routing — zero cost, zero latency"
+
+    # Complexity override: tasks scoring >7 get premium cloud
+    complexity_threshold:
+      score: 7
+      provider: openrouter
+      model: claude-opus-4.7
+      reason: "High-complexity task — routed to premium cloud model"
+      fallback: ollama              # if OpenRouter is down, fall back
+      fallback_model: qwen2.5-coder:7b-instruct-q4_K_M
+
+    # Budget exhausted override: all traffic to Ollama
+    budget_exhausted:
+      provider: ollama
+      model: qwen2.5-coder:3b
+      reason: "Budget limit reached — free local model only"
+
+  # ─── Cost Tiers ────────────────────────────────────────────────
   cost_tiers:
     free: [qwen2.5-coder:3b, llama3, codellama, mistral]
     cheap: [deepseek-v4-flash, qwen3.6-27b, gpt-4o-mini]
     premium: [glm-5.1, claude-opus-4.7, gpt-4o]
 
+  # ─── Backends ──────────────────────────────────────────────────
   backends:
-    # ─── OpenRouter — primary cloud backend ──────────────────────
+    # ─── Ollama — default, free, local ──────────────────────────
+    ollama:
+      base_url: "http://localhost:11434/v1"
+      api_key: null
+      models:
+        - qwen2.5-coder:3b     # dev agent, gridsmith-dev agent (free)
+        - qwen2.5-coder:7b-instruct-q4_K_M  # larger coder (free)
+        - codegemma:2b         # f/e tasks (free)
+        - codellama:7b         # general coding (free)
+        - mistral:7b           # general purpose (free)
+        - qwen2.5-coder:0.5b   # tiny fallback (free)
+      priority: 1
+      type: openai_compatible
+
+    # ─── OpenRouter — premium fallback for complex tasks ─────────
     openrouter:
       base_url: "https://openrouter.ai/api/v1"
       api_key: "${OPENROUTER_API_KEY}"
@@ -30,20 +70,6 @@ router:
         - claude-opus-4.7      # reviewer agent (premium)
         - deepseek-v4-flash    # debugger agent (cheap)
         - qwen3.6-27b          # docgen agent (cheap)
-      priority: 1
-      type: openai_compatible
-
-    # ─── Ollama — local fallback / free tier ─────────────────────
-    ollama:
-      base_url: "http://localhost:11434/v1"
-      api_key: null
-      models:
-        - qwen2.5-coder:3b     # dev agent, gridsmith-dev agent (free)
-        - qwen2.5-coder:7b-instruct-q4_K_M  # larger codercoder (free)
-        - codegemma:2b         # f/e tasks (free)
-        - codellama:7b         # general coding (free)
-        - mistral:7b           # general purpose (free)
-        - qwen2.5-coder:0.5b   # tiny fallback (free)
       priority: 2
       type: openai_compatible
 

@@ -9,18 +9,13 @@
     <div class="developer-content-inner">
       <div class="developer-content">
         <ControlPanel v-if="dev.activeTab === 'control'" />
-        <ModelsPanel v-else-if="dev.activeTab === 'models'" />
         <AgentsPanel v-else-if="dev.activeTab === 'agents'" />
-        <KanbanPanel v-else-if="dev.activeTab === 'kanban'" />
+        <SkillsPanel v-else-if="dev.activeTab === 'skills'" />
+        <WorkflowsPanel v-else-if="dev.activeTab === 'workflows'" />
         <ReposPanel v-else-if="dev.activeTab === 'repos'" />
         <ReviewPanel v-else-if="dev.activeTab === 'review'" />
-        <SkillsPanel v-else-if="dev.activeTab === 'skills'" />
-        <FeedPanel v-else-if="dev.activeTab === 'feed'" />
-        <RegistryPanel v-else-if="dev.activeTab === 'registry'" />
-        <WorkflowsPanel v-else-if="dev.activeTab === 'workflows'" />
-        <MCPServersPanel v-else-if="dev.activeTab === 'mcp-servers'" />
-        <DocLangPanel v-else-if="dev.activeTab === 'doclang'" />
         <SettingsPanel v-else-if="dev.activeTab === 'settings'" />
+        <MCPServersPanel v-else-if="dev.activeTab === 'mcp-servers'" />
       </div>
     </div>
   </div>
@@ -43,22 +38,17 @@ import SurfaceTabNav from '../../skills/molecules/SurfaceTabNav.vue'
 
 const shell = useShellStore()
 
-// Eager: Control is the default tab
+// Eager: Control is the default tab — always loaded for instant display
 import ControlPanel from './panels/ControlPanel.vue'
 
 // Lazy: load other panels only when their tab is selected
-const ModelsPanel = defineAsyncComponent(() => import('./panels/ModelsPanel.vue'))
 const AgentsPanel = defineAsyncComponent(() => import('./panels/AgentsPanel.vue'))
-const KanbanPanel = defineAsyncComponent(() => import('./panels/KanbanPanel.vue'))
+const SkillsPanel = defineAsyncComponent(() => import('./panels/SkillsPanel.vue'))
+const WorkflowsPanel = defineAsyncComponent(() => import('./panels/WorkflowsPanel.vue'))
 const ReposPanel = defineAsyncComponent(() => import('./panels/ReposPanel.vue'))
 const ReviewPanel = defineAsyncComponent(() => import('./panels/ReviewPanel.vue'))
-const SkillsPanel = defineAsyncComponent(() => import('./panels/SkillsPanel.vue'))
-const FeedPanel = defineAsyncComponent(() => import('./panels/FeedPanel.vue'))
-const RegistryPanel = defineAsyncComponent(() => import('./panels/RegistryPanel.vue'))
-const WorkflowsPanel = defineAsyncComponent(() => import('./panels/WorkflowsPanel.vue'))
-const MCPServersPanel = defineAsyncComponent(() => import('./panels/MCPServersPanel.vue'))
-const DocLangPanel = defineAsyncComponent(() => import('./panels/DocLangPanel.vue'))
 const SettingsPanel = defineAsyncComponent(() => import('./panels/SettingsPanel.vue'))
+const MCPServersPanel = defineAsyncComponent(() => import('./panels/MCPServersPanel.vue'))
 
 const dev = useDeveloperStore()
 

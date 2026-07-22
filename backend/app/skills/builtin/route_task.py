@@ -31,7 +31,10 @@ class RouteTask(BaseSkill):
     meta = SkillMeta(
         id="route_task",
         name="Route Task",
-        description="Route and optionally execute tasks to the best AI provider",
+        description=(
+            "Route and optionally execute tasks to"
+            " the best AI provider"
+        ),
         category="assist",
         timeout=30,
         params=[
@@ -53,7 +56,10 @@ class RouteTask(BaseSkill):
                 type="string",
                 required=False,
                 default="small",
-                description="Context: small (<2K), medium (2K-100K), large (>100K)",
+                description=(
+                    "Context: small (<2K), medium (2K-100K),"
+                    " large (>100K)"
+                ),
             ),
             SkillParam(
                 name="risk_level",
@@ -223,12 +229,21 @@ class RouteTask(BaseSkill):
         context_size = kwargs.get("context_size", "").strip().lower()
         risk_level = kwargs.get("risk_level", "low").strip().lower()
         execute = kwargs.get("execute", False)
+        target_agent = kwargs.get("target_agent", "auto").strip().lower()
 
         if not task:
             return {
                 "success": False,
                 "error": "task description is required",
             }
+
+        # ── Explicit agent dispatch ──────────────────────────────────
+        # When target_agent is a named executor (cline, hivemind,
+        # roundtable, ollama, openrouter), bypass the complexity matrix
+        # and route directly to the requested agent.
+        explicit_routing = self._route_by_target(target_agent, task, execute)
+        if explicit_routing is not None:
+            return explicit_routing
 
         # Auto-detect
         if complexity == "auto":
@@ -257,8 +272,10 @@ class RouteTask(BaseSkill):
         try:
             from app.services.budget_manager import BudgetManager
             budget_mgr = BudgetManager()
-            usage = budget_mgr.get_monthly_usage()
-            budget_remaining = usage.get("remaining_budget", 100.0)
+            status = budget_mgr.get_status()
+            budget_remaining = status.get(
+                "monthly", {},
+            ).get("remaining", 100.0)
         except Exception:
             pass
 
@@ -295,7 +312,10 @@ class RouteTask(BaseSkill):
                 tiers = {"simple": 0.2, "medium": 0.7, "complex": 0.1}
             else:
                 tiers = {"simple": 0.1, "medium": 0.2, "complex": 0.7}
-            return {"tier_allocations": tiers, "notes": f"Strategy for {detected} tasks"}
+            return {
+                "tier_allocations": tiers,
+                "notes": f"Strategy for {detected} tasks",
+            }
 
         result["strategy"] = _build_strategy(detected_complexity)
 
@@ -305,6 +325,115 @@ class RouteTask(BaseSkill):
                 task,
                 routing,
             )
+
+        return result
+
+    def _route_by_target(
+        self,
+        target_agent: str,
+        task: str,
+        execute: bool,
+    ) -> dict | None:
+        """Resolve explicit target_agent dispatches.
+
+        Returns a complete result dict for the dispatched agent, or None
+        when target_agent is 'auto' (meaning the complexity matrix should
+        be used instead).
+        """
+        if target_agent in ("auto", ""):
+            return None
+
+        # ── Agent routing table ────────────────────────────────────
+        agent_map: dict[str, dict] = {
+            "cline": {
+                "agent": "cline",
+                "provider": "cline",
+                "model": "deepseek-via-cline",
+                "cost": "DeepSeek credits (via Cline Pass)",
+                "reason": (
+                    "Explicit Cline dispatch —"
+                    " premium autonomous executor"
+                ),
+                "tokens_per_second": "~60",
+                "skill_id": "cline-invoke",
+                "mode": "yolo",
+            },
+            "hivemind": {
+                "agent": "hivemind",
+                "provider": "hivemind",
+                "model": "hivemind-consensus",
+                "cost": "Multi-model (cost varies)",
+                "reason": "Hivemind consensus — multi-model debate",
+                "tokens_per_second": "~20",
+                "skill_id": "hivemind-consensus",
+                "mode": "consensus",
+            },
+            "roundtable": {
+                "agent": "roundtable",
+                "provider": "roundtable",
+                "model": "roundtable-swarm",
+                "cost": "Multi-agent (cost varies)",
+                "reason": "Roundtable swarm — multi-agent collaboration",
+                "tokens_per_second": "~30",
+                "skill_id": "roundtable-dispatch",
+                "mode": "swarm",
+            },
+            "ollama": {
+                "agent": "ollama",
+                "provider": "ollama",
+                "model": "qwen2.5-coder:7b",
+                "cost": "$0 (local)",
+                "reason": "Explicit Ollama dispatch — local free model",
+                "tokens_per_second": "~20",
+                "skill_id": None,
+                "mode": "local",
+            },
+            "openrouter": {
+                "agent": "openrouter",
+                "provider": "openrouter",
+                "model": "deepseek/deepseek-chat",
+                "cost": "~$0.01/task",
+                "reason": "Explicit OpenRouter dispatch",
+                "tokens_per_second": "~60",
+                "skill_id": None,
+                "mode": "api",
+            },
+        }
+
+        agent_cfg = agent_map.get(target_agent)
+        if agent_cfg is None:
+            # Unknown agent — fall through to complexity matrix
+            return None
+
+        result: dict = {
+            "success": True,
+            "task": task[:100] + ("..." if len(task) > 100 else ""),
+            "agent": target_agent,
+            "dispatched": True,
+            "routing": {
+                "provider": agent_cfg["provider"],
+                "model": agent_cfg["model"],
+                "cost": agent_cfg["cost"],
+                "reason": agent_cfg["reason"],
+                "tokens_per_second": agent_cfg["tokens_per_second"],
+            },
+            "execution": {
+                "mode": agent_cfg["mode"],
+                "skill_id": agent_cfg.get("skill_id"),
+                "execute_requested": execute,
+            },
+        }
+
+        # If execute was requested and a skill_id is mapped, prepare
+        # the dispatch payload but don't auto-execute (requires
+        # separate confirmation via the skill's own confirmation gate).
+        if execute and agent_cfg.get("skill_id"):
+            result["execution"]["dispatch_ready"] = True
+            result["execution"]["dispatch_skill"] = agent_cfg["skill_id"]
+            result["execution"]["dispatch_params"] = {
+                "task": task,
+                "mode": agent_cfg.get("mode", "yolo"),
+            }
 
         return result
 

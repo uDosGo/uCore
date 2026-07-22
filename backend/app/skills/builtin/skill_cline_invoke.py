@@ -127,8 +127,26 @@ class ClineInvokeSkill(BaseSkill):
                 ),
             }
 
-        # Verify OpenRouter API key
-        api_key = os.environ.get("OPENROUTER_API_KEY", "")
+        # Resolve API key: DEEPSEEK_API_KEY first, then SecretStore, then
+        # OPENROUTER_API_KEY, then env file fallback
+        api_key: str = ""
+        # Priority 1: DEEPSEEK_API_KEY from environment
+        api_key = os.environ.get("DEEPSEEK_API_KEY", "")
+        # Priority 2: DEEPSEEK_API_KEY from SecretStore
+        if not api_key:
+            try:
+                from app.secret.store import get_store
+                store = get_store()
+                dsk_val = store.get("DEEPSEEK_API_KEY")
+                if dsk_val:
+                    api_key = dsk_val
+            except Exception:
+                pass
+        # Priority 3: OPENROUTER_API_KEY from environment (fallback)
+        if not api_key:
+            api_key = os.environ.get("OPENROUTER_API_KEY", "")
+        # Priority 4: DEEPSEEK_API_KEY or OPENROUTER_API_KEY from env file
+
         if not api_key:
             try:
                 config_path = (
@@ -137,24 +155,35 @@ class ClineInvokeSkill(BaseSkill):
                 if config_path.exists():
                     content = config_path.read_text()
                     for line in content.splitlines():
+                        if line.startswith("DEEPSEEK_API_KEY="):
+                            api_key = line.split("=", 1)[1].strip().strip('"')
+                            if api_key:
+                                break
                         if line.startswith("OPENROUTER_API_KEY="):
                             api_key = line.split("=", 1)[1].strip().strip('"')
-                            break
+                            if api_key:
+                                break
             except Exception:
                 pass
 
         if not api_key and mode != "interactive":
             return {
                 "success": False,
-                "error": "OpenRouter API key not configured",
-                "fallback": "Set OPENROUTER_API_KEY in ~/.config/hivemind/.env",
+                "error": (
+                    "Neither DEEPSEEK_API_KEY nor OPENROUTER_API_KEY"
+                    " configured"
+                ),
+                "fallback": (
+                    "Set DEEPSEEK_API_KEY or OPENROUTER_API_KEY in"
+                    " ~/.config/hivemind/.env or via the Secret Store"
+                ),
             }
 
-        # Build command
+        # Build command — Cline CLI v2 uses positional prompt, not --task
         cmd = [cline_bin]
         if mode == "yolo":
             cmd.append("--yolo")
-        cmd.extend(["--task", task])
+        cmd.append(task)
         if context:
             cmd.extend(["--context", context])
 

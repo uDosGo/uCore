@@ -532,7 +532,6 @@ def create_app() -> web.Application:
     # Diagnostics and self-healing routes
     app.router.add_get("/api/diagnostics", diagnostics_handler)
     app.router.add_get("/api/diagnostics/ports", ports_handler)
-    app.router.add_get("/api/skills", skills_handler)
     app.router.add_post("/api/skills/{skill_name}", execute_skill_handler)
 
     # Unified health and repair endpoints

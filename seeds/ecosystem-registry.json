@@ -30,7 +30,7 @@
           {
             "name": "include_wisdom",
             "type": "boolean",
-            "description": "Include private wisdom alongside CONTEXT.md  when available"
+            "description": "Include private project wisdom alongside CONTEXT.md  when available"
           }
         ],
         "timeout": 10,
@@ -43,7 +43,7 @@
         "name": "Backup Data",
         "skill_id": "backup",
         "category": "maintenance",
-        "description": "",
+        "description": "Backup uCore database, config, secrets, private wisdom,  and user data",
         "params": [],
         "timeout": 120,
         "requires_confirmation": true,
@@ -60,6 +60,16 @@
           {
             "name": "hours",
             "type": "integer",
+            "description": "Include AppFlowy activity summary in private wisdom"
+          },
+          {
+            "name": "include_test_failures",
+            "type": "boolean",
+            "description": "Include recent test failure signals in private wisdom"
+          },
+          {
+            "name": "include_episodic",
+            "type": "boolean",
             "description": "Include recent episodic log entries in private wisdom"
           }
         ],
@@ -166,10 +176,15 @@
         "name": "Route Task",
         "skill_id": "route_task",
         "category": "assist",
-        "description": "Target agent: auto (routing matrix",
+        "description": "Route and optionally execute tasks to  the best AI provider",
         "params": [
           {
             "name": "task",
+            "type": "string",
+            "description": "Context: small (<2K"
+          },
+          {
+            "name": "risk_level",
             "type": "string",
             "description": "Target agent: auto (routing matrix"
           }
@@ -622,26 +637,14 @@
       {
         "name": "dev_layer",
         "file": "backend/app/services/dev_layer.py",
-        "endpoints": [
-          "enabled",
-          "mode",
-          "visible"
-        ],
+        "endpoints": [],
         "variables": {
-          "mode": "next_mode"
+          "mode": "DevMode(raw.lower())"
         },
         "commands": [
-          "describe",
-          "features",
           "get_dev_layer",
           "get_status",
-          "is_feature_enabled",
-          "is_surface_visible",
-          "mode",
           "reset_dev_layer",
-          "set_surface_override",
-          "surfaces",
-          "to_dict",
           "toggle"
         ],
         "health": "working",

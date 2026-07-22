@@ -146,14 +146,15 @@ async function fetchStatus() {
 
 function handleBadgeClick(id: string) {
   // Navigation to detail views based on badge type
+  // All targets must be valid DEVEVELOPER_TABS ids
   const navMap: Record<string, string> = {
     cline: 'agents',
-    openrouter: 'models',
+    openrouter: 'settings',
     hivemind: 'agents',
     roundtable: 'agents',
-    ollama: 'models',
-    feed: 'feed',
-    slate: 'registry',
+    ollama: 'settings',
+    feed: 'control',       // feed is shown inline in Control
+    slate: 'settings',
     budget: 'settings',
   }
   const target = navMap[id]
@@ -252,8 +253,11 @@ function retry() {
   fetchStatus()
 }
 
-// No auto-fetch on mount — user clicks Retry when ready
-onMounted(() => {})
+// Auto-fetch on mount — Control is the default tab so data should be ready
+onMounted(() => {
+  loading.value = true
+  fetchStatus()
+})
 
 onUnmounted(() => {
   if (pollTimer) {

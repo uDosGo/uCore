@@ -96,9 +96,50 @@ def main():
     except Exception as exc:
         log.warning("⚠️  MCP integrity check error: %s", exc)
 
+    # ── Auto-Start Hivemind (port 8490) ────────────────────────
+    # Hivemind is core to the agent execution pipeline:
+    #   hivemind-consensus → design/planning/analysis tasks
+    #   roundtable-dispatch → documentation/parallel-agent tasks
+    # It runs as a child process and is cleaned up on shutdown.
+    _start_hivemind()
+
     # Delegate to snackbar
     from .core.snackbar import main as run_snackbar
     run_snackbar()
+
+
+def _start_hivemind() -> None:
+    """Launch Hivemind MCP server as a background child process."""
+    import atexit
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    backend_dir = Path(__file__).parent
+    agents_config = backend_dir.parent / "config" / "agents.yaml"
+    llm_config = backend_dir.parent / "config" / "llm_router.yaml"
+
+    try:
+        proc = subprocess.Popen(
+            [
+                sys.executable, "-m", "app.mcp.hivemind_server",
+                "--host", "127.0.0.1",
+                "--port", "8490",
+                "--agents-config", str(agents_config),
+                "--llm-config", str(llm_config),
+            ],
+            cwd=str(backend_dir),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        atexit.register(proc.terminate)
+        log.info("✅ Hivemind auto-started (PID %d) on port 8490", proc.pid)
+    except Exception as exc:
+        log.warning(
+            "⚠️  Hivemind auto-start failed: %s —"
+            " hivemind-consensus and roundtable-dispatch skills"
+            " will be unavailable", exc,
+        )
 
 
 if __name__ == "__main__":

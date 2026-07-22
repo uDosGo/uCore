@@ -120,9 +120,9 @@ const SAMPLE_TASKS: WorkflowTask[] = [
 ]
 
 const SAMPLE_MISSIONS: Mission[] = [
-  { id: 'm1', title: 'Vue Migration Wave 2', status: 'active', priority: 'high', description: 'Port all secondary surfaces to Vue 3', taskIds: ['1', '2', '3', '4'] },
-  { id: 'm2', title: 'Quality & Testing', status: 'active', priority: 'medium', description: 'Add tests, a11y, and performance optimization', taskIds: ['5', '6'] },
-  { id: 'm3', title: 'Vue Migration Wave 1', status: 'completed', priority: 'high', description: 'Port core surfaces: Dashboard, AssistUI, Developer, Server', taskIds: ['7', '8'] },
+  { id: 'm1', title: 'Weekly Planning', status: 'active', priority: 'high', description: 'Lock in top priorities and review goals for the week', taskIds: ['seed-1'] },
+  { id: 'm2', title: 'Content Pipeline', status: 'active', priority: 'medium', description: 'Outline, draft, and publish articles for the month', taskIds: ['seed-2'] },
+  { id: 'm3', title: 'Health & Admin', status: 'active', priority: 'medium', description: 'Book appointments, organize admin documents, budget review', taskIds: ['seed-4', 'seed-5', 'seed-6'] },
 ]
 
 export const useWorkflowStore = defineStore('workflow', () => {
