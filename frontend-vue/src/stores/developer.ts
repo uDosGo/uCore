@@ -90,6 +90,15 @@ export const useDeveloperStore = defineStore('developer', () => {
     activeLane.value = lane
     // Persist preference
     localStorage.setItem('ucore-dev-lane', lane)
+    // Notify backend of workspace change
+    const config = DEVELOPER_LANES.find((l) => l.id === lane)
+    if (config) {
+      fetch(`${SNACKBAR_API}/api/developer/workspace`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace: config.workspace, lane }),
+      }).catch(() => { /* non-critical */ })
+    }
   }
 
   const currentLane = computed(() =>

@@ -441,6 +441,37 @@ async def handle_get_repo_file_preview(request: web.Request) -> web.Response:
     return web.json_response(payload)
 
 
+async def handle_workspace_switch(request: web.Request) -> web.Response:
+    """POST /api/developer/workspace — persist active workspace context.
+
+    Called by the frontend when the user switches between Ecosystem Dev
+    and Project Dev lanes. The workspace path is stored in-memory so
+    that subsequent skill executions (dev-mode-executor, file-edit, etc.)
+    can operate on the correct codebase.
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response(
+            {"error": "Invalid JSON body"}, status=400,
+        )
+    workspace = body.get("workspace", "")
+    lane = body.get("lane", "ecosystem")
+    if not workspace:
+        return web.json_response(
+            {"error": "workspace is required"}, status=400,
+        )
+
+    # Store as app-level config for this session
+    request.app["_dev_workspace"] = workspace
+    request.app["_dev_lane"] = lane
+    return web.json_response({
+        "success": True,
+        "workspace": workspace,
+        "lane": lane,
+    })
+
+
 async def handle_update_repo_file(request: web.Request) -> web.Response:
     repo_name = request.match_info["repo_name"]
     relative_path = request.query.get("path", "").strip()
