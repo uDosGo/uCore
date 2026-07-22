@@ -3,9 +3,11 @@ from __future__ import annotations
 
 from aiohttp import web
 
+from app.core.snackbar import BUDGET_MANAGER_KEY
+
 
 def _get_manager(request: web.Request):
-    manager = request.app.get("budget_manager")
+    manager = request.app.get(BUDGET_MANAGER_KEY)
     if manager is None:
         raise web.HTTPServiceUnavailable(
             text='{"error":"budget manager unavailable"}',

@@ -449,3 +449,11 @@ def register_routes(app: web.Application) -> None:
         log.debug(
             "Surface Registry routes not available: %s", e,
         )
+
+    # ── Template (Slate) API ──────────────────────────────────────────
+    try:
+        from .template_api import register_template_routes
+        register_template_routes(app)
+        log.debug("Template (Slate) API routes registered")
+    except ImportError as e:
+        log.debug("Template API routes not available: %s", e)

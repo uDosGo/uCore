@@ -559,6 +559,14 @@ def create_app() -> web.Application:
     except ImportError as e:
         log.debug("Catalog API not yet available: %s", e)
 
+    # ── Budget Manager ──────────────────────────────────────────
+    try:
+        from app.services.budget_manager import BudgetManager
+        app[BUDGET_MANAGER_KEY] = BudgetManager()
+        log.info("✅ Budget manager attached to app")
+    except Exception as exc:
+        log.warning("⚠️  Budget manager init failed: %s", exc)
+
     return app
 
 
