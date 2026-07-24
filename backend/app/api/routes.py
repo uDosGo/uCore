@@ -31,11 +31,13 @@ def register_routes(app: web.Application) -> None:
         handle_list_repo_files,
         handle_list_repo_review,
         handle_list_repos,
+        handle_repo_status,
         handle_stage_repo_file,
         handle_start_developer,
         handle_stop_developer,
         handle_unstage_repo_file,
         handle_update_repo_file,
+        handle_workspace_switch,
     )
     from .docker import handle_docker_ps
     from .exec import handle_exec
@@ -227,6 +229,7 @@ def register_routes(app: web.Application) -> None:
     app.router.add_put("/api/developer/repos/{repo_name}/file-preview", handle_update_repo_file)
     app.router.add_get("/api/developer/repos/{repo_name}/diff", handle_get_repo_file_diff)
     app.router.add_get("/api/developer/repos/{repo_name}/review", handle_list_repo_review)
+    app.router.add_get("/api/developer/repos/{repo_name}/status", handle_repo_status)
     app.router.add_post("/api/developer/repos/{repo_name}/stage", handle_stage_repo_file)
     app.router.add_post("/api/developer/repos/{repo_name}/unstage", handle_unstage_repo_file)
     app.router.add_post("/api/developer/repos/{repo_name}/commit", handle_commit_repo_files)
@@ -234,6 +237,7 @@ def register_routes(app: web.Application) -> None:
     app.router.add_post("/api/developer/start", handle_start_developer)
     app.router.add_post("/api/developer/stop", handle_stop_developer)
     app.router.add_get("/api/developer/status", handle_developer_status)
+    app.router.add_post("/api/developer/workspace", handle_workspace_switch)
 
     app.router.add_get("/api/skills", handle_list_skills)
     app.router.add_get("/api/tools", handle_list_tools)

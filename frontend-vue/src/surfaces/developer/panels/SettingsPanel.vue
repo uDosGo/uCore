@@ -264,17 +264,126 @@ watch(settings, (val) => {
 </script>
 
 <style scoped>
-.developer-panel { max-width: calc(var(--usx-spacing-2xl) * 19); }
-.developer-panel-header { margin-bottom: var(--usx-spacing-lg); }
-.developer-panel-title { font-size: var(--usx-font-size-lg); font-weight: var(--usx-font-weight-semibold); margin: 0; }
+.developer-panel {
+  max-width: calc(var(--usx-spacing-2xl) * 25);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-lg);
+  background: var(--usx-color-surface);
+  padding: var(--usx-spacing-lg);
+}
 
-.settings-group { margin-bottom: var(--usx-spacing-lg); }
-.settings-group-title { font-size: var(--usx-font-size-sm); font-weight: var(--usx-font-weight-semibold); text-transform: uppercase; letter-spacing: 0.03em; color: var(--usx-color-on-surface-muted); margin: 0 0 var(--usx-spacing-sm); }
+.developer-panel-header {
+  margin-bottom: var(--usx-spacing-lg);
+}
 
-.settings-row { display: flex; align-items: center; gap: var(--usx-spacing-md); padding: var(--usx-spacing-sm) 0; }
-.settings-row label { flex: 1; font-size: var(--usx-font-size-sm); }
+.developer-panel-title {
+  font-size: var(--usx-font-size-lg);
+  font-weight: var(--usx-font-weight-semibold);
+  color: var(--usx-color-on-surface);
+  margin: 0;
+}
+
+.developer-panel-desc {
+  margin: var(--usx-spacing-xs) 0 0;
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface-muted);
+}
+
+.settings-layers {
+  display: flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  padding: var(--usx-spacing-xs);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
+  background: var(--usx-color-background);
+  margin-bottom: var(--usx-spacing-md);
+  overflow-x: auto;
+}
+
+.settings-layer-tab {
+  border: var(--usx-border-width) solid transparent;
+  border-radius: var(--usx-radius-sm);
+  background: transparent;
+  color: var(--usx-color-on-surface-muted);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  font-size: var(--usx-font-size-sm);
+  font-family: var(--usx-font-family-sans);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.settings-layer-tab:hover {
+  background: color-mix(in srgb, var(--usx-color-primary) 8%, transparent);
+  color: var(--usx-color-on-surface);
+}
+
+.settings-layer-tab--active {
+  background: color-mix(in srgb, var(--usx-color-primary) 16%, transparent);
+  border-color: var(--usx-color-primary);
+  color: var(--usx-color-primary);
+}
+
+.settings-group {
+  margin-bottom: var(--usx-spacing-md);
+  padding: var(--usx-spacing-md);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
+  background: var(--usx-color-background);
+}
+
+.settings-group-title {
+  font-size: var(--usx-font-size-sm);
+  font-weight: var(--usx-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--usx-color-on-surface-muted);
+  margin: 0 0 var(--usx-spacing-sm);
+}
+
+.settings-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) 0;
+}
+
+.settings-row + .settings-row {
+  border-top: var(--usx-border-width) solid color-mix(in srgb, var(--usx-color-border) 65%, transparent);
+}
+
+.settings-row label {
+  font-size: var(--usx-font-size-sm);
+  color: var(--usx-color-on-surface);
+}
+
 .settings-row select,
-.settings-row input[type="number"] { padding: var(--usx-spacing-xs) var(--usx-spacing-sm); background: var(--usx-color-background); border-radius: var(--usx-radius-sm); color: var(--usx-color-on-surface); font-size: var(--usx-font-size-sm); }
-.settings-row input[type="range"] { flex: 1; }
-.settings-row input[type="checkbox"] { width: var(--usx-spacing-lg); height: var(--usx-spacing-lg); }
+.settings-row input[type="number"],
+.settings-row input[type="text"] {
+  width: 100%;
+  min-height: var(--usx-touch-min);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-sm);
+  color: var(--usx-color-on-surface);
+  font-size: var(--usx-font-size-sm);
+  font-family: var(--usx-font-family-sans);
+}
+
+.settings-row input[type="range"] {
+  width: 100%;
+}
+
+.settings-row input[type="checkbox"] {
+  width: var(--usx-touch-min);
+  height: var(--usx-touch-min);
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 20)) {
+  .settings-row {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

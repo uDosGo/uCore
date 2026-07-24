@@ -40,6 +40,8 @@
 | Doc | Purpose |
 |-----|---------|
 | [DEVMODE_CODE_ANALYSIS_SKILLS.md](DEVMODE_CODE_ANALYSIS_SKILLS.md) | DevMode code analysis skills |
+| [DEVELOPER_SURFACE.md](DEVELOPER_SURFACE.md) | Current Developer Surface UX, lanes, controls, and APIs |
+| [FEATURE_SPEC_CONTROL_PANEL_AND_AGENTIC_EXECUTION.md](FEATURE_SPEC_CONTROL_PANEL_AND_AGENTIC_EXECUTION.md) | Control panel and agentic pipeline feature spec |
 | [QQCODE_TUI_INTEGRATION.md](QQCODE_TUI_INTEGRATION.md) | QQCode TUI integration |
 | [OPTIMIZED_WORKFLOW.md](OPTIMIZED_WORKFLOW.md) | Optimized workflow |
 | [DOCLANG_BRIDGE_EXPORT_SPEC.md](DOCLANG_BRIDGE_EXPORT_SPEC.md) | DocLang bridge export |

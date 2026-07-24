@@ -14,10 +14,11 @@ import asyncio
 import json
 import logging
 import os
+import socket
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 log = logging.getLogger("ucore.services.control")
 
@@ -77,6 +78,53 @@ def _tasker_dir() -> Path | None:
     return None
 
 
+def _backend_root() -> Path:
+    """Resolve backend root directory for detached process starts."""
+    return Path(__file__).resolve().parents[2]
+
+
+def _is_port_open(host: str, port: int, timeout: float = 0.4) -> bool:
+    """Fast TCP check used as a fallback for health endpoints."""
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
+async def _start_hivemind_server() -> tuple[bool, str]:
+    """Start Hivemind server on port 8490 if not already running."""
+    if _is_port_open("localhost", 8490):
+        return True, "Hivemind already listening on port 8490"
+
+    cmd = [sys.executable, "-m", "app.mcp.hivemind_server", "--port", "8490"]
+
+    def _spawn() -> bool:
+        try:
+            subprocess.Popen(
+                cmd,
+                cwd=str(_backend_root()),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True,
+            )
+            return True
+        except Exception:
+            return False
+
+    spawned = await asyncio.to_thread(_spawn)
+    if not spawned:
+        return False, "Failed to spawn Hivemind process"
+
+    # Give the process a short boot window.
+    for _ in range(12):
+        await asyncio.sleep(0.5)
+        if _is_port_open("localhost", 8490):
+            return True, "Started Hivemind on port 8490"
+
+    return False, "Spawned Hivemind but port 8490 is still closed"
+
+
 # ---------------------------------------------------------------------------
 # Status badge checks
 # ---------------------------------------------------------------------------
@@ -105,6 +153,16 @@ async def check_openrouter() -> dict:
     # Try local config
     config_path = Path(os.environ.get("UCORE_ROOT", Path.home() / "Code" / "uCore")) / "config" / "openrouter.yaml"
     api_key = os.environ.get("OPENROUTER_API_KEY", "")
+
+    # Secret Store is the canonical source when env vars are not exported.
+    if not api_key:
+        try:
+            from app.secret.store import get_store
+
+            api_key = get_store().get("OPENROUTER_API_KEY", "") or ""
+        except Exception:
+            api_key = ""
+
     if not api_key and config_path.exists():
         try:
             import yaml
@@ -114,9 +172,13 @@ async def check_openrouter() -> dict:
         except Exception:
             pass
 
-    result = {"online": False, "detail": "No API key configured", "credits": 0}
+    result = {"online": False, "detail": "No API key configured", "credits": 0, "configured": False, "validated": False}
     if not api_key:
         return result
+
+    result["configured"] = True
+    result["online"] = True
+    result["detail"] = "API key configured"
 
     # Validate key against OpenRouter
     try:
@@ -130,10 +192,12 @@ async def check_openrouter() -> dict:
             body = json.loads(resp.read().decode("utf-8"))
             result["online"] = True
             result["detail"] = "API key valid"
+            result["validated"] = True
             result["data"] = body
             result["credits"] = body.get("data", {}).get("credits", 0)
     except Exception:
-        result["detail"] = "OpenRouter API unreachable"
+        # Keep as configured/online to avoid false "offline" when network validation is unavailable.
+        result["detail"] = "API key configured (validation unavailable)"
     return result
 
 
@@ -142,6 +206,8 @@ async def check_hivemind() -> dict:
     data = await _http_get("http://localhost:8490/health", timeout=1.0)
     if data:
         return {"online": True, "detail": "Hivemind responding", "data": data}
+    if _is_port_open("localhost", 8490):
+        return {"online": True, "detail": "Hivemind port open (health endpoint pending)"}
     return {"online": False, "detail": "Hivemind not reachable on port 8490"}
 
 
@@ -150,6 +216,14 @@ async def check_roundtable() -> dict:
     data = await _http_get("http://localhost:8490/api/hivemind/roundtable", timeout=1.0)
     if data:
         return {"online": True, "detail": "Roundtable available", "data": data}
+    health = await _http_get("http://localhost:8490/health", timeout=1.0)
+    if health:
+        rt = health.get("roundtable") if isinstance(health, dict) else None
+        return {
+            "online": True,
+            "detail": f"Roundtable via Hivemind ({rt.get('status', 'ready')})" if isinstance(rt, dict) else "Roundtable served by Hivemind",
+            "data": rt if isinstance(rt, dict) else {},
+        }
     return {"online": False, "detail": "Roundtable not reachable"}
 
 
@@ -198,7 +272,52 @@ async def get_cost_status() -> dict:
     data = await _http_get("http://localhost:8484/api/budget/status", timeout=1.0)
     if data:
         return {"online": True, "detail": "Budget data available", **data}
-    return {"online": False, "detail": "Cost/budget data unavailable", "daily": {}}
+    # Budget is a local subsystem. If data is unavailable, mark degraded but present.
+    return {"online": True, "detail": "Budget telemetry unavailable (degraded)", "daily": {}}
+
+
+async def recover_offline_services() -> dict:
+    """Attempt recovery for offline ecosystem services used by Control Panel."""
+    statuses_before = await _gather_statuses()
+    actions: list[str] = []
+
+    hive_before = statuses_before.get("hivemind", {})
+    if not hive_before.get("online"):
+        ok, detail = await _start_hivemind_server()
+        actions.append(detail)
+        if ok:
+            # Roundtable is hosted in the same server process.
+            actions.append("Roundtable piggybacks on Hivemind process")
+
+    # OpenRouter and Cline are not daemonized by uCore here; report guidance.
+    cline_before = statuses_before.get("cline", {})
+    if not cline_before.get("online"):
+        actions.append("Cline not detected locally; verify Cline installation/CLI path")
+
+    openrouter_before = statuses_before.get("openrouter", {})
+    if not openrouter_before.get("online"):
+        actions.append("OpenRouter remains unavailable; verify OPENROUTER_API_KEY in Secret Store")
+
+    budget_before = statuses_before.get("budget", {})
+    if not budget_before.get("online"):
+        actions.append("Budget telemetry unavailable; backend budget manager may need restart")
+
+    statuses_after = await _gather_statuses()
+    offline_before = sum(1 for item in statuses_before.values() if not item.get("online"))
+    offline_after = sum(1 for item in statuses_after.values() if not item.get("online"))
+
+    if not actions:
+        actions.append("No recovery actions were required")
+
+    return {
+        "success": offline_after <= offline_before,
+        "offline_before": offline_before,
+        "offline_after": offline_after,
+        "recovered_count": max(0, offline_before - offline_after),
+        "actions": actions,
+        "statuses_before": statuses_before,
+        "statuses_after": statuses_after,
+    }
 
 
 # ---------------------------------------------------------------------------

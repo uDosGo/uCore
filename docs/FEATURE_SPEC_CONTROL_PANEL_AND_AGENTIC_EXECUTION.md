@@ -16,8 +16,14 @@ Unified Control Panel tab for the Developer Surface replacing 11 scattered panel
 - Route registered in `backend/app/api/routes.py`.
 
 ### Control Panel UI (8 Vue files)
-- `ControlPanel.vue` — Unified dashboard with status badges, live feed, agent cards, cost dashboard, active mission, bottom bar, quick actions. 30-second polling.
+- `ControlPanel.vue` — Unified dashboard with status badges, live feed, agent cards, cost dashboard, active mission, bottom bar, quick actions. 60-second polling.
 - 7 sub-components: `StatusBadges.vue`, `LiveFeedStream.vue`, `AgentStatusCard.vue`, `CostDashboard.vue`, `ActiveMission.vue`, `BottomBar.vue`, `QuickActions.vue`.
+
+### Post-Delivery Enhancements (2026-07)
+- Lane selector renamed: `Ecosystem Dev` → `System`, `Project Dev` → `Project`.
+- Project lane now supports repo selection from `~/Code` (excluding system repos) via second dropdown selector.
+- Added `POST /api/control/recover` for one-click offline-service recovery.
+- Restart backend action now uses `POST /api/surfaces/popcorn/restart-backend`.
 
 ### Lane A: Catalogue & Assess (4 skills)
 - `skill_audit.py` — Rewritten as BaseSkill. Smoke-tests all 28+ builtin skills by importing, instantiating, and executing with dry_run. Classifies as working/untested/broken.
@@ -52,7 +58,7 @@ GET /api/control/status
   ├── Active mission (from .tasker)
   ├── Bottom bar (Tasker, MCP servers, Slates)
   ├── Alerts (budget warnings, feed backlog, offline services)
-  └── 30-second polling for live updates
+  └── 60-second polling for live updates
 ```
 
 ## Agentic Execution Pipeline

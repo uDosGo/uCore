@@ -31,12 +31,37 @@
         </select>
         <span class="control-lane-desc">{{ dev.currentLane.description }}</span>
       </div>
-      <span v-if="dev.isEcosystemMode" class="control-lane-warning">
-        ⚠️ Ecosystem Mode — modifying uCore itself
-      </span>
-      <span v-else class="control-lane-info">
-        📁 {{ dev.currentLane.workspace }}
-      </span>
+      <div v-if="!dev.isEcosystemMode" class="control-project-selector">
+        <UIcon name="folder_open" :size="16" />
+        <select
+          :value="dev.activeProjectRepo"
+          class="control-lane-select control-project-select"
+          @change="dev.setProjectRepo(($event.target as HTMLSelectElement).value)"
+        >
+          <option v-if="dev.projectRepos.length === 0" value="">No project repos found</option>
+          <option v-for="repo in dev.projectRepos" :key="repo.id" :value="repo.id">
+            {{ repo.name }}
+          </option>
+        </select>
+      </div>
+      <div class="control-lane-meta">
+        <span v-if="dev.isEcosystemMode" class="control-lane-protection">
+          <UIcon name="verified_user" :size="14" />
+          Protection active: confirmations + history snapshots before destructive actions
+        </span>
+        <span v-else class="control-lane-info">
+          <UIcon name="folder" :size="14" />
+          {{ dev.currentWorkspace }}
+        </span>
+      </div>
+      <div class="control-lane-actions">
+        <UButton variant="ghost" size="sm" :disabled="actionLoading === 'recover-offline'" @click="handleAction('recover-offline')">
+          Recover Offline Services
+        </UButton>
+        <UButton variant="ghost" size="sm" :disabled="actionLoading === 'restart-backend'" @click="handleAction('restart-backend')">
+          Restart Backend
+        </UButton>
+      </div>
     </div>
 
     <!-- Alert Banner -->
@@ -97,12 +122,12 @@
       :updated-at="data?.updated_at"
     />
 
-    <!-- Dogfooding Warning (ecosystem mode only) -->
+    <!-- Protection summary (ecosystem mode only) -->
     <div v-if="dev.isEcosystemMode && data" class="control-dogfooding-banner">
-      <UIcon name="warning" :size="14" />
+      <UIcon name="shield" :size="14" />
       <span>
-        Ecosystem Mode: destructive actions require double confirmation.
-        Backend restarts are safe — launchd auto-respawns uCore on port 8484.
+        Ecosystem protections are enabled.
+        Destructive actions require confirmation and recent actions are tracked in History for rollback workflows.
       </span>
     </div>
 
@@ -220,7 +245,7 @@ async function handleAction(id: string) {
         break
       case 'system-repair': {
         const proceed = dev.isEcosystemMode
-          ? confirm('⚠️ Ecosystem Mode: System repair will modify uCore itself. Proceed?')
+          ? confirm('⚠️ System lane: system repair will modify uCore itself. Proceed?')
           : confirm('Run system self-repair? This will attempt to fix MCP structure, reload skills, and verify plates.')
         if (!proceed) break
         // Double confirmation in ecosystem mode
@@ -233,24 +258,34 @@ async function handleAction(id: string) {
       }
       case 'restart-backend': {
         const proceed = dev.isEcosystemMode
-          ? confirm('⚠️ Ecosystem Mode: Restart uCore backend? launchd will auto-respawn it on port 8484.')
-          : confirm('Restart uCore backend? launchd will auto-respawn.')
+          ? confirm('System lane: restart uCore backend now? The API may be unavailable briefly.')
+          : confirm('Restart uCore backend now?')
         if (!proceed) break
         if (dev.isEcosystemMode && !confirm('Confirm restart — the backend will be briefly unavailable.')) break
         try {
-          await fetch(`${API_BASE}/api/shutdown`, {
+          await fetch(`${API_BASE}/api/surfaces/popcorn/restart-backend`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ confirm: true }),
           })
-          // Give launchd a moment to respawn, then poll
-          await new Promise((r) => setTimeout(r, 2000))
+          await new Promise((r) => setTimeout(r, 2500))
           await fetchStatus()
         } catch {
-          // Shutdown kills the response — expected, try reconnecting
           await new Promise((r) => setTimeout(r, 3000))
           await fetchStatus()
         }
+        break
+      }
+      case 'recover-offline': {
+        const recoverRes = await fetch(`${API_BASE}/api/control/recover`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lane: dev.activeLane }),
+        })
+        const recoverData = await recoverRes.json()
+        alert(
+          `Recovery Summary\n` +
+          `Recovered: ${recoverData.recovered_count}/${recoverData.offline_before}\n\n` +
+          recoverData.actions.map((line: string) => `- ${line}`).join('\n'),
+        )
         break
       }
       case 'ingest-feed':
@@ -273,7 +308,7 @@ async function handleAction(id: string) {
         break
       case 'destroy-rebuild': {
         const proceed = dev.isEcosystemMode
-          ? confirm('⚠️ Ecosystem Mode: DESTROY/REBUILD will reset uCore Dev Mode. Continue?')
+          ? confirm('⚠️ System lane: DESTROY/REBUILD will reset uCore Dev Mode. Continue?')
           : confirm('Trigger DESTROY/REBUILD? This resets Dev Mode to active Slate.')
         if (!proceed) break
         if (dev.isEcosystemMode && !confirm('Final confirmation: reset Dev Mode to active Slate?')) break
@@ -367,6 +402,93 @@ onUnmounted(() => {
   margin-left: auto;
 }
 
+/* ─── Lane Selector ───────────────────────────────── */
+.control-lane-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm);
+  background: var(--usx-color-surface);
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-md);
+}
+
+.control-lane-selector {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: var(--usx-spacing-sm);
+}
+
+.control-project-selector {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: var(--usx-spacing-sm);
+}
+
+.control-lane-select {
+  min-width: calc(var(--usx-touch-min) * 3.25);
+  max-width: calc(var(--usx-touch-min) * 5.5);
+  width: 100%;
+  border: var(--usx-border-width) solid var(--usx-color-border);
+  border-radius: var(--usx-radius-sm);
+  background: var(--usx-color-background);
+  color: var(--usx-color-on-surface);
+  padding: var(--usx-spacing-xs) var(--usx-spacing-sm);
+  font-size: var(--usx-font-size-sm);
+  font-family: var(--usx-font-family-sans);
+  appearance: auto;
+}
+
+.control-project-select {
+  min-width: calc(var(--usx-touch-min) * 4.5);
+  max-width: calc(var(--usx-touch-min) * 7.5);
+}
+
+.control-lane-desc {
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.control-lane-meta {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.control-lane-protection,
+.control-lane-info {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+  color: var(--usx-color-on-surface-muted);
+  font-size: var(--usx-font-size-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.control-lane-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--usx-spacing-xs);
+}
+
+@media (max-width: calc(var(--usx-spacing-2xl) * 22)) {
+  .control-lane-bar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .control-lane-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
 /* ─── Alert Banner ─────────────────────────────────── */
 .control-alerts {
   display: flex;
@@ -429,5 +551,17 @@ onUnmounted(() => {
   background: var(--usx-color-surface);
   border-radius: var(--usx-radius-lg);
   border: var(--usx-border-width) solid var(--usx-color-border);
+}
+
+.control-dogfooding-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--usx-spacing-sm);
+  padding: var(--usx-spacing-sm) var(--usx-spacing-md);
+  border-radius: var(--usx-radius-sm);
+  background: color-mix(in srgb, var(--usx-color-info) 8%, transparent);
+  border: var(--usx-border-width) solid var(--usx-color-info);
+  color: var(--usx-color-on-surface);
+  font-size: var(--usx-font-size-sm);
 }
 </style>

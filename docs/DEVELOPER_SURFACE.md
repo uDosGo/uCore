@@ -8,6 +8,16 @@ The Developer Surface is a browser-based control panel that gives you a single p
 
 Open `http://localhost:5175/developer` in your browser. You will land on the **🎯 Control** tab — the default dashboard. It fetches live status from all services and displays them as color-coded badges. Green means online, red means offline.
 
+### Lanes and Workspace Switching
+
+- **System** lane: operates on uCore/uCode with protection guardrails.
+- **Project** lane: operates on repositories discovered under `~/Code` and excludes system repositories (uCore/uCode and related system repos).
+- The Control header includes **two selectors**:
+	- Lane selector (`System` / `Project`)
+	- Project repo selector (visible in `Project` lane)
+
+Switching either selector updates backend workspace context via `POST /api/developer/workspace`.
+
 ### First Things to Check
 
 1. **Status badges** — Are Ollama, Cline, and the Feed Pod showing green? If not, the quickest fix is the "🔄 Destroy/Rebuild" button in Quick Actions.
@@ -18,13 +28,14 @@ Open `http://localhost:5175/developer` in your browser. You will land on the **�
 
 ## Tab Layout (Zen Flow)
 
-The surface has 8 tabs arranged in a logical workflow: overview → execution → review → configuration.
+The surface has 9 tabs arranged in a logical workflow: overview → execution → history/review → configuration.
 
 | Tab | Purpose | When to Use |
 |-----|---------|-------------|
 | 🎯 **Control** | Unified dashboard — status, feed, agents, cost, mission | Default view, always open |
 | 🤖 **Agents** | See which specialized agents are available | Before starting a task |
 | 🧠 **Skills** | Browse and run 54 built-in skills | When planning work |
+| 🕘 **History** | Action log, snapshots, and rollback tools | Before/after risky edits |
 | 📊 **Dev Flow** | Track workflow runs and history | During execution |
 | 📁 **Repos** | Manage repositories and branches | For git operations |
 | 🔍 **Review** | See what changed before committing | Before pushing |
@@ -47,9 +58,14 @@ Think of the Control tab as the cockpit of a plane. At a glance you see:
 - **Cost Dashboard (right)** — Daily, weekly, and monthly API spend. Local Ollama usage is always $0.
 - **Active Mission (right)** — Progress on the current sprint or `.tasker` item.
 - **Bottom Bar** — Tasker summary, MCP server counts, and available Slates.
-- **Quick Actions** — One-click buttons for common operations like health checks, feed ingestion, cost export, and DESTROY/REBUILD.
+- **Quick Actions** — One-click buttons for health checks, offline recovery, restart backend, feed ingestion, cost export, and DESTROY/REBUILD.
 
 The Control tab polls every 60 seconds for live updates. If the backend goes down, it shows your last known data with a retry button.
+
+### Recovery Controls
+
+- **Recover Offline Services** calls `POST /api/control/recover` to attempt targeted recovery (including Hivemind on port 8490) and then re-check service status.
+- **Restart Backend** uses `POST /api/surfaces/popcorn/restart-backend`.
 
 ### Cost-Aware Routing — Local First, Premium as Fallback
 
@@ -76,8 +92,12 @@ The **Dev Flow** tab shows all workflow runs and their status. Tasks executed th
 
 ## Daily Development Loop
 
-### 1. Start — Check Status
-Open the Control tab. Confirm Ollama is green (8 models available). If Hivemind is red, it auto-starts with uCore on next restart.
+### 1. Start — Select Lane and Workspace
+Open the Control tab. Choose:
+- `System` lane for uCore/uCode operations.
+- `Project` lane for non-system repos under `~/Code`, then pick your target repo in the project selector.
+
+Then confirm service status badges.
 
 ### 2. Plan — Review Agents and Skills
 Switch to the **Agents** tab to see the 6 specialized agents (architect, dev, reviewer, debugger, docgen, gridsmith-dev) and their model assignments. Browse the **Skills** tab to see all 54 available skills.
@@ -135,10 +155,10 @@ All skills are accessible via `POST /api/skills/{skill_id}/run` with `X-User-Con
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Hivemind/Roundtable red | Hivemind not started on port 8490 | Auto-starts with uCore next restart |
+| Hivemind/Roundtable red | Hivemind not started on port 8490 | Click **Recover Offline Services** in Control |
 | Feed empty | No feed data ingested yet | Click "📥 Ingest Feed" in Quick Actions |
 | Cost showing $0 | Budget manager not initialized | Server restart required after config change |
-| OpenRouter red | API key validation failed | Check key in SecretStore (`GET /api/secrets/env`) |
+| OpenRouter red | API key missing/invalid | Check key in SecretStore (`GET /api/secrets/env`) |
 | Slate showing 0 templates | No templates seeded | Run `ecosystem-audit` to populate registry |
 | Task not found | Wrong UID in dev-mode-executor | Verify UID matches `.tasker/` filename |
 
@@ -149,6 +169,9 @@ All skills are accessible via `POST /api/skills/{skill_id}/run` with `X-User-Con
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /api/control/status` | Full ecosystem status (Control tab uses this) |
+| `POST /api/control/recover` | Attempt recovery for currently offline services |
+| `POST /api/surfaces/popcorn/restart-backend` | Restart backend process via orchestration |
+| `POST /api/developer/workspace` | Set active lane/repo workspace context |
 | `GET /api/skills` | List all 54 skills |
 | `POST /api/skills/{id}/run` | Execute a skill |
 | `GET /api/agents` | List specialized agents |

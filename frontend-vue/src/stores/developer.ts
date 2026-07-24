@@ -37,12 +37,18 @@ export interface ReviewEntry {
   summary: string
 }
 
+export interface ProjectRepoOption {
+  id: string
+  name: string
+  path: string
+}
+
 export const DEVELOPER_TABS: { id: DeveloperTab; label: string; icon: string }[] = [
   { id: 'control', label: 'Control', icon: 'dashboard' },
   { id: 'agents', label: 'Agents', icon: 'group' },
   { id: 'skills', label: 'Skills', icon: 'extension' },
   { id: 'history', label: 'History', icon: 'history' },
-  { id: 'workflows', label: 'Dev Flow', icon: 'account_tree' },
+  { id: 'workflows', label: 'Flow', icon: 'account_tree' },
   { id: 'repos', label: 'Repos', icon: 'folder' },
   { id: 'review', label: 'Review', icon: 'visibility' },
   { id: 'settings', label: 'Settings', icon: 'settings' },
@@ -54,25 +60,29 @@ const SNACKBAR_API = import.meta.env.VITE_SNACKBAR_URL || 'http://localhost:8484
 export const DEVELOPER_LANES: LaneConfig[] = [
   {
     id: 'ecosystem',
-    label: 'Ecosystem Dev',
+    label: 'System',
     icon: 'engineering',
-    description: 'Modifying uCore itself (dogfooding)',
+    description: 'Working on uCore and uCode with protection guardrails',
     workspace: '~/Code/uCore',
     guardrails: 'confirm_destructive',
   },
   {
     id: 'project',
-    label: 'Project Dev',
+    label: 'Project',
     icon: 'rocket_launch',
-    description: 'Building independent projects',
-    workspace: '~/Code/Groovebox',
+    description: 'Working in non-system repositories under ~/Code',
+    workspace: '~/Code',
     guardrails: 'standard',
   },
 ]
 
+const SYSTEM_REPO_NAMES = new Set(['uCore', 'uCode', 'uServer', 'uConnect', 'uVector'])
+
 export const useDeveloperStore = defineStore('developer', () => {
   const activeTab = ref<DeveloperTab>('control')
   const activeLane = ref<DeveloperLane>('ecosystem')
+  const activeProjectRepo = ref<string>('')
+  const projectRepos = ref<ProjectRepoOption[]>([])
   const repos = ref<RepoInfo[]>(SAMPLE_REPOS)
   const reviews = ref<ReviewEntry[]>(SAMPLE_REVIEWS)
   const loading = ref(false)
@@ -86,24 +96,84 @@ export const useDeveloperStore = defineStore('developer', () => {
     activeTab.value = tab
   }
 
+  async function refreshProjectRepos() {
+    try {
+      const res = await fetch(`${SNACKBAR_API}/api/developer/repos`, {
+        signal: AbortSignal.timeout(5000),
+      })
+      if (!res.ok) return
+      const payload = await res.json()
+      const list = Array.isArray(payload?.repos) ? payload.repos : []
+      projectRepos.value = list
+        .filter((repo: any) => {
+          const name = String(repo?.name ?? '')
+          return !!name && !SYSTEM_REPO_NAMES.has(name)
+        })
+        .map((repo: any) => ({
+          id: String(repo.id ?? repo.name),
+          name: String(repo.name ?? repo.id ?? 'unknown'),
+          path: String(repo.path ?? ''),
+        }))
+
+      if (projectRepos.value.length > 0) {
+        const stillValid = projectRepos.value.some((repo) => repo.id === activeProjectRepo.value)
+        if (!stillValid) {
+          activeProjectRepo.value = projectRepos.value[0].id
+          localStorage.setItem('ucore-dev-project-repo', activeProjectRepo.value)
+        }
+      }
+    } catch {
+      // Non-fatal: retain cached/default state.
+    }
+  }
+
+  function workspaceForLane(lane: DeveloperLane): string {
+    if (lane === 'ecosystem') {
+      return '~/Code/uCore'
+    }
+    const selected = projectRepos.value.find((repo) => repo.id === activeProjectRepo.value)
+    return selected?.path || '~/Code'
+  }
+
   function setLane(lane: DeveloperLane) {
     activeLane.value = lane
     // Persist preference
     localStorage.setItem('ucore-dev-lane', lane)
-    // Notify backend of workspace change
-    const config = DEVELOPER_LANES.find((l) => l.id === lane)
-    if (config) {
-      fetch(`${SNACKBAR_API}/api/developer/workspace`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspace: config.workspace, lane }),
-      }).catch(() => { /* non-critical */ })
+    if (lane === 'project' && projectRepos.value.length === 0) {
+      void refreshProjectRepos()
     }
+    // Notify backend of workspace change
+    const workspace = workspaceForLane(lane)
+    fetch(`${SNACKBAR_API}/api/developer/workspace`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ workspace, lane, repo: activeProjectRepo.value || null }),
+    }).catch(() => { /* non-critical */ })
+  }
+
+  function setProjectRepo(repoId: string) {
+    activeProjectRepo.value = repoId
+    localStorage.setItem('ucore-dev-project-repo', repoId)
+
+    if (activeLane.value !== 'project') return
+
+    const workspace = workspaceForLane('project')
+    fetch(`${SNACKBAR_API}/api/developer/workspace`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ workspace, lane: 'project', repo: repoId }),
+    }).catch(() => { /* non-critical */ })
   }
 
   const currentLane = computed(() =>
     DEVELOPER_LANES.find((l) => l.id === activeLane.value) ?? DEVELOPER_LANES[0],
   )
+
+  const selectedProjectRepo = computed(() =>
+    projectRepos.value.find((repo) => repo.id === activeProjectRepo.value) ?? null,
+  )
+
+  const currentWorkspace = computed(() => workspaceForLane(activeLane.value))
 
   const isEcosystemMode = computed(() => activeLane.value === 'ecosystem')
 
@@ -143,10 +213,21 @@ export const useDeveloperStore = defineStore('developer', () => {
     activeLane.value = savedLane
   }
 
+  const savedProjectRepo = localStorage.getItem('ucore-dev-project-repo')
+  if (savedProjectRepo) {
+    activeProjectRepo.value = savedProjectRepo
+  }
+
+  void refreshProjectRepos()
+
   return {
     activeTab,
     activeLane,
+    activeProjectRepo,
+    projectRepos,
     currentLane,
+    currentWorkspace,
+    selectedProjectRepo,
     isEcosystemMode,
     repos,
     reviews,
@@ -156,6 +237,8 @@ export const useDeveloperStore = defineStore('developer', () => {
     chatLoading,
     setTab,
     setLane,
+    setProjectRepo,
+    refreshProjectRepos,
     browseRepo,
     sendChatMessage,
   }

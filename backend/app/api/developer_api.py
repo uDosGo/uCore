@@ -140,6 +140,48 @@ def _review_summary(code: str, path: str) -> str:
     return f"Modified in working tree: {path}"
 
 
+def _list_repo_status(repo_name: str) -> dict[str, list[dict[str, Any]]]:
+    """Return staged/unstaged status parsed from git porcelain output."""
+    repo_path = _repo_path(repo_name)
+    status_output = _git_output(repo_path, "status", "--porcelain")
+
+    staged: list[dict[str, Any]] = []
+    unstaged: list[dict[str, Any]] = []
+
+    for raw in status_output.splitlines():
+        if not raw.strip() or len(raw) < 3:
+            continue
+
+        x = raw[0]
+        y = raw[1]
+        path = raw[3:].lstrip()
+        if " -> " in path:
+            path = path.split(" -> ", 1)[1]
+
+        if x not in {" ", "?"}:
+            staged.append({
+                "file": path,
+                "code": x,
+                "status": _status_label(x),
+            })
+
+        if y not in {" "}:
+            unstaged.append({
+                "file": path,
+                "code": y,
+                "status": _status_label(y),
+            })
+
+        if x == "?":
+            unstaged.append({
+                "file": path,
+                "code": "??",
+                "status": "added",
+            })
+
+    return {"staged": staged, "unstaged": unstaged}
+
+
 def _list_repo_review(repo_name: str) -> list[dict[str, Any]]:
     repo_path = _repo_path(repo_name)
     status_output = _git_output(repo_path, "status", "--porcelain")
@@ -444,8 +486,9 @@ async def handle_get_repo_file_preview(request: web.Request) -> web.Response:
 async def handle_workspace_switch(request: web.Request) -> web.Response:
     """POST /api/developer/workspace — persist active workspace context.
 
-    Called by the frontend when the user switches between Ecosystem Dev
-    and Project Dev lanes. The workspace path is stored in-memory so
+    Called by the frontend when the user switches between System
+    and Project lanes and/or changes the selected project repository.
+    The workspace path is stored in-memory so
     that subsequent skill executions (dev-mode-executor, file-edit, etc.)
     can operate on the correct codebase.
     """
@@ -515,6 +558,18 @@ async def handle_list_repo_review(request: web.Request) -> web.Response:
     except FileNotFoundError:
         return web.json_response({"error": f"Repository not found: {repo_name}"}, status=404)
     return web.json_response({"repo": repo_name, "review": review})
+
+
+async def handle_repo_status(request: web.Request) -> web.Response:
+    repo_name = request.match_info["repo_name"]
+    try:
+        status = _list_repo_status(repo_name)
+    except FileNotFoundError:
+        return web.json_response(
+            {"error": f"Repository not found: {repo_name}"},
+            status=404,
+        )
+    return web.json_response({"repo": repo_name, **status})
 
 
 async def handle_stage_repo_file(request: web.Request) -> web.Response:
